@@ -6,9 +6,10 @@
  */
 import { $, $$, esc, on } from "../core/dom.js";
 import { yen } from "../core/format.js";
-import { isLoggedIn, login, logout } from "./auth.js";
+import { isLoggedIn, login, logout, usingSupabase } from "./auth.js";
 import * as store from "./store.js";
 import { DEFAULT_ANNOUNCEMENTS } from "../data/announcements.js";
+import * as api from "../data/db.js";
 
 let catalog = [];
 let editing = null;            // {catId, index} when editing, null when adding
@@ -37,17 +38,33 @@ function ask(title, text, onYes){
 
 /* -------------------------------- login ------------------------------- */
 
-function openPanel(){
+async function openPanel(){
   $("#login")?.remove();
   $("#panel").hidden = false;
-  catalog = store.load();
-  deals   = store.loadDeals(DEFAULT_ANNOUNCEMENTS.items);
+
+  if (usingSupabase()){
+    const [cat, dl] = await Promise.all([api.fetchCatalog(), api.fetchDeals()]);
+    catalog = cat || store.load();
+    deals   = dl  || store.loadDeals(DEFAULT_ANNOUNCEMENTS.items);
+  } else {
+    catalog = store.load();
+    deals   = store.loadDeals(DEFAULT_ANNOUNCEMENTS.items);
+  }
+  renderAll();
+}
+
+/** Pull fresh data after a write. */
+async function reload(){
+  if (!usingSupabase()) return;
+  const [cat, dl] = await Promise.all([api.fetchCatalog(), api.fetchDeals()]);
+  if (cat) catalog = cat;
+  if (dl)  deals   = dl;
   renderAll();
 }
 
 let signingIn = false;
 
-function doLogin(e){
+async function doLogin(e){
   e?.preventDefault();
   if (signingIn) return;                       // ignore double taps
 
@@ -58,8 +75,12 @@ function doLogin(e){
 
   err.hidden = true;
 
-  if (!login(email, pass)){
-    err.textContent = "That email or password is not right.";
+  btn.disabled = true;
+  const result = await login(email, pass);
+  btn.disabled = false;
+
+  if (!result.ok){
+    err.textContent = result.message || "That email or password is not right.";
     err.hidden = false;
     $(".login-card").classList.remove("shake");
     void $(".login-card").offsetWidth;          // restart the animation
@@ -87,7 +108,7 @@ function doLogin(e){
 on("#loginForm", "submit", doLogin);
 on(".login-go", "click", doLogin);
 
-on("#logout", "click", () => { logout(); location.href = "index.html"; });
+on("#logout", "click", async () => { await logout(); location.href = "index.html"; });
 
 /* Show / hide the password. */
 on("#peek", "click", () => {
@@ -203,17 +224,27 @@ on("#addBtn", "click", () => openForm());
 /* Photo picking — the whole box is the button. */
 on("#photoPick", "click", () => $("#fFile").click());
 
-on("#fFile", "change", e => {
+on("#fFile", "change", async e => {
   const file = e.target.files?.[0];
   if (!file) return;
 
+  // Show it straight away while the upload runs.
   const reader = new FileReader();
-  reader.onload = () => {
-    setPhoto(reader.result);
-    if (file.size > 500 * 1024)
-      toast("That photo is quite large. A smaller one will load faster.", true);
-  };
+  reader.onload = () => setPhoto(reader.result);
   reader.readAsDataURL(file);
+
+  if (usingSupabase()){
+    toast("Uploading photo…");
+    try {
+      const url = await api.uploadPhoto(file);
+      setPhoto(url);                       // store the hosted URL, not base64
+      toast("Photo uploaded.");
+    } catch (err){
+      toast("Photo upload failed: " + (err.message || "try again"), true);
+    }
+  } else if (file.size > 500 * 1024){
+    toast("That photo is quite large. A smaller one will load faster.", true);
+  }
 });
 
 /* Live feedback on the sale price. */
@@ -236,7 +267,7 @@ function updateSaleHint(){
 on("#fP", "input", updateSaleHint);
 on("#fWas", "input", updateSaleHint);
 
-on("#form", "submit", e => {
+on("#form", "submit", async e => {
   e.preventDefault();
 
   const now = +$("#fP").value;
@@ -261,8 +292,29 @@ on("#form", "submit", e => {
 
   const catId = $("#fCat").value;
 
+  if (usingSupabase()){
+    try {
+      if (editing){
+        const existing = catalog.find(c => c.id === editing.catId).items[editing.index];
+        const { error } = await api.updateProduct(existing._id, catId, product);
+        if (error) throw error;
+      } else {
+        const sort = catalog.find(c => c.id === catId)?.items.length ?? 0;
+        const { error } = await api.insertProduct(catId, product, sort);
+        if (error) throw error;
+      }
+      toast(editing ? "Saved — live for everyone." : "Added — live for everyone.");
+      closeForm();
+      await reload();
+    } catch (err){
+      toast(err.message || "Could not save. Please try again.", true);
+    }
+    return;
+  }
+
+  // Offline fallback
   if (editing){
-    if (editing.catId !== catId){          // moved category
+    if (editing.catId !== catId){
       store.deleteProduct(catalog, editing.catId, editing.index);
       store.addProduct(catalog, catId, product);
     } else {
@@ -273,7 +325,7 @@ on("#form", "submit", e => {
   }
 
   if (store.save(catalog)){
-    toast(editing ? "Saved. Your website is updated." : "Added. Your website is updated.");
+    toast(editing ? "Saved on this device." : "Added on this device.");
     closeForm();
     renderAll();
   } else {
@@ -285,7 +337,7 @@ on("#form", "submit", e => {
 
 on("#addCatBtn", "click", () => { $("#catModal").hidden = false; $("#cEn").focus(); });
 
-on("#catForm", "submit", e => {
+on("#catForm", "submit", async e => {
   e.preventDefault();
 
   const en = $("#cEn").value.trim();
@@ -295,15 +347,26 @@ on("#catForm", "submit", e => {
   let n = 2, base = id;
   while (catalog.some(c => c.id === id)) id = `${base}-${n++}`;
 
-  store.addCategory(catalog, {
+  const cat = {
     id,
     icon: $("#cIcon").value.trim() || "🛒",
     img:  "assets/img/placeholder.svg",
     en,
     bn: $("#cBn").value.trim(),
     ja: $("#cJa").value.trim()
-  });
+  };
 
+  if (usingSupabase()){
+    const { error } = await api.insertCategory(cat, catalog.length);
+    if (error) return toast(error.message, true);
+    $("#catModal").hidden = true;
+    $("#catForm").reset();
+    $("#cIcon").value = "🛒";
+    toast(`“${en}” added — live for everyone.`);
+    return reload();
+  }
+
+  store.addCategory(catalog, cat);
   store.save(catalog);
   $("#catModal").hidden = true;
   $("#catForm").reset();
@@ -328,7 +391,13 @@ document.addEventListener("click", e => {
     const p = catalog.find(c => c.id === catId).items[+i];
     ask("Delete this product?",
         `“${p.en}” will be removed from your website.`,
-        () => {
+        async () => {
+          if (usingSupabase()){
+            const { error } = await api.deleteProduct(p._id);
+            if (error) return toast(error.message, true);
+            toast("Deleted — live for everyone.");
+            return reload();
+          }
           store.deleteProduct(catalog, catId, +i);
           store.save(catalog);
           toast("Product deleted.");
@@ -342,7 +411,13 @@ document.addEventListener("click", e => {
     const cat = catalog.find(c => c.id === delCat.dataset.delcat);
     ask("Delete this whole category?",
         `“${cat.en}” and all ${cat.items.length} products inside it will be removed.`,
-        () => {
+        async () => {
+          if (usingSupabase()){
+            const { error } = await api.deleteCategory(cat.id);
+            if (error) return toast(error.message, true);
+            toast("Category deleted — live for everyone.");
+            return reload();
+          }
           store.deleteCategory(catalog, cat.id);
           store.save(catalog);
           toast("Category deleted.");
@@ -388,7 +463,7 @@ on("#resetBtn", "click", () => {
 
 /* -------------------------------- init -------------------------------- */
 
-if (isLoggedIn()) openPanel();
+(async () => { if (await isLoggedIn()) openPanel(); })();
 
 
 /* ============================ TODAY'S DEALS =========================== */
@@ -511,7 +586,7 @@ function updateDealHint(){
 on("#dP", "input", updateDealHint);
 on("#dWas", "input", updateDealHint);
 
-on("#dealForm", "submit", e => {
+on("#dealForm", "submit", async e => {
   e.preventDefault();
 
   const now  = +$("#dP").value;
@@ -520,6 +595,35 @@ on("#dealForm", "submit", e => {
 
   if (was && was <= now){
     toast("The normal price must be higher than the special price.", true);
+    return;
+  }
+
+  if (usingSupabase()){
+    try {
+      if (editingDeal !== null){
+        const d = deals[editingDeal];
+        const { error } = await api.updateDeal(d._id, { ...d, p: now, was, type });
+        if (error) throw error;
+      } else {
+        const v = $("#dPick").value;
+        if (!v) return toast("Please choose a product first.", true);
+        const [catId, i] = v.split(":");
+        const prod = catalog.find(c => c.id === catId)?.items[+i];
+        if (!prod) return;
+        if (deals.some(d => d.en === prod.en && d.w === prod.w))
+          return toast("That product is already in your deals.", true);
+
+        const { error } = await api.insertDeal(
+          { type, en:prod.en, bn:prod.bn, ja:prod.ja, w:prod.w,
+            p:now, was, img:prod.img || "" }, deals.length);
+        if (error) throw error;
+      }
+      toast(editingDeal !== null ? "Deal updated — live." : "Added to deals — live.");
+      closeDealForm();
+      await reload();
+    } catch (err){
+      toast(err.message || "Could not save the deal.", true);
+    }
     return;
   }
 
@@ -558,7 +662,13 @@ document.addEventListener("click", e => {
     const d = deals[+rm.dataset.ddel];
     ask("Remove from deals?",
         `“${d.en}” will no longer show in the deals strip. The product stays in your shop.`,
-        () => {
+        async () => {
+          if (usingSupabase()){
+            const { error } = await api.deleteDeal(d._id);
+            if (error) return toast(error.message, true);
+            toast("Removed from deals — live.");
+            return reload();
+          }
           deals.splice(+rm.dataset.ddel, 1);
           store.saveDeals(deals);
           toast("Removed from deals.");
@@ -572,8 +682,8 @@ document.addEventListener("click", e => {
     const i = +up.dataset.dup;
     if (i > 0){
       [deals[i - 1], deals[i]] = [deals[i], deals[i - 1]];
-      store.saveDeals(deals);
-      renderAll();
+      if (usingSupabase()) api.reorderDeals(deals).then(reload);
+      else { store.saveDeals(deals); renderAll(); }
     }
     return;
   }
@@ -583,8 +693,8 @@ document.addEventListener("click", e => {
     const i = +dn.dataset.ddown;
     if (i < deals.length - 1){
       [deals[i + 1], deals[i]] = [deals[i], deals[i + 1]];
-      store.saveDeals(deals);
-      renderAll();
+      if (usingSupabase()) api.reorderDeals(deals).then(reload);
+      else { store.saveDeals(deals); renderAll(); }
     }
     return;
   }

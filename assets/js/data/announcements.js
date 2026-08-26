@@ -126,17 +126,20 @@ const DEFAULT_ANNOUNCEMENTS = {
   ]
 };
 
-/** Edits made in the admin panel override the defaults above. */
-function withLocalDeals(){
+/**
+ * Deals come from Supabase when configured, otherwise the defaults above.
+ */
+export let ANNOUNCEMENTS = DEFAULT_ANNOUNCEMENTS;
+
+export async function refreshDeals(){
   try {
-    const raw = localStorage.getItem("aa-deals");
-    if (raw) {
-      const items = JSON.parse(raw);
-      if (Array.isArray(items)) return { ...DEFAULT_ANNOUNCEMENTS, items };
-    }
-  } catch { /* unavailable or corrupt — use defaults */ }
-  return DEFAULT_ANNOUNCEMENTS;
+    const { fetchDeals } = await import("./db.js");
+    const live = await fetchDeals();
+    if (live) ANNOUNCEMENTS = { ...DEFAULT_ANNOUNCEMENTS, items: live };
+  } catch (e) {
+    console.warn("Using bundled deals:", e.message);
+  }
+  return ANNOUNCEMENTS;
 }
 
-export const ANNOUNCEMENTS = withLocalDeals();
 export { DEFAULT_ANNOUNCEMENTS };

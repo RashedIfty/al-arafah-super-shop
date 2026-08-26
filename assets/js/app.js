@@ -13,8 +13,8 @@ import { lightboxHTML, initLightbox } from "./components/lightbox.js";
 import { catalogHTML, chipsHTML } from "./components/product-card.js";
 import { categoryBrowserHTML } from "./components/category-browser.js";
 import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
-import { CATALOG } from "./data/catalog.js";
-import { ANNOUNCEMENTS } from "./data/announcements.js";
+import { CATALOG, refreshCatalog } from "./data/catalog.js";
+import { ANNOUNCEMENTS, refreshDeals } from "./data/announcements.js";
 import { SHOP } from "./data/shop.js";
 
 /* ------------------------------ rendering ----------------------------- */
@@ -104,7 +104,21 @@ function bindDynamic(){
 /* -------------------------------- init -------------------------------- */
 
 initLang();
-render();
+render();                       // paint immediately with bundled data
+
+/* Then load live data and re-render; realtime keeps it current. */
+(async () => {
+  const [cat, deals] = await Promise.all([refreshCatalog(), refreshDeals()]);
+  if (cat?.length || deals?.items?.length) render();
+
+  try {
+    const { subscribe } = await import("./data/db.js");
+    await subscribe(async () => {
+      await Promise.all([refreshCatalog(), refreshDeals()]);
+      render();
+    });
+  } catch { /* offline or not configured — bundled data stands */ }
+})();
 initBackToTop();               // outside render — the button is static markup
 
 /* Map a clicked card back to its data object. */

@@ -1,44 +1,71 @@
 /**
- * PROTOTYPE AUTH — NOT SECURE.
+ * Owner authentication.
  *
- * Credentials live in this file, readable by anyone via View Source.
- * Replace with real server-side auth before this handles anything real.
- *
- * Both fields are currently EMPTY, which means the login form lets anyone
- * straight through. Set them below to switch the check back on.
+ * Uses Supabase Auth when configured — passwords are hashed on their
+ * servers and never appear in this code. Falls back to the local
+ * prototype login only when Supabase details are missing.
  */
+import { isConfigured } from "../data/supabase-config.js";
 
-/* ===== SET YOUR LOGIN HERE (leave empty to skip the check) ===== */
-export const ADMIN = {
-  email: "12345",
-  pass:  "12345"
-};
-/* =============================================================== */
-
+/* Fallback only — used when Supabase is not configured. */
+const LOCAL = { email: "12345", pass: "12345" };
 const KEY = "aa-admin-session";
 
-/** True when no credentials are configured — anyone may enter. */
-export const isOpen = () => !ADMIN.email && !ADMIN.pass;
+/** True when we are running against a real backend. */
+export const usingSupabase = () => isConfigured();
 
-/** True when someone has logged in during this browser session. */
-export function isLoggedIn(){
+/** Is someone signed in? */
+export async function isLoggedIn(){
+  if (usingSupabase()){
+    try {
+      const { currentUser } = await import("../data/db.js");
+      return Boolean(await currentUser());
+    } catch { return false; }
+  }
   try { return sessionStorage.getItem(KEY) === "1"; }
   catch { return false; }
 }
 
-/** Check credentials and start a session. Returns true on success. */
-export function login(email = "", pass = ""){
-  const ok = isOpen() || (
-    email.trim().toLowerCase() === ADMIN.email.toLowerCase() &&
-    pass === ADMIN.pass
-  );
-  if (ok) {
-    try { sessionStorage.setItem(KEY, "1"); } catch { /* ignore */ }
+/**
+ * Attempt sign-in.
+ * Returns { ok: true } or { ok: false, message: "…" }.
+ */
+export async function login(email = "", pass = ""){
+  if (usingSupabase()){
+    try {
+      const { signIn } = await import("../data/db.js");
+      const { data, error } = await signIn(email.trim(), pass);
+
+      if (error) return { ok: false, message: friendly(error.message) };
+      return { ok: Boolean(data?.user) };
+    } catch (e) {
+      return { ok: false, message: "Could not reach the server. Check your connection." };
+    }
   }
-  return ok;
+
+  // Local fallback
+  const ok = email.trim().toLowerCase() === LOCAL.email.toLowerCase()
+          && pass === LOCAL.pass;
+  if (ok) { try { sessionStorage.setItem(KEY, "1"); } catch {} }
+  return { ok, message: ok ? "" : "That email or password is not right." };
 }
 
-/** End the session. */
-export function logout(){
+/** Sign out of whichever backend is in use. */
+export async function logout(){
+  if (usingSupabase()){
+    try {
+      const { signOut } = await import("../data/db.js");
+      await signOut();
+    } catch { /* ignore */ }
+  }
   try { sessionStorage.removeItem(KEY); } catch { /* ignore */ }
+}
+
+/** Turn Supabase error text into something the owner can act on. */
+function friendly(msg = ""){
+  const m = msg.toLowerCase();
+  if (m.includes("invalid login")) return "That email or password is not right.";
+  if (m.includes("email not confirmed")) return "Please confirm your email address first.";
+  if (m.includes("rate limit")) return "Too many attempts. Please wait a moment.";
+  return msg || "Could not sign in.";
 }

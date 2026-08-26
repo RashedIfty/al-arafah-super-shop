@@ -104,18 +104,21 @@ const DEFAULT_CATALOG = [
 ];
 
 /**
- * Local edits made in admin.html override the defaults above.
- * Export from the admin panel and replace this file to make them permanent.
+ * Products come from Supabase when it is configured; otherwise the
+ * bundled defaults above are used so the site still works offline.
+ * `refreshCatalog()` is called again whenever the database changes.
  */
-function withLocalEdits(){
+export let CATALOG = DEFAULT_CATALOG;
+
+export async function refreshCatalog(){
   try {
-    const raw = localStorage.getItem("aa-catalog");
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length) return parsed;
-    }
-  } catch { /* unavailable or corrupt — use the defaults */ }
-  return DEFAULT_CATALOG;
+    const { fetchCatalog } = await import("./db.js");
+    const live = await fetchCatalog();
+    if (live && live.length) CATALOG = live;
+  } catch (e) {
+    console.warn("Using bundled catalogue:", e.message);
+  }
+  return CATALOG;
 }
 
-export const CATALOG = withLocalEdits();
+export { DEFAULT_CATALOG };
