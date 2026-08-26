@@ -134,7 +134,7 @@ function renderAll(){
     `${products} products in ${catalog.length} categories`;
 
   $("#fCat").innerHTML = catalog
-    .map(c => `<option value="${esc(c.id)}">${c.icon} ${esc(c.en)}</option>`)
+    .map(c => `<option value="${esc(c.id)}">${esc(c.en)}</option>`)
     .join("");
 
   renderList();
@@ -176,7 +176,7 @@ function renderList(){
       <section class="cat-block">
         <div class="cat-head">
           <img src="${esc(cat.img)}" alt="" class="cat-thumb">
-          <b>${cat.icon} ${esc(cat.en)}</b>
+          <b>${esc(cat.en)}</b>
           <em>${cat.items.length}</em>
           <button class="act del cat-del" data-delcat="${esc(cat.id)}">Delete category</button>
         </div>
@@ -374,32 +374,10 @@ on("#cFile", "change", async e => {
   }
 });
 
-/* ---- quick icon choices ---- */
-const ICONS = ["🛒","🍚","🥩","🐟","🫘","🌶️","🫒","🥬","🍪","🌴","🧃","💄","🍼","🧂","🥛","🍯","🧴","🕌"];
-
-function renderIcons(){
-  const row = $("#iconRow");
-  if (!row) return;
-  const current = $("#cIcon").value;
-  row.innerHTML = ICONS.map(i =>
-    `<button type="button" class="icon-b${i === current ? " on" : ""}" data-icon="${i}">${i}</button>`
-  ).join("");
-}
-
-$("#iconRow")?.addEventListener("click", e => {
-  const b = e.target.closest("[data-icon]");
-  if (!b) return;
-  $("#cIcon").value = b.dataset.icon;
-  renderIcons();
-});
-on("#cIcon", "input", renderIcons);
-
 on("#addCatBtn", "click", () => {
   $("#catForm").reset();
-  $("#cIcon").value = "🛒";
   $("#cFile").value = "";
   setCatPhoto("");
-  renderIcons();
   $("#catModal").hidden = false;
   $("#cEn").focus();
 });
@@ -416,7 +394,7 @@ on("#catForm", "submit", async e => {
 
   const cat = {
     id,
-    icon: $("#cIcon").value.trim() || "🛒",
+    icon: "",
     img:  $("#cImg").value.trim() || "assets/img/placeholder.svg",
     en,
     bn: $("#cBn").value.trim(),
@@ -428,7 +406,6 @@ on("#catForm", "submit", async e => {
     if (error) return toast(error.message, true);
     $("#catModal").hidden = true;
     $("#catForm").reset();
-    $("#cIcon").value = "🛒";
     setCatPhoto("");
     toast(`“${en}” added — live for everyone.`);
     return reload();
@@ -438,7 +415,6 @@ on("#catForm", "submit", async e => {
   store.save(catalog);
   $("#catModal").hidden = true;
   $("#catForm").reset();
-  $("#cIcon").value = "🛒";
   toast(`“${en}” category added.`);
   renderAll();
 });

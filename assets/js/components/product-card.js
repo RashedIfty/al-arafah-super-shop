@@ -78,7 +78,7 @@ export function chipsHTML(){
 
   return CATALOG.map(cat => `
     <a href="${prefix}#${esc(cat.id)}" class="chip">
-      <i>${cat.icon}</i>
+      <img src="${esc(cat.img)}" alt="" loading="lazy" width="80" height="80">
       <b>${esc(cat[lang])}</b>
       <span>${cat.items.length} ${esc(T.items)}</span>
     </a>`).join("");
