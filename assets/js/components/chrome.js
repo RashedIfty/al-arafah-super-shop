@@ -53,6 +53,11 @@ export function headerHTML(){
         <span class="tel-ico">📞</span>
         <span><b>${esc(SHOP.tel)}</b><small>${esc(T.callOrder)}</small></span>
       </a>
+
+      <a href="admin.html" class="hdr-login" title="${esc(T.owner_login)}">
+        <span>🔒</span>
+        <em>${esc(T.owner_login)}</em>
+      </a>
     </div>`;
 }
 
@@ -117,9 +122,10 @@ export function footerHTML(){
     </div>
 
     <div class="foot-bot">
-      <div class="wrap">
+      <div class="wrap foot-bot-in">
         <p>© 2026 <b>${esc(SHOP.name)} ${esc(SHOP.name2)}</b> ·
            ${esc(T.rights)} · ${esc(T.tax)}</p>
+        <a href="admin.html" class="owner-link">🔒 ${esc(T.owner_login)}</a>
       </div>
     </div>`;
 }

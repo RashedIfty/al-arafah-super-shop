@@ -68,3 +68,14 @@
 
 .hero h1 .gold{color:var(--gold)}
 .chip.on{border-color:var(--red);background:var(--red-l)}
+
+/* Owner login in the header — icon only on small screens */
+.hdr-login{
+  display:flex;align-items:center;gap:7px;flex-shrink:0;
+  border:1.5px solid var(--line);border-radius:22px;
+  padding:9px 14px;font-size:13px;font-weight:700;color:var(--body);
+  transition:.18s var(--ease);white-space:nowrap;
+}
+.hdr-login:hover{border-color:var(--red);color:var(--red);background:var(--red-l)}
+.hdr-login em{font-style:normal;display:none}
+@media(min-width:1100px){ .hdr-login em{display:inline} }

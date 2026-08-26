@@ -1,5 +1,6 @@
 /* English UI strings */
 export default {
+  owner_login:"Owner Login",
   cats_side:"All Categories",
   ann_title:"Today's Deal & New Arrival", ann_deal:"TODAY'S DEAL", ann_new:"NEW ARRIVAL",
   ann_deal_n:"today's deals", ann_new_n:"new arrivals",

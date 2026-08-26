@@ -1,5 +1,5 @@
 /* Product catalogue — see docs at bottom of file */
-export const CATALOG = [
+const DEFAULT_CATALOG = [
   { id:"rice", icon:"🍚", img:"assets/img/categories/rice.jpg",
     en:"Rice & Flour", bn:"চাল ও আটা", ja:"米・粉類",
     items:[
@@ -102,3 +102,20 @@ export const CATALOG = [
       { en:"Honey Pure",         bn:"খাঁটি মধু",     ja:"純粋はちみつ",       w:"500 g",p:1480, was:0, img:"assets/img/products/honey.jpg" }
     ]}
 ];
+
+/**
+ * Local edits made in admin.html override the defaults above.
+ * Export from the admin panel and replace this file to make them permanent.
+ */
+function withLocalEdits(){
+  try {
+    const raw = localStorage.getItem("aa-catalog");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length) return parsed;
+    }
+  } catch { /* unavailable or corrupt — use the defaults */ }
+  return DEFAULT_CATALOG;
+}
+
+export const CATALOG = withLocalEdits();

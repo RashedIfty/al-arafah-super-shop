@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>My Shop · Al-Arafah Super Shop</title>
+<meta name="theme-color" content="#12294c">
+<link rel="icon" href="assets/img/logo.jpeg">
+<link rel="stylesheet" href="assets/css/main.css">
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body data-page="admin">
+
+<!-- ============================== LOGIN ============================== -->
+<div class="login" id="login">
+  <div class="login-art" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <form class="login-card" id="loginForm">
+    <img src="assets/img/logo.jpeg" alt="" class="login-logo">
+    <h1>Welcome back</h1>
+    <p class="login-sub">Sign in to manage your shop</p>
+
+    <div class="field">
+      <input type="text" id="email" placeholder=" " autocomplete="username">
+      <label for="email">Email or Username</label>
+    </div>
+
+    <div class="field">
+      <input type="password" id="pass" placeholder=" " autocomplete="current-password">
+      <label for="pass">Password</label>
+      <button type="button" class="peek" id="peek" aria-label="Show password">👁</button>
+    </div>
+
+    <p class="login-err" id="loginErr" hidden>
+      That email or password is not right.
+    </p>
+
+    <button type="submit" class="login-go">
+      <span>Sign In</span>
+      <em>→</em>
+    </button>
+
+    <a href="index.html" class="login-back">← Back to my website</a>
+  </form>
+</div>
+
+<!-- ============================== PANEL ============================== -->
+<div class="admin" id="panel" hidden>
+
+  <header class="ad-top">
+    <div class="ad-top-in">
+      <img src="assets/img/logo.jpeg" alt="" class="ad-logo">
+      <div class="ad-title">
+        <b>My Shop</b>
+        <span>Al-Arafah Super Shop</span>
+      </div>
+      <a href="index.html" class="ad-btn" target="_blank">See My Website</a>
+      <button class="ad-btn" id="logout">Log Out</button>
+    </div>
+  </header>
+
+  <!-- tabs -->
+  <div class="tabs">
+    <div class="tabs-in">
+      <button class="tab on" data-tab="products">📦 My Products</button>
+      <button class="tab" data-tab="deals">⭐ Today's Deals</button>
+    </div>
+  </div>
+
+  <div class="ad-wrap">
+
+    <!-- unsaved-changes reminder -->
+    <div class="ad-save" id="saveBar" hidden>
+      <div>
+        <b>✅ Your changes are live on this device</b>
+        <span>Open your website and you will see them. But they are saved
+              <b>only in this browser</b> — customers and your phone still see the old version.
+              To make them permanent for everyone, download the file and send it
+              to your web developer.</span>
+      </div>
+      <button class="btn btn-out" id="publishBtn">⬇ Download update file</button>
+    </div>
+
+    <!-- ===================== TAB: PRODUCTS ===================== -->
+    <section class="panel-tab" id="tab-products">
+      <div class="ad-hero">
+        <div class="ad-hero-tx">
+          <h2>Your Products</h2>
+          <p id="countLine">…</p>
+        </div>
+        <button class="big-btn" id="addBtn">
+          <span class="big-plus">+</span> Add New Product
+        </button>
+      </div>
+
+      <div class="ad-find">
+        <input type="search" id="filter" placeholder="🔍  Type a product name to find it…">
+      </div>
+
+      <div id="list"></div>
+
+      <details class="ad-more">
+        <summary>More options</summary>
+        <div class="ad-more-in">
+          <button class="btn btn-out" id="addCatBtn">+ Add a new category</button>
+          <button class="btn btn-out danger" id="resetBtn">Undo all my changes</button>
+        </div>
+      </details>
+    </section>
+
+    <!-- ====================== TAB: DEALS ======================= -->
+    <section class="panel-tab" id="tab-deals" hidden>
+      <div class="ad-hero deals-hero">
+        <div class="ad-hero-tx">
+          <h2>Today's Deal &amp; New Arrival</h2>
+          <p>This is the highlighted strip at the top of your website.</p>
+        </div>
+        <button class="big-btn" id="addDealBtn">
+          <span class="big-plus">+</span> Add to Deals
+        </button>
+      </div>
+
+      <div class="deal-note">
+        💡 Pick any product from your shop, mark it <b>New Arrival</b> or
+        <b>Today's Deal</b>, and set a special price. It shows on your homepage straight away.
+      </div>
+
+      <div id="dealList"></div>
+    </section>
+  </div>
+</div>
+
+<!-- ============================ PRODUCT FORM ========================= -->
+<div class="ad-modal" id="modal" hidden>
+  <div class="ad-modal-bg" data-x></div>
+  <form class="ad-modal-box" id="form">
+    <div class="ad-modal-head">
+      <h2 id="formTitle">Add New Product</h2>
+      <button type="button" class="ad-x" data-x aria-label="Close">&times;</button>
+    </div>
+
+    <div class="ad-modal-body">
+      <div class="step">
+        <div class="step-n">1</div>
+        <div class="step-b">
+          <h3>Product Photo</h3>
+          <div class="photo-pick" id="photoPick">
+            <img id="previewImg" alt="" hidden>
+            <div class="photo-empty" id="photoEmpty">
+              <span>📷</span>
+              <b>Tap to choose a photo</b>
+              <small>From your phone or computer</small>
+            </div>
+          </div>
+          <input type="file" id="fFile" accept="image/*" hidden>
+          <input id="fImg" hidden>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-n">2</div>
+        <div class="step-b">
+          <h3>Product Name</h3>
+          <label><span>In English</span><input id="fEn" placeholder="Basmati Rice" required></label>
+          <label><span>বাংলায় (in Bangla)</span><input id="fBn" placeholder="বাসমতি চাল" required></label>
+          <label><span>日本語で (in Japanese)</span><input id="fJa" placeholder="バスマティ米" required></label>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-n">3</div>
+        <div class="step-b">
+          <h3>Size &amp; Price</h3>
+          <label><span>How much? (weight or size)</span><input id="fW" placeholder="1 kg" required></label>
+          <div class="two">
+            <label><span>Price now (¥)</span><input id="fP" type="number" min="0" placeholder="890" required></label>
+            <label><span>Old price (¥) — only if on sale</span><input id="fWas" type="number" min="0" placeholder="Leave empty"></label>
+          </div>
+          <p class="hint" id="saleHint" hidden></p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-n">4</div>
+        <div class="step-b">
+          <h3>Where does it go?</h3>
+          <label><span>Category</span><select id="fCat" required></select></label>
+          <label><span>Show a label on it?</span>
+            <select id="fTag">
+              <option value="">No label</option>
+              <option value="new">NEW — just arrived</option>
+              <option value="out">SOLD OUT — not available now</option>
+            </select></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ad-modal-foot">
+      <button type="button" class="btn btn-out" data-x>Cancel</button>
+      <button type="submit" class="btn btn-red big" id="saveBtn">Save Product</button>
+    </div>
+  </form>
+</div>
+
+<!-- ============================= DEAL FORM =========================== -->
+<div class="ad-modal" id="dealModal" hidden>
+  <div class="ad-modal-bg" data-dx></div>
+  <form class="ad-modal-box" id="dealForm">
+    <div class="ad-modal-head">
+      <h2 id="dealTitle">Add to Today's Deals</h2>
+      <button type="button" class="ad-x" data-dx aria-label="Close">&times;</button>
+    </div>
+
+    <div class="ad-modal-body">
+      <div class="step">
+        <div class="step-n">1</div>
+        <div class="step-b">
+          <h3>Which product?</h3>
+          <label><span>Pick from your shop</span>
+            <select id="dPick"><option value="">— Choose a product —</option></select></label>
+          <p class="hint good" id="dPicked" hidden></p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-n">2</div>
+        <div class="step-b">
+          <h3>What kind?</h3>
+          <div class="pick2">
+            <label class="pick2-b">
+              <input type="radio" name="dtype" value="new" checked>
+              <span><b>⭐ New Arrival</b><small>Just came into the shop</small></span>
+            </label>
+            <label class="pick2-b">
+              <input type="radio" name="dtype" value="deal">
+              <span><b>🔥 Today's Deal</b><small>Special price today</small></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-n">3</div>
+        <div class="step-b">
+          <h3>Price for this offer</h3>
+          <div class="two">
+            <label><span>Special price (¥)</span><input id="dP" type="number" min="0" required></label>
+            <label><span>Normal price (¥) — to show the saving</span><input id="dWas" type="number" min="0" placeholder="Leave empty"></label>
+          </div>
+          <p class="hint" id="dHint" hidden></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ad-modal-foot">
+      <button type="button" class="btn btn-out" data-dx>Cancel</button>
+      <button type="submit" class="btn btn-red big" id="dealSave">Add to Deals</button>
+    </div>
+  </form>
+</div>
+
+<!-- =========================== CATEGORY FORM ========================= -->
+<div class="ad-modal" id="catModal" hidden>
+  <div class="ad-modal-bg" data-cx></div>
+  <form class="ad-modal-box narrow" id="catForm">
+    <div class="ad-modal-head">
+      <h2>Add a New Category</h2>
+      <button type="button" class="ad-x" data-cx aria-label="Close">&times;</button>
+    </div>
+    <div class="ad-modal-body plain">
+      <label><span>Category name in English</span><input id="cEn" placeholder="Vegetables" required></label>
+      <label><span>বাংলায় (in Bangla)</span><input id="cBn" placeholder="সবজি" required></label>
+      <label><span>日本語で (in Japanese)</span><input id="cJa" placeholder="野菜" required></label>
+      <label><span>Pick an icon</span><input id="cIcon" value="🛒" maxlength="4" required></label>
+    </div>
+    <div class="ad-modal-foot">
+      <button type="button" class="btn btn-out" data-cx>Cancel</button>
+      <button type="submit" class="btn btn-red">Add Category</button>
+    </div>
+  </form>
+</div>
+
+<!-- ============================== CONFIRM ============================ -->
+<div class="ad-modal" id="confirm" hidden>
+  <div class="ad-modal-bg" data-nx></div>
+  <div class="ad-modal-box narrow">
+    <div class="ad-modal-body plain center">
+      <div class="warn">⚠️</div>
+      <h2 id="confTitle">Are you sure?</h2>
+      <p id="confText"></p>
+    </div>
+    <div class="ad-modal-foot">
+      <button type="button" class="btn btn-out" data-nx>No, keep it</button>
+      <button type="button" class="btn btn-red" id="confYes">Yes, delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="ad-toast" id="toast" hidden></div>
+
+<script type="module" src="assets/js/admin/admin.js"></script>
+</body>
+</html>

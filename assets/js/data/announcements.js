@@ -40,7 +40,7 @@
    Delete its block (from the "{" to the "}," inclusive).
    ========================================================================== */
 
-export const ANNOUNCEMENTS = {
+const DEFAULT_ANNOUNCEMENTS = {
 
   /* Turn the whole top banner on/off */
   ACTIVE: true,
@@ -125,3 +125,18 @@ export const ANNOUNCEMENTS = {
 
   ]
 };
+
+/** Edits made in the admin panel override the defaults above. */
+function withLocalDeals(){
+  try {
+    const raw = localStorage.getItem("aa-deals");
+    if (raw) {
+      const items = JSON.parse(raw);
+      if (Array.isArray(items)) return { ...DEFAULT_ANNOUNCEMENTS, items };
+    }
+  } catch { /* unavailable or corrupt — use defaults */ }
+  return DEFAULT_ANNOUNCEMENTS;
+}
+
+export const ANNOUNCEMENTS = withLocalDeals();
+export { DEFAULT_ANNOUNCEMENTS };

@@ -38,3 +38,23 @@
 }
 .top-btn.show{opacity:1;visibility:visible;transform:translateY(0)}
 .top-btn:hover{background:var(--red-d)}
+
+/* Owner login — visible but clearly secondary */
+.foot-bot-in{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;
+}
+.owner-link{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:13px;font-weight:700;color:var(--gold);
+  padding:9px 18px;border:1.5px solid rgba(240,165,0,.55);
+  border-radius:22px;background:rgba(240,165,0,.10);
+  transition:.18s var(--ease);white-space:nowrap;
+}
+.owner-link:hover{
+  color:#3a2a00;background:var(--gold);border-color:var(--gold);
+}
+@media(max-width:600px){
+  .foot-bot-in{justify-content:center;text-align:center}
+  .owner-link{width:100%;justify-content:center}
+}
