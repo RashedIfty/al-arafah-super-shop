@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Al-Arafah Super Shop | Halal Grocery Shop in Tsukuba, Japan</title>
+<meta name="description" content="Al-Arafah Super Shop — 100% halal grocery shop in Tsukuba, Ibaraki. Fresh meat, fish, rice, spices, lentils and cosmetics. বাংলা · English · 日本語">
+<meta name="theme-color" content="#c8102e">
+<link rel="icon" href="assets/img/logo.jpeg">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body data-page="home">
+
+<a href="#main" class="skip">Skip to content</a>
+
+<div class="topbar" id="topbar"></div>
+<header class="header" id="header"></header>
+<nav class="nav" id="nav"></nav>
+
+<!-- ============================== HERO ============================== -->
+<section class="hero">
+  <div class="wrap hero-in">
+    <span class="kick">✔ <span data-t="hero_kick"></span></span>
+    <h1><span data-t="hero_h1a"></span><br><span data-t="hero_h1b" class="gold"></span></h1>
+    <p data-t="hero_p"></p>
+    <div class="hero-cta">
+      <a href="products.html" class="btn btn-gold" data-t="hero_browse"></a>
+      <a href="tel:08054018124" class="btn btn-line">📞 <span data-t="hero_call"></span></a>
+    </div>
+    <div class="hero-stats">
+      <div><b id="stN">0</b><span data-t="st_products"></span></div>
+      <div><b id="stC">0</b><span data-t="st_categories"></span></div>
+      <div><b>100%</b><span data-t="st_halal"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FEATURES ============================ -->
+<section class="feats">
+  <div class="wrap feats-in">
+    <div class="feat"><i>✅</i><div><b data-t="f1"></b><span data-t="f1s"></span></div></div>
+    <div class="feat"><i>🥬</i><div><b data-t="f2"></b><span data-t="f2s"></span></div></div>
+    <div class="feat"><i>💰</i><div><b data-t="f3"></b><span data-t="f3s"></span></div></div>
+    <div class="feat"><i>🤝</i><div><b data-t="f4"></b><span data-t="f4s"></span></div></div>
+  </div>
+</section>
+
+<main id="main">
+
+<!-- ==================== TODAY'S DEAL & NEW ARRIVAL ================== -->
+<section id="announce" hidden></section>
+
+<!-- ============================ CATEGORIES ========================== -->
+<section class="wrap" style="padding:26px 16px 6px">
+  <div class="sec-title">
+    <h2 data-t="cats_title"></h2>
+    <p data-t="cats_sub"></p>
+  </div>
+  <div id="catBrowse"></div>
+</section>
+
+<!-- ============================= PROMOS ============================= -->
+<section class="promos wrap">
+  <div class="promo promo-a">
+    <span data-t="promo1_k"></span>
+    <h3 data-t="promo1_h" data-html="1"></h3>
+    <a href="products.html#meat" class="btn btn-gold" data-t="promo_btn"></a>
+  </div>
+  <div class="promo promo-b">
+    <span data-t="promo2_k"></span>
+    <h3 data-t="promo2_h" data-html="1"></h3>
+    <a href="products.html#rice" class="btn btn-gold" data-t="promo_btn"></a>
+  </div>
+</section>
+
+<!-- ============================ PRODUCTS ============================ -->
+<section class="wrap" style="padding-top:26px">
+  <div class="sec-title">
+    <h2 data-t="all_title"></h2>
+    <p data-t="all_sub"></p>
+  </div>
+</section>
+
+<div id="catalog"></div>
+
+<p class="empty" id="empty" hidden>
+  <b data-t="noresult"></b>
+  <span data-t="noresult_s"></span>
+</p>
+
+<!-- ============================== BAND ============================== -->
+<section class="band">
+  <div class="wrap band-in">
+    <div>
+      <h2 data-t="about_h"></h2>
+      <p data-t="about_p"></p>
+      <ul>
+        <li><i>✓</i><span data-t="about_l1"></span></li>
+        <li><i>✓</i><span data-t="about_l2"></span></li>
+        <li><i>✓</i><span data-t="about_l3"></span></li>
+        <li><i>✓</i><span data-t="about_l4"></span></li>
+        <li><i>✓</i><span data-t="about_l5"></span></li>
+      </ul>
+    </div>
+    <div class="band-card">
+      <h3 data-t="hours_h"></h3>
+      <table class="hours"><tbody id="hours"></tbody></table>
+      <p style="font-size:12.5px;margin-top:12px" data-t="hours_note"></p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" id="footer"></footer>
+<button class="top-btn" id="topBtn" aria-label="Back to top">↑</button>
+
+<div id="lbMount"></div>
+
+<script type="module" src="assets/js/app.js"></script>
+</body>
+</html>

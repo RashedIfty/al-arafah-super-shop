@@ -1,0 +1,16 @@
+/* Sticky navigation */
+
+.nav{
+  background:var(--red);position:sticky;top:0;z-index:50;
+  box-shadow:0 2px 8px rgba(0,0,0,.10);
+}
+.nav-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.nav-scroll::-webkit-scrollbar{display:none}
+.nav-in{display:flex;gap:0;white-space:nowrap;min-height:var(--nav-h)}
+.nav-in a{
+  display:flex;align-items:center;color:#fff;font-size:13.5px;font-weight:700;
+  padding:0 14px;flex-shrink:0;opacity:.88;
+  border-bottom:3px solid transparent;transition:.2s var(--ease);
+}
+.nav-in a:hover{opacity:1;background:rgba(0,0,0,.09)}
+.nav-in a.on{opacity:1;border-bottom-color:var(--gold)}

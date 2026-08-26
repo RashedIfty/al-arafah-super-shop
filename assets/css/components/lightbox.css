@@ -1,0 +1,101 @@
+/* Lightbox — large photo view for deals and products */
+
+.lb{
+  position:fixed;inset:0;z-index:200;
+  display:grid;place-items:center;padding:16px;
+}
+.lb[hidden]{display:none}
+
+.lb-backdrop{
+  position:absolute;inset:0;
+  background:rgba(8,18,36,.82);
+  backdrop-filter:blur(4px);
+  animation:lbFade .2s var(--ease);
+}
+@keyframes lbFade{from{opacity:0}to{opacity:1}}
+
+.lb-box{
+  position:relative;z-index:2;
+  width:100%;max-width:940px;max-height:calc(100vh - 32px);
+  background:#fff;border-radius:16px;overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.45);
+  animation:lbPop .24s var(--ease);
+  display:flex;flex-direction:column;
+}
+@keyframes lbPop{
+  from{opacity:0;transform:translateY(14px) scale(.97)}
+  to  {opacity:1;transform:none}
+}
+
+.lb-close{
+  position:absolute;top:10px;right:10px;z-index:5;
+  width:36px;height:36px;border-radius:50%;border:0;cursor:pointer;
+  background:rgba(255,255,255,.92);color:var(--ink);
+  font-size:24px;line-height:1;display:grid;place-items:center;
+  box-shadow:0 2px 10px rgba(0,0,0,.22);transition:.18s var(--ease);
+}
+.lb-close:hover{background:var(--red);color:#fff;transform:rotate(90deg)}
+
+.lb-body{display:flex;flex-direction:column;overflow-y:auto}
+
+/* ------------------------------- photo -------------------------------- */
+.lb-fig{position:relative;background:#fff;flex-shrink:0}
+.lb-fig img{
+  width:100%;height:auto;max-height:52vh;
+  object-fit:contain;display:block;
+}
+.lb-off{
+  position:absolute;top:12px;left:12px;
+  background:var(--red);color:#fff;font-size:12px;font-weight:900;
+  padding:5px 11px;border-radius:6px;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+
+/* -------------------------------- info -------------------------------- */
+.lb-info{padding:18px 20px 22px;border-top:1px solid var(--line)}
+
+.lb-tag{
+  display:inline-block;font-size:10px;font-weight:900;letter-spacing:.7px;
+  padding:4px 10px;border-radius:5px;margin-bottom:9px;
+}
+.lb-tag.new{background:#12805c;color:#fff}
+.lb-tag.deal{background:var(--gold);color:#3a2a00}
+.lb-tag.cat{background:var(--navy-l);color:var(--navy)}
+
+.lb-info h3{font-size:21px;line-height:1.25;margin-bottom:5px}
+.lb-alt{font-size:13.5px;color:var(--mute);line-height:1.5;margin-bottom:12px}
+
+.lb-meta{margin-bottom:12px}
+.lb-w{
+  display:inline-block;background:var(--navy-l);color:var(--navy);
+  font-size:12.5px;font-weight:800;padding:4px 12px;border-radius:6px;
+}
+
+.lb-price{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.lb-price .now{font-size:30px;font-weight:900;color:var(--red);letter-spacing:-.6px}
+.lb-price .was{font-size:16px;color:var(--mute);text-decoration:line-through}
+.lb-tax{font-size:11.5px;color:var(--mute);margin:2px 0 16px}
+
+.lb-call{width:100%;justify-content:center}
+
+/* ----------------------------- breakpoints ---------------------------- */
+@media(min-width:760px){
+  .lb-body{flex-direction:row}
+  .lb-fig{width:55%;display:grid;place-items:center;padding:8px}
+  .lb-fig img{max-height:min(72vh,560px)}
+  .lb-info{
+    width:45%;border-top:0;border-left:1px solid var(--line);
+    padding:30px 28px;display:flex;flex-direction:column;justify-content:center;
+  }
+  .lb-info h3{font-size:24px}
+  .lb-price .now{font-size:34px}
+  .lb-call{width:auto;align-self:flex-start}
+}
+
+/* Cards that open the lightbox */
+[data-lb]{cursor:zoom-in}
+
+@media(prefers-reduced-motion:reduce){
+  .lb-backdrop,.lb-box{animation:none}
+  .lb-close:hover{transform:none}
+}

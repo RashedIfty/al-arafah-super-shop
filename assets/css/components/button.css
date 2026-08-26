@@ -1,0 +1,16 @@
+/* Buttons */
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 26px;border-radius:var(--radius-sm);font-weight:700;font-size:14px;
+  cursor:pointer;border:2px solid transparent;transition:.2s var(--ease);
+  white-space:nowrap;
+}
+.btn-gold{background:var(--gold);color:#3a2a00;border-color:var(--gold)}
+.btn-gold:hover{background:var(--gold-d);border-color:var(--gold-d);color:#fff}
+.btn-red{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-red:hover{background:var(--red-d);border-color:var(--red-d)}
+.btn-line{border-color:rgba(255,255,255,.55);color:#fff}
+.btn-line:hover{background:#fff;color:var(--navy-d);border-color:#fff}
+.btn-out{border-color:var(--line);color:var(--ink);background:#fff}
+.btn-out:hover{border-color:var(--red);color:var(--red)}

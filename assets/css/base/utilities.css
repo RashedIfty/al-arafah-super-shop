@@ -1,0 +1,12 @@
+/* Utility classes */
+
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 16px}
+.sr{
+  position:absolute;width:1px;height:1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;
+}
+.skip{
+  position:absolute;left:-9999px;top:0;z-index:200;
+  background:var(--navy-d);color:#fff;padding:11px 20px;border-radius:0 0 8px 0;
+}
+.skip:focus{left:0}

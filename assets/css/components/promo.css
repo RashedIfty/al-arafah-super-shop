@@ -1,0 +1,39 @@
+/* Promo banners & info band */
+
+.promos{display:grid;gap:14px;padding:24px 16px 6px}
+.promo{
+  border-radius:var(--radius);padding:26px 24px;color:#fff;
+  position:relative;overflow:hidden;
+}
+.promo::after{
+  content:"";position:absolute;right:-50px;top:-50px;width:190px;height:190px;
+  border-radius:50%;background:rgba(255,255,255,.08);
+}
+.promo-a{background:linear-gradient(125deg,var(--red-d),var(--red))}
+.promo-b{background:linear-gradient(125deg,var(--navy-d),var(--navy))}
+.promo span{
+  font-size:10.5px;font-weight:900;letter-spacing:1.4px;
+  color:var(--gold);position:relative;z-index:2;
+}
+.promo h3{color:#fff;font-size:21px;margin:8px 0 15px;position:relative;z-index:2}
+.promo .btn{position:relative;z-index:2}
+
+
+.band{background:var(--bg);margin-top:32px;padding:34px 0}
+.band-in{display:grid;gap:22px}
+.band h2{font-size:21px;margin-bottom:10px}
+.band p{font-size:14px;margin-bottom:12px}
+.band ul li{
+  display:flex;gap:9px;font-size:14px;margin-bottom:8px;line-height:1.5;
+}
+.band ul i{font-style:normal;color:var(--ok);flex-shrink:0;font-weight:900}
+.band-card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px;box-shadow:var(--sh);
+}
+.band-card h3{font-size:16px;margin-bottom:14px}
+.hours{width:100%;border-collapse:collapse;font-size:13.5px}
+.hours td{padding:7px 0;border-bottom:1px solid var(--line)}
+.hours tr:last-child td{border-bottom:0}
+.hours td:last-child{text-align:right;font-weight:700;color:var(--ink)}
+.hours .today td{color:var(--red)}

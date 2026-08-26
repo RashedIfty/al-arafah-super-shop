@@ -1,0 +1,121 @@
+/**
+ * AL-ARAFAH SUPER SHOP — application entry point.
+ *
+ * Mounts shared chrome and page content, then re-renders everything whenever
+ * the language changes. Every page loads this one module.
+ */
+import { $, $$, put, esc, on, scrollToId } from "./core/dom.js";
+import { t, setLang, onLangChange, initLang } from "./core/lang.js";
+import { todayIndex } from "./core/format.js";
+import { topbarHTML, headerHTML, navHTML, footerHTML } from "./components/chrome.js";
+import { announceBarHTML, initAnnounceBar } from "./components/announce-bar.js";
+import { lightboxHTML, initLightbox } from "./components/lightbox.js";
+import { catalogHTML, chipsHTML } from "./components/product-card.js";
+import { categoryBrowserHTML } from "./components/category-browser.js";
+import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
+import { CATALOG } from "./data/catalog.js";
+import { ANNOUNCEMENTS } from "./data/announcements.js";
+import { SHOP } from "./data/shop.js";
+
+/* ------------------------------ rendering ----------------------------- */
+
+/** Fill every [data-t] element from the active translation table. */
+function applyTranslations(){
+  const T = t();
+
+  $$("[data-t]").forEach(el => {
+    const value = T[el.dataset.t];
+    if (value === undefined) return;
+
+    // data-html="1" allows the few strings that carry a <br>.
+    if (el.dataset.html === "1") el.innerHTML = value;
+    else el.textContent = value;
+  });
+
+  // Placeholders and aria-labels declared via data-t-attr="attr:key"
+  $$("[data-t-attr]").forEach(el => {
+    const [attr, key] = el.dataset.tAttr.split(":");
+    if (T[key] !== undefined) el.setAttribute(attr, T[key]);
+  });
+}
+
+/** Opening-hours table, with today highlighted. */
+function renderHours(){
+  const el = $("#hours");
+  if (!el) return;
+
+  const today = todayIndex();
+  el.innerHTML = t().days.map((day, i) =>
+    `<tr${i === today ? ' class="today"' : ""}>
+       <td>${esc(day)}</td><td>${esc(SHOP.hours)}</td>
+     </tr>`).join("");
+}
+
+/** Product / category counters shown in the hero. */
+function renderStats(){
+  const total = CATALOG.reduce((sum, c) => sum + c.items.length, 0);
+  put("#stN", total);
+  put("#stC", CATALOG.length);
+}
+
+/** City line on the contact page. */
+function renderCity(){
+  const el = $("#cityLine");
+  if (el) el.textContent = SHOP.city[document.documentElement.lang] || SHOP.city.en;
+}
+
+/** Full render — safe to call repeatedly. */
+function render(){
+  put("#lbMount", lightboxHTML());
+  put("#announce", announceBarHTML());
+  put("#topbar", topbarHTML());
+  put("#header", headerHTML());
+  put("#nav",    navHTML());
+  put("#footer", footerHTML());
+
+  if ($("#chips"))    put("#chips",    chipsHTML());
+  if ($("#catBrowse")) put("#catBrowse", categoryBrowserHTML());
+  if ($("#catalog")) put("#catalog", catalogHTML());
+
+  applyTranslations();
+  renderStats();
+  renderHours();
+  renderCity();
+
+  bindDynamic();
+}
+
+/* ------------------------------- events ------------------------------- */
+
+/** Listeners on markup that render() replaces. */
+function bindDynamic(){
+  $$(".lang-b").forEach(btn =>
+    btn.addEventListener("click", () => setLang(btn.dataset.lang)));
+
+  initAnnounceBar();
+  initSearch();
+  initScrollSpy();
+
+  // Keep the chosen sort order after a re-render.
+  const sort = $("#sort");
+  if (sort && sort.value !== "def") sortBy(sort.value);
+}
+
+/* -------------------------------- init -------------------------------- */
+
+initLang();
+render();
+initBackToTop();               // outside render — the button is static markup
+
+/* Map a clicked card back to its data object. */
+initLightbox(card => {
+  if (card.dataset.lbI !== undefined)          // deal / new-arrival card
+    return ANNOUNCEMENTS.items[+card.dataset.lbI];
+  if (card.dataset.lbC !== undefined)          // catalogue product card
+    return CATALOG[+card.dataset.lbC]?.items[+card.dataset.lbP];
+  return null;
+});
+onLangChange(render);          // re-render the whole page on language switch
+
+// Honour a #category link on first load.
+if (location.hash) scrollToId(location.hash.slice(1), 80);

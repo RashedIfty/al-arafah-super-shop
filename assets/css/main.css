@@ -1,0 +1,28 @@
+/* ==========================================================================
+   AL-ARAFAH SUPER SHOP — stylesheet entry point
+   Import order matters: tokens and reset first, then layout, then components.
+   ========================================================================== */
+
+/* base */
+@import url("base/tokens.css");
+@import url("base/reset.css");
+@import url("base/utilities.css");
+
+/* layout */
+@import url("layout/header.css");
+@import url("layout/nav.css");
+@import url("layout/hero.css");
+@import url("layout/footer.css");
+@import url("layout/pages.css");
+
+/* components */
+@import url("components/announce.css");
+@import url("components/button.css");
+@import url("components/chips.css");
+@import url("components/category-browser.css");
+@import url("components/card.css");
+@import url("components/promo.css");
+@import url("components/lightbox.css");
+
+/* breakpoints last so they override */
+@import url("base/responsive.css");

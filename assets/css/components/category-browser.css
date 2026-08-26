@@ -1,0 +1,67 @@
+/* Category browser — sidebar list + photo tile grid */
+
+.cat-browse{display:grid;gap:18px}
+
+/* ------------------------------ sidebar ------------------------------- */
+.cat-side{
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px 0 8px;background:#fff;box-shadow:var(--sh);
+  align-self:start;
+}
+.cat-side h3{
+  font-size:15px;padding:0 16px 11px;
+  border-bottom:1px solid var(--line);margin-bottom:5px;
+}
+.cat-side a{
+  display:flex;align-items:center;gap:10px;padding:7px 16px;
+  transition:.15s var(--ease);
+}
+.cat-side a:hover{background:var(--red-l)}
+.cat-side img{
+  width:36px;height:36px;border-radius:7px;object-fit:cover;flex-shrink:0;
+  border:1px solid var(--line);background:var(--bg);
+}
+.cat-side span{
+  flex:1;min-width:0;font-size:13.5px;color:var(--ink);font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.cat-side a:hover span{color:var(--red)}
+.cat-side em{
+  font-style:normal;font-size:11px;color:var(--mute);
+  font-weight:700;flex-shrink:0;
+}
+
+/* ------------------------------- tiles -------------------------------- */
+.cat-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+
+.cat-tile{text-align:center;transition:.2s var(--ease)}
+.cat-tile-img{
+  border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;background:var(--bg);margin-bottom:9px;
+  aspect-ratio:1/1;transition:.2s var(--ease);
+}
+.cat-tile-img img{width:100%;height:100%;object-fit:cover;transition:transform .4s var(--ease)}
+.cat-tile:hover .cat-tile-img{border-color:var(--red);box-shadow:var(--sh-lg)}
+.cat-tile:hover .cat-tile-img img{transform:scale(1.07)}
+.cat-tile:hover{transform:translateY(-3px)}
+
+.cat-tile b{
+  display:block;font-size:13.5px;color:var(--ink);
+  font-weight:700;line-height:1.3;
+}
+.cat-tile:hover b{color:var(--red)}
+.cat-tile span{font-size:11.5px;color:var(--mute)}
+
+/* ----------------------------- breakpoints ---------------------------- */
+@media(min-width:600px){
+  .cat-tiles{grid-template-columns:repeat(3,1fr);gap:16px}
+  .cat-tile b{font-size:14px}
+}
+
+@media(min-width:1000px){
+  /* Sidebar on the left, tiles filling the rest — the reference layout */
+  .cat-browse{grid-template-columns:262px 1fr;gap:24px}
+  .cat-tiles{grid-template-columns:repeat(5,1fr);gap:18px}
+}
+
+@media print{ .cat-side{display:none} }

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Products | Al-Arafah Super Shop</title>
+<meta name="description" content="Full product list with prices — halal meat, fish, rice, spices, vegetables and baby food at Al-Arafah Super Shop, Tsukuba.">
+<meta name="theme-color" content="#c8102e">
+<link rel="icon" href="assets/img/logo.jpeg">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body data-page="products">
+
+<a href="#main" class="skip">Skip to content</a>
+
+<div class="topbar" id="topbar"></div>
+<header class="header" id="header"></header>
+<nav class="nav" id="nav"></nav>
+
+<section class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="index.html" data-t="nav_home"></a> &rsaquo; <span data-t="nav_products"></span></p>
+    <h1 data-t="all_title"></h1>
+    <p data-t="all_sub"></p>
+  </div>
+</section>
+
+<main id="main">
+
+<section class="wrap" style="padding:20px 16px 4px"><div id="catBrowse"></div></section>
+
+<div class="toolbar">
+  <select id="sort" aria-label="Sort products">
+    <option value="def" data-t="sort_def"></option>
+    <option value="lo"  data-t="sort_lo"></option>
+    <option value="hi"  data-t="sort_hi"></option>
+    <option value="az"  data-t="sort_az"></option>
+  </select>
+  <span class="res" id="res"></span>
+</div>
+
+<div id="catalog"></div>
+
+<p class="empty" id="empty" hidden>
+  <b data-t="noresult"></b>
+  <span data-t="noresult_s"></span>
+</p>
+
+</main>
+
+<footer class="footer" id="footer"></footer>
+<button class="top-btn" id="topBtn" aria-label="Back to top">↑</button>
+
+<div id="lbMount"></div>
+
+<script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
