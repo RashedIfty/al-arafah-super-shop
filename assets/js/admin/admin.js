@@ -50,6 +50,16 @@ async function openPanel(){
     catalog = store.load();
     deals   = store.loadDeals(DEFAULT_ANNOUNCEMENTS.items);
   }
+  const dot = $("#liveDot");
+  if (dot){
+    const live = usingSupabase();
+    dot.classList.toggle("off", !live);
+    dot.title = live
+      ? "Connected — changes are saved for everyone"
+      : "Offline — changes stay on this device";
+    dot.lastChild.textContent = live ? "Live" : "Offline";
+  }
+
   renderAll();
 }
 
@@ -122,8 +132,6 @@ function renderAll(){
   const products = catalog.reduce((s, c) => s + c.items.length, 0);
   $("#countLine").textContent =
     `${products} products in ${catalog.length} categories`;
-
-  $("#saveBar").hidden = !(store.isDirty() || store.dealsDirty());
 
   $("#fCat").innerHTML = catalog
     .map(c => `<option value="${esc(c.id)}">${c.icon} ${esc(c.en)}</option>`)
@@ -442,23 +450,6 @@ document.addEventListener("keydown", e => {
   closeForm();
   $("#catModal").hidden = true;
   $("#confirm").hidden = true;
-});
-
-/* ------------------------------- publish ------------------------------ */
-
-on("#publishBtn", "click", () => {
-  store.downloadSource(catalog);
-  toast("catalog.js downloaded — send it to your web developer.");
-});
-
-on("#resetBtn", "click", () => {
-  ask("Undo all your changes?",
-      "Your shop will go back to how it was before you started editing.",
-      () => {
-        catalog = store.reset();
-        toast("All changes undone.");
-        renderAll();
-      });
 });
 
 /* -------------------------------- init -------------------------------- */

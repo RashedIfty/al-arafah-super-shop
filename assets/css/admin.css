@@ -431,3 +431,24 @@
 @media(prefers-reduced-motion:reduce){
   .spin,.login-card.shake,.fade-in,.login-card.done{animation:none;transition:none}
 }
+
+/* live-connection indicator in the admin header */
+.live-dot{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:12.5px;font-weight:700;color:#6ee7b7;
+  background:rgba(18,128,92,.22);border:1px solid rgba(110,231,183,.35);
+  padding:7px 13px;border-radius:20px;white-space:nowrap;
+}
+.live-dot i{
+  width:7px;height:7px;border-radius:50%;background:#34d399;
+  box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:pulse 2s infinite;
+}
+@keyframes pulse{
+  70%{box-shadow:0 0 0 7px rgba(52,211,153,0)}
+  100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}
+}
+.live-dot.off{
+  color:#fca5a5;background:rgba(200,16,46,.2);border-color:rgba(252,165,165,.35);
+}
+.live-dot.off i{background:#f87171;animation:none}
+@media(max-width:720px){ .live-dot{display:none} }
