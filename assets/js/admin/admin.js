@@ -343,7 +343,66 @@ on("#form", "submit", async e => {
 
 /* ---------------------------- category form --------------------------- */
 
-on("#addCatBtn", "click", () => { $("#catModal").hidden = false; $("#cEn").focus(); });
+/* ---- category photo ---- */
+
+function setCatPhoto(src){
+  const img = $("#cPreviewImg"), empty = $("#cPhotoEmpty");
+  $("#cImg").value = src || "";
+  if (src){ img.src = src; img.hidden = false; empty.hidden = true; }
+  else    { img.hidden = true;  empty.hidden = false; }
+}
+
+on("#cPhotoPick", "click", () => $("#cFile").click());
+
+on("#cFile", "change", async e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => setCatPhoto(reader.result);
+  reader.readAsDataURL(file);
+
+  if (usingSupabase()){
+    toast("Uploading photo…");
+    try {
+      const url = await api.uploadPhoto(file);
+      setCatPhoto(url);
+      toast("Photo uploaded.");
+    } catch (err){
+      toast("Photo upload failed: " + (err.message || "try again"), true);
+    }
+  }
+});
+
+/* ---- quick icon choices ---- */
+const ICONS = ["🛒","🍚","🥩","🐟","🫘","🌶️","🫒","🥬","🍪","🌴","🧃","💄","🍼","🧂","🥛","🍯","🧴","🕌"];
+
+function renderIcons(){
+  const row = $("#iconRow");
+  if (!row) return;
+  const current = $("#cIcon").value;
+  row.innerHTML = ICONS.map(i =>
+    `<button type="button" class="icon-b${i === current ? " on" : ""}" data-icon="${i}">${i}</button>`
+  ).join("");
+}
+
+$("#iconRow")?.addEventListener("click", e => {
+  const b = e.target.closest("[data-icon]");
+  if (!b) return;
+  $("#cIcon").value = b.dataset.icon;
+  renderIcons();
+});
+on("#cIcon", "input", renderIcons);
+
+on("#addCatBtn", "click", () => {
+  $("#catForm").reset();
+  $("#cIcon").value = "🛒";
+  $("#cFile").value = "";
+  setCatPhoto("");
+  renderIcons();
+  $("#catModal").hidden = false;
+  $("#cEn").focus();
+});
 
 on("#catForm", "submit", async e => {
   e.preventDefault();
@@ -358,7 +417,7 @@ on("#catForm", "submit", async e => {
   const cat = {
     id,
     icon: $("#cIcon").value.trim() || "🛒",
-    img:  "assets/img/placeholder.svg",
+    img:  $("#cImg").value.trim() || "assets/img/placeholder.svg",
     en,
     bn: $("#cBn").value.trim(),
     ja: $("#cJa").value.trim()
@@ -370,6 +429,7 @@ on("#catForm", "submit", async e => {
     $("#catModal").hidden = true;
     $("#catForm").reset();
     $("#cIcon").value = "🛒";
+    setCatPhoto("");
     toast(`“${en}” added — live for everyone.`);
     return reload();
   }

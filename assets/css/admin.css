@@ -452,3 +452,35 @@
 }
 .live-dot.off i{background:#f87171;animation:none}
 @media(max-width:720px){ .live-dot{display:none} }
+
+/* ===================== ADD PRODUCT / ADD CATEGORY ===================== */
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap}
+
+/* secondary action — navy so it reads as the lesser of the two */
+.big-btn.alt{
+  background:var(--navy);box-shadow:0 5px 16px rgba(27,58,107,.3);
+}
+.big-btn.alt:hover{
+  background:var(--navy-d);box-shadow:0 9px 22px rgba(27,58,107,.4);
+}
+
+/* ============================ ICON PICKER ============================= */
+.icon-in{
+  width:74px !important;text-align:center;font-size:26px !important;
+  padding:8px !important;
+}
+.icon-row{
+  display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;
+}
+.icon-b{
+  width:42px;height:42px;border-radius:10px;cursor:pointer;
+  border:2px solid var(--line);background:#fff;font-size:20px;
+  display:grid;place-items:center;transition:.15s var(--ease);
+}
+.icon-b:hover{border-color:var(--navy);transform:translateY(-2px)}
+.icon-b.on{border-color:var(--red);background:var(--red-l)}
+
+@media(max-width:720px){
+  .hero-btns{width:100%}
+  .hero-btns .big-btn{flex:1;justify-content:center;padding:15px 16px;font-size:15px}
+}

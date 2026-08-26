@@ -81,9 +81,14 @@
           <h2>Your Products</h2>
           <p id="countLine">…</p>
         </div>
-        <button class="big-btn" id="addBtn">
-          <span class="big-plus">+</span> Add New Product
-        </button>
+        <div class="hero-btns">
+          <button class="big-btn" id="addBtn">
+            <span class="big-plus">+</span> Add New Product
+          </button>
+          <button class="big-btn alt" id="addCatBtn">
+            <span class="big-plus">+</span> Add Category
+          </button>
+        </div>
       </div>
 
       <div class="ad-find">
@@ -92,12 +97,6 @@
 
       <div id="list"></div>
 
-      <details class="ad-more">
-        <summary>More options</summary>
-        <div class="ad-more-in">
-          <button class="btn btn-out" id="addCatBtn">+ Add a new category</button>
-        </div>
-      </details>
     </section>
 
     <!-- ====================== TAB: DEALS ======================= -->
@@ -254,16 +253,47 @@
 <!-- =========================== CATEGORY FORM ========================= -->
 <div class="ad-modal" id="catModal" hidden>
   <div class="ad-modal-bg" data-cx></div>
-  <form class="ad-modal-box narrow" id="catForm">
+  <form class="ad-modal-box" id="catForm">
     <div class="ad-modal-head">
       <h2>Add a New Category</h2>
       <button type="button" class="ad-x" data-cx aria-label="Close">&times;</button>
     </div>
-    <div class="ad-modal-body plain">
-      <label><span>Category name in English</span><input id="cEn" placeholder="Vegetables" required></label>
-      <label><span>বাংলায় (in Bangla)</span><input id="cBn" placeholder="সবজি" required></label>
-      <label><span>日本語で (in Japanese)</span><input id="cJa" placeholder="野菜" required></label>
-      <label><span>Pick an icon</span><input id="cIcon" value="🛒" maxlength="4" required></label>
+    <div class="ad-modal-body">
+      <div class="step">
+        <div class="step-n">1</div>
+        <div class="step-b">
+          <h3>Category Photo</h3>
+          <div class="photo-pick" id="cPhotoPick">
+            <img id="cPreviewImg" alt="" hidden>
+            <div class="photo-empty" id="cPhotoEmpty">
+              <span>📷</span>
+              <b>Tap to choose a photo</b>
+              <small>A picture of these products together</small>
+            </div>
+          </div>
+          <input type="file" id="cFile" accept="image/*" hidden>
+          <input id="cImg" hidden>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-n">2</div>
+        <div class="step-b">
+          <h3>Category Name</h3>
+          <label><span>In English</span><input id="cEn" placeholder="Vegetables" required></label>
+          <label><span>বাংলায় (in Bangla)</span><input id="cBn" placeholder="সবজি" required></label>
+          <label><span>日本語で (in Japanese)</span><input id="cJa" placeholder="野菜" required></label>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-n">3</div>
+        <div class="step-b">
+          <h3>Pick an Icon</h3>
+          <input id="cIcon" value="🛒" maxlength="4" required class="icon-in">
+          <div class="icon-row" id="iconRow"></div>
+        </div>
+      </div>
     </div>
     <div class="ad-modal-foot">
       <button type="button" class="btn btn-out" data-cx>Cancel</button>
