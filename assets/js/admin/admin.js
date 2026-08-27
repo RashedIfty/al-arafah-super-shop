@@ -249,20 +249,23 @@ on("#addBtn", "click", () => openForm());
 /* Photo picking — the whole box is the button. */
 on("#photoPick", "click", () => $("#fFile").click());
 
-on("#fFile", "change", async e => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+/**
+ * Handle a chosen image, wherever it came from: the file picker, a paste,
+ * or a drag and drop. `apply` sets the preview for whichever form is open.
+ */
+async function handleImage(file, apply){
+  if (!file || !file.type.startsWith("image/")) return;
 
-  // Show it straight away while the upload runs.
+  // Show it immediately while the upload runs.
   const reader = new FileReader();
-  reader.onload = () => setPhoto(reader.result);
+  reader.onload = () => apply(reader.result);
   reader.readAsDataURL(file);
 
   if (usingSupabase()){
     toast("Uploading photo…");
     try {
       const url = await api.uploadPhoto(file);
-      setPhoto(url);                       // store the hosted URL, not base64
+      apply(url);                          // store the hosted URL, not base64
       toast("Photo uploaded.");
     } catch (err){
       toast("Photo upload failed: " + (err.message || "try again"), true);
@@ -270,6 +273,52 @@ on("#fFile", "change", async e => {
   } else if (file.size > 500 * 1024){
     toast("That photo is quite large. A smaller one will load faster.", true);
   }
+}
+
+/** Which photo box is currently on screen. */
+function activePicker(){
+  if (!$("#modal").hidden)    return { box: $("#photoPick"),  apply: setPhoto };
+  if (!$("#catModal").hidden) return { box: $("#cPhotoPick"), apply: setCatPhoto };
+  return null;
+}
+
+on("#fFile", "change", e => handleImage(e.target.files?.[0], setPhoto));
+
+/* ---- paste a screenshot or copied image straight in ---- */
+document.addEventListener("paste", e => {
+  const target = activePicker();
+  if (!target) return;                     // no photo form open
+
+  const item = [...(e.clipboardData?.items || [])]
+    .find(i => i.type.startsWith("image/"));
+  if (!item) return;
+
+  e.preventDefault();
+  handleImage(item.getAsFile(), target.apply);
+});
+
+/* ---- drag an image file onto the box ---- */
+["dragenter", "dragover"].forEach(ev =>
+  document.addEventListener(ev, e => {
+    const target = activePicker();
+    if (!target) return;
+    e.preventDefault();
+    target.box.classList.add("dropping");
+  }));
+
+["dragleave", "drop"].forEach(ev =>
+  document.addEventListener(ev, e => {
+    const target = activePicker();
+    if (!target) return;
+    if (ev === "dragleave" && e.relatedTarget) return;
+    target.box.classList.remove("dropping");
+  }));
+
+document.addEventListener("drop", e => {
+  const target = activePicker();
+  if (!target) return;
+  e.preventDefault();
+  handleImage(e.dataTransfer?.files?.[0], target.apply);
 });
 
 /* Live feedback on the sale price. */
@@ -371,25 +420,7 @@ function setCatPhoto(src){
 
 on("#cPhotoPick", "click", () => $("#cFile").click());
 
-on("#cFile", "change", async e => {
-  const file = e.target.files?.[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = () => setCatPhoto(reader.result);
-  reader.readAsDataURL(file);
-
-  if (usingSupabase()){
-    toast("Uploading photo…");
-    try {
-      const url = await api.uploadPhoto(file);
-      setCatPhoto(url);
-      toast("Photo uploaded.");
-    } catch (err){
-      toast("Photo upload failed: " + (err.message || "try again"), true);
-    }
-  }
-});
+on("#cFile", "change", e => handleImage(e.target.files?.[0], setCatPhoto));
 
 let editingCat = null;      // category id when editing, null when adding
 

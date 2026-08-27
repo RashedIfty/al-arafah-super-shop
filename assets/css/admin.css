@@ -535,3 +535,10 @@
   padding:18px;margin-bottom:9px;
 }
 .cat-empty span{font-size:14px;color:var(--mute);flex:1;min-width:160px}
+
+/* dragging an image over the photo box */
+.photo-pick.dropping{
+  border-color:var(--red);background:var(--red-l);
+  border-style:solid;transform:scale(1.01);
+}
+.photo-pick.dropping .photo-empty b::after{content:" — drop it here"}
