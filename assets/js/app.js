@@ -53,9 +53,11 @@ function renderHours(){
 
 /** Product / category counters shown in the hero. */
 function renderStats(){
-  const total = CATALOG.reduce((sum, c) => sum + c.items.length, 0);
-  put("#stN", total);
-  put("#stC", CATALOG.length);
+  // Count only what a customer can actually see: empty categories are
+  // hidden from the shop, so they must not be counted here either.
+  const visible = CATALOG.filter(c => c.items.length);
+  put("#stN", visible.reduce((sum, c) => sum + c.items.length, 0));
+  put("#stC", visible.length);
 }
 
 /** City line on the contact page. */
