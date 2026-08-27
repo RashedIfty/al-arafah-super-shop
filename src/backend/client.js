@@ -82,11 +82,19 @@ export async function insertProduct(categoryId, p, sort = 0){
 
 export async function updateProduct(id, categoryId, p){
   const c = await db();
-  return c.from("products").update({
+
+  // Note the old photo before overwriting: swapping a picture would
+  // otherwise strand the previous one in storage for good.
+  const { data: was } = await c.from("products").select("img").eq("id", id).single();
+
+  const res = await c.from("products").update({
     category_id: categoryId, en: p.en, bn: p.bn, ja: p.ja,
     w: p.w, p: p.p, was: p.was || 0, img: p.img || "",
     tag: p.tag || null
   }).eq("id", id);
+
+  if (!res.error) await dropReplaced(c, was?.img, p.img);
+  return res;
 }
 
 /* -------------------------- announcement ----------------------------- */
@@ -125,10 +133,85 @@ export async function restore(table, id){
   return c.from(table).update({ archived_at: null }).eq("id", id);
 }
 
-/** Gone for good — only offered from the archive. */
+/** The storage bucket holding uploaded photos. */
+const BUCKET = "product-photos";
+
+/**
+ * File name inside the bucket, or null for anything we did not upload.
+ *
+ * Photos that ship with the code ("/images/products/rice.jpg") must never
+ * be touched — they belong to the repository, not to the shop's storage.
+ */
+function uploadedName(img){
+  if (typeof img !== "string") return null;
+  const marker = `/${BUCKET}/`;
+  const at = img.indexOf(marker);
+  return at === -1 ? null : img.slice(at + marker.length) || null;
+}
+
+/**
+ * Delete uploaded photos from storage.
+ *
+ * Anything still referenced elsewhere is kept: a deal carries a copy of
+ * its product's photo address, so deleting the product must not blank the
+ * deal's picture.
+ *
+ * Best effort: a photo that fails to delete is a little wasted space,
+ * which is a far better outcome than blocking the record's deletion.
+ */
+async function removePhotos(c, images){
+  const names = [...new Set(images.map(uploadedName).filter(Boolean))];
+  if (!names.length) return;
+
+  const keep = new Set();
+  for (const table of ["products", "categories", "deals"]){
+    const { data } = await c.from(table).select("img");
+    for (const r of data ?? []){
+      const n = uploadedName(r.img);
+      if (n) keep.add(n);
+    }
+  }
+
+  const gone = names.filter(n => !keep.has(n));
+  if (!gone.length) return;
+
+  const { error } = await c.storage.from(BUCKET).remove(gone);
+  if (error) console.error("removePhotos:", error);
+}
+
+/** Drop a photo that an edit has just replaced. */
+async function dropReplaced(c, before, after){
+  if (!before || before === after) return;
+  await removePhotos(c, [before]);
+}
+
+/**
+ * Gone for good — only offered from the archive.
+ *
+ * The photo goes with it. Storage is not cleaned up by deleting the row,
+ * so without this every removed product leaves its picture behind forever.
+ * Deleting a category cascades to its products in the database, so their
+ * photos have to be collected here too, before the rows disappear.
+ */
 export async function destroy(table, id){
   const c = await db();
-  return c.from(table).delete().eq("id", id);
+
+  // Read the addresses first: once the rows are gone they cannot be found.
+  const images = [];
+
+  const { data: row } = await c.from(table).select("img").eq("id", id).single();
+  if (row?.img) images.push(row.img);
+
+  if (table === "categories"){
+    const { data: kids } = await c.from("products").select("img").eq("category_id", id);
+    for (const k of kids ?? []) if (k.img) images.push(k.img);
+  }
+
+  const res = await c.from(table).delete().eq("id", id);
+  if (res.error) return res;                 // row still there: keep the photo
+
+  await removePhotos(c, images);
+  return res;
 }
 
 /** Everything currently archived, newest first. */
@@ -148,7 +231,17 @@ export async function fetchArchive(){
 /** Rename a category or change its photo. */
 export async function updateCategory(id, patch){
   const c = await db();
-  return c.from("categories").update(patch).eq("id", id);
+
+  // Only when the photo is actually part of this edit.
+  const swapping = Object.prototype.hasOwnProperty.call(patch, "img");
+  const { data: was } = swapping
+    ? await c.from("categories").select("img").eq("id", id).single()
+    : { data: null };
+
+  const res = await c.from("categories").update(patch).eq("id", id);
+
+  if (!res.error && swapping) await dropReplaced(c, was?.img, patch.img);
+  return res;
 }
 
 export async function insertCategory(cat, sort = 0){
