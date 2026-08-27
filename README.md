@@ -1,117 +1,84 @@
 # Al-Arafah Super Shop
 
-Trilingual (বাংলা · English · 日本語) storefront for Al-Arafah Super Shop, Tsukuba, Japan.
+Trilingual (বাংলা · English · 日本語) storefront and owner panel for
+Al-Arafah Super Shop, Tsukuba, Japan. Products live in Supabase, so an
+edit in the owner panel reaches every visitor within seconds.
 
-## Run
+## Run locally
 
-ES modules need HTTP — opening `index.html` directly will not work.
+ES modules need HTTP — opening the HTML files directly will not work.
 
 ```bash
-python3 -m http.server 8080
-# then open http://localhost:8080
+python3 -m http.server 8080     # then open http://localhost:8080
 ```
 
 ## Structure
 
 ```
-index.html  products.html  about.html  contact.html
-assets/
-├── css/
-│   ├── main.css              entry point (@imports everything below)
-│   ├── base/                 tokens · reset · utilities · responsive
-│   ├── layout/               header · nav · hero · footer · pages
-│   └── components/           button · chips · card · promo
-├── js/
-│   ├── app.js                entry point — mounts and re-renders
-│   ├── core/                 dom · lang · format
-│   ├── components/           chrome · product-card · search
-│   └── data/                 catalog · shop · i18n(.en|.bn|.ja)
-└── img/
-    ├── logo.jpeg
-    ├── placeholder.svg       stands in for missing product photos
-    └── products/             put real product photos here
+index.html  products.html  about.html  contact.html  admin.html
+
+src/
+├── shared/            used by both the storefront and the admin panel
+│   ├── lib/           dom.js · format.js        (no app knowledge)
+│   ├── ui/            icons.js                  (inline SVG set)
+│   └── shop.js        shop name, phone, hours
+│
+├── features/          domain logic, independent of any one page
+│   ├── catalog/       products and categories
+│   ├── deals/         "Today's Deal & New Arrival"
+│   └── i18n/          language state + en · bn · ja strings
+│
+├── backend/           everything that talks to the server
+│   ├── client.js      Supabase reads, writes, uploads, realtime
+│   ├── config.js      project URL and anon key
+│   ├── schema/        table definitions and security rules
+│   └── seed/          initial data
+│
+├── storefront/        the public site
+│   ├── main.js        entry point
+│   ├── components/    chrome · product-card · category-browser ·
+│   │                  deals-bar · lightbox · search
+│   └── styles/        main.css imports base/ layout/ components/
+│
+└── admin/             the owner panel
+    ├── main.js        entry point
+    ├── auth.js        sign in / out
+    ├── local-store.js offline fallback
+    └── styles/
+
+images/                logo · cover · categories/ · products/
+                       served straight from the site root as /images/...
 ```
 
-## ★ Updating "Today's Deal & New Arrival" (shop admin)
+**Dependency direction:** `storefront` and `admin` may import from
+`features`, `backend` and `shared`. Nothing in `shared` imports from a
+feature, and nothing in `features` imports from a page. That keeps the
+domain logic reusable and the layers easy to reason about.
 
-The banner at the top of every page is driven by **one file**:
+## Icons
 
-```
-assets/js/data/announcements.js
-```
-
-Open it, edit, save, refresh the browser. Nothing else to touch.
-
-**Add an item** — copy a block and change the words:
+No emoji anywhere — they render differently on every platform, cannot be
+styled, and read poorly to screen readers. Use the SVG set instead:
 
 ```js
-{
-  type : "new",              // "new" = green NEW ARRIVAL badge
-                             // "deal" = gold TODAY'S DEAL badge
-  en   : "Fresh Beef",
-  bn   : "তাজা গরুর মাংস",
-  ja   : "新鮮な牛肉",
-  w    : "1 kg",             // weight / size
-  p    : 1920,               // price today
-  was  : 2180,               // old price — use 0 for no discount
-  img  : "assets/img/products/beef-bone.jpg"   // product photo
-},
+import { icon } from "../shared/ui/icons.js";
+icon("phone", { size: 16 });            // decorative
+icon("trash", { size: 14, label: "Delete" });   // meaningful
 ```
 
-- `was: 2180` shows the old price struck through plus a red `-12%` badge.
-- `was: 0` shows just the price.
-- **Remove an item** — delete its block from `{` to `},`.
-- **Hide the whole banner** — set `ACTIVE: false` at the top of the file.
-- Tapping any item opens the photo large in a lightbox.
+Add a new one by putting its path data in `src/shared/ui/icons.js`.
 
 ## Adding a product
 
-Edit `assets/js/data/catalog.js`:
+Use the owner panel at `/admin.html` — it writes straight to Supabase and
+the site updates live. `src/features/catalog/catalog.js` is only the
+offline fallback used when the database is unreachable.
 
-```js
-{ en:"Basmati Rice", bn:"বাসমতি চাল", ja:"バスマティ米",
-  w:"5 kg", p:3890, was:4280, img:"assets/img/products/rice.jpg" }
-```
+## Database
 
-| field | meaning |
-|-------|---------|
-| `en` / `bn` / `ja` | name in each language (all three required) |
-| `w`   | weight or size shown on the card |
-| `p`   | price in yen |
-| `was` | old price — `0` means not on sale (drives the `-%` badge) |
-| `img` | photo path — `""` falls back to the placeholder |
-| `tag` | `"new"`, `"out"`, or omit |
+Run `src/backend/schema/schema.sql` once, then `src/backend/seed/seed.sql`
+to load the starting data. Row Level Security allows public reads and
+restricts writes to a signed-in owner.
 
-## Adding category photos
-
-Each category shows a large tile photo plus a small sidebar thumbnail — both
-read the same file. Replace the placeholder in `assets/img/categories/`:
-
-```
-assets/img/categories/meat.svg   →   assets/img/categories/meat.jpg
-```
-
-then update the path in `assets/js/data/catalog.js`:
-
-```js
-{ id:"meat", icon:"🥩", img:"assets/img/categories/meat.jpg", ... }
-```
-
-Square images (1:1) work best — a group shot of the products in that
-category, roughly 400×400 or larger.
-
-## Adding product photos
-
-Drop files into `assets/img/products/`, then set `img:` on the matching item.
-Square images (1:1) work best; ~600×600 is plenty.
-
-## Adding a language
-
-1. Copy `assets/js/data/i18n.en.js` to `i18n.<code>.js` and translate the values.
-2. Register it in `assets/js/data/i18n.js`.
-3. Add the matching key to every product and category in `catalog.js`.
-
-## Notes
-
-- Product names and prices are placeholders — replace with real stock.
-- Language choice persists in `localStorage`; falls back to browser language.
+Removing something sets `archived_at` rather than deleting the row; the
+Archive tab in the panel restores it or deletes it permanently.

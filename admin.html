@@ -6,9 +6,9 @@
 <meta name="robots" content="noindex,nofollow">
 <title>My Shop · Al-Arafah Super Shop</title>
 <meta name="theme-color" content="#12294c">
-<link rel="icon" href="assets/img/logo.jpeg">
-<link rel="stylesheet" href="assets/css/main.css">
-<link rel="stylesheet" href="assets/css/admin.css">
+<link rel="icon" href="/images/logo.jpeg">
+<link rel="stylesheet" href="src/storefront/styles/main.css">
+<link rel="stylesheet" href="src/admin/styles/admin.css">
 </head>
 <body data-page="admin">
 
@@ -20,7 +20,7 @@
   </div>
 
   <form class="login-card" id="loginForm">
-    <img src="assets/img/logo.jpeg" alt="" class="login-logo">
+    <img src="/images/logo.jpeg" alt="" class="login-logo">
     <h1>Welcome back</h1>
     <p class="login-sub">Sign in to manage your shop</p>
 
@@ -32,7 +32,7 @@
     <div class="field">
       <input type="password" id="pass" placeholder=" " autocomplete="current-password">
       <label for="pass">Password</label>
-      <button type="button" class="peek" id="peek" aria-label="Show password">👁</button>
+      <button type="button" class="peek" id="peek" aria-label="Show password"><svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5m0 12a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9m0-7.2a2.7 2.7 0 1 0 0 5.4 2.7 2.7 0 0 0 0-5.4"/></svg></button>
     </div>
 
     <p class="login-err" id="loginErr" hidden>
@@ -41,10 +41,10 @@
 
     <button type="submit" class="login-go">
       <span>Sign In</span>
-      <em>→</em>
+      <em><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z"/></svg></em>
     </button>
 
-    <a href="index.html" class="login-back">← Back to my website</a>
+    <a href="index.html" class="login-back"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4l1.4 1.4L7.8 11H20v2H7.8l5.6 5.6L12 20l-8-8z"/></svg> Back to my website</a>
   </form>
 </div>
 
@@ -53,7 +53,7 @@
 
   <header class="ad-top">
     <div class="ad-top-in">
-      <img src="assets/img/logo.jpeg" alt="" class="ad-logo">
+      <img src="/images/logo.jpeg" alt="" class="ad-logo">
       <div class="ad-title">
         <b>My Shop</b>
         <span>Al-Arafah Super Shop</span>
@@ -67,9 +67,9 @@
   <!-- tabs -->
   <div class="tabs">
     <div class="tabs-in">
-      <button class="tab on" data-tab="products">📦 My Products</button>
-      <button class="tab" data-tab="deals">⭐ Today's Deals</button>
-      <button class="tab" data-tab="archive">🗄 Archive <em id="arcCount"></em></button>
+      <button class="tab on" data-tab="products"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 6h-3V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2M9 4h6v2H9z"/></svg> My Products</button>
+      <button class="tab" data-tab="deals"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 17.27 6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> Today's Deals</button>
+      <button class="tab" data-tab="archive"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 2H4a2 2 0 0 0-2 2v3h20V4a2 2 0 0 0-2-2M3 9v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9zm11 5H10v-2h4z"/></svg> Archive <em id="arcCount"></em></button>
     </div>
   </div>
 
@@ -84,16 +84,16 @@
         </div>
         <div class="hero-btns">
           <button class="big-btn" id="addBtn">
-            <span class="big-plus">+</span> Add New Product
+            <span class="big-plus"><svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg></span> Add New Product
           </button>
           <button class="big-btn alt" id="addCatBtn">
-            <span class="big-plus">+</span> Add Category
+            <span class="big-plus"><svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg></span> Add Category
           </button>
         </div>
       </div>
 
       <div class="ad-find">
-        <input type="search" id="filter" placeholder="🔍  Type a product name to find it…">
+        <input type="search" id="filter" placeholder="Type a product name to find it…">
       </div>
 
       <div id="list"></div>
@@ -108,12 +108,12 @@
           <p>This is the highlighted strip at the top of your website.</p>
         </div>
         <button class="big-btn" id="addDealBtn">
-          <span class="big-plus">+</span> Add to Deals
+          <span class="big-plus"><svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg></span> Add to Deals
         </button>
       </div>
 
       <div class="deal-note">
-        💡 Pick any product from your shop, mark it <b>New Arrival</b> or
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9zm3-19A7 7 0 0 0 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7"/></svg> Pick any product from your shop, mark it <b>New Arrival</b> or
         <b>Today's Deal</b>, and set a special price. It shows on your homepage straight away.
       </div>
 
@@ -130,7 +130,7 @@
       </div>
 
       <div class="deal-note arc-note">
-        💡 <b>Restore</b> puts an item back on your website.
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9zm3-19A7 7 0 0 0 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7"/></svg> <b>Restore</b> puts an item back on your website.
         <b>Delete forever</b> removes it permanently and cannot be undone.
       </div>
 
@@ -145,7 +145,7 @@
   <form class="ad-modal-box" id="form">
     <div class="ad-modal-head">
       <h2 id="formTitle">Add New Product</h2>
-      <button type="button" class="ad-x" data-x aria-label="Close">&times;</button>
+      <button type="button" class="ad-x" data-x aria-label="Close"><svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
     </div>
 
     <div class="ad-modal-body">
@@ -156,7 +156,7 @@
           <div class="photo-pick" id="photoPick">
             <img id="previewImg" alt="" hidden>
             <div class="photo-empty" id="photoEmpty">
-              <span>📷</span>
+              <span><svg class="icon" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4M9 2 7.17 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3.17L15 2zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10"/></svg></span>
               <b>Tap to choose a photo</b>
               <small>or paste with ⌘V · or drag one in</small>
             </div>
@@ -217,7 +217,7 @@
   <form class="ad-modal-box" id="dealForm">
     <div class="ad-modal-head">
       <h2 id="dealTitle">Add to Today's Deals</h2>
-      <button type="button" class="ad-x" data-dx aria-label="Close">&times;</button>
+      <button type="button" class="ad-x" data-dx aria-label="Close"><svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
     </div>
 
     <div class="ad-modal-body">
@@ -238,11 +238,11 @@
           <div class="pick2">
             <label class="pick2-b">
               <input type="radio" name="dtype" value="new" checked>
-              <span><b>⭐ New Arrival</b><small>Just came into the shop</small></span>
+              <span><b><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 17.27 6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> New Arrival</b><small>Just came into the shop</small></span>
             </label>
             <label class="pick2-b">
               <input type="radio" name="dtype" value="deal">
-              <span><b>🔥 Today's Deal</b><small>Special price today</small></span>
+              <span><b><svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 17.27 6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> Today's Deal</b><small>Special price today</small></span>
             </label>
           </div>
         </div>
@@ -274,7 +274,7 @@
   <form class="ad-modal-box" id="catForm">
     <div class="ad-modal-head">
       <h2 id="catTitle">Add a New Category</h2>
-      <button type="button" class="ad-x" data-cx aria-label="Close">&times;</button>
+      <button type="button" class="ad-x" data-cx aria-label="Close"><svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
     </div>
     <div class="ad-modal-body">
       <div class="step">
@@ -284,7 +284,7 @@
           <div class="photo-pick" id="cPhotoPick">
             <img id="cPreviewImg" alt="" hidden>
             <div class="photo-empty" id="cPhotoEmpty">
-              <span>📷</span>
+              <span><svg class="icon" width="34" height="34" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4M9 2 7.17 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3.17L15 2zm3 15a5 5 0 1 1 0-10 5 5 0 0 1 0 10"/></svg></span>
               <b>Tap to choose a photo</b>
               <small>or paste with ⌘V · a picture of these products</small>
             </div>
@@ -318,7 +318,7 @@
   <div class="ad-modal-bg" data-nx></div>
   <div class="ad-modal-box narrow">
     <div class="ad-modal-body plain center">
-      <div class="warn">⚠️</div>
+      <div class="warn"><svg class="icon" width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M1 21h22L12 2zm12-3h-2v-2h2zm0-4h-2v-4h2z"/></svg></div>
       <h2 id="confTitle">Are you sure?</h2>
       <p id="confText"></p>
     </div>
@@ -331,6 +331,6 @@
 
 <div class="ad-toast" id="toast" hidden></div>
 
-<script type="module" src="assets/js/admin/admin.js"></script>
+<script type="module" src="src/admin/main.js"></script>
 </body>
 </html>
