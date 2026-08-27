@@ -8,7 +8,7 @@
 import { $, $$, esc, on } from "../../shared/lib/dom.js";
 import { icon } from "../../shared/ui/icons.js";
 import { yen, discount } from "../../shared/lib/format.js";
-import { t, getLang } from "../../features/i18n/lang.js";
+import { t, getLang, itemCount } from "../../features/i18n/lang.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
 import { search, suggest } from "../../features/search/engine.js";
 
@@ -68,7 +68,7 @@ function render(query){
       <ul class="sg-list" role="listbox">
         ${results.map((r, i) => rowHTML(r.product, i)).join("")}
       </ul>
-      <div class="sg-foot">${results.length} ${esc(T.items)}</div>`;
+      <div class="sg-foot">${esc(itemCount(results.length))}</div>`;
   }
 
   box.hidden = false;

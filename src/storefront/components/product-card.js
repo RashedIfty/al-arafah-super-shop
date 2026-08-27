@@ -2,7 +2,7 @@
  * Product card + category section markup.
  */
 import { esc } from "../../shared/lib/dom.js";
-import { t, getLang, LANGS } from "../../features/i18n/lang.js";
+import { t, getLang, LANGS, itemCount } from "../../features/i18n/lang.js";
 import { yen, discount } from "../../shared/lib/format.js";
 import { SHOP } from "../../shared/shop.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
@@ -63,7 +63,7 @@ export function catalogHTML(){
       <div class="sec-head">
         <span class="sec-no">${i + 1}</span>
         <h2>${esc(cat[lang])}</h2>
-        <span class="n">${cat.items.length} ${esc(T.items)}</span>
+        <span class="n">${esc(itemCount(cat.items.length))}</span>
       </div>
       <div class="grid">
         ${cat.items.map((p, j) =>
@@ -81,6 +81,6 @@ export function chipsHTML(){
     <a href="${prefix}#${esc(cat.id)}" class="chip">
       <img src="${esc(cat.img)}" alt="" loading="lazy" width="80" height="80">
       <b>${esc(cat[lang])}</b>
-      <span>${cat.items.length} ${esc(T.items)}</span>
+      <span>${esc(itemCount(cat.items.length))}</span>
     </a>`).join("");
 }

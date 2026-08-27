@@ -51,3 +51,12 @@ export function initLang(){
 }
 
 export { LANGS };
+
+/**
+ * "1 item" / "5 items". Bangla and Japanese do not inflect for number,
+ * so their two strings are simply the same.
+ */
+export function itemCount(n){
+  const T = t();
+  return `${n} ${n === 1 ? (T.item_one ?? T.items) : T.items}`;
+}

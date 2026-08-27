@@ -33,22 +33,82 @@
 }
 
 /* ------------------------------- rail --------------------------------- */
+/* ----------------------------- carousel ------------------------------ */
+.ann-carousel{position:relative;display:flex;align-items:center;gap:8px}
+
 .ann-scroll{
+  flex:1;min-width:0;
   overflow-x:auto;-webkit-overflow-scrolling:touch;
-  scrollbar-width:none;margin:0 -18px;padding:0 18px 2px;
+  scrollbar-width:none;
+  scroll-snap-type:x mandatory;
+  padding-bottom:4px;
 }
 .ann-scroll::-webkit-scrollbar{display:none}
-.ann-row{display:flex;gap:12px;width:max-content}
+.ann-scroll:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:8px}
+
+/* Half a viewport of padding either side lets the first and last card
+   sit centred, with their neighbours visible at the edges. */
+.ann-row{display:flex;gap:18px;width:max-content;padding:6px 0}
+.ann-item{scroll-snap-align:center}
+
+/* arrows */
+.ann-nav{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:3;
+  width:42px;height:42px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.12);color:#fff;
+  display:grid;place-items:center;cursor:pointer;
+  transition:.18s var(--ease);
+}
+.ann-nav.prev{left:4px}
+.ann-nav.next{right:4px}
+.ann-nav{
+  background:rgba(10,22,44,.55);border-color:rgba(255,255,255,.35);
+  backdrop-filter:blur(6px);
+}
+.ann-nav:hover{background:#fff;color:var(--navy-d)}
+.ann-nav.prev svg{transform:rotate(-90deg)}
+.ann-nav.next svg{transform:rotate(90deg)}
+
+/* dots */
+.ann-dots{
+  display:flex;justify-content:center;gap:7px;margin-top:14px;
+}
+.ann-dots:empty{display:none}
+.ann-dot{
+  width:7px;height:7px;border-radius:50%;padding:0;cursor:pointer;
+  border:0;background:rgba(255,255,255,.32);transition:.2s var(--ease);
+}
+.ann-dot:hover{background:rgba(255,255,255,.6)}
+.ann-dot.on{background:var(--gold);width:22px;border-radius:4px}
 
 /* -------------------------- item = photo card ------------------------- */
 .ann-item{
-  flex-shrink:0;width:178px;
-  background:#fff;border-radius:12px;overflow:hidden;
+  flex-shrink:0;width:260px;
+  background:#fff;border-radius:16px;overflow:hidden;
   display:flex;flex-direction:column;
-  transition:.22s var(--ease);
   box-shadow:0 4px 14px rgba(0,0,0,.20);
+
+  /* Off-centre cards recede: smaller, dimmed and softly blurred. */
+  transform:scale(.82);
+  opacity:.45;
+  filter:blur(2px);
+
+  /* Only transform and opacity are transitioned - both run on the
+     compositor. Animating filter repaints the whole card each frame,
+     which with six image cards was enough to lock up the page. */
+  transition:transform .45s var(--ease), opacity .45s var(--ease);
+  will-change:transform;
 }
-.ann-item:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(0,0,0,.32)}
+
+.ann-item.is-active{
+  transform:scale(1);
+  opacity:1;
+  filter:none;
+  box-shadow:0 16px 40px rgba(0,0,0,.38);
+  will-change:auto;
+}
+.ann-item.is-active:hover{transform:scale(1.02)}
 .ann-item.deal{box-shadow:0 4px 14px rgba(0,0,0,.20),0 0 0 2px var(--gold)}
 .ann-item.deal:hover{box-shadow:0 12px 28px rgba(0,0,0,.32),0 0 0 2px var(--gold)}
 
@@ -77,27 +137,28 @@
 }
 
 /* text below the photo */
-.ann-tx{padding:10px 11px 12px;display:flex;flex-direction:column;flex:1}
+.ann-tx{padding:14px 15px 16px;display:flex;flex-direction:column;flex:1}
 .ann-tx b{
-  display:block;color:var(--ink);font-size:12.5px;font-weight:700;
+  display:block;color:var(--ink);font-size:15px;font-weight:700;
   line-height:1.3;margin-bottom:3px;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-  overflow:hidden;min-height:32px;
+  overflow:hidden;min-height:39px;
 }
 .ann-w{
-  font-size:10.5px;color:var(--mute);font-weight:600;margin-bottom:7px;
+  font-size:12px;color:var(--mute);font-weight:600;margin-bottom:7px;
 }
 .ann-price{margin-top:auto;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
 .ann-price .now{
-  color:var(--red);font-size:16px;font-weight:900;letter-spacing:-.3px;
+  color:var(--red);font-size:21px;font-weight:900;letter-spacing:-.5px;
 }
 .ann-price .was{
-  font-size:11px;color:var(--mute);text-decoration:line-through;
+  font-size:13px;color:var(--mute);text-decoration:line-through;
 }
 
 /* ----------------------------- breakpoints ---------------------------- */
 @media(min-width:600px){
   .ann-in{padding:22px 22px 26px}
+  .ann-item{width:300px}
   .ann-head h2{font-size:21px}
   .ann-scroll{margin:0 -22px;padding:0 22px 2px}
   .ann-item{width:196px}
@@ -107,10 +168,7 @@
 
 @media(min-width:1000px){
   .ann-head h2{font-size:22px}
-  /* all six fit — stop scrolling, spread them evenly */
-  .ann-row{width:auto;display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
-  .ann-item{width:auto}
-  .ann-scroll{overflow:visible;margin:0;padding:0}
+  .ann-item{width:340px}
 }
 
 @media print{ .ann{display:none} }

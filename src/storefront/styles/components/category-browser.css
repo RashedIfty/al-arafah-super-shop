@@ -32,7 +32,13 @@
 }
 
 /* ------------------------------- tiles -------------------------------- */
-.cat-tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+/* --cols is set per render so rows stay balanced: nine categories are
+   5-4, eight are 4-4, never a lone tile on the last row. Narrow screens
+   override it, since balance matters less than fitting. */
+.cat-tiles{
+  display:grid;gap:14px;
+  grid-template-columns:repeat(2,1fr);
+}
 
 .cat-tile{text-align:center;transition:.2s var(--ease)}
 .cat-tile-img{
@@ -54,14 +60,14 @@
 
 /* ----------------------------- breakpoints ---------------------------- */
 @media(min-width:600px){
-  .cat-tiles{grid-template-columns:repeat(3,1fr);gap:16px}
+  .cat-tiles{grid-template-columns:repeat(min(3,var(--cols,3)),1fr);gap:16px}
   .cat-tile b{font-size:14px}
 }
 
 @media(min-width:1000px){
   /* Sidebar on the left, tiles filling the rest — the reference layout */
   .cat-browse{grid-template-columns:262px 1fr;gap:24px}
-  .cat-tiles{grid-template-columns:repeat(5,1fr);gap:18px}
+  .cat-tiles{grid-template-columns:repeat(var(--cols,5),1fr);gap:18px}
 }
 
 @media print{ .cat-side{display:none} }

@@ -8,7 +8,7 @@ import { $, $$, put, esc, on, scrollToId } from "../shared/lib/dom.js";
 import { t, setLang, onLangChange, initLang } from "../features/i18n/lang.js";
 import { todayIndex } from "../shared/lib/format.js";
 import { topbarHTML, headerHTML, navHTML, footerHTML } from "./components/chrome.js";
-import { announceBarHTML, initAnnounceBar } from "./components/deals-bar.js";
+import { announceBarHTML, initAnnounceBar, initDealsCarousel } from "./components/deals-bar.js";
 import { lightboxHTML, initLightbox } from "./components/lightbox.js";
 import { mapHTML } from "./components/map.js";
 import { initSearchBox } from "./components/search-box.js";
@@ -100,6 +100,7 @@ function bindDynamic(){
     btn.addEventListener("click", () => setLang(btn.dataset.lang)));
 
   initAnnounceBar();
+  initDealsCarousel();
   initSearch();
   initSearchBox();
   initScrollSpy();
