@@ -18,7 +18,7 @@ export function categorySidebarHTML(){
     <aside class="cat-side">
       <h3>${esc(T.cats_side)}</h3>
       <ul>
-        ${CATALOG.map(cat => `
+        ${CATALOG.filter(c => c.items.length).map(cat => `
           <li>
             <a href="${base}#${esc(cat.id)}">
               <img src="${esc(cat.img)}" alt="" loading="lazy" width="40" height="40">
@@ -36,7 +36,7 @@ export function categoryTilesHTML(){
 
   return `
     <div class="cat-tiles">
-      ${CATALOG.map(cat => `
+      ${CATALOG.filter(c => c.items.length).map(cat => `
         <a href="${base}#${esc(cat.id)}" class="cat-tile">
           <div class="cat-tile-img">
             <img src="${esc(cat.img)}" alt="${esc(cat[lang])}"

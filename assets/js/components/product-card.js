@@ -57,7 +57,8 @@ export function cardHTML(product, category, ci = 0, pi = 0){
 export function catalogHTML(){
   const T = t(), lang = getLang();
 
-  return CATALOG.map((cat, i) => `
+  // Customers only see categories that actually have something in them.
+  return CATALOG.filter(c => c.items.length).map((cat, i) => `
     <section class="sec wrap" id="${esc(cat.id)}">
       <div class="sec-head">
         <span class="sec-no">${i + 1}</span>
@@ -76,7 +77,7 @@ export function chipsHTML(){
   const T = t(), lang = getLang();
   const prefix = document.body.dataset.page === "products" ? "" : "products.html";
 
-  return CATALOG.map(cat => `
+  return CATALOG.filter(c => c.items.length).map(cat => `
     <a href="${prefix}#${esc(cat.id)}" class="chip">
       <img src="${esc(cat.img)}" alt="" loading="lazy" width="80" height="80">
       <b>${esc(cat[lang])}</b>

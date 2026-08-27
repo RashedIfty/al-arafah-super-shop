@@ -178,7 +178,15 @@ function renderList(){
         </div>`;
     }).join("");
 
-    if (!rows) return "";
+    // While searching, hide categories with no match. Otherwise always show
+    // the category — an empty one still needs to be editable and fillable.
+    if (q && !rows) return "";
+
+    const body = rows || `
+      <div class="cat-empty">
+        <span>No products in this category yet.</span>
+        <button class="act edit" data-addto="${esc(cat.id)}">+ Add a product here</button>
+      </div>`;
 
     return `
       <section class="cat-block">
@@ -189,7 +197,7 @@ function renderList(){
           <button class="act edit cat-edit" data-editcat="${esc(cat.id)}">✏️ Edit</button>
           <button class="act del" data-delcat="${esc(cat.id)}">🗄 Remove</button>
         </div>
-        ${rows}
+        ${body}
       </section>`;
   }).join("");
 
@@ -503,6 +511,9 @@ document.addEventListener("click", e => {
         });
     return;
   }
+
+  const addTo = e.target.closest("[data-addto]");
+  if (addTo){ openForm(addTo.dataset.addto); return; }
 
   const editCat = e.target.closest("[data-editcat]");
   if (editCat){ openCatForm(editCat.dataset.editcat); return; }
