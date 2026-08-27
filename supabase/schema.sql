@@ -12,6 +12,7 @@ create table if not exists categories (
   bn        text not null,
   ja        text not null,
   sort      int  not null default 0,   -- display order
+  archived_at timestamptz,             -- set = hidden from the shop
   created_at timestamptz default now()
 );
 
@@ -28,10 +29,16 @@ create table if not exists products (
   img         text not null default '',
   tag         text,                       -- 'new' | 'out' | null
   sort        int  not null default 0,
+  archived_at timestamptz,
   created_at  timestamptz default now()
 );
 
 create index if not exists products_category_idx on products(category_id);
+
+-- The common query is "everything not archived".
+create index if not exists products_live_idx   on products(category_id) where archived_at is null;
+create index if not exists categories_live_idx on categories(sort)      where archived_at is null;
+create index if not exists deals_live_idx      on deals(sort)           where archived_at is null;
 
 -- --------------------------- deals ----------------------------------
 -- "Today's Deal & New Arrival" strip on the homepage.
@@ -46,6 +53,7 @@ create table if not exists deals (
   was        int  not null default 0,
   img        text not null default '',
   sort       int  not null default 0,
+  archived_at timestamptz,
   created_at timestamptz default now()
 );
 

@@ -16,6 +16,7 @@ let editing = null;            // {catId, index} when editing, null when adding
 let confirmAction = null;      // callback for the confirm dialog
 let deals = [];                // Today's Deal & New Arrival strip
 let editingDeal = null;        // index when editing, null when adding
+let archive = { products: [], categories: [], deals: [] };
 
 /* ------------------------------- helpers ------------------------------ */
 
@@ -43,9 +44,12 @@ async function openPanel(){
   $("#panel").hidden = false;
 
   if (usingSupabase()){
-    const [cat, dl] = await Promise.all([api.fetchCatalog(), api.fetchDeals()]);
+    const [cat, dl, arc] = await Promise.all([
+      api.fetchCatalog(), api.fetchDeals(), api.fetchArchive()
+    ]);
     catalog = cat || store.load();
     deals   = dl  || store.loadDeals(DEFAULT_ANNOUNCEMENTS.items);
+    archive = arc || archive;
   } else {
     catalog = store.load();
     deals   = store.loadDeals(DEFAULT_ANNOUNCEMENTS.items);
@@ -66,9 +70,12 @@ async function openPanel(){
 /** Pull fresh data after a write. */
 async function reload(){
   if (!usingSupabase()) return;
-  const [cat, dl] = await Promise.all([api.fetchCatalog(), api.fetchDeals()]);
+  const [cat, dl, arc] = await Promise.all([
+    api.fetchCatalog(), api.fetchDeals(), api.fetchArchive()
+  ]);
   if (cat) catalog = cat;
   if (dl)  deals   = dl;
+  if (arc) archive = arc;
   renderAll();
 }
 
@@ -140,6 +147,7 @@ function renderAll(){
   renderList();
   renderDeals();
   renderDealPicker();
+  renderArchive();
 }
 
 function renderList(){
@@ -165,7 +173,7 @@ function renderList(){
           </div>
           <div class="prod-act">
             <button class="act edit" data-edit="${esc(cat.id)}:${i}">✏️ Edit</button>
-            <button class="act del"  data-del="${esc(cat.id)}:${i}">🗑 Delete</button>
+            <button class="act del"  data-del="${esc(cat.id)}:${i}">🗄 Remove</button>
           </div>
         </div>`;
     }).join("");
@@ -178,7 +186,7 @@ function renderList(){
           <img src="${esc(cat.img)}" alt="" class="cat-thumb">
           <b>${esc(cat.en)}</b>
           <em>${cat.items.length}</em>
-          <button class="act del cat-del" data-delcat="${esc(cat.id)}">Delete category</button>
+          <button class="act del cat-del" data-delcat="${esc(cat.id)}">🗄 Remove category</button>
         </div>
         ${rows}
       </section>`;
@@ -433,13 +441,13 @@ document.addEventListener("click", e => {
   if (del){
     const [catId, i] = del.dataset.del.split(":");
     const p = catalog.find(c => c.id === catId).items[+i];
-    ask("Delete this product?",
-        `“${p.en}” will be removed from your website.`,
+    ask("Remove this product?",
+        `“${p.en}” will be hidden from your website. You can restore it any time from the Archive.`,
         async () => {
           if (usingSupabase()){
-            const { error } = await api.deleteProduct(p._id);
+            const { error } = await api.archive("products", p._id);
             if (error) return toast(error.message, true);
-            toast("Deleted — live for everyone.");
+            toast("Moved to Archive.");
             return reload();
           }
           store.deleteProduct(catalog, catId, +i);
@@ -453,13 +461,13 @@ document.addEventListener("click", e => {
   const delCat = e.target.closest("[data-delcat]");
   if (delCat){
     const cat = catalog.find(c => c.id === delCat.dataset.delcat);
-    ask("Delete this whole category?",
-        `“${cat.en}” and all ${cat.items.length} products inside it will be removed.`,
+    ask("Remove this category?",
+        `“${cat.en}” will be hidden from your website. Its ${cat.items.length} products stay in the Archive too, and you can restore them later.`,
         async () => {
           if (usingSupabase()){
-            const { error } = await api.deleteCategory(cat.id);
+            const { error } = await api.archive("categories", cat.id);
             if (error) return toast(error.message, true);
-            toast("Category deleted — live for everyone.");
+            toast("Category moved to Archive.");
             return reload();
           }
           store.deleteCategory(catalog, cat.id);
@@ -544,7 +552,7 @@ function renderDeals(){
           <button class="act" data-dup="${i}" title="Move up">↑</button>
           <button class="act" data-ddown="${i}" title="Move down">↓</button>
           <button class="act edit" data-dedit="${i}">✏️ Edit</button>
-          <button class="act del"  data-ddel="${i}">🗑 Remove</button>
+          <button class="act del"  data-ddel="${i}">🗄 Remove</button>
         </div>
       </div>`;
   }).join("");
@@ -691,9 +699,9 @@ document.addEventListener("click", e => {
         `“${d.en}” will no longer show in the deals strip. The product stays in your shop.`,
         async () => {
           if (usingSupabase()){
-            const { error } = await api.deleteDeal(d._id);
+            const { error } = await api.archive("deals", d._id);
             if (error) return toast(error.message, true);
-            toast("Removed from deals — live.");
+            toast("Removed from deals.");
             return reload();
           }
           deals.splice(+rm.dataset.ddel, 1);
@@ -736,3 +744,89 @@ $$(".tab").forEach(btn => btn.addEventListener("click", () => {
   $$(".panel-tab").forEach(sec =>
     sec.hidden = sec.id !== "tab-" + btn.dataset.tab);
 }));
+
+
+/* ============================== ARCHIVE =============================== */
+
+/** One archived row. `kind` is the table name. */
+function arcRow(item, kind, label){
+  const name = item.en;
+  const when = item.archived_at
+    ? new Date(item.archived_at).toLocaleDateString()
+    : "";
+
+  return `
+    <div class="arc-row">
+      <img class="prod-img" src="${esc(item.img || "assets/img/placeholder.svg")}"
+           alt="" loading="lazy">
+      <div class="prod-tx">
+        <span class="arc-kind">${esc(label)}</span>
+        <b>${esc(name)}</b>
+        <small>${esc(item.bn || "")}</small>
+        ${when ? `<span class="arc-when">Removed ${esc(when)}</span>` : ""}
+      </div>
+      <div class="prod-act">
+        <button class="act edit" data-restore="${esc(kind)}:${esc(item.id)}">↩ Restore</button>
+        <button class="act del"  data-destroy="${esc(kind)}:${esc(item.id)}">🗑 Delete forever</button>
+      </div>
+    </div>`;
+}
+
+function renderArchive(){
+  const total = archive.products.length + archive.categories.length + archive.deals.length;
+
+  const badge = $("#arcCount");
+  if (badge) badge.textContent = total ? total : "";
+
+  const list = $("#arcList");
+  if (!list) return;
+
+  if (!total){
+    list.innerHTML = `
+      <div class="none">
+        <b>Archive is empty</b>
+        <span>Anything you remove from your shop will appear here.</span>
+      </div>`;
+    return;
+  }
+
+  const block = (rows, kind, label, heading) => rows.length ? `
+    <section class="cat-block">
+      <div class="cat-head"><b>${esc(heading)}</b><em>${rows.length}</em></div>
+      ${rows.map(r => arcRow(r, kind, label)).join("")}
+    </section>` : "";
+
+  list.innerHTML =
+    block(archive.products,   "products",   "Product",  "Products") +
+    block(archive.categories, "categories", "Category", "Categories") +
+    block(archive.deals,      "deals",      "Deal",     "Deals");
+}
+
+/* --------------------------- archive actions -------------------------- */
+
+document.addEventListener("click", async e => {
+  const res = e.target.closest("[data-restore]");
+  if (res){
+    const [kind, id] = res.dataset.restore.split(/:(.+)/);
+    const { error } = await api.restore(kind, id);
+    if (error) return toast(error.message, true);
+    toast("Restored to your website.");
+    return reload();
+  }
+
+  const del = e.target.closest("[data-destroy]");
+  if (del){
+    const [kind, id] = del.dataset.destroy.split(/:(.+)/);
+    const item = [...archive.products, ...archive.categories, ...archive.deals]
+      .find(x => String(x.id) === id);
+
+    ask("Delete forever?",
+        `“${item?.en ?? "This item"}” will be gone permanently. This cannot be undone.`,
+        async () => {
+          const { error } = await api.destroy(kind, id);
+          if (error) return toast(error.message, true);
+          toast("Deleted permanently.");
+          reload();
+        });
+  }
+});

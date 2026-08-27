@@ -69,6 +69,7 @@
     <div class="tabs-in">
       <button class="tab on" data-tab="products">📦 My Products</button>
       <button class="tab" data-tab="deals">⭐ Today's Deals</button>
+      <button class="tab" data-tab="archive">🗄 Archive <em id="arcCount"></em></button>
     </div>
   </div>
 
@@ -117,6 +118,23 @@
       </div>
 
       <div id="dealList"></div>
+    </section>
+
+    <!-- ===================== TAB: ARCHIVE ====================== -->
+    <section class="panel-tab" id="tab-archive" hidden>
+      <div class="ad-hero arc-hero">
+        <div class="ad-hero-tx">
+          <h2>Archive</h2>
+          <p>Items you removed from your shop. Nothing here is lost.</p>
+        </div>
+      </div>
+
+      <div class="deal-note arc-note">
+        💡 <b>Restore</b> puts an item back on your website.
+        <b>Delete forever</b> removes it permanently and cannot be undone.
+      </div>
+
+      <div id="arcList"></div>
     </section>
   </div>
 </div>

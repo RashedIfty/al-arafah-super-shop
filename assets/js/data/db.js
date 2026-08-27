@@ -31,8 +31,8 @@ export async function fetchCatalog(){
   if (!c) return null;
 
   const [cats, prods] = await Promise.all([
-    c.from("categories").select("*").order("sort"),
-    c.from("products").select("*").order("sort")
+    c.from("categories").select("*").is("archived_at", null).order("sort"),
+    c.from("products").select("*").is("archived_at", null).order("sort")
   ]);
 
   if (cats.error || prods.error){
@@ -59,7 +59,7 @@ export async function fetchDeals(){
   const c = await db();
   if (!c) return null;
 
-  const { data, error } = await c.from("deals").select("*").order("sort");
+  const { data, error } = await c.from("deals").select("*").is("archived_at", null).order("sort");
   if (error){ console.error("fetchDeals:", error); return null; }
 
   return data.map(d => ({
@@ -89,16 +89,46 @@ export async function updateProduct(id, categoryId, p){
   }).eq("id", id);
 }
 
-export const deleteProduct = async id =>
-  (await db()).from("products").delete().eq("id", id);
+/* ---------------------------- archiving ------------------------------ */
+
+/** Hide from the shop without losing the record. */
+export async function archive(table, id){
+  const c = await db();
+  return c.from(table).update({ archived_at: new Date().toISOString() }).eq("id", id);
+}
+
+/** Put it back on the shop. */
+export async function restore(table, id){
+  const c = await db();
+  return c.from(table).update({ archived_at: null }).eq("id", id);
+}
+
+/** Gone for good — only offered from the archive. */
+export async function destroy(table, id){
+  const c = await db();
+  return c.from(table).delete().eq("id", id);
+}
+
+/** Everything currently archived, newest first. */
+export async function fetchArchive(){
+  const c = await db();
+  if (!c) return { products: [], categories: [], deals: [] };
+
+  const [p, cat, d] = await Promise.all([
+    c.from("products").select("*").not("archived_at", "is", null).order("archived_at", { ascending: false }),
+    c.from("categories").select("*").not("archived_at", "is", null).order("archived_at", { ascending: false }),
+    c.from("deals").select("*").not("archived_at", "is", null).order("archived_at", { ascending: false })
+  ]);
+
+  return { products: p.data ?? [], categories: cat.data ?? [], deals: d.data ?? [] };
+}
 
 export async function insertCategory(cat, sort = 0){
   const c = await db();
   return c.from("categories").insert({ ...cat, sort });
 }
 
-export const deleteCategory = async id =>
-  (await db()).from("categories").delete().eq("id", id);
+
 
 /* -------------------------------- deals ------------------------------ */
 
@@ -117,8 +147,7 @@ export async function updateDeal(id, d){
   }).eq("id", id);
 }
 
-export const deleteDeal = async id =>
-  (await db()).from("deals").delete().eq("id", id);
+
 
 /** Persist the display order after a drag / arrow move. */
 export async function reorderDeals(items){
