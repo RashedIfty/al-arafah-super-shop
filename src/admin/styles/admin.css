@@ -199,10 +199,12 @@
 
 .prod-act{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
 .act{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
   border:1px solid var(--line);background:#fff;border-radius:8px;
   padding:8px 13px;font-size:13px;font-weight:700;cursor:pointer;
   color:var(--body);white-space:nowrap;transition:.15s var(--ease);
 }
+.act .icon{flex-shrink:0}
 .act.edit:hover{border-color:var(--navy);color:var(--navy);background:var(--navy-l)}
 .act.del{color:var(--red);border-color:#f3c6cd}
 .act.del:hover{background:var(--red);color:#fff;border-color:var(--red)}
@@ -321,11 +323,35 @@
   .big-btn{width:100%;justify-content:center}
   .ad-save .btn{margin-left:0;width:100%}
 
-  .prod{flex-wrap:wrap;gap:11px}
-  .prod-img{width:52px;height:52px}
-  .prod-price{text-align:left;order:3}
-  .prod-act{flex-direction:row;order:4;margin-left:auto}
+  /* Two rows on a phone: picture + name above, price + buttons below.
+     All four children need an order, or the ones left at 0 stay on the
+     first line and the name collides with the price. */
+  .prod{flex-wrap:wrap;gap:11px;align-items:flex-start}
+  .prod-img{width:52px;height:52px;order:1}
+  .prod-tx{order:2;flex:1 1 auto}
+  .prod-price{
+    text-align:left;order:3;flex:0 0 auto;
+    display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+  }
+  .prod-price b{font-size:16px}
+  .tag{margin-top:0}
+  /* The pair of buttons breaks to its own line rather than squeezing
+     the price out of the way. */
+  .prod-act{flex-direction:row;order:4;margin-left:auto;gap:8px}
   .two{grid-template-columns:1fr}
+}
+
+/* On a narrow phone the price and both buttons cannot share a line, so
+   the price takes the full width and the buttons sit under it. */
+@media(max-width:460px){
+  .prod-price{flex:1 0 100%}
+  .prod-act{flex:1 0 100%;margin-left:0}
+  .prod-act .act{flex:1;justify-content:center}
+
+  .cat-head{flex-wrap:wrap}
+  .cat-head b{flex:1;min-width:0;font-size:15.5px}
+  .cat-head .act{flex:1}
+  .cat-head .cat-edit{margin-left:0}
 }
 
 /* ================================ TABS ================================ */
