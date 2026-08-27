@@ -1,5 +1,6 @@
 /* Japanese UI strings — 日本語 */
 export default {
+  pay_label:"お支払い方法",  pay_cash:"現金",
   owner_login:"オーナーログイン",
   cats_side:"全カテゴリ",
   ann_title:"本日のお買い得・新入荷", ann_deal:"本日のお買い得", ann_new:"新入荷",

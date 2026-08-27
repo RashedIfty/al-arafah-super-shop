@@ -122,6 +122,20 @@ export function footerHTML(){
       </div>
     </div>
 
+    <div class="pay-strip">
+      <div class="wrap pay-in">
+        <span class="pay-label">${esc(T.pay_label)}</span>
+        <ul class="pay-list">
+          <li><img src="/images/payment/paypay.svg" alt="PayPay" loading="lazy"></li>
+          <li><img src="/images/payment/visa.svg" alt="Visa" loading="lazy"></li>
+          <li><img src="/images/payment/mastercard.svg" alt="Mastercard" loading="lazy"></li>
+          <li><img src="/images/payment/amex.svg" alt="American Express" loading="lazy"></li>
+          <li><img src="/images/payment/jcb.svg" alt="JCB" loading="lazy"></li>
+          <li class="pay-cash">${icon("cash",{size:22})} ${esc(T.pay_cash)}</li>
+        </ul>
+      </div>
+    </div>
+
     <div class="foot-bot">
       <div class="wrap foot-bot-in">
         <p>© 2026 <b>${esc(SHOP.name)} ${esc(SHOP.name2)}</b> ·

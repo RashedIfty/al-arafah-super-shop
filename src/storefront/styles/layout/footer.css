@@ -58,3 +58,53 @@
   .foot-bot-in{justify-content:center;text-align:center}
   .owner-link{width:100%;justify-content:center}
 }
+
+/* ------------------------- payment methods --------------------------- */
+.pay-strip{
+  background:#fff;border-top:1px solid var(--line);
+  padding:18px 0;
+}
+.pay-in{
+  display:flex;align-items:center;justify-content:center;
+  gap:16px;flex-wrap:wrap;
+}
+.pay-label{
+  font-size:12.5px;font-weight:800;letter-spacing:.6px;
+  text-transform:uppercase;color:var(--mute);
+}
+.pay-list{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  justify-content:center;
+}
+.pay-list li{
+  display:flex;align-items:center;justify-content:center;
+  height:44px;min-width:62px;padding:0 12px;
+  background:#fff;border:1px solid var(--line);border-radius:8px;
+  transition:.18s var(--ease);
+}
+.pay-list li:hover{border-color:#cfd6e0;box-shadow:var(--sh)}
+
+/* Aspect ratios differ hugely (Amex is square, PayPay is 5:1), so size
+   each by height and let the width follow rather than capping width. */
+.pay-list img{width:auto;height:22px;display:block}
+.pay-list img[alt="American Express"]{height:28px}
+.pay-list img[alt="Mastercard"]{height:26px}
+.pay-list img[alt="JCB"]{height:26px}
+.pay-list img[alt="Visa"]{height:16px}
+.pay-list img[alt="PayPay"]{height:15px}
+.pay-cash{
+  gap:7px;font-size:13px;font-weight:700;color:var(--ink);
+}
+
+@media(max-width:600px){
+  .pay-in{gap:11px}
+  .pay-list{gap:7px}
+  .pay-list li{height:38px;min-width:52px;padding:0 9px}
+  .pay-list img{height:18px}
+  .pay-list img[alt="American Express"]{height:24px}
+  .pay-list img[alt="Mastercard"]{height:22px}
+  .pay-list img[alt="JCB"]{height:22px}
+  .pay-list img[alt="Visa"]{height:13px}
+  .pay-list img[alt="PayPay"]{height:12px}
+  .pay-cash{font-size:12px}
+}

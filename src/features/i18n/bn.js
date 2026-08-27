@@ -1,5 +1,6 @@
 /* Bangla UI strings — বাংলা */
 export default {
+  pay_label:"আমরা গ্রহণ করি",  pay_cash:"নগদ",
   owner_login:"মালিক লগইন",
   cats_side:"সকল ক্যাটাগরি",
   ann_title:"আজকের অফার ও নতুন এসেছে", ann_deal:"আজকের অফার", ann_new:"নতুন এসেছে",
