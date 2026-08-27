@@ -3,18 +3,51 @@
  * Search matches against all three languages at once.
  */
 import { $, $$, on } from "../../shared/lib/dom.js";
-import { t } from "../../features/i18n/lang.js";
+import { t, getLang, itemCount } from "../../features/i18n/lang.js";
+import { CATALOG } from "../../features/catalog/catalog.js";
+import { search as rank } from "../../features/search/engine.js";
 
 /** Filter cards; hides a whole section when nothing in it matches. */
 export function filter(query){
-  const q = query.trim().toLowerCase();
+  const q = query.trim();
+
+  if (!q){
+    // Empty query: show everything again.
+    $$(".card").forEach(card => {
+      delete card.dataset.searchHidden;
+      card.hidden = false;
+    });
+    $$(".sec").forEach(sec => sec.hidden = false);
+    $("#empty")?.toggleAttribute("hidden", true);
+    const res0 = $("#res");
+    if (res0) res0.textContent = "";
+    return $$(".card").length;
+  }
+
+  // Use the same ranked engine as the header dropdown, so "biriyani"
+  // finds "Shan Biryani Masala" here too. A plain substring test did not.
+  const products = CATALOG.flatMap(c =>
+    c.items.map(p => ({ ...p, _cat: c[getLang()] || c.en })));
+
+  const matched = new Set(
+    rank(q, products, getLang()).map(r => r.product.en.toLowerCase()));
+
   let shown = 0;
 
   $$(".sec").forEach(sec => {
     let visible = 0;
 
     $$(".card", sec).forEach(card => {
-      const hit = !q || card.dataset.search.includes(q);
+      // data-key is the English name, which does not change with
+      // the interface language; data-name would.
+      const name = card.dataset.key || "";
+      const hit = matched.has(name);
+
+      // Record the verdict so the filters combine with search instead
+      // of the two fighting over `hidden`.
+      if (hit) delete card.dataset.searchHidden;
+      else card.dataset.searchHidden = "1";
+
       card.hidden = !hit;
       if (hit) visible++;
     });
@@ -27,7 +60,7 @@ export function filter(query){
   if (empty) empty.hidden = shown > 0;
 
   const res = $("#res");
-  if (res) res.textContent = `${shown} ${t().items}`;
+  if (res) res.textContent = itemCount(shown);
 
   return shown;
 }

@@ -122,7 +122,16 @@ function readIntent(words){
   for (const w of words){
     if (PRICE_WORDS[w]){ intent.price = PRICE_WORDS[w]; continue; }
     if (SALE_WORDS.includes(w)){ intent.sale = true; continue; }
-    if (RECIPES[w]){ intent.recipe.push(...RECIPES[w]); continue; }
+
+    if (RECIPES[w]){
+      intent.recipe.push(...RECIPES[w]);
+      // A word can be both a dish and a product term - "biryani" names a
+      // dish AND appears in "Shan Biryani Masala". Consuming it entirely
+      // left nothing to match, so every product scored equally.
+      rest.push(w);
+      continue;
+    }
+
     rest.push(w);
   }
   return { intent, words: rest };
@@ -169,12 +178,19 @@ function scoreProduct(product, queryWords, intent, lang){
   // Every word matching beats a partial match on more words.
   if (matchedAll && queryWords.length) score *= 1.6;
 
-  // Ingredients implied by a dish count, but for less.
+  // A dish name implies ingredients, but only a strong match on the
+  // product NAME counts. Matching loosely, or against the category,
+  // gave every product a score and returned the whole catalogue.
+  let recipeHit = 0;
   for (const ing of intent.recipe){
-    for (const { words, weight } of tokens)
-      for (const tw of words)
-        if (wordScore(ing, tw) > 0.7){ score += 0.5 * weight; break; }
+    for (const { words, weight } of tokens){
+      if (weight < 1) continue;              // names only, not category
+      for (const tw of words){
+        if (wordScore(ing, tw) >= 0.9){ recipeHit += 0.9; break; }
+      }
+    }
   }
+  score += recipeHit;
 
   if (score === 0) return 0;
 

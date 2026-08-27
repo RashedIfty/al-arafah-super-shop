@@ -11,6 +11,7 @@ import { yen, discount } from "../../shared/lib/format.js";
 import { t, getLang, itemCount } from "../../features/i18n/lang.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
 import { search, suggest } from "../../features/search/engine.js";
+import { rerank, worthAsking } from "../../features/search/smart.js";
 
 const MAX = 8;              // suggestions shown at once
 let active = -1;            // keyboard cursor
@@ -43,6 +44,9 @@ function rowHTML(product, i){
     </li>`;
 }
 
+/** Rising counter so a slow AI reply cannot overwrite a newer search. */
+let seq = 0;
+
 function render(query){
   const box = $("#sgBox");
   if (!box) return;
@@ -50,9 +54,29 @@ function render(query){
   if (!query.trim()){ close(); return; }
 
   const products = allProducts();
-  results = search(query, products, getLang()).slice(0, MAX);
-  active = -1;
+  const local = search(query, products, getLang());
 
+  results = local.slice(0, MAX);
+  active = -1;
+  paint(query, box);
+
+  // Local results are already on screen; the model only reorders them.
+  if (worthAsking(query)){
+    const mine = ++seq;
+    box.classList.add("thinking");
+
+    rerank(query, local).then(better => {
+      if (mine !== seq) return;              // a newer query has started
+      box.classList.remove("thinking");
+      if (better === local) return;          // nothing changed
+      results = better.slice(0, MAX);
+      paint(query, box);
+    });
+  }
+}
+
+function paint(query, box){
+  const products = allProducts();
   const T = t();
 
   if (!results.length){

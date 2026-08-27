@@ -33,7 +33,10 @@ export function cardHTML(product, category, ci = 0, pi = 0){
            tabindex="0" role="button"
            data-search="${esc(searchIndex)}"
            data-price="${product.p}"
-           data-name="${esc(product[lang].toLowerCase())}">
+           data-sale="${product.was > product.p ? 1 : 0}"
+           data-tag="${esc(product.tag ?? "")}"
+           data-name="${esc(product[lang].toLowerCase())}"
+           data-key="${esc(product.en.toLowerCase())}">
     <div class="card-img">
       <div class="badges">${badges}</div>
       <img src="${esc(img)}" alt="${esc(product[lang])}"

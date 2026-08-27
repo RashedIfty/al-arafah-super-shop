@@ -77,3 +77,20 @@
 @media(prefers-reduced-motion:reduce){
   .sg-box,.card.found{animation:none}
 }
+
+/* A thin bar while the model refines the order. Local results are
+   already visible underneath, so this is a hint, not a spinner. */
+.sg-box.thinking::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--red),transparent);
+  background-size:40% 100%;background-repeat:no-repeat;
+  animation:sgScan 1s linear infinite;
+  z-index:2;
+}
+@keyframes sgScan{
+  from{background-position:-40% 0}
+  to  {background-position:140% 0}
+}
+@media(prefers-reduced-motion:reduce){
+  .sg-box.thinking::before{animation:none;background-position:50% 0}
+}
