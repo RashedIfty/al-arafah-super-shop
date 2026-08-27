@@ -1,0 +1,64 @@
+/* Product filters */
+
+.filters{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 18px;margin-bottom:18px;box-shadow:var(--sh);
+}
+
+.fl-row{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
+
+.fl-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fl-field > span{
+  font-size:11.5px;font-weight:800;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--mute);
+}
+.fl-field > span b{color:var(--red);font-size:13px;letter-spacing:0}
+
+.fl-field select{
+  border:2px solid var(--line);border-radius:9px;
+  padding:9px 12px;font-size:14.5px;background:#fff;cursor:pointer;
+  min-width:170px;
+}
+.fl-field select:focus{outline:0;border-color:var(--red)}
+
+.fl-price{flex:1;min-width:190px}
+.fl-price input{
+  width:100%;accent-color:var(--red);cursor:pointer;height:22px;
+}
+
+.fl-toggles{display:flex;gap:8px;flex-wrap:wrap}
+.fl-chip{cursor:pointer}
+.fl-chip input{position:absolute;opacity:0;pointer-events:none}
+.fl-chip span{
+  display:inline-block;border:2px solid var(--line);border-radius:20px;
+  padding:8px 15px;font-size:13.5px;font-weight:700;color:var(--body);
+  transition:.15s var(--ease);
+}
+.fl-chip:hover span{border-color:#cfd6e0}
+.fl-chip input:checked + span{
+  background:var(--red);border-color:var(--red);color:#fff;
+}
+.fl-chip input:focus-visible + span{outline:2px solid var(--gold);outline-offset:2px}
+
+.fl-clear{
+  border:0;background:none;cursor:pointer;padding:9px 4px;
+  font-size:13px;font-weight:700;color:var(--red);
+  display:inline-flex;align-items:center;gap:5px;
+}
+.fl-clear:hover{text-decoration:underline}
+.fl-clear[hidden]{display:none}
+
+.fl-count{
+  font-size:12.5px;color:var(--mute);font-weight:600;
+  margin-top:12px;padding-top:11px;border-top:1px solid var(--line);
+}
+.filters .res{display:none}   /* search count is shown by .fl-count */
+
+@media(max-width:700px){
+  .filters{padding:14px}
+  .fl-row{gap:14px}
+  .fl-field select{min-width:0;width:100%}
+  .fl-field{width:100%}
+  .fl-price{width:100%}
+  .fl-clear{margin-left:auto}
+}
