@@ -7,6 +7,7 @@
 import { $, $$, esc, on } from "../shared/lib/dom.js";
 import { icon } from "../shared/ui/icons.js";
 import { yen } from "../shared/lib/format.js";
+import { shrinkImage, fileSize } from "../shared/lib/image.js";
 import { isLoggedIn, login, logout, usingSupabase } from "./auth.js";
 import * as store from "./local-store.js";
 import { DEFAULT_ANNOUNCEMENTS } from "../features/deals/deals.js";
@@ -263,25 +264,69 @@ on("#photoPick", "click", () => $("#fFile").click());
  * Handle a chosen image, wherever it came from: the file picker, a paste,
  * or a drag and drop. `apply` sets the preview for whichever form is open.
  */
+/** Read a file as a data URL. */
+function dataURL(file){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload  = () => resolve(r.result);
+    r.onerror = () => reject(r.error || new Error("Could not read that file"));
+    r.readAsDataURL(file);
+  });
+}
+
+/**
+ * Newest pick wins. Choosing a second photo while the first is still
+ * uploading must not let the slower one land afterwards and overwrite it.
+ */
+let photoRun = 0;
+
 async function handleImage(file, apply){
   if (!file || !file.type.startsWith("image/")) return;
 
-  // Show it immediately while the upload runs.
-  const reader = new FileReader();
-  reader.onload = () => apply(reader.result);
-  reader.readAsDataURL(file);
+  const run = ++photoRun;
+  const stale = () => run !== photoRun;
+
+  // A phone photo is several megabytes and far larger than the shop ever
+  // displays. Shrink it here so the upload is quick and the storage lasts.
+  const before = file.size;
+  toast("Preparing photo…");
+
+  let small;
+  try {
+    small = await shrinkImage(file);
+  } catch {
+    small = file;                          // never block on a shrink failure
+  }
+  if (stale()) return;
+
+  // Show the shrunken picture straight away. It is what gets uploaded, so
+  // the preview matches what the customer will see. Deliberately not the
+  // original: reading a 4 MB file is slow and it could land after the
+  // upload finished and overwrite the hosted URL with base64.
+  try {
+    const preview = await dataURL(small);
+    if (stale()) return;
+    apply(preview);
+  } catch { /* preview is optional; the upload still matters */ }
+
+  const note = before > small.size
+    ? `${fileSize(before)} to ${fileSize(small.size)}`
+    : "";
 
   if (usingSupabase()){
     toast("Uploading photo…");
     try {
-      const url = await api.uploadPhoto(file);
+      const url = await api.uploadPhoto(small);
+      if (stale()) return;
       apply(url);                          // store the hosted URL, not base64
-      toast("Photo uploaded.");
+      toast(note ? `Photo uploaded — made smaller, ${note}.` : "Photo uploaded.");
     } catch (err){
+      if (stale()) return;
       toast("Photo upload failed: " + (err.message || "try again"), true);
     }
-  } else if (file.size > 500 * 1024){
-    toast("That photo is quite large. A smaller one will load faster.", true);
+  } else if (note){
+    // No backend yet: the shrunken picture stays in the page as base64.
+    toast(`Photo ready — ${note}.`);
   }
 }
 
