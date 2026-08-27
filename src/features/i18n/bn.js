@@ -1,5 +1,6 @@
 /* Bangla UI strings — বাংলা */
 export default {
+  sg_didyoumean:"আপনি কি খুঁজছেন",
   map_title:"আমাদের দোকানে আসুন",  map_sub:"সুকুবায় আমাদের খুঁজুন",  map_directions:"পথ দেখুন",
   pay_label:"আমরা গ্রহণ করি",  pay_cash:"নগদ",
   owner_login:"মালিক লগইন",

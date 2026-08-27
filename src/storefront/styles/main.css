@@ -24,6 +24,7 @@
 @import url("components/promo.css");
 @import url("components/lightbox.css");
 @import url("components/map.css");
+@import url("components/search-box.css");
 
 /* breakpoints last so they override */
 @import url("base/responsive.css");

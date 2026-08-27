@@ -11,6 +11,7 @@ import { topbarHTML, headerHTML, navHTML, footerHTML } from "./components/chrome
 import { announceBarHTML, initAnnounceBar } from "./components/deals-bar.js";
 import { lightboxHTML, initLightbox } from "./components/lightbox.js";
 import { mapHTML } from "./components/map.js";
+import { initSearchBox } from "./components/search-box.js";
 import { catalogHTML, chipsHTML } from "./components/product-card.js";
 import { categoryBrowserHTML } from "./components/category-browser.js";
 import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
@@ -100,6 +101,7 @@ function bindDynamic(){
 
   initAnnounceBar();
   initSearch();
+  initSearchBox();
   initScrollSpy();
 
   // Keep the chosen sort order after a re-render.

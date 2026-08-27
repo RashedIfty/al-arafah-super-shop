@@ -1,0 +1,79 @@
+/* Live search suggestions */
+
+.search{position:relative}
+
+.sg-box{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:80;
+  background:#fff;border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 14px 40px rgba(10,22,44,.18);
+  overflow:hidden;animation:sgIn .16s var(--ease);
+}
+.sg-box[hidden]{display:none}
+@keyframes sgIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+
+.sg-list{max-height:min(60vh,420px);overflow-y:auto}
+
+.sg-row{
+  display:flex;align-items:center;gap:11px;
+  padding:9px 13px;cursor:pointer;position:relative;
+  border-bottom:1px solid var(--line);
+}
+.sg-row:last-child{border-bottom:0}
+.sg-row:hover,.sg-row.on{background:var(--red-l)}
+
+.sg-img{
+  width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;
+  border:1px solid var(--line);background:var(--bg);
+}
+.sg-tx{flex:1;min-width:0}
+.sg-tx b{
+  display:block;font-size:14px;font-weight:700;color:var(--ink);
+  line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.sg-tx small{font-size:11.5px;color:var(--mute)}
+
+.sg-price{text-align:right;flex-shrink:0;line-height:1.3}
+.sg-price b{display:block;font-size:14.5px;font-weight:900;color:var(--red)}
+.sg-price s{font-size:11px;color:var(--mute)}
+
+.sg-off{
+  position:absolute;top:6px;right:6px;
+  background:var(--red);color:#fff;font-size:9px;font-weight:900;
+  padding:1px 5px;border-radius:3px;
+}
+
+.sg-foot{
+  padding:8px 13px;font-size:11.5px;color:var(--mute);
+  background:var(--bg);border-top:1px solid var(--line);text-align:center;
+}
+
+.sg-none{padding:22px 18px;text-align:center}
+.sg-none b{display:block;font-size:14.5px;color:var(--ink);margin-bottom:4px}
+.sg-none span{font-size:13px;color:var(--mute)}
+.sg-alt{
+  background:none;border:0;padding:0;cursor:pointer;
+  color:var(--red);font-weight:800;font-size:13px;
+  text-decoration:underline;font-family:inherit;
+}
+
+/* the card the customer picked */
+.card.found{
+  animation:found 2.4s var(--ease);
+}
+@keyframes found{
+  0%,100%{box-shadow:var(--sh)}
+  15%,70%{box-shadow:0 0 0 3px var(--red),var(--sh-lg)}
+}
+
+@media(max-width:620px){
+  .sg-box{
+    position:fixed;top:auto;left:8px;right:8px;
+    max-height:70vh;
+  }
+  .sg-img{width:38px;height:38px}
+  .sg-tx b{font-size:13px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .sg-box,.card.found{animation:none}
+}
