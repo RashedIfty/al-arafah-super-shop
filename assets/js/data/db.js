@@ -123,6 +123,12 @@ export async function fetchArchive(){
   return { products: p.data ?? [], categories: cat.data ?? [], deals: d.data ?? [] };
 }
 
+/** Rename a category or change its photo. */
+export async function updateCategory(id, patch){
+  const c = await db();
+  return c.from("categories").update(patch).eq("id", id);
+}
+
 export async function insertCategory(cat, sort = 0){
   const c = await db();
   return c.from("categories").insert({ ...cat, sort });

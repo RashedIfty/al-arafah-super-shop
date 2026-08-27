@@ -186,7 +186,8 @@ function renderList(){
           <img src="${esc(cat.img)}" alt="" class="cat-thumb">
           <b>${esc(cat.en)}</b>
           <em>${cat.items.length}</em>
-          <button class="act del cat-del" data-delcat="${esc(cat.id)}">🗄 Remove category</button>
+          <button class="act edit cat-edit" data-editcat="${esc(cat.id)}">✏️ Edit</button>
+          <button class="act del" data-delcat="${esc(cat.id)}">🗄 Remove</button>
         </div>
         ${rows}
       </section>`;
@@ -382,18 +383,63 @@ on("#cFile", "change", async e => {
   }
 });
 
-on("#addCatBtn", "click", () => {
+let editingCat = null;      // category id when editing, null when adding
+
+function openCatForm(id){
+  editingCat = id ?? null;
+  const c = id ? catalog.find(x => x.id === id) : null;
+
+  $("#catTitle").textContent = c ? "Edit Category" : "Add a New Category";
+  $("#catSave").textContent  = c ? "Save Changes"  : "Add Category";
+
   $("#catForm").reset();
   $("#cFile").value = "";
-  setCatPhoto("");
+  $("#cEn").value = c?.en || "";
+  $("#cBn").value = c?.bn || "";
+  $("#cJa").value = c?.ja || "";
+  setCatPhoto(c?.img || "");
+
   $("#catModal").hidden = false;
   $("#cEn").focus();
-});
+}
+
+on("#addCatBtn", "click", () => openCatForm());
 
 on("#catForm", "submit", async e => {
   e.preventDefault();
 
   const en = $("#cEn").value.trim();
+
+  /* ---- editing an existing category ---- */
+  if (editingCat){
+    const patch = {
+      en,
+      bn:  $("#cBn").value.trim(),
+      ja:  $("#cJa").value.trim(),
+      img: $("#cImg").value.trim() || "assets/img/placeholder.svg"
+    };
+
+    if (usingSupabase()){
+      const { error } = await api.updateCategory(editingCat, patch);
+      if (error) return toast(error.message, true);
+      $("#catModal").hidden = true;
+      setCatPhoto("");
+      editingCat = null;
+      toast("Category updated — live for everyone.");
+      return reload();
+    }
+
+    const cat = catalog.find(c => c.id === editingCat);
+    if (cat) Object.assign(cat, patch);
+    store.save(catalog);
+    $("#catModal").hidden = true;
+    setCatPhoto("");
+    editingCat = null;
+    toast("Category updated.");
+    renderAll();
+    return;
+  }
+
   // Build a safe id from the English name so the owner never sees one.
   let id = en.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   if (!id) id = "category";
@@ -457,6 +503,9 @@ document.addEventListener("click", e => {
         });
     return;
   }
+
+  const editCat = e.target.closest("[data-editcat]");
+  if (editCat){ openCatForm(editCat.dataset.editcat); return; }
 
   const delCat = e.target.closest("[data-delcat]");
   if (delCat){

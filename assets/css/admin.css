@@ -523,3 +523,7 @@
   .arc-row{flex-wrap:wrap}
   .arc-row .prod-act{width:100%;justify-content:flex-end}
 }
+
+/* category row actions sit together on the right */
+.cat-edit{margin-left:auto}
+.cat-head .act + .act{margin-left:7px}
