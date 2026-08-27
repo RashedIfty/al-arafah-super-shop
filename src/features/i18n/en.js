@@ -1,5 +1,6 @@
 /* English UI strings */
 export default {
+  map_title:"Visit Our Shop",  map_sub:"Find us in Tsukuba",  map_directions:"Get Directions",
   pay_label:"We accept",  pay_cash:"Cash",
   owner_login:"Owner Login",
   cats_side:"All Categories",

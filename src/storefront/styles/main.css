@@ -23,6 +23,7 @@
 @import url("components/card.css");
 @import url("components/promo.css");
 @import url("components/lightbox.css");
+@import url("components/map.css");
 
 /* breakpoints last so they override */
 @import url("base/responsive.css");

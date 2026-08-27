@@ -1,5 +1,6 @@
 /* Japanese UI strings — 日本語 */
 export default {
+  map_title:"店舗のご案内",  map_sub:"つくば市にあります",  map_directions:"ルート案内",
   pay_label:"お支払い方法",  pay_cash:"現金",
   owner_login:"オーナーログイン",
   cats_side:"全カテゴリ",

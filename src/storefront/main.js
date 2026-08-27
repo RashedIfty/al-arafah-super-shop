@@ -10,6 +10,7 @@ import { todayIndex } from "../shared/lib/format.js";
 import { topbarHTML, headerHTML, navHTML, footerHTML } from "./components/chrome.js";
 import { announceBarHTML, initAnnounceBar } from "./components/deals-bar.js";
 import { lightboxHTML, initLightbox } from "./components/lightbox.js";
+import { mapHTML } from "./components/map.js";
 import { catalogHTML, chipsHTML } from "./components/product-card.js";
 import { categoryBrowserHTML } from "./components/category-browser.js";
 import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
@@ -60,10 +61,12 @@ function renderStats(){
   put("#stC", visible.length);
 }
 
-/** City line on the contact page. */
+/** Full address on the contact page. */
 function renderCity(){
   const el = $("#cityLine");
-  if (el) el.textContent = SHOP.city[document.documentElement.lang] || SHOP.city.en;
+  if (!el) return;
+  const lang = document.documentElement.lang;
+  el.textContent = SHOP.address[lang] || SHOP.address.en;
 }
 
 /** Full render — safe to call repeatedly. */
@@ -78,6 +81,7 @@ function render(){
   if ($("#chips"))    put("#chips",    chipsHTML());
   if ($("#catBrowse")) put("#catBrowse", categoryBrowserHTML());
   if ($("#catalog")) put("#catalog", catalogHTML());
+  if ($("#mapMount")) put("#mapMount", mapHTML());
 
   applyTranslations();
   renderStats();
