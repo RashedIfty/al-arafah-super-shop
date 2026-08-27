@@ -1,5 +1,6 @@
 /* Japanese UI strings — 日本語 */
 export default {
+  fl_category:"カテゴリ",  fl_all:"全カテゴリ",  fl_upto:"上限",  fl_sale:"セール中",  fl_stock:"在庫あり",  fl_clear:"クリア",
   item_one:"点",
   ann_prev:"前へ",  ann_next:"次へ",
   sg_didyoumean:"もしかして",

@@ -42,12 +42,13 @@ export function headerHTML(){
         </span>
       </a>
 
+      ${currentPage() === "products" ? `
       <form class="search" onsubmit="return false;" role="search">
         <input type="search" id="search" placeholder="${esc(T.search)}"
                aria-label="${esc(T.search)}" autocomplete="off">
         <button type="submit" aria-label="${esc(T.search)}">${icon("search")}</button>
         <div class="sg-box" id="sgBox" hidden></div>
-      </form>
+      </form>` : ""}
 
       <div class="lang" role="group" aria-label="Language">${langBtns}</div>
 

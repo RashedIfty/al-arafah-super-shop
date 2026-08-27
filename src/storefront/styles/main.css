@@ -16,6 +16,7 @@
 @import url("layout/pages.css");
 
 /* components */
+@import url("components/announcement.css");
 @import url("components/deals-bar.css");
 @import url("components/button.css");
 @import url("components/chips.css");
@@ -25,6 +26,7 @@
 @import url("components/lightbox.css");
 @import url("components/map.css");
 @import url("components/search-box.css");
+@import url("components/filters.css");
 
 /* breakpoints last so they override */
 @import url("base/responsive.css");

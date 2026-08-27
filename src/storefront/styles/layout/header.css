@@ -13,6 +13,10 @@
 .header{padding:13px 0;background:#fff;border-bottom:1px solid var(--line)}
 .header-in{display:flex;align-items:center;gap:12px}
 
+/* On pages without a search box, push the controls to the right so the
+   header does not look half-empty. */
+body:not([data-page="products"]) .header-in .lang{margin-left:auto}
+
 .brand{display:flex;align-items:center;gap:11px;flex-shrink:0}
 .brand-logo{
   width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0;
@@ -79,3 +83,14 @@
 .hdr-login:hover{border-color:var(--red);color:var(--red);background:var(--red-l)}
 .hdr-login em{font-style:normal;display:none}
 @media(min-width:1100px){ .hdr-login em{display:inline} }
+
+/* Very small phones: shrink the brand and language buttons so the row
+   never wraps or overflows. */
+@media(max-width:420px){
+  .header{padding:10px 0}
+  .brand-logo{width:44px;height:44px}
+  .brand-tx b{font-size:16px}
+  .brand-tx span{font-size:7.5px;letter-spacing:1.6px}
+  .lang-b{padding:7px 7px;font-size:11px}
+  .hdr-login{padding:8px 10px}
+}

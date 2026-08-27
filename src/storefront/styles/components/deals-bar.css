@@ -156,19 +156,32 @@
 }
 
 /* ----------------------------- breakpoints ---------------------------- */
+
+/* Small phones: a narrower card, and the arrows would crowd the screen. */
+@media(max-width:520px){
+  .ann-in{padding:16px 14px 18px}
+  .ann-item{width:224px}
+  .ann-row{gap:12px}
+  .ann-nav{display:none}          /* swipe instead */
+  .ann-head h2{font-size:17px}
+  .ann-tx b{font-size:14px}
+  .ann-price .now{font-size:19px}
+}
+
 @media(min-width:600px){
   .ann-in{padding:22px 22px 26px}
   .ann-item{width:300px}
   .ann-head h2{font-size:21px}
-  .ann-scroll{margin:0 -22px;padding:0 22px 2px}
-  .ann-item{width:196px}
-  .ann-tx b{font-size:13px}
-  .ann-price .now{font-size:17px}
 }
 
 @media(min-width:1000px){
   .ann-head h2{font-size:22px}
   .ann-item{width:340px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .ann-item{transition:none;filter:none;opacity:1;transform:none}
+  .ann-item.is-active{transform:none}
 }
 
 @media print{ .ann{display:none} }
