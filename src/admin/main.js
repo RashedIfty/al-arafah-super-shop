@@ -84,7 +84,8 @@ let signingIn = false;
 
 async function doLogin(e){
   e?.preventDefault();
-  if (signingIn) return;                       // ignore double taps
+  if (signingIn) return;        // login() is async - guard before awaiting
+  signingIn = true;
 
   const email = $("#email")?.value ?? "";
   const pass  = $("#pass")?.value  ?? "";
@@ -94,10 +95,16 @@ async function doLogin(e){
   err.hidden = true;
 
   btn.disabled = true;
-  const result = await login(email, pass);
+  let result;
+  try {
+    result = await login(email, pass);
+  } catch (ex) {
+    result = { ok: false, message: "Error: " + (ex?.message || ex) };
+  }
   btn.disabled = false;
 
   if (!result.ok){
+    signingIn = false;                          // let them try again
     err.textContent = result.message || "That email or password is not right.";
     err.hidden = false;
     $(".login-card").classList.remove("shake");
@@ -107,7 +114,6 @@ async function doLogin(e){
   }
 
   // Matched — show progress, then reveal the panel.
-  signingIn = true;
   btn.classList.add("loading");
   btn.innerHTML = `<span class="spin"></span><span>Password matched — signing in…</span>`;
 
@@ -124,7 +130,6 @@ async function doLogin(e){
 }
 
 on("#loginForm", "submit", doLogin);
-on(".login-go", "click", doLogin);
 
 on("#logout", "click", async () => { await logout(); location.href = "index.html"; });
 
@@ -629,7 +634,8 @@ function renderDeals(){
         <img class="prod-img" src="${esc(d.img || "/images/placeholder.svg")}" alt="" loading="lazy">
         <div class="prod-tx">
           <span class="dtype ${isDeal ? "deal" : "new"}">
-            ${isDeal ? "${icon("fire",{size:12})} TODAY'S DEAL" : "${icon("star",{size:12})} NEW ARRIVAL"}
+            ${isDeal ? icon("fire",{size:12}) + " TODAY'S DEAL"
+                      : icon("star",{size:12}) + " NEW ARRIVAL"}
           </span>
           <b>${esc(d.en)}</b>
           <small>${esc(d.bn)}</small>

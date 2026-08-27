@@ -39,7 +39,13 @@ export async function login(email = "", pass = ""){
       if (error) return { ok: false, message: friendly(error.message) };
       return { ok: Boolean(data?.user) };
     } catch (e) {
-      return { ok: false, message: "Could not reach the server. Check your connection." };
+      // Surface the real cause; a generic message here hid a module-load
+      // failure for far too long.
+      console.error("[auth] sign-in failed:", e);
+      return {
+        ok: false,
+        message: "Could not sign in: " + (e?.message || "unknown error")
+      };
     }
   }
 
