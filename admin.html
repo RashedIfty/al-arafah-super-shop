@@ -69,6 +69,7 @@
     <div class="tabs-in">
       <button class="tab on" data-tab="products"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 6h-3V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2M9 4h6v2H9z"/></svg> My Products</button>
       <button class="tab" data-tab="deals"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 17.27 6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> Today's Deals</button>
+      <button class="tab" data-tab="notice"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9zm3-19A7 7 0 0 0 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7"/></svg> Announcement <em id="anDot"></em></button>
       <button class="tab" data-tab="archive"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 2H4a2 2 0 0 0-2 2v3h20V4a2 2 0 0 0-2-2M3 9v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9zm11 5H10v-2h4z"/></svg> Archive <em id="arcCount"></em></button>
     </div>
   </div>
@@ -118,6 +119,48 @@
       </div>
 
       <div id="dealList"></div>
+    </section>
+
+    <!-- ==================== TAB: ANNOUNCEMENT ================== -->
+    <section class="panel-tab" id="tab-notice" hidden>
+      <div class="ad-hero notice-hero">
+        <div class="ad-hero-tx">
+          <h2>Shop Announcement</h2>
+          <p>One message, shown at the top of every page of your website.</p>
+        </div>
+      </div>
+
+      <div class="announce-editor">
+        <div class="ae-head">
+          <b>Show this announcement</b>
+          <span>Turn off to hide it without losing the text</span>
+          <label class="ae-switch">
+            <input type="checkbox" id="anActive">
+            <span></span>
+          </label>
+        </div>
+
+        <div class="ae-body" id="anBody">
+          <label><span>In English</span>
+            <input id="anEn" maxlength="160" placeholder="Closed on Friday for Eid"></label>
+          <label><span>বাংলায় (in Bangla)</span>
+            <input id="anBn" maxlength="160" placeholder="ঈদের জন্য শুক্রবার বন্ধ"></label>
+          <label><span>日本語で (in Japanese)</span>
+            <input id="anJa" maxlength="160" placeholder="イード のため金曜休業"></label>
+
+          <div class="ae-preview" id="anPreview" hidden>
+            <span class="ae-preview-label">Customers will see</span>
+            <div class="ae-preview-bar" id="anPreviewBar"></div>
+          </div>
+
+          <div class="ae-actions">
+            <button class="btn btn-red" id="anSave" type="button">Save Announcement</button>
+            <button class="btn btn-out danger" id="anDelete" type="button">Delete</button>
+          </div>
+        </div>
+      </div>
+
+
     </section>
 
     <!-- ===================== TAB: ARCHIVE ====================== -->

@@ -9,15 +9,25 @@ import { t, setLang, onLangChange, initLang } from "../features/i18n/lang.js";
 import { todayIndex } from "../shared/lib/format.js";
 import { topbarHTML, headerHTML, navHTML, footerHTML } from "./components/chrome.js";
 import { announceBarHTML, initAnnounceBar, initDealsCarousel } from "./components/deals-bar.js";
+import { announcementHTML, setAnnouncement } from "./components/announcement.js";
 import { lightboxHTML, initLightbox } from "./components/lightbox.js";
 import { mapHTML } from "./components/map.js";
 import { initSearchBox } from "./components/search-box.js";
+import { filtersHTML, initFilters } from "./components/filters.js";
 import { catalogHTML, chipsHTML } from "./components/product-card.js";
 import { categoryBrowserHTML } from "./components/category-browser.js";
 import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
 import { CATALOG, refreshCatalog } from "../features/catalog/catalog.js";
 import { ANNOUNCEMENTS, refreshDeals } from "../features/deals/deals.js";
 import { SHOP } from "../shared/shop.js";
+
+/** Pull the banner; silence is fine, the page simply shows none. */
+async function loadAnnouncement(){
+  try {
+    const { fetchAnnouncement } = await import("../backend/client.js");
+    setAnnouncement(await fetchAnnouncement());
+  } catch { /* offline or not configured */ }
+}
 
 /* ------------------------------ rendering ----------------------------- */
 
@@ -73,6 +83,7 @@ function renderCity(){
 /** Full render — safe to call repeatedly. */
 function render(){
   put("#lbMount", lightboxHTML());
+  put("#noticeMount", announcementHTML());
   put("#announce", announceBarHTML());
   put("#topbar", topbarHTML());
   put("#header", headerHTML());
@@ -83,6 +94,7 @@ function render(){
   if ($("#catBrowse")) put("#catBrowse", categoryBrowserHTML());
   if ($("#catalog")) put("#catalog", catalogHTML());
   if ($("#mapMount")) put("#mapMount", mapHTML());
+  if ($("#filterMount")) put("#filterMount", filtersHTML());
 
   applyTranslations();
   renderStats();
@@ -103,6 +115,7 @@ function bindDynamic(){
   initDealsCarousel();
   initSearch();
   initSearchBox();
+  initFilters();
   initScrollSpy();
 
   // Keep the chosen sort order after a re-render.
@@ -117,13 +130,22 @@ render();                       // paint immediately with bundled data
 
 /* Then load live data and re-render; realtime keeps it current. */
 (async () => {
+  /* The announcement is one small row and sits at the top of the page,
+     so it should not wait behind the catalogue. Paint it the moment it
+     lands rather than after the slowest request. */
+  loadAnnouncement().then(() => {
+    // Always repaint: an empty result must clear a cached banner, not
+    // leave the previous one on screen.
+    put("#noticeMount", announcementHTML());
+  });
+
   const [cat, deals] = await Promise.all([refreshCatalog(), refreshDeals()]);
   if (cat?.length || deals?.items?.length) render();
 
   try {
     const { subscribe } = await import("../backend/client.js");
     await subscribe(async () => {
-      await Promise.all([refreshCatalog(), refreshDeals()]);
+      await Promise.all([refreshCatalog(), refreshDeals(), loadAnnouncement()]);
       render();
     });
   } catch { /* offline or not configured — bundled data stands */ }

@@ -89,6 +89,28 @@ export async function updateProduct(id, categoryId, p){
   }).eq("id", id);
 }
 
+/* -------------------------- announcement ----------------------------- */
+
+/** The single banner row, or null when the shop has none. */
+export async function fetchAnnouncement(){
+  const c = await db();
+  if (!c) return null;
+
+  const { data, error } = await c
+    .from("announcement").select("*").eq("id", 1).maybeSingle();
+
+  if (error){ console.error("fetchAnnouncement:", error); return null; }
+  return data;
+}
+
+/** Save the banner. Passing active:false hides it without losing the text. */
+export async function saveAnnouncement(patch){
+  const c = await db();
+  return c.from("announcement")
+    .update({ ...patch, updated_at: new Date().toISOString() })
+    .eq("id", 1);
+}
+
 /* ---------------------------- archiving ------------------------------ */
 
 /** Hide from the shop without losing the record. */
@@ -217,5 +239,6 @@ export async function subscribe(onChange){
     .on("postgres_changes", { event: "*", schema: "public", table: "products"   }, onChange)
     .on("postgres_changes", { event: "*", schema: "public", table: "categories" }, onChange)
     .on("postgres_changes", { event: "*", schema: "public", table: "deals"      }, onChange)
+    .on("postgres_changes", { event: "*", schema: "public", table: "announcement" }, onChange)
     .subscribe();
 }

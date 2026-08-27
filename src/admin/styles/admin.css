@@ -546,3 +546,76 @@
 /* status hints carry meaning through colour and a leading mark */
 .hint.good::before{content:"\2713\00a0";font-weight:900}
 .hint.bad::before {content:"\0021\00a0";font-weight:900}
+
+/* ========================== ANNOUNCEMENT ============================== */
+.announce-editor{
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  margin-bottom:16px;overflow:hidden;
+}
+
+.ae-head{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:16px 18px;background:#fff8e6;border-bottom:1px solid var(--gold);
+}
+.ae-head b{font-size:16px;color:var(--ink)}
+.ae-head span{font-size:12.5px;color:var(--body)}
+
+/* on/off switch */
+.ae-switch{margin-left:auto;position:relative;cursor:pointer;flex-shrink:0}
+.ae-switch input{position:absolute;opacity:0;pointer-events:none}
+.ae-switch > span{
+  display:block;width:52px;height:30px;border-radius:20px;
+  background:var(--line);transition:.2s var(--ease);
+}
+.ae-switch > span::after{
+  content:"";position:absolute;top:4px;left:4px;
+  width:22px;height:22px;border-radius:50%;background:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.28);transition:.2s var(--ease);
+}
+.ae-switch input:checked + span{background:#12805c}
+.ae-switch input:checked + span::after{transform:translateX(22px)}
+.ae-switch input:focus-visible + span{outline:2px solid var(--gold);outline-offset:2px}
+
+.ae-body{padding:18px}
+.ae-body.off{opacity:.5}
+.ae-body label{display:block;margin-bottom:13px}
+.ae-body label span{
+  display:block;font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:5px;
+}
+.ae-body input{
+  width:100%;border:2px solid var(--line);border-radius:9px;
+  padding:11px 13px;font-size:15px;outline:0;background:var(--bg);
+}
+.ae-body input:focus{border-color:var(--red);background:#fff}
+
+/* live preview of the customer-facing banner */
+.ae-preview{margin:16px 0}
+.ae-preview[hidden]{display:none}
+.ae-preview-label{
+  display:block;font-size:11px;font-weight:800;letter-spacing:.6px;
+  text-transform:uppercase;color:var(--mute);margin-bottom:6px;
+}
+.ae-preview-bar{
+  background:linear-gradient(100deg,var(--gold),#ffc746 45%,var(--gold));
+  color:#3a2a00;font-size:14.5px;font-weight:700;line-height:1.45;
+  padding:13px 16px;border-radius:10px;
+}
+
+.ae-actions{display:flex;gap:9px;flex-wrap:wrap}
+
+@media(max-width:600px){
+  .ae-head{padding:14px}
+  .ae-head span{width:100%;order:3}
+  .ae-body{padding:14px}
+  .ae-actions .btn{flex:1}
+}
+
+/* announcement tab */
+.notice-hero{
+  background:linear-gradient(120deg,#8a6a10,var(--gold));border-color:transparent;
+}
+.notice-hero h2{color:#fff}
+.notice-hero p{color:rgba(255,255,255,.82)}
+
+/* the tab badge reads ON rather than a count */
+.tab em#anDot{background:#12805c}

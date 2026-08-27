@@ -18,6 +18,7 @@ let confirmAction = null;      // callback for the confirm dialog
 let deals = [];                // Today's Deal & New Arrival strip
 let editingDeal = null;        // index when editing, null when adding
 let archive = { products: [], categories: [], deals: [] };
+let notice = null;      // the single announcement row
 
 /* ------------------------------- helpers ------------------------------ */
 
@@ -45,9 +46,10 @@ async function openPanel(){
   $("#panel").hidden = false;
 
   if (usingSupabase()){
-    const [cat, dl, arc] = await Promise.all([
-      api.fetchCatalog(), api.fetchDeals(), api.fetchArchive()
+    const [cat, dl, arc, ann] = await Promise.all([
+      api.fetchCatalog(), api.fetchDeals(), api.fetchArchive(), api.fetchAnnouncement()
     ]);
+    notice = ann;
     catalog = cat || store.load();
     deals   = dl  || store.loadDeals(DEFAULT_ANNOUNCEMENTS.items);
     archive = arc || archive;
@@ -71,9 +73,10 @@ async function openPanel(){
 /** Pull fresh data after a write. */
 async function reload(){
   if (!usingSupabase()) return;
-  const [cat, dl, arc] = await Promise.all([
-    api.fetchCatalog(), api.fetchDeals(), api.fetchArchive()
+  const [cat, dl, arc, ann] = await Promise.all([
+    api.fetchCatalog(), api.fetchDeals(), api.fetchArchive(), api.fetchAnnouncement()
   ]);
+  if (ann) notice = ann;
   if (cat) catalog = cat;
   if (dl)  deals   = dl;
   if (arc) archive = arc;
@@ -154,6 +157,7 @@ function renderAll(){
   renderDeals();
   renderDealPicker();
   renderArchive();
+  renderNotice();
 }
 
 function renderList(){
@@ -927,4 +931,113 @@ document.addEventListener("click", async e => {
           reload();
         });
   }
+});
+
+
+/* =========================== ANNOUNCEMENT ============================= */
+
+/** Fill the editor from whatever is saved. */
+function renderNotice(){
+  if (!$("#anEn")) return;
+
+  $("#anEn").value = notice?.en ?? "";
+  $("#anBn").value = notice?.bn ?? "";
+  $("#anJa").value = notice?.ja ?? "";
+  $("#anActive").checked = Boolean(notice?.active);
+
+  $("#anBody")?.classList.toggle("off", !notice?.active);
+
+  // Mark the tab when something is actually showing on the website.
+  const live = Boolean(notice?.active && (notice.en || "").trim());
+  const dot = $("#anDot");
+  if (dot) dot.textContent = live ? "ON" : "";
+
+  previewNotice();
+}
+
+/** Show the owner exactly what a customer would see. */
+function previewNotice(){
+  const text = $("#anEn")?.value.trim();
+  const wrap = $("#anPreview");
+  const bar  = $("#anPreviewBar");
+  if (!wrap || !bar) return;
+
+  const on = $("#anActive")?.checked && text;
+  wrap.hidden = !on;
+  if (on) bar.textContent = text;
+}
+
+["#anEn", "#anBn", "#anJa"].forEach(sel => on(sel, "input", previewNotice));
+
+/**
+ * A switch should act, not queue a change. Requiring Save after flicking
+ * it meant the owner turned the banner off and it stayed up.
+ */
+on("#anActive", "change", async e => {
+  const active = e.target.checked;
+  $("#anBody")?.classList.toggle("off", !active);
+  previewNotice();
+
+  if (active && !$("#anEn").value.trim()){
+    toast("Write the announcement first, then turn it on.", true);
+    e.target.checked = false;
+    $("#anBody")?.classList.add("off");
+    return;
+  }
+
+  if (usingSupabase()){
+    const { error } = await api.saveAnnouncement({ active });
+    if (error){
+      toast(error.message, true);
+      e.target.checked = !active;          // put the switch back
+      return;
+    }
+  }
+
+  notice = { ...notice, active };
+  toast(active ? "Announcement is now showing." : "Announcement hidden.");
+  renderNotice();
+});
+
+on("#anSave", "click", async () => {
+  const en = $("#anEn").value.trim();
+  const active = $("#anActive").checked;
+
+  if (active && !en)
+    return toast("Please write the announcement in English at least.", true);
+
+  const patch = {
+    active,
+    en,
+    bn: $("#anBn").value.trim(),
+    ja: $("#anJa").value.trim()
+  };
+
+  if (usingSupabase()){
+    const { error } = await api.saveAnnouncement(patch);
+    if (error) return toast(error.message, true);
+    notice = { ...notice, ...patch };
+    toast(active ? "Announcement is live on your website." : "Announcement saved but hidden.");
+    return renderNotice();
+  }
+
+  notice = { ...notice, ...patch };
+  toast("Announcement saved on this device.");
+  renderNotice();
+});
+
+on("#anDelete", "click", () => {
+  ask("Delete the announcement?",
+      "The banner will disappear from your website and the text will be cleared.",
+      async () => {
+        const blank = { active: false, en: "", bn: "", ja: "" };
+
+        if (usingSupabase()){
+          const { error } = await api.saveAnnouncement(blank);
+          if (error) return toast(error.message, true);
+        }
+        notice = { ...notice, ...blank };
+        toast("Announcement deleted.");
+        renderNotice();
+      });
 });

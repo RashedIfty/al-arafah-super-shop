@@ -1,0 +1,49 @@
+/* Shop announcement banner */
+
+.notice{
+  position:relative;overflow:hidden;
+  background:linear-gradient(100deg,var(--gold),#ffc746 45%,var(--gold));
+  border-top:1px solid rgba(0,0,0,.06);
+  border-bottom:1px solid rgba(0,0,0,.10);
+}
+
+/* A slow sheen so the eye catches it without the banner shouting. */
+.notice::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);
+  background-size:220% 100%;
+  animation:noticeSheen 5.5s ease-in-out infinite;
+}
+@keyframes noticeSheen{
+  0%,60%{background-position:180% 0}
+  100%  {background-position:-80% 0}
+}
+
+.notice-in{
+  position:relative;z-index:2;
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;
+}
+
+.notice-icon{
+  flex-shrink:0;width:34px;height:34px;border-radius:50%;
+  background:rgba(58,42,0,.14);color:#3a2a00;
+  display:grid;place-items:center;
+}
+
+.notice-text{
+  flex:1;min-width:0;
+  color:#3a2a00;font-size:14.5px;font-weight:700;line-height:1.45;
+}
+
+@media(min-width:700px){
+  .notice-in{padding:15px 16px}
+  .notice-text{font-size:15.5px;text-align:center}
+  .notice-icon{width:36px;height:36px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .notice::after{animation:none;opacity:0}
+}
+
+@media print{ .notice{display:none} }
