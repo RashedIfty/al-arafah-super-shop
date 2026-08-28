@@ -1,7 +1,7 @@
 /* Today's Deal & New Arrival — the homepage highlight */
 
 .ann{
-  background:linear-gradient(120deg,var(--navy-d),var(--navy) 58%,#26467e);
+  background:linear-gradient(120deg,var(--navy-d),var(--navy) 55%,#f79426);
   border-radius:var(--radius);
   margin:26px 16px 6px;
   max-width:calc(var(--wrap) - 32px);
@@ -63,7 +63,7 @@
 .ann-nav.prev{left:4px}
 .ann-nav.next{right:4px}
 .ann-nav{
-  background:rgba(10,22,44,.55);border-color:rgba(255,255,255,.35);
+  background:rgba(40,12,3,.55);border-color:rgba(255,255,255,.35);
   backdrop-filter:blur(6px);
 }
 .ann-nav:hover{background:#fff;color:var(--navy-d)}

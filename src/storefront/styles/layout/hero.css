@@ -1,19 +1,23 @@
 /* Hero & feature strip */
 
-/* Shopfront photo behind a dark scrim so the copy stays readable. */
+/* The shopfront itself, behind a scrim.
+   The scrim is warm rather than the old blue-black, and lighter at the
+   top so the AL-ARAFAH signboard reads through it — the shop should be
+   recognisable to someone who has walked past it. Heavier at the bottom,
+   where the headline and buttons sit. */
 .hero{
   background:
-    linear-gradient(rgba(10,22,44,.82), rgba(12,28,56,.86)),
-    url("/images/cover-sm.jpg") center 38% / cover no-repeat,
-    linear-gradient(125deg,var(--navy-d) 0%,var(--navy) 52%,#2a5391 100%);
-  color:#fff;padding:38px 0 42px;position:relative;overflow:hidden;
+    linear-gradient(rgba(60,18,5,.50) 0%, rgba(44,12,3,.66) 42%, rgba(28,7,2,.82) 100%),
+    url("/images/cover-sm.jpg") center top / cover no-repeat,
+    linear-gradient(125deg,var(--navy-d) 0%,var(--navy) 50%,#f79426 100%);
+  color:#fff;padding:78px 0 46px;position:relative;overflow:hidden;
 }
 @media(min-width:900px){
   .hero{
     background:
-      linear-gradient(rgba(10,22,44,.80), rgba(12,28,56,.86)),
-      url("/images/cover.jpg") center 38% / cover no-repeat,
-      linear-gradient(125deg,var(--navy-d) 0%,var(--navy) 52%,#2a5391 100%);
+      linear-gradient(rgba(60,18,5,.46) 0%, rgba(44,12,3,.62) 42%, rgba(28,7,2,.80) 100%),
+      url("/images/cover.jpg") center top / cover no-repeat,
+      linear-gradient(125deg,var(--navy-d) 0%,var(--navy) 50%,#f79426 100%);
   }
 }
 /* Warm glow top-right, matching the shop's yellow signboard. */
@@ -23,16 +27,31 @@
 }
 .hero-in{position:relative;z-index:2;text-align:center}
 
+/* A soft pool of shade behind the copy alone. The signboard above stays
+   bright and readable; the words below get a ground to sit on without
+   dimming the whole photograph. */
+.hero-in::before{
+  content:"";position:absolute;z-index:-1;
+  left:50%;transform:translateX(-50%);
+  top:38px;width:min(760px,94%);height:calc(100% - 30px);
+  background:radial-gradient(ellipse at center,
+    rgba(30,8,2,.62) 0%, rgba(30,8,2,.42) 55%, transparent 78%);
+  filter:blur(6px);pointer-events:none;
+}
+
 .hero .kick{
   display:inline-flex;align-items:center;gap:6px;background:var(--gold);
   color:#3a2a00;font-size:11px;font-weight:900;letter-spacing:1.3px;
   padding:6px 15px;border-radius:20px;
 }
+/* The photo behind is busy — a yellow signboard, flags, red panels — so
+   the copy carries a heavier shadow than a plain background would need. */
 .hero h1{color:#fff;font-size:27px;margin:15px 0 11px;line-height:1.18;
-  text-shadow:0 2px 14px rgba(0,0,0,.5)}
-.hero h1 span{color:var(--gold)}
-.hero p{color:rgba(255,255,255,.92);font-size:15px;max-width:580px;margin:0 auto 22px;
-  text-shadow:0 1px 10px rgba(0,0,0,.45)}
+  text-shadow:0 2px 4px rgba(0,0,0,.55), 0 4px 22px rgba(0,0,0,.65)}
+.hero h1 span{color:var(--gold);
+  text-shadow:0 2px 4px rgba(60,20,0,.7), 0 4px 22px rgba(0,0,0,.6)}
+.hero p{color:#fff;font-size:15px;max-width:580px;margin:0 auto 22px;
+  text-shadow:0 1px 3px rgba(0,0,0,.6), 0 2px 14px rgba(0,0,0,.5)}
 .hero-cta{display:flex;gap:11px;justify-content:center;flex-wrap:wrap}
 
 .hero-stats{
@@ -40,7 +59,7 @@
   max-width:540px;margin:28px auto 0;
 }
 .hero-stats div{
-  background:rgba(10,22,44,.42);backdrop-filter:blur(3px);
+  background:rgba(40,12,3,.46);backdrop-filter:blur(3px);
   border:1px solid rgba(255,255,255,.20);
   border-radius:11px;padding:12px 6px;
 }

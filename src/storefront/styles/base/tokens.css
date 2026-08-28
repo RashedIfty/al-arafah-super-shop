@@ -5,14 +5,22 @@
   --red:#c8102e;
   --red-d:#a30d25;
   --red-l:#fdeaed;
-  --navy:#1b3a6b;
-  --navy-d:#12294c;
-  --navy-l:#eef2f8;
+
+  /* The deep panels — hero, topbar, footer, the deals strip. Orange
+     leads, with just enough red beneath it to keep white text readable;
+     a flat bright orange would leave the headings floating. Kept under
+     the token names the whole stylesheet already uses, so the change is
+     one edit rather than thirty. */
+  --navy:#e2621d;        /* mid   — the orange    */
+  --navy-d:#b8380f;      /* deep  — burnt anchor  */
+  --navy-l:#fdf1e7;      /* tint  — pale ground   */
+
   --gold:#f0a500;
   --gold-d:#c98600;
 
-  /* neutrals */
-  --ink:#12294c;
+  /* neutrals — text stays a near-black with a warm cast, so headings
+     read cleanly. Orange text on white would fail contrast badly. */
+  --ink:#2b1a15;
   --body:#5a6472;
   --mute:#98a1ad;
   --line:#e8ebf0;

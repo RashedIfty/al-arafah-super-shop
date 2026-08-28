@@ -1,7 +1,7 @@
 /* Interior page templates */
 
 .page-head{
-  background:linear-gradient(125deg,var(--navy-d),var(--navy));
+  background:linear-gradient(125deg,var(--navy-d),var(--navy) 58%,#f79426);
   color:#fff;padding:30px 0;text-align:center;
 }
 .page-head h1{color:#fff;font-size:25px}
