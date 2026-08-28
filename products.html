@@ -21,6 +21,16 @@
 </head>
 <body data-page="products">
 
+<script>
+/* Runs before the splash paints. Inside a visit the shop should feel
+   continuous, so the opening screen is skipped entirely rather than
+   flashing for a frame on every click. */
+try {
+  if (sessionStorage.getItem("aa-splashed") === "1")
+    document.documentElement.className += " no-splash";
+} catch (e) {}
+</script>
+
 <div class="splash" id="splash">
   <div class="splash-in">
     <img src="/images/logo.jpeg" alt="" class="splash-logo">

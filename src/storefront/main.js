@@ -129,6 +129,29 @@ function bindDynamic(){
 /* -------------------------------- init -------------------------------- */
 
 /**
+ * The splash belongs to arriving at the shop, not to moving around it.
+ *
+ * Once it has been shown, a flag in sessionStorage keeps it away for the
+ * rest of the visit — clicking through to Products or a country should
+ * feel instant, not like starting again. The flag clears when the tab
+ * closes, so the next visit opens properly.
+ */
+const SEEN_KEY = "aa-splashed";
+
+function alreadyArrived(){
+  try { return sessionStorage.getItem(SEEN_KEY) === "1"; }
+  catch { return false; }
+}
+
+function markArrived(){
+  try { sessionStorage.setItem(SEEN_KEY, "1"); } catch { /* private mode */ }
+}
+
+/* Take it down immediately on an internal page view, before it can be
+   seen. Waiting for the data would show a flash of navy on every click. */
+if (alreadyArrived()) $("#splash")?.remove();
+
+/**
  * Take the splash down and reveal the finished page.
  *
  * Safe to call more than once — whichever reason gets here first wins.
@@ -139,6 +162,7 @@ function reveal(){
   revealed = true;
 
   document.body.classList.add("ready");
+  markArrived();
 
   const splash = $("#splash");
   if (!splash) return;
@@ -157,18 +181,29 @@ const PATIENCE = 4000;
 initLang();
 
 (async () => {
-  /* Everything the first screen needs, fetched together so the page can
-     be painted once, complete, instead of assembling itself in front of
-     the customer. */
-  try {
-    await Promise.race([
-      Promise.all([refreshCatalog(), refreshDeals(), loadAnnouncement()]),
-      new Promise(r => setTimeout(r, PATIENCE)),
-    ]);
-  } catch { /* fall through and paint with whatever we have */ }
+  /* Arriving at the shop: fetch everything the first screen needs, then
+     paint once, complete, rather than assembling in front of the reader.
 
-  render();
-  reveal();
+     Moving around inside it: the catalogue is already cached from the
+     arrival, so paint straight away and let the refresh land quietly.
+     Waiting again on every click would make the shop feel slow. */
+  if (alreadyArrived()){
+    render();
+    reveal();
+    Promise.all([refreshCatalog(), refreshDeals(), loadAnnouncement()])
+      .then(render)
+      .catch(() => { /* keep what is on screen */ });
+  } else {
+    try {
+      await Promise.race([
+        Promise.all([refreshCatalog(), refreshDeals(), loadAnnouncement()]),
+        new Promise(r => setTimeout(r, PATIENCE)),
+      ]);
+    } catch { /* fall through and paint with whatever we have */ }
+
+    render();
+    reveal();
+  }
 
   /* Realtime keeps it current from here on. */
   try {

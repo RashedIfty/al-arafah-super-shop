@@ -7,9 +7,11 @@
    ========================================================================== */
 
 .splash{
-  position:fixed;inset:0;z-index:9999;
+  position:fixed;inset:0;z-index:99999;
   display:grid;place-items:center;
-  background:var(--navy-d,#0d1f3d);
+  /* Solid, and stated without the token as well: if the stylesheet with
+     the tokens has not applied yet the page must not show through. */
+  background:#12294c;
   transition:opacity .3s ease;
 }
 .splash.gone{opacity:0;pointer-events:none}
@@ -53,9 +55,19 @@
   100%{transform:translateX(360%)}
 }
 
-/* The page underneath is hidden until the data is in, then fades up. */
-body:not(.ready) .page-hide{opacity:0}
-.page-hide{opacity:1;transition:opacity .28s ease}
+/* The page underneath stays out of sight until the data is in.
+   visibility, not opacity: a partly-transparent page showing through the
+   splash was exactly the muddle this is meant to avoid. The transition is
+   only on the visible state, so nothing animates on the way in. */
+body:not(.ready) .page-hide{visibility:hidden;opacity:0}
+body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
+
+/* Already inside the shop: no opening screen at all. Set by a small
+   script in the markup before the browser paints, so there is not even a
+   frame of navy when moving between pages. */
+.no-splash .splash{display:none}
+.no-splash body:not(.ready) .page-hide,
+.no-splash .page-hide{visibility:visible;opacity:1}
 
 /* Someone who prefers less motion gets the splash without the animation. */
 @media(prefers-reduced-motion:reduce){
