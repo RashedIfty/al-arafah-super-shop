@@ -671,3 +671,27 @@ body{overflow-x:hidden}
 
 /* the tab badge reads ON rather than a count */
 .tab em#anDot{background:#12805c}
+
+/* ------------------------ dragging a deal into place ------------------- */
+/* Two arrows meant a dozen clicks to lift something from the bottom to
+   the top. The handle says pick me up. */
+.drag{
+  display:grid;place-items:center;flex-shrink:0;
+  width:26px;height:34px;border-radius:7px;
+  color:var(--mute);cursor:grab;
+  touch-action:none;                  /* let the drag win over the scroll */
+  transition:.15s var(--ease);
+}
+.drag:hover{color:var(--ink);background:var(--bg)}
+.drag:active{cursor:grabbing}
+
+.deal-row{transition:.15s var(--ease)}
+.deal-row.dragging{opacity:.45}
+/* A line where the row will land. */
+.deal-row.over{
+  box-shadow:0 -3px 0 0 var(--red);
+}
+
+@media(max-width:560px){
+  .drag{width:34px;height:40px}       /* a thumb needs more than a mouse */
+}

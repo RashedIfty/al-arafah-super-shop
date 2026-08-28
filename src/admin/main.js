@@ -696,7 +696,10 @@ function renderDeals(){
     const isDeal = d.type === "deal";
 
     return `
-      <div class="deal-row ${isDeal ? "is-deal" : "is-new"}">
+      <div class="deal-row ${isDeal ? "is-deal" : "is-new"}" draggable="true" data-i="${i}">
+        <span class="drag" title="Hold and drag to reorder" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>
+        </span>
         <img class="prod-img" src="${esc(d.img || "/images/placeholder.svg")}" alt="" loading="lazy" ${IMG_FALLBACK}>
         <div class="prod-tx">
           <span class="dtype ${isDeal ? "deal" : "new"}">
@@ -713,8 +716,6 @@ function renderDeals(){
           ${off ? `<span class="tag off">-${off}%</span>` : ""}
         </div>
         <div class="prod-act">
-          <button class="act" data-dup="${i}" title="Move up">${icon("up",{size:16})}</button>
-          <button class="act" data-ddown="${i}" title="Move down">${icon("down",{size:16})}</button>
           <button class="act edit" data-dedit="${i}">${icon("edit",{size:14})} Edit</button>
           <button class="act del"  data-ddel="${i}">${icon("archive",{size:14})} Remove</button>
         </div>
@@ -812,9 +813,11 @@ on("#dealForm", "submit", async e => {
         if (deals.some(d => d.en === prod.en && d.w === prod.w))
           return toast("That product is already in your deals.", true);
 
+        // A new offer is the news: it belongs at the front of the strip,
+        // not behind everything added before it.
         const { error } = await api.insertDeal(
           { type, en:prod.en, bn:prod.bn, ja:prod.ja, w:prod.w,
-            p:now, was, img:prod.img || "" }, deals.length);
+            p:now, was, img:prod.img || "" });
         if (error) throw error;
       }
       toast(editingDeal !== null ? "Deal updated — live." : "Added to deals — live.");
@@ -841,7 +844,7 @@ on("#dealForm", "submit", async e => {
       return;
     }
 
-    deals.push({ type, en:p.en, bn:p.bn, ja:p.ja, w:p.w, p:now, was, img:p.img || "" });
+    deals.unshift({ type, en:p.en, bn:p.bn, ja:p.ja, w:p.w, p:now, was, img:p.img || "" });
   }
 
   store.saveDeals(deals);
@@ -876,27 +879,6 @@ document.addEventListener("click", e => {
     return;
   }
 
-  const up = e.target.closest("[data-dup]");
-  if (up){
-    const i = +up.dataset.dup;
-    if (i > 0){
-      [deals[i - 1], deals[i]] = [deals[i], deals[i - 1]];
-      if (usingSupabase()) api.reorderDeals(deals).then(reload);
-      else { store.saveDeals(deals); renderAll(); }
-    }
-    return;
-  }
-
-  const dn = e.target.closest("[data-ddown]");
-  if (dn){
-    const i = +dn.dataset.ddown;
-    if (i < deals.length - 1){
-      [deals[i + 1], deals[i]] = [deals[i], deals[i + 1]];
-      if (usingSupabase()) api.reorderDeals(deals).then(reload);
-      else { store.saveDeals(deals); renderAll(); }
-    }
-    return;
-  }
 
   if (e.target.closest("[data-dx]")) closeDealForm();
 });
@@ -1102,4 +1084,99 @@ on("#anDelete", "click", () => {
         toast("Announcement deleted.");
         renderNotice();
       });
+});
+
+/* ------------------------- reordering the deals ------------------------ */
+
+/**
+ * Drag a deal to move it.
+ *
+ * Two arrows meant a dozen clicks to move something from the bottom to
+ * the top. Dragging says what it means: pick it up, put it where you
+ * want it.
+ *
+ * Both pointer and touch are handled. A phone has no drag-and-drop of
+ * its own, and the owner is as likely to be on one as at a desk.
+ */
+let dragFrom = null;
+
+/** Move a deal from one place to another and save the new order. */
+function moveDeal(from, to){
+  if (from === to || from == null || to == null) return;
+  if (from < 0 || to < 0 || from >= deals.length || to >= deals.length) return;
+
+  const [row] = deals.splice(from, 1);
+  deals.splice(to, 0, row);
+
+  if (usingSupabase()) api.reorderDeals(deals).then(reload);
+  else { store.saveDeals(deals); renderAll(); }
+}
+
+/** The row under a point on the screen, and its index. */
+function rowAt(x, y){
+  const el = document.elementFromPoint(x, y)?.closest(".deal-row");
+  return el ? { el, i: +el.dataset.i } : null;
+}
+
+/* ---- mouse and trackpad ---- */
+
+on("#dealList", "dragstart", e => {
+  const row = e.target.closest(".deal-row");
+  if (!row) return;
+  dragFrom = +row.dataset.i;
+  row.classList.add("dragging");
+  e.dataTransfer.effectAllowed = "move";
+  // Firefox will not start a drag without something on the transfer.
+  e.dataTransfer.setData("text/plain", String(dragFrom));
+});
+
+on("#dealList", "dragover", e => {
+  e.preventDefault();                      // without this, no drop lands
+  const over = e.target.closest(".deal-row");
+  $$(".deal-row").forEach(r => r.classList.toggle("over", r === over));
+});
+
+on("#dealList", "drop", e => {
+  e.preventDefault();
+  const over = e.target.closest(".deal-row");
+  $$(".deal-row").forEach(r => r.classList.remove("over", "dragging"));
+  if (over) moveDeal(dragFrom, +over.dataset.i);
+  dragFrom = null;
+});
+
+on("#dealList", "dragend", () => {
+  $$(".deal-row").forEach(r => r.classList.remove("over", "dragging"));
+  dragFrom = null;
+});
+
+/* ---- touch ---- */
+
+let touchRow = null;
+
+on("#dealList", "touchstart", e => {
+  const handle = e.target.closest(".drag");
+  if (!handle) return;                     // only the handle starts a drag,
+  const row = handle.closest(".deal-row"); // so the list still scrolls
+  if (!row) return;
+  touchRow = row;
+  dragFrom = +row.dataset.i;
+  row.classList.add("dragging");
+}, { passive: true });
+
+on("#dealList", "touchmove", e => {
+  if (!touchRow) return;
+  e.preventDefault();                      // hold the page still while dragging
+  const t = e.touches[0];
+  const over = rowAt(t.clientX, t.clientY);
+  $$(".deal-row").forEach(r => r.classList.toggle("over", r === over?.el && r !== touchRow));
+}, { passive: false });
+
+on("#dealList", "touchend", e => {
+  if (!touchRow) return;
+  const t = e.changedTouches[0];
+  const over = rowAt(t.clientX, t.clientY);
+  $$(".deal-row").forEach(r => r.classList.remove("over", "dragging"));
+  if (over && over.el !== touchRow) moveDeal(dragFrom, over.i);
+  touchRow = null;
+  dragFrom = null;
 });

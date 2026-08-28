@@ -19,10 +19,22 @@ export function put(sel, html, root = document){
 const ENTITIES = { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" };
 export const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ENTITIES[c]);
 
-/** Add a listener only if the element exists. */
-export function on(sel, event, handler, root = document){
+/**
+ * Add a listener only if the element exists.
+ *
+ * The fourth argument is either a root to search within, or the usual
+ * listener options — a touchmove that calls preventDefault needs
+ * { passive: false }, and passing it as a root would silently drop it.
+ */
+export function on(sel, event, handler, opts){
+  // Options are a plain object with listener flags; a root is a node.
+  const isOpts = Boolean(opts) && typeof opts.addEventListener !== "function"
+    && typeof opts.querySelector !== "function";
+
+  const root = (!opts || isOpts) ? document : opts;
   const el = typeof sel === "string" ? $(sel, root) : sel;
-  if (el) el.addEventListener(event, handler);
+
+  if (el) el.addEventListener(event, handler, isOpts ? opts : undefined);
   return el;
 }
 
