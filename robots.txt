@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# The owner's panel is not for search engines.
+Disallow: /admin.html
+
+Sitemap: https://alarafahsupershop.com/sitemap.xml
