@@ -11,7 +11,7 @@ import { shrinkImage, fileSize } from "../shared/lib/image.js";
 import { isLoggedIn, login, logout, usingSupabase } from "./auth.js";
 import * as store from "./local-store.js";
 import { DEFAULT_ANNOUNCEMENTS } from "../features/deals/deals.js";
-import { COUNTRIES, realCategories, isCountryCat } from "../features/catalog/countries.js";
+import { COUNTRIES, realCategories } from "../features/catalog/countries.js";
 import * as api from "../backend/client.js";
 
 let catalog = [];
@@ -174,7 +174,10 @@ function renderAll(){
 function renderList(){
   const q = $("#filter").value.trim().toLowerCase();
 
-  const html = catalog.map(cat => {
+  // Countrywise is not a category: it holds nothing, so a block for
+  // managing its products would be meaningless. It gets its own strip
+  // below, where its name and picture stay editable.
+  const html = realCategories(catalog).map(cat => {
     const rows = cat.items.map((p, i) => {
       if (q && ![p.en, p.bn, p.ja].join(" ").toLowerCase().includes(q)) return "";
 
@@ -203,17 +206,11 @@ function renderList(){
     // the category — an empty one still needs to be editable and fillable.
     if (q && !rows) return "";
 
-    // Countrywise gathers products by where they came from; nothing is
-    // put into it directly, so it is not offered as a destination.
-    const body = rows || (isCountryCat(cat) ? `
-      <div class="cat-empty">
-        <span>Products appear here by the country set on each product,
-              not by being added to this tile.</span>
-      </div>` : `
+    const body = rows || `
       <div class="cat-empty">
         <span>No products in this category yet.</span>
         <button class="act edit" data-addto="${esc(cat.id)}">${icon("plus",{size:14})} Add a product here</button>
-      </div>`);
+      </div>`;
 
     return `
       <section class="cat-block">
