@@ -1,57 +1,47 @@
 /* Hero & feature strip */
 
-/* The shopfront itself, behind a scrim.
-   The scrim is warm rather than the old blue-black, and lighter at the
-   top so the AL-ARAFAH signboard reads through it — the shop should be
-   recognisable to someone who has walked past it. Heavier at the bottom,
-   where the headline and buttons sit. */
+/* ==========================================================================
+   The shop leads.
+
+   The photograph used to be wallpaper behind the words, dimmed by a scrim
+   so the copy stayed readable — which meant the thing the owner most
+   wanted seen was the thing least visible. It is now a card of its own
+   beside the copy, shown whole and undimmed, the way a storefront is
+   presented on a modern retail site.
+   ========================================================================== */
+
 .hero{
   background:
-    linear-gradient(rgba(60,18,5,.50) 0%, rgba(44,12,3,.66) 42%, rgba(28,7,2,.82) 100%),
-    url("/images/cover-sm.jpg") center top / cover no-repeat,
-    linear-gradient(125deg,var(--navy-d) 0%,var(--navy) 50%,#f79426 100%);
-  color:#fff;padding:78px 0 46px;position:relative;overflow:hidden;
+    radial-gradient(1200px 620px at 88% -12%, rgba(247,148,38,.34), transparent 62%),
+    linear-gradient(135deg,#7d2408 0%, var(--navy-d) 34%, var(--navy) 74%, #f0801f 100%);
+  color:#fff;padding:34px 0 40px;position:relative;overflow:hidden;
 }
-@media(min-width:900px){
-  .hero{
-    background:
-      linear-gradient(rgba(60,18,5,.46) 0%, rgba(44,12,3,.62) 42%, rgba(28,7,2,.80) 100%),
-      url("/images/cover.jpg") center top / cover no-repeat,
-      linear-gradient(125deg,var(--navy-d) 0%,var(--navy) 50%,#f79426 100%);
-  }
-}
-/* Warm glow top-right, matching the shop's yellow signboard. */
-.hero::before{
-  content:"";position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(circle at 82% 14%,rgba(240,165,0,.20),transparent 52%);
-}
-.hero-in{position:relative;z-index:2;text-align:center}
 
-/* A soft pool of shade behind the copy alone. The signboard above stays
-   bright and readable; the words below get a ground to sit on without
-   dimming the whole photograph. */
-.hero-in::before{
-  content:"";position:absolute;z-index:-1;
-  left:50%;transform:translateX(-50%);
-  top:38px;width:min(760px,94%);height:calc(100% - 30px);
-  background:radial-gradient(ellipse at center,
-    rgba(30,8,2,.62) 0%, rgba(30,8,2,.42) 55%, transparent 78%);
-  filter:blur(6px);pointer-events:none;
+/* A faint grid, the way product pages carry texture without noise. */
+.hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(circle at 30% 40%, #000, transparent 72%);
 }
+
+.hero-in{position:relative;z-index:2;display:grid;gap:26px;text-align:center}
+
+/* ------------------------------- the copy ------------------------------ */
 
 .hero .kick{
   display:inline-flex;align-items:center;gap:6px;background:var(--gold);
   color:#3a2a00;font-size:11px;font-weight:900;letter-spacing:1.3px;
   padding:6px 15px;border-radius:20px;
 }
-/* The photo behind is busy — a yellow signboard, flags, red panels — so
-   the copy carries a heavier shadow than a plain background would need. */
-.hero h1{color:#fff;font-size:27px;margin:15px 0 11px;line-height:1.18;
-  text-shadow:0 2px 4px rgba(0,0,0,.55), 0 4px 22px rgba(0,0,0,.65)}
-.hero h1 span{color:var(--gold);
-  text-shadow:0 2px 4px rgba(60,20,0,.7), 0 4px 22px rgba(0,0,0,.6)}
-.hero p{color:#fff;font-size:15px;max-width:580px;margin:0 auto 22px;
-  text-shadow:0 1px 3px rgba(0,0,0,.6), 0 2px 14px rgba(0,0,0,.5)}
+.hero h1{
+  color:#fff;font-size:29px;margin:15px 0 11px;line-height:1.14;
+  letter-spacing:-.6px;
+}
+.hero h1 span{color:var(--gold)}
+.hero p{color:rgba(255,255,255,.88);font-size:15px;max-width:560px;margin:0 auto 22px}
 .hero-cta{display:flex;gap:11px;justify-content:center;flex-wrap:wrap}
 
 .hero-stats{
@@ -59,13 +49,63 @@
   max-width:540px;margin:28px auto 0;
 }
 .hero-stats div{
-  background:rgba(40,12,3,.46);backdrop-filter:blur(3px);
-  border:1px solid rgba(255,255,255,.20);
-  border-radius:11px;padding:12px 6px;
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:12px;padding:12px 6px;
 }
 .hero-stats b{display:block;color:#fff;font-size:20px;line-height:1.08;font-weight:900}
 .hero-stats span{font-size:10px;color:rgba(255,255,255,.76);font-weight:700;letter-spacing:.6px}
 
+/* ------------------------------ the shopfront -------------------------- */
+
+.hero-shot{
+  margin:0;position:relative;border-radius:18px;
+  background:#fff;padding:8px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.5) inset,
+    0 18px 40px rgba(0,0,0,.34),
+    0 40px 80px rgba(0,0,0,.22);
+}
+/* The whole shopfront, never cropped to fit a shape. */
+.hero-shot img{
+  display:block;width:100%;height:auto;border-radius:12px;
+}
+.hero-shot figcaption{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:9px 10px 4px;
+  font-size:12px;font-weight:700;color:var(--ink);
+}
+.hero-shot figcaption .icon{color:var(--red);flex-shrink:0}
+
+/* ------------------------------ breakpoints ---------------------------- */
+
+@media(min-width:900px){
+  .hero{padding:52px 0 58px}
+
+  /* Copy left, shop right — the storefront layout people expect. */
+  .hero-in{
+    grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);
+    align-items:center;gap:44px;text-align:left;
+  }
+  .hero h1{font-size:40px;margin-top:17px}
+  .hero p{margin-left:0;margin-right:0;font-size:16px}
+  .hero-cta{justify-content:flex-start}
+  .hero-stats{margin-left:0;max-width:470px}
+
+  .hero-shot{padding:10px;border-radius:22px}
+  .hero-shot img{border-radius:14px}
+  /* A slight lift, so the card reads as an object on the page. */
+  .hero-shot{transform:rotate(-.5deg)}
+}
+
+@media(min-width:1200px){
+  .hero h1{font-size:46px}
+  .hero-in{gap:56px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-shot{transform:none}
+}
 
 .feats{background:var(--bg);border-bottom:1px solid var(--line);padding:16px 0}
 .feats-in{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
