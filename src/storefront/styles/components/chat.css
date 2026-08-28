@@ -1,0 +1,65 @@
+/* ==========================================================================
+   Order on chat — WhatsApp, LINE, and the shop's group.
+
+   The link comes first and the QR sits under it: on a phone, which is
+   where most of this shop's customers are, tapping is the whole
+   interaction and a QR code is useless. The code is there for someone
+   reading on a laptop with their phone in hand.
+   ========================================================================== */
+
+.chat{
+  display:grid;gap:14px;grid-template-columns:1fr;
+}
+
+.chat-card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px 20px;text-align:center;
+  box-shadow:var(--sh);transition:.2s var(--ease);
+  display:flex;flex-direction:column;align-items:center;
+}
+.chat-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px)}
+
+/* Each service keeps its own colour — people recognise them by it. */
+.chat-ic{
+  display:grid;place-items:center;width:52px;height:52px;border-radius:14px;
+  margin-bottom:12px;color:#fff;
+}
+.chat-card.wa   .chat-ic{background:#25d366}
+.chat-card.line .chat-ic{background:#06c755}
+.chat-card.grp  .chat-ic{background:linear-gradient(135deg,#128c7e,#25d366)}
+.chat-card.wa:hover  {border-color:#25d366}
+.chat-card.line:hover{border-color:#06c755}
+.chat-card.grp:hover {border-color:#128c7e}
+
+.chat-card h3{font-size:16.5px;color:var(--ink);margin-bottom:4px}
+.chat-card p{font-size:13.5px;color:var(--body);line-height:1.5;margin-bottom:14px}
+
+.chat-go{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:132px;padding:11px 22px;border-radius:10px;
+  background:var(--red);color:#fff;font-size:14px;font-weight:800;
+  transition:.18s var(--ease);
+}
+.chat-go:hover{background:var(--red-d);transform:translateY(-1px)}
+
+/* The code, quiet under the button. */
+.chat-qr{
+  width:120px;height:auto;margin-top:16px;border-radius:10px;
+  border:1px solid var(--line);background:#fff;
+}
+.chat-scan{
+  display:block;margin-top:7px;
+  font-size:11px;color:var(--mute);letter-spacing:.4px;
+}
+
+/* The group card has no QR of its own. Rather than letting it float in
+   the middle while the others start at the top, it keeps the same
+   alignment and simply ends earlier. */
+.chat-card{justify-content:flex-start}
+.chat-card.grp .chat-go{margin-top:auto}
+
+/* ----------------------------- breakpoints ---------------------------- */
+@media(min-width:760px){
+  .chat{grid-template-columns:repeat(3,1fr);gap:18px}
+  .chat-card{padding:26px 22px}
+}

@@ -75,8 +75,8 @@
 
   /* Copy left, shop right — the storefront layout people expect. */
   .hero-in{
-    grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);
-    align-items:center;gap:44px;text-align:left;
+    grid-template-columns:minmax(0,.86fr) minmax(0,1.35fr);
+    align-items:center;gap:40px;text-align:left;
   }
   .hero h1{font-size:40px;margin-top:17px}
   .hero p{margin-left:0;margin-right:0;font-size:16px}
@@ -88,7 +88,7 @@
 
 @media(min-width:1200px){
   .hero h1{font-size:46px}
-  .hero-in{gap:56px}
+  .hero-in{gap:48px;grid-template-columns:minmax(0,.8fr) minmax(0,1.45fr)}
 }
 
 @media(prefers-reduced-motion:reduce){

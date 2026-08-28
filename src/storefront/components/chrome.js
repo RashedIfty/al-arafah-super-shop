@@ -18,6 +18,11 @@ export function topbarHTML(){
     <div class="wrap topbar-in">
       <span>${icon("pin",{size:14})} ${esc(SHOP.city[getLang()])} · <b>${esc(SHOP.tel)}</b></span>
       <div class="topbar-links">
+        <!-- Delivery belongs on every page, not only the homepage: a
+             customer deep in the catalogue is exactly who needs to know. -->
+        <a class="topbar-dlv" href="index.html#delivery">
+          ${icon("box",{size:14})} ${esc(T.tb_dlv)}
+        </a>
         <span>${icon("clock",{size:14})} ${esc(T.daily)} ${esc(SHOP.hours)}</span>
       </div>
     </div>`;

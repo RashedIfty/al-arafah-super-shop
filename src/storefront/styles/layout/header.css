@@ -94,3 +94,11 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
   .lang-b{padding:7px 7px;font-size:11px}
   .hdr-login{padding:8px 10px}
 }
+
+/* The delivery promise, carried on every page. Gold so it reads as an
+   offer rather than another line of shop detail. */
+.topbar-dlv{
+  display:inline-flex;align-items:center;gap:5px;
+  color:var(--gold);font-weight:800;
+}
+.topbar-dlv:hover{color:#fff}
