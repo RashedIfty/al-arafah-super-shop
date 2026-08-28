@@ -17,7 +17,28 @@
 <meta property="og:image" content="https://alarafahsupershop.com/cover.jpg">
 <meta name="twitter:card" content="summary_large_image">
 
-<link rel="stylesheet" href="src/storefront/styles/main.css">
+<script>
+/* Ask the database for the shop before the JavaScript that needs it has
+   even downloaded. Both requests are in flight while the modules load,
+   so the page is not waiting on a round trip it could have started
+   half a second earlier. main.js picks these up. */
+(function(){
+  var U = "https://fkftvudfngcmrtylevnl.supabase.co";
+  var K = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrZnR2dWRmbmdjbXJ0eWxldm5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NTU5MzYsImV4cCI6MjEwMzMzMTkzNn0.nNmgcDiSIYDkfn4bVoR9CdsojlFxPIunIdG68PAOysI";
+  var h = { apikey: K, Authorization: "Bearer " + K };
+  function grab(t){
+    return fetch(U + "/rest/v1/" + t + "?select=*&archived_at=is.null&order=sort",
+                 { headers: h }).then(function(r){ return r.ok ? r.json() : null; })
+                                .catch(function(){ return null; });
+  }
+  window.__preload = {
+    categories: grab("categories"),
+    products:   grab("products"),
+    deals:      grab("deals")
+  };
+})();
+</script>
+<link rel="stylesheet" href="src/storefront/styles/bundle.css">
 </head>
 <body data-page="countries">
 

@@ -1,6 +1,14 @@
 /* ==========================================================================
    AL-ARAFAH SUPER SHOP — stylesheet entry point
    Import order matters: tokens and reset first, then layout, then components.
+
+   The pages load bundle.css, not this file: @import is serial, so the
+   browser fetched this, read it, then went for two dozen more one at a
+   time. This list is still where the order lives — edit the files, then:
+
+       node build.js
+
+   which writes bundle.css. Commit both.
    ========================================================================== */
 
 /* base */
