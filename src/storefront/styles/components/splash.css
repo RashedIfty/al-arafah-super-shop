@@ -9,23 +9,38 @@
 .splash{
   position:fixed;inset:0;z-index:99999;
   display:grid;place-items:center;
-  /* Solid, and stated without the token as well: if the stylesheet with
-     the tokens has not applied yet the page must not show through. */
-  background:#12294c;
-  transition:opacity .3s ease;
+  /* The shop's own colours, stated literally as well as through the
+     tokens: if the stylesheet carrying them has not applied yet, the
+     page underneath must still not show through. */
+  background:#b8380f;
+  background:
+    radial-gradient(900px 520px at 78% -10%, rgba(247,148,38,.42), transparent 62%),
+    linear-gradient(135deg,#7d2408 0%, #b8380f 38%, #e2621d 76%, #f79426 100%);
+  transition:opacity .35s ease;
 }
 .splash.gone{opacity:0;pointer-events:none}
 
-/* Just a spinner. The shop's name is already in the tab and the address
-   bar; repeating it here only delays what the customer came for. */
 .splash-in{
-  width:38px;height:38px;border-radius:50%;
-  border:3px solid rgba(255,255,255,.18);
-  border-top-color:var(--gold,#f0a500);
+  display:flex;flex-direction:column;align-items:center;gap:15px;
+}
+
+/* A spinner, then the shop's name under it — enough to say the page is
+   working and whose page it is, without a logo to wait for. */
+.splash-ring{
+  width:34px;height:34px;border-radius:50%;
+  border:3px solid rgba(255,255,255,.26);
+  border-top-color:#fff;
   animation:splashSpin .8s linear infinite;
 }
 
+.splash-word{
+  font-size:12.5px;font-weight:800;letter-spacing:2.4px;
+  color:rgba(255,255,255,.92);text-transform:uppercase;
+  animation:splashFade 1.6s ease-in-out infinite;
+}
+
 @keyframes splashSpin{ to{ transform:rotate(360deg) } }
+@keyframes splashFade{ 0%,100%{opacity:.55} 50%{opacity:1} }
 
 /* The page underneath stays out of sight until the data is in.
    visibility, not opacity: a partly-transparent page showing through the
@@ -43,6 +58,6 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 
 /* Someone who prefers less motion gets a still ring rather than a spin. */
 @media(prefers-reduced-motion:reduce){
-  .splash-in{animation:none}
+  .splash-ring,.splash-word{animation:none}
   .splash,.page-hide{transition:none}
 }
