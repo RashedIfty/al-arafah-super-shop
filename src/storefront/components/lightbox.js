@@ -4,7 +4,7 @@
  * Mounted once per page; opened by passing an item. Closes on backdrop click,
  * the close button, or Escape, and restores focus to whatever opened it.
  */
-import { $, esc } from "../../shared/lib/dom.js";
+import { $, esc, IMG_FALLBACK } from "../../shared/lib/dom.js";
 import { icon } from "../../shared/ui/icons.js";
 import { t, getLang } from "../../features/i18n/lang.js";
 import { yen, discount } from "../../shared/lib/format.js";
@@ -49,7 +49,7 @@ export function openLightbox(item, opts = {}){
   $("#lbBody").innerHTML = `
     <figure class="lb-fig">
       ${off ? `<span class="lb-off">-${off}% ${esc(T.off)}</span>` : ""}
-      <img src="${esc(img)}" alt="${esc(name)}">
+      <img src="${esc(img)}" alt="${esc(name)}" ${IMG_FALLBACK}>
     </figure>
     <div class="lb-info">
       ${badge}

@@ -26,6 +26,21 @@ export function on(sel, event, handler, root = document){
   return el;
 }
 
+/**
+ * Fall back to the shop placeholder when a photo will not load.
+ *
+ * An empty `img` is already handled where the markup is built, but a
+ * photo that has been deleted from storage, or fails on a bad
+ * connection, leaves a broken-image icon on the shelf. Attribute form,
+ * so it survives innerHTML — the pages are rebuilt that way on every
+ * language change.
+ *
+ * Guarded against looping if the placeholder itself ever goes missing.
+ */
+export const IMG_FALLBACK =
+  `onerror="if(!this.dataset.fb){this.dataset.fb=1;` +
+  `this.src='/images/placeholder.svg'}"`;
+
 /** Smooth-scroll to an element id, accounting for the sticky nav. */
 export function scrollToId(id, delay = 0){
   const el = document.getElementById(id);

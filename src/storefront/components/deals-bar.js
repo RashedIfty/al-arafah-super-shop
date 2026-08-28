@@ -2,7 +2,7 @@
  * Today's Deal / New Arrival bar — sits at the very top of every page.
  * Content comes from data/announcements.js, which the shop admin edits.
  */
-import { esc } from "../../shared/lib/dom.js";
+import { esc, IMG_FALLBACK } from "../../shared/lib/dom.js";
 import { icon } from "../../shared/ui/icons.js";
 import { t, getLang } from "../../features/i18n/lang.js";
 import { yen, discount } from "../../shared/lib/format.js";
@@ -31,7 +31,7 @@ function itemHTML(item, index){
       <div class="ann-img">
         ${label}
         ${off ? `<span class="ann-off">-${off}%</span>` : ""}
-        <img src="${esc(img)}" alt="${esc(name)}"
+        <img src="${esc(img)}" alt="${esc(name)}" ${IMG_FALLBACK}
              loading="lazy" width="400" height="400">
       </div>
       <div class="ann-tx">

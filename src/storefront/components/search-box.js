@@ -5,7 +5,7 @@
  * and price. Arrow keys move through them, Enter opens the highlighted
  * one, Escape closes. Ranking comes from features/search/engine.js.
  */
-import { $, $$, esc, on } from "../../shared/lib/dom.js";
+import { $, $$, esc, on, IMG_FALLBACK } from "../../shared/lib/dom.js";
 import { icon } from "../../shared/ui/icons.js";
 import { yen, discount } from "../../shared/lib/format.js";
 import { t, getLang, itemCount } from "../../features/i18n/lang.js";
@@ -31,7 +31,7 @@ function rowHTML(product, i){
     <li class="sg-row${i === active ? " on" : ""}" role="option"
         aria-selected="${i === active}" data-i="${i}">
       <img class="sg-img" src="${esc(product.img || "/images/placeholder.svg")}"
-           alt="" loading="lazy" width="44" height="44">
+           alt="" loading="lazy" width="44" height="44" ${IMG_FALLBACK}>
       <span class="sg-tx">
         <b>${esc(product[lang] || product.en)}</b>
         <small>${esc(product._cat)} &middot; ${esc(product.w)}</small>

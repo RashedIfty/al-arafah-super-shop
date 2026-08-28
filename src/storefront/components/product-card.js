@@ -1,7 +1,7 @@
 /**
  * Product card + category section markup.
  */
-import { esc } from "../../shared/lib/dom.js";
+import { esc, IMG_FALLBACK } from "../../shared/lib/dom.js";
 import { t, getLang, LANGS, itemCount } from "../../features/i18n/lang.js";
 import { yen, discount } from "../../shared/lib/format.js";
 import { SHOP } from "../../shared/shop.js";
@@ -40,7 +40,7 @@ export function cardHTML(product, category, ci = 0, pi = 0){
     <div class="card-img">
       <div class="badges">${badges}</div>
       <img src="${esc(img)}" alt="${esc(product[lang])}"
-           loading="lazy" width="600" height="600">
+           loading="lazy" width="600" height="600" ${IMG_FALLBACK}>
     </div>
     <div class="card-b">
       <div class="card-cat">${esc(category[lang])}</div>
@@ -82,7 +82,8 @@ export function chipsHTML(){
 
   return CATALOG.filter(c => c.items.length).map(cat => `
     <a href="${prefix}#${esc(cat.id)}" class="chip">
-      <img src="${esc(cat.img)}" alt="" loading="lazy" width="80" height="80">
+      <img src="${esc(cat.img || SHOP.placeholder)}" alt="" loading="lazy"
+           width="80" height="80" ${IMG_FALLBACK}>
       <b>${esc(cat[lang])}</b>
       <span>${esc(itemCount(cat.items.length))}</span>
     </a>`).join("");

@@ -4,7 +4,7 @@
  * Written for someone who is not technical: plain language, one obvious
  * action per screen, confirmation before anything destructive.
  */
-import { $, $$, esc, on } from "../shared/lib/dom.js";
+import { $, $$, esc, on, IMG_FALLBACK } from "../shared/lib/dom.js";
 import { icon } from "../shared/ui/icons.js";
 import { yen } from "../shared/lib/format.js";
 import { shrinkImage, fileSize } from "../shared/lib/image.js";
@@ -177,7 +177,7 @@ function renderList(){
       return `
         <div class="prod">
           <img class="prod-img" src="${esc(p.img || "/images/placeholder.svg")}"
-               alt="" loading="lazy">
+               alt="" loading="lazy" ${IMG_FALLBACK}>
           <div class="prod-tx">
             <b>${esc(p.en)}</b>
             <small>${esc(p.bn)}</small>
@@ -208,7 +208,7 @@ function renderList(){
     return `
       <section class="cat-block">
         <div class="cat-head">
-          <img src="${esc(cat.img)}" alt="" class="cat-thumb">
+          <img src="${esc(cat.img || "/images/placeholder.svg")}" alt="" class="cat-thumb" ${IMG_FALLBACK}>
           <b>${esc(cat.en)}</b>
           <em>${cat.items.length}</em>
           <button class="act edit cat-edit" data-editcat="${esc(cat.id)}">${icon("edit",{size:14})} Edit</button>
@@ -690,7 +690,7 @@ function renderDeals(){
 
     return `
       <div class="deal-row ${isDeal ? "is-deal" : "is-new"}">
-        <img class="prod-img" src="${esc(d.img || "/images/placeholder.svg")}" alt="" loading="lazy">
+        <img class="prod-img" src="${esc(d.img || "/images/placeholder.svg")}" alt="" loading="lazy" ${IMG_FALLBACK}>
         <div class="prod-tx">
           <span class="dtype ${isDeal ? "deal" : "new"}">
             ${isDeal ? icon("fire",{size:12}) + " TODAY'S DEAL"

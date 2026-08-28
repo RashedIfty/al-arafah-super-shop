@@ -2,7 +2,8 @@
  * Category browser — sidebar list plus a grid of large photo tiles,
  * the layout used by most halal grocery storefronts.
  */
-import { esc } from "../../shared/lib/dom.js";
+import { esc, IMG_FALLBACK } from "../../shared/lib/dom.js";
+import { SHOP } from "../../shared/shop.js";
 import { t, getLang, itemCount } from "../../features/i18n/lang.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
 import { countriesInUse } from "../../features/catalog/countries.js";
@@ -53,7 +54,8 @@ export function categorySidebarHTML(){
         ${visibleCategories().map(cat => `
           <li>
             <a href="${catLink(cat, base)}">
-              <img src="${esc(cat.img)}" alt="" loading="lazy" width="40" height="40">
+              <img src="${esc(cat.img || SHOP.placeholder)}" alt="" loading="lazy"
+                   width="40" height="40" ${IMG_FALLBACK}>
               <span>${esc(cat[lang])}</span>
               <em>${isCountryCat(cat)
                     ? countriesInUse(CATALOG).length
@@ -100,8 +102,8 @@ export function categoryTilesHTML(){
       ${shown.map(cat => `
         <a href="${catLink(cat, base)}" class="cat-tile">
           <div class="cat-tile-img">
-            <img src="${esc(cat.img)}" alt="${esc(cat[lang])}"
-                 loading="lazy" width="400" height="400">
+            <img src="${esc(cat.img || SHOP.placeholder)}" alt="${esc(cat[lang])}"
+                 loading="lazy" width="400" height="400" ${IMG_FALLBACK}>
           </div>
           <b>${esc(cat[lang])}</b>
           <span>${esc(catCount(cat))}</span>
