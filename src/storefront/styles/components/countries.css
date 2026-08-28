@@ -11,18 +11,19 @@
 
 .ctry-tile{text-align:center;transition:.2s var(--ease)}
 
-/* The flags are circular, so the tile is a soft square holding one
-   rather than a photo frame cropping it. */
+/* Every flag gets the same box and sits inside at its own proportions.
+   Nothing is cropped or stretched: Nepal is a pennant, Sri Lanka is 2:1,
+   and forcing either into a square would misrepresent it. */
 .ctry-tile-img{
   border:1px solid var(--line);border-radius:var(--radius);
   background:#fff;margin-bottom:9px;aspect-ratio:1/1;
-  display:grid;place-items:center;padding:16%;
+  display:grid;place-items:center;padding:18%;
   transition:.2s var(--ease);
 }
 .ctry-tile-img img{
-  width:100%;height:auto;display:block;
-  border-radius:50%;
-  box-shadow:0 2px 8px rgba(0,0,0,.13);
+  max-width:100%;max-height:100%;width:auto;height:auto;display:block;
+  border:1px solid rgba(0,0,0,.13);border-radius:3px;
+  box-shadow:0 2px 8px rgba(0,0,0,.16);
   transition:transform .35s var(--ease);
 }
 .ctry-tile:hover .ctry-tile-img{border-color:var(--red);box-shadow:var(--sh-lg)}
@@ -46,7 +47,9 @@
   font-size:21px;color:var(--ink);letter-spacing:-.3px;margin:0;
 }
 .ctry-head .flag{
-  border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.16);
+  border:1px solid rgba(0,0,0,.14);border-radius:3px;
+  box-shadow:0 1px 5px rgba(0,0,0,.16);
+  max-height:30px;width:auto;
 }
 
 .ctry-back{
