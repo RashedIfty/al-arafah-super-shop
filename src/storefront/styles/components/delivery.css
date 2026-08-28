@@ -1,0 +1,68 @@
+/* ==========================================================================
+   Delivery — two plain cards, local and nationwide.
+   The threshold is the thing a customer is actually looking for, so it is
+   set large at the foot of each card rather than buried in the sentence.
+   ========================================================================== */
+
+.dlv{
+  display:grid;gap:14px;grid-template-columns:1fr;
+}
+
+.dlv-card{
+  position:relative;background:#fff;
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px 20px 20px;
+  box-shadow:var(--sh);
+  transition:.2s var(--ease);
+}
+.dlv-card:hover{
+  border-color:#f0c4a8;box-shadow:var(--sh-md);transform:translateY(-2px);
+}
+
+/* The promise, said once, at the top corner. */
+.dlv-tag{
+  position:absolute;top:-9px;left:20px;
+  background:linear-gradient(120deg,var(--red-d),var(--red));
+  color:#fff;font-size:10px;font-weight:900;letter-spacing:.9px;
+  padding:5px 11px;border-radius:20px;
+  box-shadow:0 4px 12px rgba(200,16,46,.30);
+}
+
+.dlv-ic{
+  display:grid;place-items:center;width:46px;height:46px;border-radius:12px;
+  background:var(--navy-l);color:var(--navy);margin-bottom:12px;
+}
+
+.dlv-card h3{
+  font-size:16.5px;color:var(--ink);margin-bottom:5px;letter-spacing:-.2px;
+}
+.dlv-card p{
+  font-size:14px;color:var(--body);line-height:1.55;margin-bottom:14px;
+}
+
+/* The number a customer came to find. */
+.dlv-amt{
+  display:flex;align-items:baseline;gap:8px;
+  font-size:25px;font-weight:900;color:var(--navy);letter-spacing:-.5px;
+}
+.dlv-amt span{
+  font-size:11.5px;font-weight:700;color:var(--mute);letter-spacing:.3px;
+}
+
+.dlv-ask{
+  text-align:center;margin-top:16px;font-size:13.5px;
+}
+.dlv-ask a{
+  display:inline-flex;align-items:center;gap:7px;
+  color:var(--body);font-weight:700;
+}
+.dlv-ask a:hover{color:var(--red)}
+.dlv-ask .icon{color:var(--red)}
+
+/* ----------------------------- breakpoints ---------------------------- */
+@media(min-width:760px){
+  .dlv{grid-template-columns:1fr 1fr;gap:18px}
+  .dlv-card{padding:26px 24px 22px}
+  .dlv-card h3{font-size:17.5px}
+  .dlv-amt{font-size:28px}
+}
