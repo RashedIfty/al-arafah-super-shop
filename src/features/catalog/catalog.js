@@ -98,13 +98,36 @@ const DEFAULT_CATALOG = [
  * bundled defaults above are used so the site still works offline.
  * `refreshCatalog()` is called again whenever the database changes.
  */
-export let CATALOG = DEFAULT_CATALOG;
+/* The shop paints immediately, then repaints when the database answers.
+   Without a cache that first paint uses the copy bundled into the code,
+   which goes stale the moment the owner adds a category — the customer
+   sees the old shop for a moment and then watches it change. Keeping the
+   last reply means a returning visitor's first paint is already right. */
+const CACHE_KEY = "aa-catalog";
+
+function readCache(){
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    const data = raw ? JSON.parse(raw) : null;
+    return Array.isArray(data) && data.length ? data : null;
+  } catch { return null; }
+}
+
+function writeCache(data){
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); }
+  catch { /* private mode, or over quota — the shop still works */ }
+}
+
+export let CATALOG = readCache() || DEFAULT_CATALOG;
 
 export async function refreshCatalog(){
   try {
     const { fetchCatalog } = await import("../../backend/client.js");
     const live = await fetchCatalog();
-    if (live && live.length) CATALOG = live;
+    if (live && live.length){
+      CATALOG = live;
+      writeCache(live);
+    }
   } catch (e) {
     console.warn("Using bundled catalogue:", e.message);
   }

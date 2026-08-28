@@ -23,22 +23,49 @@ export async function db(){
 /* ------------------------------- read -------------------------------- */
 
 /**
+ * Read live rows straight over REST, without the SDK.
+ *
+ * The SDK is ~68 KB pulled from a third-party CDN, and the shop cannot
+ * ask for a single product until it and its dependencies have arrived.
+ * For the first paint that wait is the whole delay, and a plain fetch to
+ * the same endpoint needs none of it. The SDK still handles writing,
+ * auth and realtime, where it earns its size.
+ */
+async function readTables(names){
+  if (!isConfigured()) return null;
+
+  try {
+    const results = await Promise.all(names.map(async name => {
+      const url = `${SUPABASE.URL}/rest/v1/${name}`
+        + `?select=*&archived_at=is.null&order=sort`;
+
+      const res = await fetch(url, {
+        headers: {
+          apikey: SUPABASE.KEY,
+          Authorization: `Bearer ${SUPABASE.KEY}`,
+        },
+      });
+
+      if (!res.ok) throw new Error(`${name}: ${res.status}`);
+      return { data: await res.json() };
+    }));
+
+    return results;
+  } catch (e){
+    console.warn("readTables:", e.message);
+    return null;
+  }
+}
+
+/**
  * Categories with their products nested, shaped exactly like the old
  * CATALOG array so nothing downstream needs to change.
  */
 export async function fetchCatalog(){
-  const c = await db();
-  if (!c) return null;
+  const rows = await readTables(["categories", "products"]);
+  if (!rows) return null;
 
-  const [cats, prods] = await Promise.all([
-    c.from("categories").select("*").is("archived_at", null).order("sort"),
-    c.from("products").select("*").is("archived_at", null).order("sort")
-  ]);
-
-  if (cats.error || prods.error){
-    console.error("fetchCatalog:", cats.error || prods.error);
-    return null;
-  }
+  const [cats, prods] = rows;
 
   return cats.data.map(cat => ({
     id: cat.id, icon: cat.icon, img: cat.img,
@@ -57,11 +84,10 @@ export async function fetchCatalog(){
 
 /** The homepage deals strip. */
 export async function fetchDeals(){
-  const c = await db();
-  if (!c) return null;
+  const rows = await readTables(["deals"]);
+  if (!rows) return null;
 
-  const { data, error } = await c.from("deals").select("*").is("archived_at", null).order("sort");
-  if (error){ console.error("fetchDeals:", error); return null; }
+  const { data } = rows[0];
 
   return data.map(d => ({
     _id: d.id, type: d.type,
@@ -102,14 +128,25 @@ export async function updateProduct(id, categoryId, p){
 
 /** The single banner row, or null when the shop has none. */
 export async function fetchAnnouncement(){
-  const c = await db();
-  if (!c) return null;
+  if (!isConfigured()) return null;
 
-  const { data, error } = await c
-    .from("announcement").select("*").eq("id", 1).maybeSingle();
+  // Straight over REST like the catalogue: this sits at the top of the
+  // page and must not wait for the SDK to download.
+  try {
+    const res = await fetch(
+      `${SUPABASE.URL}/rest/v1/announcement?select=*&id=eq.1`,
+      { headers: {
+          apikey: SUPABASE.KEY,
+          Authorization: `Bearer ${SUPABASE.KEY}`,
+        } });
 
-  if (error){ console.error("fetchAnnouncement:", error); return null; }
-  return data;
+    if (!res.ok) throw new Error(String(res.status));
+    const rows = await res.json();
+    return rows[0] ?? null;
+  } catch (e){
+    console.warn("fetchAnnouncement:", e.message);
+    return null;
+  }
 }
 
 /** Save the banner. Passing active:false hides it without losing the text. */
