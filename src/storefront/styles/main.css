@@ -16,6 +16,7 @@
 @import url("layout/pages.css");
 
 /* components */
+@import url("components/splash.css");
 @import url("components/announcement.css");
 @import url("components/deals-bar.css");
 @import url("components/button.css");

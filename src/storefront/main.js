@@ -128,31 +128,61 @@ function bindDynamic(){
 
 /* -------------------------------- init -------------------------------- */
 
+/**
+ * Take the splash down and reveal the finished page.
+ *
+ * Safe to call more than once — whichever reason gets here first wins.
+ */
+let revealed = false;
+function reveal(){
+  if (revealed) return;
+  revealed = true;
+
+  document.body.classList.add("ready");
+
+  const splash = $("#splash");
+  if (!splash) return;
+
+  // Let the fade finish before the element leaves, so it does not blink.
+  splash.classList.add("gone");
+  setTimeout(() => splash.remove(), 320);
+}
+
+/**
+ * However slow the network is, the shop must appear. A customer staring
+ * at a logo will leave; one reading a slightly old catalogue will not.
+ */
+const PATIENCE = 4000;
+
 initLang();
-render();                       // paint immediately with bundled data
 
-/* Then load live data and re-render; realtime keeps it current. */
 (async () => {
-  /* The announcement is one small row and sits at the top of the page,
-     so it should not wait behind the catalogue. Paint it the moment it
-     lands rather than after the slowest request. */
-  loadAnnouncement().then(() => {
-    // Always repaint: an empty result must clear a cached banner, not
-    // leave the previous one on screen.
-    put("#noticeMount", announcementHTML());
-  });
+  /* Everything the first screen needs, fetched together so the page can
+     be painted once, complete, instead of assembling itself in front of
+     the customer. */
+  try {
+    await Promise.race([
+      Promise.all([refreshCatalog(), refreshDeals(), loadAnnouncement()]),
+      new Promise(r => setTimeout(r, PATIENCE)),
+    ]);
+  } catch { /* fall through and paint with whatever we have */ }
 
-  const [cat, deals] = await Promise.all([refreshCatalog(), refreshDeals()]);
-  if (cat?.length || deals?.items?.length) render();
+  render();
+  reveal();
 
+  /* Realtime keeps it current from here on. */
   try {
     const { subscribe } = await import("../backend/client.js");
     await subscribe(async () => {
       await Promise.all([refreshCatalog(), refreshDeals(), loadAnnouncement()]);
       render();
     });
-  } catch { /* offline or not configured — bundled data stands */ }
+  } catch { /* offline or not configured — what we painted stands */ }
 })();
+
+/* A script error must never leave the shop hidden behind the splash. */
+window.addEventListener("error", reveal);
+window.addEventListener("unhandledrejection", reveal);
 initBackToTop();               // outside render — the button is static markup
 
 /* Map a clicked card back to its data object. */
