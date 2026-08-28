@@ -26,7 +26,7 @@ export default {
     chat_wa:"WhatsApp", chat_wa_p:"お店へ直接メッセージ",
     chat_line:"LINE", chat_line_p:"LINEで友だち追加",
     chat_grp:"WhatsApp グループ", chat_grp_p:"毎日のお得情報と新商品",
-    chat_open:"開く", chat_join:"グループに参加", chat_scan:"またはスキャン",
+    chat_open:"開く", chat_join:"グループに参加",
     dlv_title:"配達", dlv_sub:"ご自宅までお届けします",
     dlv_local_t:"店舗から10km以内",
     dlv_local_p:"8,000円以上のご注文で配送無料。",

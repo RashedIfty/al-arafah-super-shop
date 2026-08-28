@@ -42,15 +42,6 @@
 }
 .chat-go:hover{background:var(--red-d);transform:translateY(-1px)}
 
-/* The code, quiet under the button. */
-.chat-qr{
-  width:120px;height:auto;margin-top:16px;border-radius:10px;
-  border:1px solid var(--line);background:#fff;
-}
-.chat-scan{
-  display:block;margin-top:7px;
-  font-size:11px;color:var(--mute);letter-spacing:.4px;
-}
 
 /* The group card has no QR of its own. Rather than letting it float in
    the middle while the others start at the top, it keeps the same
