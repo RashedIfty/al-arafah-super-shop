@@ -21,7 +21,6 @@ export default {
     st_products:"PRODUCTS", st_categories:"CATEGORIES", st_halal:"HALAL",
     f1:"100% Halal", f1s:"Certified suppliers", f2:"Fresh Daily", f2s:"Meat, fish & vegetables",
     f3:"Best Price", f3s:"Fair, honest rates", f4:"Friendly Service", f4s:"Bangla · English · 日本語",
-    hero_shop:"Amakubo, Tsukuba — open every day",
     cats_title:"Shop by Category", cats_sub:"Everything you need, organised step by step",
     one_country:"1 country", n_countries:"{n} countries",
     ctry_title:"Shop by Country", ctry_sub:"Products grouped by where they come from",

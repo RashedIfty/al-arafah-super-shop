@@ -21,7 +21,6 @@ export default {
     st_products:"商品数", st_categories:"カテゴリ", st_halal:"ハラール",
     f1:"100% ハラール", f1s:"認証サプライヤー", f2:"毎日新鮮", f2s:"肉・魚・野菜",
     f3:"お手頃価格", f3s:"公正な価格", f4:"親切な対応", f4s:"বাংলা · English · 日本語",
-    hero_shop:"つくば市天久保 — 年中無休",
     cats_title:"カテゴリから探す", cats_sub:"必要なものすべてを、順番に整理",
     one_country:"1か国", n_countries:"{n}か国",
     ctry_title:"国から探す", ctry_sub:"原産国ごとにまとめた商品",

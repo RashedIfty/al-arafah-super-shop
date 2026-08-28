@@ -58,24 +58,15 @@
 
 /* ------------------------------ the shopfront -------------------------- */
 
-.hero-shot{
-  margin:0;position:relative;border-radius:18px;
-  background:#fff;padding:8px;
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.5) inset,
-    0 18px 40px rgba(0,0,0,.34),
-    0 40px 80px rgba(0,0,0,.22);
-}
-/* The whole shopfront, never cropped to fit a shape. */
+/* Just the photograph. No frame around it — a white border would only
+   draw a box between the customer and the shop. The shadow alone lifts
+   it off the panel. */
+.hero-shot{margin:0}
 .hero-shot img{
-  display:block;width:100%;height:auto;border-radius:12px;
+  display:block;width:100%;height:auto;
+  border-radius:16px;
+  box-shadow:0 20px 44px rgba(0,0,0,.32), 0 44px 88px rgba(0,0,0,.20);
 }
-.hero-shot figcaption{
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  padding:9px 10px 4px;
-  font-size:12px;font-weight:700;color:var(--ink);
-}
-.hero-shot figcaption .icon{color:var(--red);flex-shrink:0}
 
 /* ------------------------------ breakpoints ---------------------------- */
 
@@ -92,10 +83,7 @@
   .hero-cta{justify-content:flex-start}
   .hero-stats{margin-left:0;max-width:470px}
 
-  .hero-shot{padding:10px;border-radius:22px}
-  .hero-shot img{border-radius:14px}
-  /* A slight lift, so the card reads as an object on the page. */
-  .hero-shot{transform:rotate(-.5deg)}
+  .hero-shot img{border-radius:18px}
 }
 
 @media(min-width:1200px){
