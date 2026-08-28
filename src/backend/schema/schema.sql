@@ -28,12 +28,20 @@ create table if not exists products (
   was         int  not null default 0,    -- old price, 0 = not on sale
   img         text not null default '',
   tag         text,                       -- 'new' | 'out' | null
+  country     text,                       -- 'bd', 'in', … null = not set
   sort        int  not null default 0,
   archived_at timestamptz,
   created_at  timestamptz default now()
 );
 
+-- Existing shops upgrade in place; new ones already have it above.
+alter table products add column if not exists country text;
+
 create index if not exists products_category_idx on products(category_id);
+
+-- Browsing by country only ever asks for products that have one.
+create index if not exists products_country_idx
+  on products(country) where country is not null and archived_at is null;
 
 -- The common query is "everything not archived".
 create index if not exists products_live_idx   on products(category_id) where archived_at is null;

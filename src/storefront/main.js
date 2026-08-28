@@ -16,6 +16,7 @@ import { initSearchBox } from "./components/search-box.js";
 import { filtersHTML, initFilters } from "./components/filters.js";
 import { catalogHTML, chipsHTML } from "./components/product-card.js";
 import { categoryBrowserHTML } from "./components/category-browser.js";
+import { countriesHTML, initCountries } from "./components/countries.js";
 import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
 import { CATALOG, refreshCatalog } from "../features/catalog/catalog.js";
 import { ANNOUNCEMENTS, refreshDeals } from "../features/deals/deals.js";
@@ -95,6 +96,7 @@ function render(){
   if ($("#catalog")) put("#catalog", catalogHTML());
   if ($("#mapMount")) put("#mapMount", mapHTML());
   if ($("#filterMount")) put("#filterMount", filtersHTML());
+  if ($("#countryMount")) put("#countryMount", countriesHTML());
 
   applyTranslations();
   renderStats();
@@ -116,6 +118,7 @@ function bindDynamic(){
   initSearch();
   initSearchBox();
   initFilters();
+  initCountries($("#countryMount"));
   initScrollSpy();
 
   // Keep the chosen sort order after a re-render.

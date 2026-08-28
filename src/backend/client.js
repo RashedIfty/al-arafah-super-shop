@@ -49,7 +49,8 @@ export async function fetchCatalog(){
         _id: p.id,
         en: p.en, bn: p.bn, ja: p.ja,
         w: p.w, p: p.p, was: p.was,
-        img: p.img, ...(p.tag ? { tag: p.tag } : {})
+        img: p.img, ...(p.tag ? { tag: p.tag } : {}),
+        ...(p.country ? { country: p.country } : {})
       }))
   }));
 }
@@ -76,7 +77,7 @@ export async function insertProduct(categoryId, p, sort = 0){
   return c.from("products").insert({
     category_id: categoryId, en: p.en, bn: p.bn, ja: p.ja,
     w: p.w, p: p.p, was: p.was || 0, img: p.img || "",
-    tag: p.tag || null, sort
+    tag: p.tag || null, country: p.country || null, sort
   }).select().single();
 }
 
@@ -90,7 +91,7 @@ export async function updateProduct(id, categoryId, p){
   const res = await c.from("products").update({
     category_id: categoryId, en: p.en, bn: p.bn, ja: p.ja,
     w: p.w, p: p.p, was: p.was || 0, img: p.img || "",
-    tag: p.tag || null
+    tag: p.tag || null, country: p.country || null
   }).eq("id", id);
 
   if (!res.error) await dropReplaced(c, was?.img, p.img);

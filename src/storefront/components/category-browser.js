@@ -5,10 +5,42 @@
 import { esc } from "../../shared/lib/dom.js";
 import { t, getLang, itemCount } from "../../features/i18n/lang.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
+import { countriesInUse } from "../../features/catalog/countries.js";
 
 /** Link prefix: stay on the page when we are already on products.html. */
 const prefix = () =>
   document.body.dataset.page === "products" ? "" : "products.html";
+
+/**
+ * The country category behaves differently from the rest.
+ *
+ * It holds no products itself — it gathers products from every other
+ * category by where they came from — so it links to its own page and is
+ * counted by countries rather than items.
+ */
+const COUNTRY_CAT = "others";
+
+const isCountryCat = cat => cat.id === COUNTRY_CAT;
+
+/** Categories worth showing: those with products, plus the country one
+    once at least one product has a country. */
+function visibleCategories(){
+  const countries = countriesInUse(CATALOG).length;
+  return CATALOG.filter(c =>
+    isCountryCat(c) ? countries > 0 : c.items.length);
+}
+
+/** Where a tile points, and what its count reads. */
+function catLink(cat, base){
+  return isCountryCat(cat) ? "countries.html" : `${base}#${esc(cat.id)}`;
+}
+
+function catCount(cat){
+  if (!isCountryCat(cat)) return itemCount(cat.items.length);
+  const n = countriesInUse(CATALOG).length;
+  const T = t();
+  return n === 1 ? T.one_country : (T.n_countries || "").replace("{n}", n);
+}
 
 /** Small thumbnail rows down the left. */
 export function categorySidebarHTML(){
@@ -18,12 +50,14 @@ export function categorySidebarHTML(){
     <aside class="cat-side">
       <h3>${esc(T.cats_side)}</h3>
       <ul>
-        ${CATALOG.filter(c => c.items.length).map(cat => `
+        ${visibleCategories().map(cat => `
           <li>
-            <a href="${base}#${esc(cat.id)}">
+            <a href="${catLink(cat, base)}">
               <img src="${esc(cat.img)}" alt="" loading="lazy" width="40" height="40">
               <span>${esc(cat[lang])}</span>
-              <em>${cat.items.length}</em>
+              <em>${isCountryCat(cat)
+                    ? countriesInUse(CATALOG).length
+                    : cat.items.length}</em>
             </a>
           </li>`).join("")}
       </ul>
@@ -58,19 +92,19 @@ export function columnsFor(count, max = 5){
 
 /** Large photo tiles on the right. */
 export function categoryTilesHTML(){
-  const T = t(), lang = getLang(), base = prefix();
-  const shown = CATALOG.filter(c => c.items.length);
+  const lang = getLang(), base = prefix();
+  const shown = visibleCategories();
 
   return `
     <div class="cat-tiles" style="--cols:${columnsFor(shown.length)}">
-      ${CATALOG.filter(c => c.items.length).map(cat => `
-        <a href="${base}#${esc(cat.id)}" class="cat-tile">
+      ${shown.map(cat => `
+        <a href="${catLink(cat, base)}" class="cat-tile">
           <div class="cat-tile-img">
             <img src="${esc(cat.img)}" alt="${esc(cat[lang])}"
                  loading="lazy" width="400" height="400">
           </div>
           <b>${esc(cat[lang])}</b>
-          <span>${esc(itemCount(cat.items.length))}</span>
+          <span>${esc(catCount(cat))}</span>
         </a>`).join("")}
     </div>`;
 }

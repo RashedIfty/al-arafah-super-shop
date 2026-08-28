@@ -11,6 +11,7 @@ import { shrinkImage, fileSize } from "../shared/lib/image.js";
 import { isLoggedIn, login, logout, usingSupabase } from "./auth.js";
 import * as store from "./local-store.js";
 import { DEFAULT_ANNOUNCEMENTS } from "../features/deals/deals.js";
+import { COUNTRIES } from "../features/catalog/countries.js";
 import * as api from "../backend/client.js";
 
 let catalog = [];
@@ -154,6 +155,11 @@ function renderAll(){
     .map(c => `<option value="${esc(c.id)}">${esc(c.en)}</option>`)
     .join("");
 
+  // Optional, so "Not set" comes first and is the default.
+  $("#fCountry").innerHTML =
+    `<option value="">— Not set —</option>` +
+    COUNTRIES.map(c => `<option value="${esc(c.id)}">${esc(c.en)}</option>`).join("");
+
   renderList();
   renderDeals();
   renderDealPicker();
@@ -245,6 +251,7 @@ function openForm(catId, index){
   $("#fP").value   = p?.p  ?? "";
   $("#fWas").value = p?.was || "";
   $("#fTag").value = p?.tag || "";
+  $("#fCountry").value = p?.country || "";
   $("#fFile").value = "";
   setPhoto(p?.img || "");
   updateSaleHint();
@@ -418,6 +425,9 @@ on("#form", "submit", async e => {
   };
   const tag = $("#fTag").value;
   if (tag) product.tag = tag;
+
+  // Always send it, even empty: clearing a country has to reach the row.
+  product.country = $("#fCountry").value || null;
 
   const catId = $("#fCat").value;
 

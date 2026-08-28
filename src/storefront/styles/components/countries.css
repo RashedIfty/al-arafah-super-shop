@@ -1,0 +1,71 @@
+/* ==========================================================================
+   Countrywise browsing — a tile per country, then that country's products.
+   Deliberately the same shape as the category tiles, so the two views feel
+   like one shop rather than two.
+   ========================================================================== */
+
+.ctry-grid{
+  display:grid;gap:14px;
+  grid-template-columns:repeat(2,1fr);
+}
+
+.ctry-tile{text-align:center;transition:.2s var(--ease)}
+
+/* The flags are circular, so the tile is a soft square holding one
+   rather than a photo frame cropping it. */
+.ctry-tile-img{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:#fff;margin-bottom:9px;aspect-ratio:1/1;
+  display:grid;place-items:center;padding:16%;
+  transition:.2s var(--ease);
+}
+.ctry-tile-img img{
+  width:100%;height:auto;display:block;
+  border-radius:50%;
+  box-shadow:0 2px 8px rgba(0,0,0,.13);
+  transition:transform .35s var(--ease);
+}
+.ctry-tile:hover .ctry-tile-img{border-color:var(--red);box-shadow:var(--sh-lg)}
+.ctry-tile:hover .ctry-tile-img img{transform:scale(1.08)}
+.ctry-tile:hover{transform:translateY(-3px)}
+
+.ctry-tile b{
+  display:block;font-size:13.5px;color:var(--ink);
+  font-weight:700;line-height:1.3;
+}
+.ctry-tile:hover b{color:var(--red)}
+.ctry-tile span{font-size:11.5px;color:var(--mute)}
+
+/* ------------------------- one country's products ---------------------- */
+
+.ctry-head{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  margin-bottom:18px;
+}
+.ctry-head h2{
+  font-size:21px;color:var(--ink);letter-spacing:-.3px;margin:0;
+}
+.ctry-head .flag{
+  border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.16);
+}
+
+.ctry-back{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13.5px;font-weight:700;color:var(--body);
+  border:1px solid var(--line);border-radius:8px;
+  padding:8px 13px;background:#fff;transition:.18s var(--ease);
+}
+.ctry-back:hover{border-color:var(--red);color:var(--red)}
+/* The icon set has no left arrow, so the up arrow is turned to point back. */
+.ctry-back .icon{transform:rotate(-90deg)}
+
+/* ----------------------------- breakpoints ---------------------------- */
+@media(min-width:600px){
+  .ctry-grid{grid-template-columns:repeat(3,1fr);gap:16px}
+  .ctry-tile b{font-size:14px}
+  .ctry-head h2{font-size:24px}
+}
+
+@media(min-width:1000px){
+  .ctry-grid{grid-template-columns:repeat(5,1fr);gap:18px}
+}
