@@ -131,11 +131,43 @@ const DEFAULT_ANNOUNCEMENTS = {
  */
 export let ANNOUNCEMENTS = DEFAULT_ANNOUNCEMENTS;
 
+/**
+ * Drop deals whose product is no longer on the shelf.
+ *
+ * A deal keeps its own copy of the product rather than a reference, so
+ * that its offer price is independent of the shelf price. The cost is
+ * that a deal can outlive its product. Removing the product now clears
+ * its deals, but this guards the ones made before that, and anything
+ * changed straight in the database.
+ *
+ * Deals are matched to products by name and weight, which is what the
+ * deal was built from.
+ */
+function onlyStillSold(items, catalog){
+  if (!items?.length || !catalog?.length) return items ?? [];
+
+  const shelf = new Set();
+  for (const cat of catalog)
+    for (const p of cat.items) shelf.add(`${p.en} ${p.w}`);
+
+  return items.filter(d => shelf.has(`${d.en} ${d.w}`));
+}
+
 export async function refreshDeals(){
   try {
-    const { fetchDeals } = await import("../../backend/client.js");
-    const live = await fetchDeals();
-    if (live) ANNOUNCEMENTS = { ...DEFAULT_ANNOUNCEMENTS, items: live };
+    const { fetchDeals, fetchCatalog } = await import("../../backend/client.js");
+
+    // Fetch the shelf alongside the deals rather than reading the shared
+    // CATALOG: the two refreshes run in parallel, so that copy may still
+    // be the previous one and a just-removed product would slip through.
+    const [live, shelf] = await Promise.all([fetchDeals(), fetchCatalog()]);
+
+    if (live){
+      ANNOUNCEMENTS = {
+        ...DEFAULT_ANNOUNCEMENTS,
+        items: shelf ? onlyStillSold(live, shelf) : live,
+      };
+    }
   } catch (e) {
     console.warn("Using bundled deals:", e.message);
   }
