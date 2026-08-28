@@ -6,6 +6,7 @@ import { t, getLang, LANGS, itemCount } from "../../features/i18n/lang.js";
 import { yen, discount } from "../../shared/lib/format.js";
 import { SHOP } from "../../shared/shop.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
+import { realCategories } from "../../features/catalog/countries.js";
 
 /**
  * One product card.
@@ -61,7 +62,7 @@ export function catalogHTML(){
   const T = t(), lang = getLang();
 
   // Customers only see categories that actually have something in them.
-  return CATALOG.filter(c => c.items.length).map((cat, i) => `
+  return realCategories(CATALOG).filter(c => c.items.length).map((cat, i) => `
     <section class="sec wrap" id="${esc(cat.id)}">
       <div class="sec-head">
         <span class="sec-no">${i + 1}</span>
@@ -80,7 +81,7 @@ export function chipsHTML(){
   const T = t(), lang = getLang();
   const prefix = document.body.dataset.page === "products" ? "" : "products.html";
 
-  return CATALOG.filter(c => c.items.length).map(cat => `
+  return realCategories(CATALOG).filter(c => c.items.length).map(cat => `
     <a href="${prefix}#${esc(cat.id)}" class="chip">
       <img src="${esc(cat.img || SHOP.placeholder)}" alt="" loading="lazy"
            width="80" height="80" ${IMG_FALLBACK}>

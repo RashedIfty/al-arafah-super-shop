@@ -11,7 +11,7 @@ import { shrinkImage, fileSize } from "../shared/lib/image.js";
 import { isLoggedIn, login, logout, usingSupabase } from "./auth.js";
 import * as store from "./local-store.js";
 import { DEFAULT_ANNOUNCEMENTS } from "../features/deals/deals.js";
-import { COUNTRIES } from "../features/catalog/countries.js";
+import { COUNTRIES, realCategories, isCountryCat } from "../features/catalog/countries.js";
 import * as api from "../backend/client.js";
 
 let catalog = [];
@@ -147,11 +147,15 @@ on("#peek", "click", () => {
 /* ------------------------------ rendering ----------------------------- */
 
 function renderAll(){
-  const products = catalog.reduce((s, c) => s + c.items.length, 0);
-  $("#countLine").textContent =
-    `${products} products in ${catalog.length} categories`;
+  // Countrywise is a way of browsing rather than a category: it is not
+  // counted, and it is never offered as a place to put a product.
+  const real = realCategories(catalog);
 
-  $("#fCat").innerHTML = catalog
+  const products = real.reduce((s, c) => s + c.items.length, 0);
+  $("#countLine").textContent =
+    `${products} products in ${real.length} categories`;
+
+  $("#fCat").innerHTML = real
     .map(c => `<option value="${esc(c.id)}">${esc(c.en)}</option>`)
     .join("");
 
@@ -199,11 +203,17 @@ function renderList(){
     // the category — an empty one still needs to be editable and fillable.
     if (q && !rows) return "";
 
-    const body = rows || `
+    // Countrywise gathers products by where they came from; nothing is
+    // put into it directly, so it is not offered as a destination.
+    const body = rows || (isCountryCat(cat) ? `
+      <div class="cat-empty">
+        <span>Products appear here by the country set on each product,
+              not by being added to this tile.</span>
+      </div>` : `
       <div class="cat-empty">
         <span>No products in this category yet.</span>
         <button class="act edit" data-addto="${esc(cat.id)}">${icon("plus",{size:14})} Add a product here</button>
-      </div>`;
+      </div>`);
 
     return `
       <section class="cat-block">

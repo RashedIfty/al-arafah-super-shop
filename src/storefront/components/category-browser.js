@@ -6,24 +6,18 @@ import { esc, IMG_FALLBACK } from "../../shared/lib/dom.js";
 import { SHOP } from "../../shared/shop.js";
 import { t, getLang, itemCount } from "../../features/i18n/lang.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
-import { countriesInUse } from "../../features/catalog/countries.js";
+import { countriesInUse, isCountryCat } from "../../features/catalog/countries.js";
 
 /** Link prefix: stay on the page when we are already on products.html. */
 const prefix = () =>
   document.body.dataset.page === "products" ? "" : "products.html";
 
-/**
- * The country category behaves differently from the rest.
- *
- * It holds no products itself — it gathers products from every other
- * category by where they came from — so it links to its own page and is
- * counted by countries rather than items.
- */
-const COUNTRY_CAT = "others";
+/* Countrywise is a way of browsing rather than a category; the rule
+   lives in features/catalog/countries.js so every part of the site
+   agrees on it. Here it only changes where the tile points and what its
+   count reads. */
 
-const isCountryCat = cat => cat.id === COUNTRY_CAT;
-
-/** Categories worth showing: those with products, plus the country one
+/** Categories worth showing: those with products, plus the country tile
     once at least one product has a country. */
 function visibleCategories(){
   const countries = countriesInUse(CATALOG).length;

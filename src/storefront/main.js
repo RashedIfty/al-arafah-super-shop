@@ -17,6 +17,7 @@ import { filtersHTML, initFilters } from "./components/filters.js";
 import { catalogHTML, chipsHTML } from "./components/product-card.js";
 import { categoryBrowserHTML } from "./components/category-browser.js";
 import { countriesHTML, initCountries } from "./components/countries.js";
+import { realCategories } from "../features/catalog/countries.js";
 import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
 import { CATALOG, refreshCatalog } from "../features/catalog/catalog.js";
 import { ANNOUNCEMENTS, refreshDeals } from "../features/deals/deals.js";
@@ -68,7 +69,9 @@ function renderHours(){
 function renderStats(){
   // Count only what a customer can actually see: empty categories are
   // hidden from the shop, so they must not be counted here either.
-  const visible = CATALOG.filter(c => c.items.length);
+  // Countrywise is a way of browsing rather than a category, so it is
+  // left out of the total as well.
+  const visible = realCategories(CATALOG).filter(c => c.items.length);
   put("#stN", visible.reduce((sum, c) => sum + c.items.length, 0));
   put("#stC", visible.length);
 }
