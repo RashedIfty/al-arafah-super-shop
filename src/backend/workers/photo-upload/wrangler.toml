@@ -1,0 +1,31 @@
+                                # Photo upload for Al-Arafah Super Shop.
+                                #
+                                # Deploy from this directory:
+                                #   npx wrangler deploy
+                                #
+                                # The bucket is reached through a binding, not an
+                                # API key: Cloudflare grants this Worker access at
+                                # deploy time, so no R2 credentials exist anywhere
+                                # in the code or in the repository.
+
+name = "alarafah-photos"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+# The R2 bucket, handed to the Worker as env.BUCKET.
+[[r2_buckets]]
+binding     = "BUCKET"
+bucket_name = "alarafah-images"
+
+[vars]
+# Where the photos are served from. Written into every URL returned.
+PUBLIC_BASE = "https://img.alarafahsupershop.com"
+
+# Only the shop may call this endpoint from a browser.
+ALLOWED_ORIGIN = "https://alarafahsupershop.com,https://www.alarafahsupershop.com"
+
+# Used to ask Supabase whether the caller is really signed in. The anon
+# key is public by design — it is the same one already in the site's
+# source — and carries no permissions of its own.
+SUPABASE_URL = "https://fkftvudfngcmrtylevnl.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrZnR2dWRmbmdjbXJ0eWxldm5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NTU5MzYsImV4cCI6MjEwMzMzMTkzNn0.nNmgcDiSIYDkfn4bVoR9CdsojlFxPIunIdG68PAOysI"

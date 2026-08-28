@@ -20,3 +20,19 @@ export const SUPABASE = {
 /** True once the details above are filled in. */
 export const isConfigured = () =>
   Boolean(SUPABASE.URL && SUPABASE.KEY);
+
+/**
+ * Cloudflare R2 — where product photos live.
+ *
+ * Photos are served from img.alarafahsupershop.com and written through a
+ * Worker that checks the owner is signed in first. There are no
+ * credentials here: the Worker reaches the bucket through a Cloudflare
+ * binding, so the keys exist only inside Cloudflare, never in this
+ * repository.
+ *
+ * Leave UPLOAD_URL empty and uploads fall back to Supabase Storage.
+ */
+export const R2 = {
+  PUBLIC_BASE: "https://img.alarafahsupershop.com",
+  UPLOAD_URL:  "https://alarafah-photos.alarafah.workers.dev",
+};
