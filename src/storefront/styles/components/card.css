@@ -9,11 +9,15 @@
 }
 .card:hover{box-shadow:var(--sh-lg);border-color:#d5dbe3;transform:translateY(-4px)}
 
+/* The whole photo, never a crop. The owner shoots packets and bottles in
+   whatever shape they come in; cutting the top off a bottle to fill a
+   square hides the label that tells a customer what it is. White behind,
+   so a tall or wide photo sits on the same ground as the card. */
 .card-img{
-  position:relative;aspect-ratio:1/1;background:var(--bg);overflow:hidden;
+  position:relative;aspect-ratio:1/1;background:#fff;overflow:hidden;
 }
 .card-img img{
-  width:100%;height:100%;object-fit:cover;
+  width:100%;height:100%;object-fit:contain;
   transition:transform .45s var(--ease);
 }
 .card:hover .card-img img{transform:scale(1.06)}
