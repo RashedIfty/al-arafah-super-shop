@@ -14,10 +14,10 @@
 const MARK = "/images/brand/watermark.png";
 
 /** The mark's share of the photo's width. */
-const WIDTH_SHARE = 0.32;
+const WIDTH_SHARE = 0.52;
 
 /** Never smaller than this, or the name stops being readable. */
-const MIN_WIDTH = 170;
+const MIN_WIDTH = 220;
 
 /** Distance from the edges, as a share of the photo's width. */
 const PAD_SHARE = 0.03;
