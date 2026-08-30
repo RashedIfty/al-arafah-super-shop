@@ -264,6 +264,7 @@ function openForm(catId, index){
   // The seal is a choice about one photo, so it never carries over.
   if ($("#fHalal")) $("#fHalal").checked = false;
   chosen = null;
+  resetProductTranslation?.();
   setPhoto(p?.img || "");
   updateSaleHint();
 
@@ -523,6 +524,7 @@ function openCatForm(id){
 
   $("#catForm").reset();
   $("#cFile").value = "";
+  resetCategoryTranslation?.();
   $("#cEn").value = c?.en || "";
   $("#cBn").value = c?.bn || "";
   $("#cJa").value = c?.ja || "";
@@ -1238,6 +1240,6 @@ function sayTranslating(where){
   };
 }
 
-autoTranslate({ en: "fEn",  bn: "fBn",  ja: "fJa",  onState: sayTranslating("#fTrans") });
-autoTranslate({ en: "cEn",  bn: "cBn",  ja: "cJa",  onState: sayTranslating("#cTrans") });
+const resetProductTranslation  = autoTranslate({ en: "fEn",  bn: "fBn",  ja: "fJa",  onState: sayTranslating("#fTrans") });
+const resetCategoryTranslation = autoTranslate({ en: "cEn",  bn: "cBn",  ja: "cJa",  onState: sayTranslating("#cTrans") });
 autoTranslate({ en: "anEn", bn: "anBn", ja: "anJa", onState: sayTranslating("#anTrans") });

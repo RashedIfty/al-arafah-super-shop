@@ -86,15 +86,33 @@ export function autoTranslate({ en, bn, ja, onState }){
      field twice must not let the first answer land after the second. */
   let run = 0;
 
+  /* What this filled in last time.
+   *
+   * Changing "Chicken" to "Beef" has to change the other two, so an
+   * empty box is not the test for whether we may write. The test is
+   * whether the box still holds what we put there: our own work is ours
+   * to replace, the owner's is not. */
+  const ours = { bn: "", ja: "" };
+
+  /** True when we may write here: it is empty, or still holds our text. */
+  const mayFill = k => {
+    const now = target[k].value.trim();
+    return !now || now === ours[k];
+  };
+
+  /** The English we last translated, so leaving the field twice with the
+      same text does not ask again. */
+  let last = "";
+
   async function fill(){
     const text = source.value.trim();
-    if (!text) return;
+    if (!text || text === last) return;
 
-    // Nothing to do if the owner has already written both.
-    const wanted = ["bn", "ja"].filter(k => !target[k].value.trim());
-    if (!wanted.length) return;
+    const wanted = ["bn", "ja"].filter(mayFill);
+    if (!wanted.length) return;            // the owner has written both
 
     const mine = ++run;
+    last = text;
     onState?.("working");
 
     const out = await translate(text);
@@ -103,12 +121,16 @@ export function autoTranslate({ en, bn, ja, onState }){
     let filled = 0;
     for (const k of wanted){
       // Check again: the owner may have typed while we waited.
-      if (out[k] && !target[k].value.trim()){
+      if (out[k] && mayFill(k)){
         target[k].value = out[k];
+        ours[k] = out[k];
         target[k].dispatchEvent(new Event("input", { bubbles: true }));
         filled++;
       }
     }
+
+    // A failure should not stop the next attempt from trying again.
+    if (!filled) last = "";
 
     onState?.(filled ? "done" : "failed");
   }
@@ -119,4 +141,8 @@ export function autoTranslate({ en, bn, ja, onState }){
   source.addEventListener("keydown", e => {
     if (e.key === "Enter"){ e.preventDefault(); source.blur(); }
   });
+
+  /* Editing a different product starts again: what is in the boxes then
+     belongs to that product, not to us, and must not be overwritten. */
+  return () => { ours.bn = ""; ours.ja = ""; last = ""; };
 }
