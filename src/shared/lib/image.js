@@ -78,7 +78,7 @@ function toBlob(canvas, type, quality){
  * format, a decode failure, or a result that came out no smaller.
  * A slightly heavy photo is a much better outcome than a failed upload.
  */
-export async function shrinkImage(file){
+export async function shrinkImage(file, opts = {}){
   if (!file || !file.type?.startsWith("image/")) return file;
   if (leaveAlone(file)) return file;
 
@@ -116,7 +116,7 @@ export async function shrinkImage(file){
     ctx.drawImage(source, 0, 0, w, h);
 
     // The shop's mark, while the photo is already on a canvas.
-    await stamp(canvas);
+    await stamp(canvas, opts);
 
     // Step the quality down until it fits. Most photos land on the first
     // try; the loop is for the occasional dense one.

@@ -105,13 +105,62 @@ function render(svg){
   });
 }
 
+
+/* ------------------------------ halal seal ----------------------------- */
+
+/** The seal's share of the photo's width. */
+const SEAL_SHARE = 0.18;
+
+/** Distance from the top and left edges, as a share of the width. */
+const SEAL_PAD = 0.035;
+
+/* Loaded once and reused across a run of uploads. */
+let seal = null;
+
+function loadSeal(){
+  if (seal) return seal;
+
+  seal = new Promise(resolve => {
+    const img = new Image();
+    img.onload  = () => resolve(img);
+    img.onerror = () => resolve(null);   // no seal beats a failed upload
+    img.src = "/images/brand/halal.svg";
+  });
+
+  return seal;
+}
+
+/**
+ * The halal seal, in the top-left corner.
+ *
+ * Only when the owner has asked for it: some of what the shop sells is
+ * halal-certified and some is not, so this is a choice per photo rather
+ * than something stamped on everything.
+ */
+async function stampSeal(canvas){
+  const ctx = canvas.getContext("2d");
+  const mark = await loadSeal();
+  if (!ctx || !mark) return;
+
+  const size = Math.round(canvas.width * SEAL_SHARE);
+  const pad = Math.round(canvas.width * SEAL_PAD);
+
+  ctx.save();
+  // a soft shadow, so the seal reads on a pale packet as well as a dark one
+  ctx.shadowColor = "rgba(0,0,0,.30)";
+  ctx.shadowBlur = Math.round(size * 0.08);
+  ctx.shadowOffsetY = 2;
+  ctx.drawImage(mark, pad, pad, size, size);
+  ctx.restore();
+}
+
 /**
  * Lay the ribbon across the bottom of a canvas.
  *
  * Drawn at the size it will occupy rather than scaled afterwards, so the
  * text and the icons stay sharp whatever the photo's dimensions.
  */
-export async function stamp(canvas){
+export async function stamp(canvas, opts = {}){
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
@@ -128,4 +177,6 @@ export async function stamp(canvas){
   ctx.globalAlpha = OPACITY;
   ctx.drawImage(mark, x, y);
   ctx.restore();
+
+  if (opts.halal) await stampSeal(canvas);
 }

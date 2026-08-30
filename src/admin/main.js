@@ -260,6 +260,8 @@ function openForm(catId, index){
   $("#fTag").value = p?.tag || "";
   $("#fCountry").value = p?.country || "";
   $("#fFile").value = "";
+  // The seal is a choice about one photo, so it never carries over.
+  if ($("#fHalal")) $("#fHalal").checked = false;
   setPhoto(p?.img || "");
   updateSaleHint();
 
@@ -307,7 +309,8 @@ async function handleImage(file, apply){
 
   let small;
   try {
-    small = await shrinkImage(file);
+    // The halal seal is a per-photo choice, taken from the form.
+    small = await shrinkImage(file, { halal: $("#fHalal")?.checked });
   } catch {
     small = file;                          // never block on a shrink failure
   }
