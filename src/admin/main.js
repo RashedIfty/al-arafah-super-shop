@@ -12,6 +12,7 @@ import { isLoggedIn, login, logout, usingSupabase } from "./auth.js";
 import * as store from "./local-store.js";
 import { DEFAULT_ANNOUNCEMENTS } from "../features/deals/deals.js";
 import { COUNTRIES, realCategories } from "../features/catalog/countries.js";
+import { autoTranslate } from "./translate.js";
 import * as api from "../backend/client.js";
 
 let catalog = [];
@@ -1213,3 +1214,30 @@ on("#fHalal", "change", () => {
   handleImage(chosen.file, chosen.apply);
 });
 
+/* --------------------------- filling in the rest ----------------------- */
+
+/**
+ * Type the English, get the Bangla and Japanese.
+ *
+ * Only ever fills a box the owner has left empty, and only after they
+ * leave the English field — so it never fights their typing, and never
+ * replaces a word they chose themselves. The result stays editable,
+ * which matters: brand names and shop words are what a translation gets
+ * wrong, and the owner is the one holding the packet.
+ */
+function sayTranslating(where){
+  return state => {
+    const el = $(where);
+    if (!el) return;
+    el.textContent =
+      state === "working" ? "Filling in Bangla and Japanese…"
+      : state === "done"  ? "Filled in — check them and edit if needed."
+      : "Could not fill those in — please type them.";
+    el.hidden = false;
+    if (state !== "working") setTimeout(() => { el.hidden = true; }, 4000);
+  };
+}
+
+autoTranslate({ en: "fEn",  bn: "fBn",  ja: "fJa",  onState: sayTranslating("#fTrans") });
+autoTranslate({ en: "cEn",  bn: "cBn",  ja: "cJa",  onState: sayTranslating("#cTrans") });
+autoTranslate({ en: "anEn", bn: "anBn", ja: "anJa", onState: sayTranslating("#anTrans") });
