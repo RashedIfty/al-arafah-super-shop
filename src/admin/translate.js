@@ -135,11 +135,24 @@ export function autoTranslate({ en, bn, ja, onState }){
     onState?.(filled ? "done" : "failed");
   }
 
-  source.addEventListener("blur", fill);
+  /* Fill while they type, once they stop.
+   *
+   * Waiting for the field to lose focus meant the owner had to know to
+   * click elsewhere before anything happened — and typing a name and
+   * looking at it is the obvious thing to do instead. A pause of about a
+   * second reads as finished without asking on every keystroke. */
+  let idle;
+  source.addEventListener("input", () => {
+    clearTimeout(idle);
+    idle = setTimeout(fill, 900);
+  });
+
+  // Leaving the field fills immediately rather than waiting out the pause.
+  source.addEventListener("blur", () => { clearTimeout(idle); fill(); });
 
   // Enter should fill without submitting the form half-finished.
   source.addEventListener("keydown", e => {
-    if (e.key === "Enter"){ e.preventDefault(); source.blur(); }
+    if (e.key === "Enter"){ e.preventDefault(); clearTimeout(idle); fill(); }
   });
 
   /* Editing a different product starts again: what is in the boxes then
