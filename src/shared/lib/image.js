@@ -9,6 +9,7 @@
  *
  * Everything happens in the owner's browser. Nothing extra is sent.
  */
+import { stamp } from "../ui/watermark.js";
 
 /** Longest edge we keep. Product cards show well under this. */
 const MAX_EDGE = 1000;
@@ -113,6 +114,9 @@ export async function shrinkImage(file){
     ctx.fillRect(0, 0, w, h);
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(source, 0, 0, w, h);
+
+    // The shop's mark, while the photo is already on a canvas.
+    await stamp(canvas);
 
     // Step the quality down until it fits. Most photos land on the first
     // try; the loop is for the occasional dense one.
