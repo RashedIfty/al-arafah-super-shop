@@ -15,8 +15,10 @@
 /** Nearly the full width: this is a band across the photo, not a badge. */
 const WIDTH_SHARE = 0.90;
 
-/** Distance from the bottom, as a share of the photo's width. */
-const PAD_SHARE = 0.03;
+/** Distance from the bottom, as a share of the photo's height.
+    Measured against height, not width: on a tall portrait a share of
+    the width is a large gap, and the ribbon floats. */
+const PAD_SHARE = 0.02;
 
 /** Solid, but not quite flat against the photograph. */
 const OPACITY = 0.95;
@@ -117,7 +119,7 @@ export async function stamp(canvas){
   const mark = await render(ribbonSVG(w));
   if (!mark) return;                       // a photo without a mark beats none
 
-  const pad = Math.round(canvas.width * PAD_SHARE);
+  const pad = Math.round(canvas.height * PAD_SHARE);
   const x = Math.round((canvas.width - w) / 2);
   const y = canvas.height - mark.height - pad;
 
