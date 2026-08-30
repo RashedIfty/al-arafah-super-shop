@@ -712,9 +712,9 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 .ann-item:hover .ann-img img{transform:scale(1.07)}
 
-/* badges sit on the photo */
+/* On the right, clear of the halal seal stamped into the photograph. */
 .ann-tag{
-  position:absolute;top:8px;left:8px;z-index:2;
+  position:absolute;top:8px;right:8px;z-index:2;
   font-size:9px;font-weight:900;letter-spacing:.6px;
   padding:3px 8px;border-radius:5px;line-height:1.35;
 }
@@ -1134,9 +1134,11 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 .card:hover .card-img img{transform:scale(1.06)}
 
+/* On the right, because the halal seal is stamped into the top-left of
+   the photograph itself and the two would sit on top of each other. */
 .badges{
-  position:absolute;top:8px;left:8px;z-index:2;
-  display:flex;flex-direction:column;gap:5px;align-items:flex-start;
+  position:absolute;top:8px;right:8px;z-index:2;
+  display:flex;flex-direction:column;gap:5px;align-items:flex-end;
 }
 .badge{
   font-size:10px;font-weight:900;padding:3.5px 8px;border-radius:5px;
@@ -1258,8 +1260,10 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   width:100%;height:auto;max-height:52vh;
   object-fit:contain;display:block;
 }
+/* Right-hand side, clear of the halal seal stamped into the top-left of
+   the photograph. Below the close button, which holds that corner. */
 .lb-off{
-  position:absolute;top:12px;left:12px;
+  position:absolute;top:60px;right:12px;
   background:var(--red);color:#fff;font-size:12px;font-weight:900;
   padding:5px 11px;border-radius:6px;
   box-shadow:0 2px 8px rgba(0,0,0,.2);

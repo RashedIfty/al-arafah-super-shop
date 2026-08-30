@@ -122,9 +122,9 @@
 }
 .ann-item:hover .ann-img img{transform:scale(1.07)}
 
-/* badges sit on the photo */
+/* On the right, clear of the halal seal stamped into the photograph. */
 .ann-tag{
-  position:absolute;top:8px;left:8px;z-index:2;
+  position:absolute;top:8px;right:8px;z-index:2;
   font-size:9px;font-weight:900;letter-spacing:.6px;
   padding:3px 8px;border-radius:5px;line-height:1.35;
 }

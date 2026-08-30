@@ -22,9 +22,11 @@
 }
 .card:hover .card-img img{transform:scale(1.06)}
 
+/* On the right, because the halal seal is stamped into the top-left of
+   the photograph itself and the two would sit on top of each other. */
 .badges{
-  position:absolute;top:8px;left:8px;z-index:2;
-  display:flex;flex-direction:column;gap:5px;align-items:flex-start;
+  position:absolute;top:8px;right:8px;z-index:2;
+  display:flex;flex-direction:column;gap:5px;align-items:flex-end;
 }
 .badge{
   font-size:10px;font-weight:900;padding:3.5px 8px;border-radius:5px;
