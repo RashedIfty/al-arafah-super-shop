@@ -14,16 +14,16 @@
 const MARK = "/images/brand/watermark.png";
 
 /** The mark's share of the photo's width. */
-const WIDTH_SHARE = 0.52;
+const WIDTH_SHARE = 0.66;
 
 /** Never smaller than this, or the name stops being readable. */
-const MIN_WIDTH = 220;
+const MIN_WIDTH = 260;
 
 /** Distance from the edges, as a share of the photo's width. */
 const PAD_SHARE = 0.03;
 
 /** Present, but not competing with the product. */
-const OPACITY = 0.88;
+const OPACITY = 0.92;
 
 /* Fetched once and reused: the owner may add several photos in a row,
    and each would otherwise wait for the same file again. */
@@ -65,7 +65,7 @@ export async function stamp(canvas){
   ctx.save();
   ctx.globalAlpha = OPACITY;
   ctx.shadowColor = "rgba(0,0,0,.28)";
-  ctx.shadowBlur = Math.round(w * 0.03);
+  ctx.shadowBlur = Math.round(w * 0.02);
   ctx.shadowOffsetY = 1;
   ctx.drawImage(mark, x, y, w, h);
   ctx.restore();
