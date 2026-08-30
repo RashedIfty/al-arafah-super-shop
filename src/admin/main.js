@@ -262,6 +262,7 @@ function openForm(catId, index){
   $("#fFile").value = "";
   // The seal is a choice about one photo, so it never carries over.
   if ($("#fHalal")) $("#fHalal").checked = false;
+  chosen = null;
   setPhoto(p?.img || "");
   updateSaleHint();
 
@@ -296,7 +297,13 @@ function dataURL(file){
  */
 let photoRun = 0;
 
+/* The photo the owner last chose, kept so the halal seal can be turned
+   on and off without asking for the file again. Cleared with the form. */
+let chosen = null;
+
 async function handleImage(file, apply){
+  chosen = { file, apply };
+
   if (!file || !file.type.startsWith("image/")) return;
 
   const run = ++photoRun;
@@ -331,6 +338,13 @@ async function handleImage(file, apply){
     : "";
 
   if (usingSupabase()){
+    /* Wait a moment before sending. Toggling the halal seal redraws the
+       photo, and without this pause each flick of the switch would put
+       another picture in storage that nothing points at. A newer run
+       cancels this one while it waits. */
+    await new Promise(r => setTimeout(r, 400));
+    if (stale()) return;
+
     toast("Uploading photo…");
     try {
       const url = await api.uploadPhoto(small);
@@ -1183,3 +1197,19 @@ on("#dealList", "touchend", e => {
   touchRow = null;
   dragFrom = null;
 });
+
+/* ---------------------------- the halal seal --------------------------- */
+
+/**
+ * Redraw the photo when the seal is switched on or off.
+ *
+ * The seal is drawn into the picture as it is compressed, so changing
+ * the choice means compressing again — but from the file already in
+ * hand, not by making the owner pick it a second time. They tick, and
+ * the preview updates.
+ */
+on("#fHalal", "change", () => {
+  if (!chosen) return;                    // no photo yet: nothing to redraw
+  handleImage(chosen.file, chosen.apply);
+});
+
