@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
     const key = Deno.env.get("GROQ_API_KEY");
     if (!key) return json({ bn: "", ja: "", reason: "no_key" });
 
-    const res = await fetch(GROQ_URL, {
+    const ask = () => fetch(GROQ_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${key}`,
@@ -78,6 +78,15 @@ Deno.serve(async (req) => {
         ]
       })
     });
+
+    /* compound-mini routes to whichever model is free, and a busy one
+       answers 429. That is a moment's wait rather than a real failure, so
+       try once more before giving the owner an empty field. */
+    let res = await ask();
+    if (res.status === 429) {
+      await new Promise(r => setTimeout(r, 900));
+      res = await ask();
+    }
 
     if (!res.ok) {
       const detail = await res.text();
