@@ -50,7 +50,8 @@ export function isDirty(){
 export function addProduct(catalog, categoryId, product){
   const cat = catalog.find(c => c.id === categoryId);
   if (!cat) return catalog;
-  cat.items.push(product);
+  // Newest first, matching the live shop.
+  cat.items.unshift(product);
   return catalog;
 }
 

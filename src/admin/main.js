@@ -464,8 +464,7 @@ on("#form", "submit", async e => {
         const { error } = await api.updateProduct(existing._id, catId, product);
         if (error) throw error;
       } else {
-        const sort = catalog.find(c => c.id === catId)?.items.length ?? 0;
-        const { error } = await api.insertProduct(catId, product, sort);
+        const { error } = await api.insertProduct(catId, product);
         if (error) throw error;
       }
       toast(editing ? "Saved — live for everyone." : "Added — live for everyone.");
