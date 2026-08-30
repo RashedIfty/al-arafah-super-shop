@@ -712,7 +712,10 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 .ann-item:hover .ann-img img{transform:scale(1.07)}
 
-/* On the right, clear of the halal seal stamped into the photograph. */
+/* Both badges live on the right, clear of the halal seal stamped into
+   the top-left of the photograph. The discount sits under the label
+   rather than beside it: on a narrow card they would not both fit
+   across, and stacked they never collide however long the label is. */
 .ann-tag{
   position:absolute;top:8px;right:8px;z-index:2;
   font-size:9px;font-weight:900;letter-spacing:.6px;
@@ -721,7 +724,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .ann-tag.new{background:#12805c;color:#fff}
 .ann-tag.deal{background:var(--gold);color:#3a2a00}
 .ann-off{
-  position:absolute;top:8px;right:8px;z-index:2;
+  position:absolute;top:32px;right:8px;z-index:2;
   background:var(--red);color:#fff;font-size:10px;font-weight:900;
   padding:3px 7px;border-radius:5px;line-height:1.35;
 }
