@@ -16,9 +16,10 @@
 const WIDTH_SHARE = 0.90;
 
 /** Distance from the bottom, as a share of the photo's height.
-    Measured against height, not width: on a tall portrait a share of
-    the width is a large gap, and the ribbon floats. */
-const PAD_SHARE = 0.02;
+    Small: the ribbon should sit on the edge of the picture, not float
+    above it. Measured against height rather than width, or a tall
+    portrait pushes it far up the frame. */
+const PAD_SHARE = 0.008;
 
 /** Solid, but not quite flat against the photograph. */
 const OPACITY = 0.95;
