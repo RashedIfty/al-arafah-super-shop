@@ -5,17 +5,18 @@
  * than a solid shape sitting on top of it — the product keeps the frame,
  * and the mark still reads on a white packet and a dark shopfront alike.
  * The trolley and the delivery van sit at either end with the name
- * between them.
+ * between them, over a line saying what the shop is and where, under a
+ * gold hairline, with a gloss falling across the whole band.
  *
  * Drawn in code: there is no image to load, nothing to go missing, and
  * it stays sharp at whatever size the photo happens to be.
  */
 
 /** The band's height, as a share of the photo's. */
-const BAND_SHARE = 0.105;
+const BAND_SHARE = 0.155;
 
 /** How solid the colour gets at the very bottom. */
-const STRENGTH = 0.94;
+const STRENGTH = 0.96;
 
 /** The icons, as one small sheet drawn once per photo. */
 const ICONS = `<svg xmlns="http://www.w3.org/2000/svg" width="360" height="64"
@@ -88,32 +89,67 @@ export async function stamp(canvas){
 
   ctx.drawImage(band, 0, y);
 
-  /* The contents, on one line through the band. */
-  const cy = y + h * 0.58;
-  const pad = W * 0.045;
+  /* A gloss falling across the band, so it reads as a surface catching
+     the light rather than a flat rectangle of colour. */
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, y, W, h);
+  ctx.clip();
+  const gloss = ctx.createLinearGradient(W * 0.05, y, W * 0.60, y + h);
+  gloss.addColorStop(0,   "rgba(255,255,255,0)");
+  gloss.addColorStop(.48, "rgba(255,255,255,.22)");
+  gloss.addColorStop(1,   "rgba(255,255,255,0)");
+  ctx.fillStyle = gloss;
+  ctx.fillRect(0, y, W, h);
+  ctx.restore();
+
+  /* A gold hairline along the top of the band, fading out at both ends
+     so it never looks like a border that has been cut off. */
+  const rule = ctx.createLinearGradient(0, 0, W, 0);
+  rule.addColorStop(0,  "rgba(247,201,72,0)");
+  rule.addColorStop(.5, "#f7c948");
+  rule.addColorStop(1,  "rgba(247,201,72,0)");
+  ctx.fillStyle = rule;
+  ctx.fillRect(0, y + Math.round(h * 0.06), W, Math.max(2, Math.round(h * 0.020)));
+
+  /* The contents. The icons hold the two ends; the name and the line
+     beneath it stack in the middle. */
+  const cy = y + h * 0.50;
+  const pad = W * 0.05;
 
   const icons = await loadIcons();
   if (icons){
-    const size = h * 0.52;
+    const size = h * 0.42;
 
     // trolley, from the left of the sheet
     ctx.drawImage(icons, 0, 0, 60, 64,
-      pad, cy - size * 0.55, size, size);
+      pad, cy - size * 0.5, size, size);
 
     // van, from the right — a wider slice, since it carries motion lines
     const vw = size * 1.35;
     ctx.drawImage(icons, 260, 0, 100, 64,
-      W - pad - vw, cy - size * 0.55, vw, size);
+      W - pad - vw, cy - size * 0.5, vw, size);
   }
 
   ctx.save();
-  ctx.fillStyle = "#fff";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.font = `700 ${Math.round(h * 0.38)}px Helvetica Neue, Helvetica, Arial, sans-serif`;
-  // a little shade under the letters, for the rare photo that stays pale
-  ctx.shadowColor = "rgba(90,25,0,.40)";
-  ctx.shadowBlur = Math.round(h * 0.09);
-  ctx.fillText("Al-Arafah Super Shop", W / 2, cy);
+  ctx.shadowColor = "rgba(80,20,0,.45)";
+  ctx.shadowBlur = Math.round(h * 0.08);
+
+  ctx.fillStyle = "#fff";
+  ctx.font = `700 ${Math.round(h * 0.27)}px Helvetica Neue, Helvetica, Arial, sans-serif`;
+  // Spaced out: at this size tight letters read as a label, spaced ones
+  // as a wordmark.
+  if ("letterSpacing" in ctx) ctx.letterSpacing = `${Math.round(h * 0.028)}px`;
+  ctx.fillText("Al-Arafah Super Shop", W / 2, cy - h * 0.09);
+
+  /* What the shop is and where, in small caps under the name. It gives
+     the band something to say rather than only something to look at. */
+  ctx.fillStyle = "rgba(255,238,205,.92)";
+  ctx.font = `600 ${Math.round(h * 0.135)}px Helvetica Neue, Helvetica, Arial, sans-serif`;
+  if ("letterSpacing" in ctx) ctx.letterSpacing = `${Math.round(h * 0.05)}px`;
+  ctx.fillText("HALAL GROCERY · TSUKUBA", W / 2, cy + h * 0.20);
+
   ctx.restore();
 }
