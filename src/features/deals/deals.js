@@ -1,43 +1,16 @@
 /* ==========================================================================
-   ADMIN - EDIT THIS FILE
+   Today's Deal & New Arrival — the strip at the top of the homepage.
    ==========================================================================
-   This is the ONLY file you need to touch to update the banner at the top
-   of the website. Save the file and refresh the page — the change is live.
+   Deals are managed in the owner's panel and live in the database. There
+   is nothing to edit here.
 
-   ------------------------------------------------------------------------
-   HOW TO ADD AN ITEM
-   ------------------------------------------------------------------------
-   Copy one block, paste it, and change the words. Keep the commas.
-
-     {
-       type : "new",                                  // "new" or "deal"
-       en   : "Beef with Bone",                           // English name
-       bn   : "হাড়সহ গরুর মাংস",                        // Bangla name
-       ja   : "骨付き牛肉",                             // Japanese name
-       w    : "1 kg",                                 // weight / size
-       p    : 1920,                                   // price now (yen)
-       was  : 2180,                                   // old price, or 0
-       img  : "/images/products/beef-bone.jpg"     // product photo
-     },
-
-   type "new"   → green NEW badge      (newly arrived stock)
-   type "deal"  → red TODAY'S DEAL badge (special price today)
-
-   img: point it at any file in /images/products/ — the same photo the
-        product card uses. Leave it "" to fall back to the shop placeholder.
-
-   was: 0   → no discount shown
-   was: 2180 → shows ¥2,180 struck through + the % saved
-
-   ------------------------------------------------------------------------
-   TO HIDE THE WHOLE BANNER
-   ------------------------------------------------------------------------
-   Set  ACTIVE: false  below.
-
-   ------------------------------------------------------------------------
-   TO REMOVE ONE ITEM
-   ------------------------------------------------------------------------
-   Delete its block (from the "{" to the "}," inclusive).
+   This file used to hold the list itself, from before the shop had a
+   database. That list stayed frozen at whatever was on offer the day it
+   was written, so long after those deals were removed a returning
+   visitor still saw them flash up for an instant before the real ones
+   arrived. It is empty now, and deliberately so: an empty strip for the
+   half-second before the database answers is honest, where six deals the
+   shop stopped selling months ago is not.
    ========================================================================== */
 
 const DEFAULT_ANNOUNCEMENTS = {
@@ -52,84 +25,47 @@ const DEFAULT_ANNOUNCEMENTS = {
     ja: "本日更新"
   },
 
-  /* ----------------------------------------------------------------------
-     THE ITEMS — edit, add or delete below
-     ---------------------------------------------------------------------- */
-  items: [
-
-    {
-      type : "new",
-      en   : "Beef with Bone",
-      bn   : "হাড়সহ গরুর মাংস",
-      ja   : "骨付き牛肉",
-      w    : "1 kg",
-      p    : 1920,
-      was  : 2180,
-      img  : "/images/products/beef-bone.jpg"
-    },
-
-    {
-      type : "deal",
-      en   : "Tilapia Whole Frozen",
-      bn   : "তেলাপিয়া মাছ",
-      ja   : "ティラピア（冷凍）",
-      w    : "800 g",
-      p    : 398,
-      was  : 440,
-      img  : "/images/products/tilapia.jpg"
-    },
-
-    {
-      type : "new",
-      en   : "Mutton Curry Cut",
-      bn   : "খাসির মাংস",
-      ja   : "マトン（カレー用）",
-      w    : "1 kg",
-      p    : 3480,
-      was  : 0,
-      img  : "/images/products/mutton.jpg"
-    },
-
-    {
-      type : "new",
-      en   : "Prawn / Shrimp Medium",
-      bn   : "চিংড়ি (মাঝারি)",
-      ja   : "エビ（中）",
-      w    : "500 g",
-      p    : 1480,
-      was  : 0,
-      img  : "/images/products/prawn.jpg"
-    },
-
-    {
-      type : "deal",
-      en   : "Masoor Dal (Red Lentil)",
-      bn   : "মসুর ডাল",
-      ja   : "レンズ豆（マスール）",
-      w    : "1 kg",
-      p    : 261,
-      was  : 394,
-      img  : "/images/products/masoor-dal.jpg"
-    },
-
-    {
-      type : "deal",
-      en   : "Premium Basmati Rice",
-      bn   : "প্রিমিয়াম বাসমতি চাল",
-      ja   : "高級バスマティ米",
-      w    : "5 kg",
-      p    : 3690,
-      was  : 4280,
-      img  : "/images/products/basmati-premium.jpg"
-    }
-
-  ]
+  /* No items here on purpose — see the note at the top of the file.
+     The strip fills from the database, or from the last reply this
+     browser saw. */
+  items: []
 };
 
+/* The strip paints immediately, then repaints when the database answers.
+
+   Without a cache that first paint uses the list bundled above, which is
+   whatever the shop was selling when this file was written — so a
+   returning visitor saw deals the owner had removed flash up and vanish.
+   The catalogue already solved this the same way; the deals strip was
+   left behind.
+
+   Keeping the last real reply means a returning visitor's first paint is
+   already right. The bundled list is then only what it claims to be: a
+   fallback for a browser that has never reached the database. */
+const CACHE_KEY = "aa-deals";
+
+function readCache(){
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    const data = raw ? JSON.parse(raw) : null;
+    return Array.isArray(data) ? data : null;
+  } catch { return null; }
+}
+
+function writeCache(items){
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(items)); }
+  catch { /* private mode, or over quota — the strip still works */ }
+}
+
 /**
- * Deals come from Supabase when configured, otherwise the defaults above.
+ * Deals come from Supabase when configured, otherwise the last reply this
+ * browser saw, otherwise the defaults above.
  */
-export let ANNOUNCEMENTS = DEFAULT_ANNOUNCEMENTS;
+const cached = readCache();
+
+export let ANNOUNCEMENTS = cached
+  ? { ...DEFAULT_ANNOUNCEMENTS, items: cached }
+  : DEFAULT_ANNOUNCEMENTS;
 
 /**
  * Drop deals whose product is no longer on the shelf.
@@ -163,10 +99,12 @@ export async function refreshDeals(){
     const [live, shelf] = await Promise.all([fetchDeals(), fetchCatalog()]);
 
     if (live){
-      ANNOUNCEMENTS = {
-        ...DEFAULT_ANNOUNCEMENTS,
-        items: shelf ? onlyStillSold(live, shelf) : live,
-      };
+      const items = shelf ? onlyStillSold(live, shelf) : live;
+      ANNOUNCEMENTS = { ...DEFAULT_ANNOUNCEMENTS, items };
+
+      /* Cached even when empty: an owner who has removed every deal must
+         get an empty strip next time, not the bundled list back. */
+      writeCache(items);
     }
   } catch (e) {
     console.warn("Using bundled deals:", e.message);
