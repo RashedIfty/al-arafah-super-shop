@@ -69,5 +69,6 @@ export default {
     sort:"Sort by", sort_def:"Category order", sort_lo:"Price: Low to High",
     sort_hi:"Price: High to Low", sort_az:"Name: A–Z",
     showing:"showing", new:"NEW", out:"SOLD OUT", off:"OFF",
+    in_stock:"IN STOCK", out_stock:"STOCK OUT",
     days:["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
 };

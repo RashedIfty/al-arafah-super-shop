@@ -57,6 +57,8 @@ export function openLightbox(item, opts = {}){
       ${alt ? `<p class="lb-alt">${esc(alt)}</p>` : ""}
       <div class="lb-meta">
         <span class="lb-w">${esc(item.w || "")}</span>
+        ${item.tag === "in"  ? `<span class="card-stock in">${esc(T.in_stock)}</span>` : ""}
+        ${item.tag === "out" ? `<span class="card-stock out">${esc(T.out_stock)}</span>` : ""}
       </div>
       <div class="lb-price">
         <span class="now">${yen(item.p)}</span>

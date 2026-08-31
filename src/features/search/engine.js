@@ -198,7 +198,10 @@ function scoreProduct(product, queryWords, intent, lang){
   if (intent.sale && product.was > product.p) score += 1.2;
   if (intent.price === "low")  score += 0.6 / (1 + product.p / 500);
   if (intent.price === "high") score += Math.min(product.p / 3000, 0.8);
-  if (product.tag === "new")  score += 0.15;
+  /* What just arrived is now a shelf rather than a label, so newness is
+     read from the flag; `tag` carries stock, and something the shop
+     cannot sell today belongs further down the list. */
+  if (product.isNew)          score += 0.15;
   if (product.tag === "out")  score -= 0.5;
 
   return score;

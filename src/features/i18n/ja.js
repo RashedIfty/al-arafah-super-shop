@@ -69,5 +69,6 @@ export default {
     sort:"並び替え", sort_def:"カテゴリ順", sort_lo:"価格の安い順",
     sort_hi:"価格の高い順", sort_az:"名前順",
     showing:"表示中", new:"新商品", out:"売切", off:"OFF",
+    in_stock:"在庫あり", out_stock:"在庫切れ",
     days:["月曜日","火曜日","水曜日","木曜日","金曜日","土曜日","日曜日"]
 };

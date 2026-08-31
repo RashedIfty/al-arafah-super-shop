@@ -267,12 +267,27 @@
               way. You can tick both, or neither.</small>
           </div>
 
-          <label><span>Show a label on it?</span>
-            <select id="fTag">
-              <option value="">No label</option>
-              <option value="new">NEW — just arrived</option>
-              <option value="out">SOLD OUT — not available now</option>
-            </select></label>
+          <div class="stock-opts">
+            <span class="stock-opts-h">Is it in stock?</span>
+            <label class="stock-opt in">
+              <input type="radio" name="fStock" value="in">
+              <span class="stock-dot"></span>
+              <span class="stock-tx"><b>IN STOCK</b>
+                <small>Shows a green “IN STOCK” mark on the product</small></span>
+            </label>
+            <label class="stock-opt out">
+              <input type="radio" name="fStock" value="out">
+              <span class="stock-dot"></span>
+              <span class="stock-tx"><b>STOCK OUT</b>
+                <small>Shows a red “STOCK OUT” mark, and the product is dimmed</small></span>
+            </label>
+            <label class="stock-opt none">
+              <input type="radio" name="fStock" value="" checked>
+              <span class="stock-dot"></span>
+              <span class="stock-tx"><b>Don't say</b>
+                <small>No mark at all</small></span>
+            </label>
+          </div>
         </div>
       </div>
 

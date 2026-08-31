@@ -28,11 +28,16 @@ export function cardHTML(product, category, ci = 0, pi = 0){
   const off = discount(product.was, product.p);
   const img = product.img || SHOP.placeholder;
 
-  const badges = [
-    off ? `<span class="badge badge-off">-${off}% ${esc(T.off)}</span>` : "",
-    product.tag === "new" ? `<span class="badge badge-new">${esc(T.new)}</span>` : "",
-    product.tag === "out" ? `<span class="badge badge-out">${esc(T.out)}</span>` : ""
-  ].join("");
+  const badges = off ? `<span class="badge badge-off">-${off}% ${esc(T.off)}</span>` : "";
+
+  /* Stock sits on the line with the weight rather than as a corner badge:
+     it is a fact about the product, read alongside its size and price,
+     not a flash the eye is meant to catch first. Nothing is claimed when
+     the owner has not said — an unmarked product is simply unmarked. */
+  const stock =
+      product.tag === "in"  ? `<span class="card-stock in">${esc(T.in_stock)}</span>`
+    : product.tag === "out" ? `<span class="card-stock out">${esc(T.out_stock)}</span>`
+    : "";
 
   const alt = LANGS.filter(l => l !== lang).map(l => product[l]).join(" · ");
   const searchIndex = LANGS.map(l => product[l]).join(" ").toLowerCase();
@@ -57,7 +62,10 @@ export function cardHTML(product, category, ci = 0, pi = 0){
       <div class="card-cat">${esc(category[lang])}</div>
       <h3>${esc(product[lang])}</h3>
       <div class="card-jp" title="${esc(alt)}">${esc(alt)}</div>
-      <span class="card-w">${esc(product.w)}</span>
+      <div class="card-meta">
+        <span class="card-w">${esc(product.w)}</span>
+        ${stock}
+      </div>
       <div class="price">
         <span class="now">${yen(product.p)}</span>
         ${product.was ? `<span class="was">${yen(product.was)}</span>` : ""}

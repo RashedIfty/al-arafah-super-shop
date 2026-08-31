@@ -200,7 +200,8 @@ function renderList(){
           <div class="prod-price">
             <b>${yen(p.p)}</b>
             ${p.was ? `<s>${yen(p.was)}</s>` : ""}
-            ${p.tag ? `<span class="tag ${esc(p.tag)}">${p.tag === "new" ? "NEW" : "SOLD OUT"}</span>` : ""}
+            ${p.tag === "in"  ? `<span class="tag in">IN STOCK</span>` : ""}
+            ${p.tag === "out" ? `<span class="tag out">STOCK OUT</span>` : ""}
           </div>
           <div class="prod-act">
             <button class="act edit" data-edit="${esc(cat.id)}:${i}">${icon("edit",{size:14})} Edit</button>
@@ -264,7 +265,11 @@ function openForm(catId, index){
   $("#fW").value   = p?.w  || "";
   $("#fP").value   = p?.p  ?? "";
   $("#fWas").value = p?.was || "";
-  $("#fTag").value = p?.tag || "";
+  /* Stock is the one thing here with no sensible default: a new product
+     is presumably on the shelf, but saying so on the owner's behalf would
+     be putting words in their mouth. They pick. */
+  const stock = p?.tag === "in" || p?.tag === "out" ? p.tag : "";
+  $$("input[name=fStock]").forEach(r => r.checked = r.value === stock);
   $("#fCountry").value = p?.country || "";
   showCountryFlag();
   $("#fNew").checked     = Boolean(p?.isNew);
@@ -481,11 +486,10 @@ on("#form", "submit", async e => {
     was,
     img: $("#fImg").value.trim()
   };
-  const tag = $("#fTag").value;
-  if (tag) product.tag = tag;
-
-  // Always sent, even when empty or false: clearing a country or
-  // unticking a shelf has to reach the row, not just be left off it.
+  /* Always sent, even when empty or false: going back to "Don't say",
+     clearing a country or unticking a shelf all have to reach the row,
+     not merely be left off the update. */
+  product.tag = $$("input[name=fStock]").find(r => r.checked)?.value || null;
   product.country   = $("#fCountry").value || null;
   product.isNew     = $("#fNew").checked;
   product.isPopular = $("#fPopular").checked;

@@ -32,9 +32,10 @@
   font-size:10px;font-weight:900;padding:3.5px 8px;border-radius:5px;
   color:#fff;letter-spacing:.3px;line-height:1.3;
 }
+/* Only the discount is a corner badge now. New arrivals have a shelf of
+   their own, and stock is stated beside the weight rather than shouted
+   from the picture. */
 .badge-off{background:var(--red)}
-.badge-new{background:var(--ok)}
-.badge-out{background:var(--mute)}
 
 .card-b{padding:11px 12px 13px;display:flex;flex-direction:column;flex:1}
 .card-cat{
@@ -46,11 +47,28 @@
   font-size:11px;color:var(--mute);line-height:1.3;margin-bottom:8px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
-.card-w{
-  display:inline-block;align-self:flex-start;background:var(--navy-l);
-  color:var(--navy);font-size:10.5px;font-weight:800;
-  padding:2.5px 8px;border-radius:5px;margin-bottom:10px;
+/* Size and stock on one line: both are plain facts about the product,
+   read together before the price. */
+.card-meta{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:10px;
 }
+.card-w{
+  display:inline-block;background:var(--navy-l);
+  color:var(--navy);font-size:10.5px;font-weight:800;
+  padding:2.5px 8px;border-radius:5px;
+}
+
+/* Green for on the shelf, red for gone. Word and colour together, never
+   colour alone — a customer who cannot separate the two still reads it. */
+.card-stock{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:900;letter-spacing:.4px;
+}
+.card-stock::before{
+  content:"";width:6px;height:6px;border-radius:50%;background:currentColor;
+}
+.card-stock.in{color:#12805c}
+.card-stock.out{color:var(--red)}
 .price{margin-top:auto;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
 .price .now{font-size:18px;font-weight:900;color:var(--red);letter-spacing:-.4px}
 .price .was{font-size:12px;color:var(--mute);text-decoration:line-through}
