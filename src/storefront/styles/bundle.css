@@ -948,26 +948,46 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .cat-tile.is-shelf b{color:var(--navy-d)}
 .cat-tile.is-shelf:hover .cat-tile-img{border-color:var(--navy-d)}
 
-/* The three shelves fill the row, rather than being sized to match one
-   category tile and centred with space either side. Three tiles the size
-   of a category tile left a quarter of the row empty beside them, which
-   read as something missing.
+/* Laid out on the same grid as the categories, so a shelf tile is the
+   size of a category tile rather than merely close to it. Filling the row
+   with three made them half again as large as everything above, which
+   read as a banner rather than as part of the same set.
 
-   Filling it makes them larger than the categories above, which is
-   right: these are the three shortcuts into the whole shop, not a
-   thirteenth, fourteenth and fifteenth category. */
+   Three category-sized tracks, centred in the row. --catcols comes from
+   the render, so this follows however the categories are arranged. */
 .shelf-tiles{
   --gap:14px;
+  /* One track the size of a category tile: the row divided the way the
+     categories above divide it. Written out rather than left to 1fr,
+     because the grid below is narrower than the row and a fraction of it
+     would come out smaller. */
+  --track:var(--catcols,2);
+  --tile:calc((100% - (var(--track) - 1) * var(--gap)) / var(--track));
   gap:var(--gap);
-  grid-template-columns:repeat(var(--cols,3),minmax(0,1fr));
+  grid-template-columns:repeat(var(--cols,3),var(--tile));
+  justify-content:center;
 }
 
-/* Two across on a phone, where three would leave the names too narrow to
-   read. The odd one out takes the full width and centres itself. */
+
+/* Below 1000px the categories cap at three columns whatever --catcols
+   says, so the shelves take three too — the row is exactly full, and
+   there is nothing to centre. */
+@media(max-width:999px){
+  .shelf-tiles{--track:3}
+}
+
+/* Two across on a phone, matching the categories, where three would leave
+   the names too narrow to read. --catcols still carries the desktop count,
+   so the track is pinned here rather than inherited. The odd one out takes
+   the full width and centres itself. */
 @media(max-width:599px){
-  .shelf-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .shelf-tiles .cat-tile:last-child:nth-child(odd){
-    grid-column:1/-1;justify-self:center;width:calc(50% - var(--gap)/2);
+  /* Two tracks, so the three wrap to two and one. The last tile keeps the
+     track width it would have had — spanning the row and halving itself
+     would fight the fixed track and overflow — and centres in the row it
+     has to itself. */
+  .shelf-tiles{grid-template-columns:repeat(2,var(--tile));--track:2}
+  .shelf-tiles > .cat-tile:last-child:nth-child(odd){
+    grid-column:1/-1;justify-self:center;width:var(--tile);
   }
 }
 
@@ -979,8 +999,11 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 
 /* ----------------------------- breakpoints ---------------------------- */
+/* Both grids carry .cat-tiles, so the column rules are scoped away from
+   the shelves, which size their tracks from --catcols instead. */
 @media(min-width:600px){
-  .cat-tiles{grid-template-columns:repeat(min(3,var(--cols,3)),1fr);gap:16px}
+  .cat-tiles:not(.shelf-tiles){grid-template-columns:repeat(min(3,var(--cols,3)),1fr)}
+  .cat-tiles{gap:16px}
   .cat-tile b{font-size:14px}
   .shelf-tiles{--gap:16px}
 }
@@ -988,7 +1011,8 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 @media(min-width:1000px){
   /* Sidebar on the left, tiles filling the rest — the reference layout */
   .cat-browse{grid-template-columns:262px 1fr;gap:24px}
-  .cat-tiles{grid-template-columns:repeat(var(--cols,4),1fr);gap:18px}
+  .cat-tiles:not(.shelf-tiles){grid-template-columns:repeat(var(--cols,4),1fr)}
+  .cat-tiles{gap:18px}
   .shelf-tiles{--gap:18px}
 }
 

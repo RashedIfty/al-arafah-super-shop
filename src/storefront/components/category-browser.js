@@ -129,7 +129,8 @@ export function categoryTilesHTML(){
      Its count simply reads zero until the owner ticks something. */
   const rest = `
     <div class="shelf-rule"><span>${esc(T.browse_more)}</span></div>
-    <div class="cat-tiles shelf-tiles" style="--cols:${shelves.length}">
+    <div class="cat-tiles shelf-tiles"
+         style="--cols:${shelves.length};--catcols:${catCols}">
       ${shelves.map(s => tileHTML(
         s.href, s.img, s[lang] || s.en, shelfCount(s), " is-shelf")).join("")}
     </div>`;
