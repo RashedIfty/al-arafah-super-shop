@@ -33,7 +33,7 @@ export const SHELVES = [
   {
     id: "countrywise",
     href: "countries.html",
-    img: "/images/shelves/countrywise.svg",
+    img: "/images/shelves/countrywise.jpg",
     en: "Countrywise", bn: "দেশ অনুযায়ী", ja: "国から探す",
     // Countries, not products: the tile leads to a list of countries.
     count: catalog => countriesInUse(catalog).length,
@@ -42,7 +42,7 @@ export const SHELVES = [
   {
     id: "new",
     href: "new.html",
-    img: "/images/shelves/new.svg",
+    img: "/images/shelves/new.jpg",
     en: "New Products", bn: "নতুন পণ্য", ja: "新商品",
     count: catalog => onShelf(catalog, "new").length,
     label: "items",
@@ -50,7 +50,7 @@ export const SHELVES = [
   {
     id: "popular",
     href: "popular.html",
-    img: "/images/shelves/popular.svg",
+    img: "/images/shelves/popular.jpg",
     en: "Popular Products", bn: "জনপ্রিয় পণ্য", ja: "人気商品",
     count: catalog => onShelf(catalog, "popular").length,
     label: "items",

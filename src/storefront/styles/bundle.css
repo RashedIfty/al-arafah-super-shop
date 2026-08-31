@@ -925,7 +925,9 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   border-color:var(--navy);
   background:linear-gradient(150deg,#fff6f2,#ffeee7);
 }
-.cat-tile.is-shelf .cat-tile-img img{padding:8%}
+/* A photograph rather than a drawn icon: on white, like the category
+   pictures, so it is not sitting in a tinted box of its own. */
+.cat-tile.is-shelf .cat-tile-img{background:#fff}
 .cat-tile.is-shelf b{color:var(--navy-d)}
 .cat-tile.is-shelf:hover .cat-tile-img{border-color:var(--navy-d)}
 
