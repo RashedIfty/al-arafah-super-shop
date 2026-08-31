@@ -8,6 +8,7 @@ import { $, $$, put, esc, on, scrollToId } from "../shared/lib/dom.js";
 import { t, setLang, onLangChange, initLang } from "../features/i18n/lang.js";
 import { todayIndex } from "../shared/lib/format.js";
 import { topbarHTML, headerHTML, navHTML, footerHTML } from "./components/chrome.js";
+import { tickerHTML } from "./components/ticker.js";
 import { announceBarHTML, initAnnounceBar, initDealsCarousel } from "./components/deals-bar.js";
 import { announcementHTML, setAnnouncement } from "./components/announcement.js";
 import { lightboxHTML, initLightbox } from "./components/lightbox.js";
@@ -87,6 +88,7 @@ function render(){
   put("#lbMount", lightboxHTML());
   put("#noticeMount", announcementHTML());
   put("#announce", announceBarHTML());
+  put("#ticker", tickerHTML());
   put("#topbar", topbarHTML());
   put("#header", headerHTML());
   put("#nav",    navHTML());

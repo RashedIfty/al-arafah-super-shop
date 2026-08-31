@@ -25,6 +25,7 @@
 
 /* components */
 @import url("components/splash.css");
+@import url("components/ticker.css");
 @import url("components/announcement.css");
 @import url("components/deals-bar.css");
 @import url("components/button.css");

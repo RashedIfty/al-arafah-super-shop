@@ -1,6 +1,6 @@
 /* Built by build.js — do not edit.
    Change the files under src/storefront/styles/ and run: node build.js
-   24 files, in import order. */
+   25 files, in import order. */
 
 /* ===== base/tokens.css ===== */
 /* Design tokens — brand palette, radii, shadows */
@@ -535,6 +535,74 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   .splash-ring,.splash-word{animation:none}
   .splash,.page-hide{transition:none}
 }
+
+/* ===== components/ticker.css ===== */
+/* The scrolling strip at the very top of every page */
+
+/* Darker than the topbar beneath it. Both are orange, and at the same
+   weight the two strips read as one confused band; a deeper ground gives
+   the moving text a lane of its own. */
+.tick{
+  position:relative;overflow:hidden;
+  background:linear-gradient(100deg,#7a2408,#9c3410 45%,#7a2408);
+  color:#fff;
+  border-bottom:1px solid rgba(0,0,0,.2);
+}
+
+/* The two copies sit side by side and the pair slides left by exactly
+   half its width — one copy — before snapping back. Because the halves
+   are identical the snap is invisible, and the text appears to run
+   forever. A single copy would drag a gap across the screen each loop. */
+.tick-track{
+  display:flex;width:max-content;
+  animation:tickRun var(--dur,60s) linear infinite;
+}
+.tick-run{display:flex;align-items:center;flex-shrink:0}
+
+@keyframes tickRun{
+  from{transform:translateX(0)}
+  to  {transform:translateX(-50%)}
+}
+
+/* Pause on hover, so a line that catches the eye can actually be read
+   rather than escaping off the edge. */
+.tick:hover .tick-track{animation-play-state:paused}
+
+.tick-item{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 0;white-space:nowrap;
+  font-size:13px;font-weight:600;letter-spacing:.2px;
+}
+
+/* Gold, the shop's third colour, so each line opens with a spot of warmth
+   rather than another white shape. */
+.tick-ico{
+  display:inline-flex;color:var(--gold);
+  /* Nudged up a hair: the icons are optically low against the cap height
+     of the text beside them. */
+  transform:translateY(-.5px);
+}
+
+/* The separator between lines, kept faint — it is punctuation, not
+   content, and should not compete with the words. */
+.tick-dot{
+  padding:0 18px;font-size:8px;color:var(--gold);opacity:.55;
+  transform:translateY(-1px);
+}
+
+@media(min-width:700px){
+  .tick-item{font-size:13.5px;padding:9px 0}
+  .tick-dot{padding:0 22px}
+}
+
+/* Motion off: the strip becomes an ordinary line of text, still readable,
+   with the overflow simply clipped. Someone who has asked their machine
+   to stop animations should not have text crawling across their screen. */
+@media(prefers-reduced-motion:reduce){
+  .tick-track{animation:none}
+}
+
+@media print{ .tick{display:none} }
 
 /* ===== components/announcement.css ===== */
 /* Shop announcement banner */
