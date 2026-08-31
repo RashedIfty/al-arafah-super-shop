@@ -49,5 +49,3 @@ export function icon(name, { size = 20, label = "", cls = "" } = {}){
   return `<svg class="icon${cls ? " " + cls : ""}" width="${size}" height="${size}" ` +
          `viewBox="0 0 24 24" fill="currentColor" ${a11y}><path d="${d}"/></svg>`;
 }
-
-export const iconNames = Object.keys(PATHS);

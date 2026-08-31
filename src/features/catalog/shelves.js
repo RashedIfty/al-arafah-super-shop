@@ -89,7 +89,3 @@ export function onShelf(catalog, shelfId){
   });
   return out;
 }
-
-/** Shelves with something on them, in order. */
-export const shelvesInUse = catalog =>
-  SHELVES.filter(s => s.count(catalog ?? []) > 0);

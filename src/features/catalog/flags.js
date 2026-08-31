@@ -21,8 +21,6 @@ const HAVE = new Set([
   "np", "lk", "cn", "kr", "vn", "ph", "mm",
 ]);
 
-export const hasFlag = id => HAVE.has(id);
-
 /** Path to one flag file. */
 export const flagSrc = id => HAVE.has(id) ? `/images/flags/${id}.svg` : "";
 

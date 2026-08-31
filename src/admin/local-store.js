@@ -39,12 +39,6 @@ export function reset(){
   return clone(CATALOG);
 }
 
-/** True when local edits exist. */
-export function isDirty(){
-  try { return localStorage.getItem(KEY) !== null; }
-  catch { return false; }
-}
-
 /* ------------------------------ products ------------------------------ */
 
 export function addProduct(catalog, categoryId, product){
@@ -80,46 +74,6 @@ export function deleteCategory(catalog, categoryId){
   return catalog;
 }
 
-/* ------------------------------- export ------------------------------- */
-
-/**
- * Rebuild catalog.js source from the working catalogue, so edits can be
- * committed to the repo and become the real defaults.
- */
-export function toSource(catalog){
-  const s = v => JSON.stringify(v);
-
-  const item = p => {
-    const parts = [
-      `en:${s(p.en)}`, `bn:${s(p.bn)}`, `ja:${s(p.ja)}`,
-      `w:${s(p.w)}`, `p:${p.p}`, `was:${p.was || 0}`, `img:${s(p.img || "")}`
-    ];
-    if (p.tag) parts.push(`tag:${s(p.tag)}`);
-    return `      { ${parts.join(", ")} }`;
-  };
-
-  const cat = c =>
-    `  { id:${s(c.id)}, icon:${s(c.icon)}, img:${s(c.img)},\n` +
-    `    en:${s(c.en)}, bn:${s(c.bn)}, ja:${s(c.ja)},\n` +
-    `    items:[\n${c.items.map(item).join(",\n")}\n    ]}`;
-
-  return `/* Product catalogue — see docs at bottom of file */\n` +
-         `export const CATALOG = [\n${catalog.map(cat).join(",\n\n")}\n];\n`;
-}
-
-/** Trigger a download of the regenerated catalog.js. */
-export function downloadSource(catalog){
-  const blob = new Blob([toSource(catalog)], { type: "text/javascript" });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement("a");
-  a.href = url;
-  a.download = "catalog.js";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
 /* =============================== DEALS ================================
    The "Today's Deal & New Arrival" strip on the homepage.
    Same pattern as the catalogue: localStorage, seeded from the data file.
@@ -147,13 +101,3 @@ export function saveDeals(items){
     return false;
   }
 }
-
-export function resetDeals(defaults){
-  try { localStorage.removeItem(DEAL_KEY); } catch { /* ignore */ }
-  return clone(defaults);
-}
-
-export const dealsDirty = () => {
-  try { return localStorage.getItem(DEAL_KEY) !== null; }
-  catch { return false; }
-};
