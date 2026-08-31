@@ -6,7 +6,7 @@ import { esc, IMG_FALLBACK } from "../../shared/lib/dom.js";
 import { SHOP } from "../../shared/shop.js";
 import { t, getLang, itemCount } from "../../features/i18n/lang.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
-import { shelvesInUse } from "../../features/catalog/shelves.js";
+import { SHELVES } from "../../features/catalog/shelves.js";
 
 /** Link prefix: stay on the page when we are already on products.html. */
 const prefix = () =>
@@ -42,8 +42,6 @@ export function categorySidebarHTML(){
       </a>
     </li>`;
 
-  const shelves = shelvesInUse(CATALOG);
-
   return `
     <aside class="cat-side">
       <h3>${esc(T.cats_side)}</h3>
@@ -52,12 +50,11 @@ export function categorySidebarHTML(){
           row(`${base}#${esc(cat.id)}`, cat.img || SHOP.placeholder,
               cat[lang] || cat.en, cat.items.length)).join("")}
       </ul>
-      ${shelves.length ? `
-        <h3 class="cat-side-more">${esc(T.browse_more)}</h3>
-        <ul>
-          ${shelves.map(s =>
-            row(s.href, s.img, s[lang] || s.en, s.count(CATALOG))).join("")}
-        </ul>` : ""}
+      <h3 class="cat-side-more">${esc(T.browse_more)}</h3>
+      <ul>
+        ${SHELVES.map(s =>
+          row(s.href, s.img, s[lang] || s.en, s.count(CATALOG))).join("")}
+      </ul>
     </aside>`;
 }
 
@@ -66,8 +63,12 @@ export function categorySidebarHTML(){
  *
  * Fewest rows wins, so nine categories are 5-4 rather than 3-3-3. Ties
  * go to the fullest last row, so eight are 4-4 rather than 5-3.
+ *
+ * Six is the widest the tiles read at: twelve categories become 6-6
+ * rather than three rows of four, which is a lot of scrolling before a
+ * customer has seen what the shop sells.
  */
-export function columnsFor(count, max = 5){
+export function columnsFor(count, max = 6){
   if (count <= max) return count;
 
   let best = null;
@@ -111,18 +112,26 @@ function tileHTML(href, img, name, count, extra = ""){
 export function categoryTilesHTML(){
   const T = t(), lang = getLang(), base = prefix();
   const shown = visibleCategories();
-  const shelves = shelvesInUse(CATALOG);
+  const shelves = SHELVES;
+
+  const catCols = columnsFor(shown.length);
 
   const cats = `
-    <div class="cat-tiles" style="--cols:${columnsFor(shown.length)}">
+    <div class="cat-tiles" style="--cols:${catCols}">
       ${shown.map(cat => tileHTML(
         `${base}#${esc(cat.id)}`, cat.img || SHOP.placeholder,
         cat[lang] || cat.en, itemCount(cat.items.length))).join("")}
     </div>`;
 
-  const rest = !shelves.length ? "" : `
+  /* Always shown, even at zero.
+     A category with nothing in it is a dead end, so it is hidden. A shelf
+     is not: it is a fixed part of the shop, and a customer who has learnt
+     where New Products lives should find it in the same place tomorrow.
+     Its count simply reads zero until the owner ticks something. */
+  const rest = `
     <div class="shelf-rule"><span>${esc(T.browse_more)}</span></div>
-    <div class="cat-tiles shelf-tiles" style="--cols:${columnsFor(shelves.length)}">
+    <div class="cat-tiles shelf-tiles"
+         style="--cols:${shelves.length};--catcols:${catCols}">
       ${shelves.map(s => tileHTML(
         s.href, s.img, s[lang] || s.en, shelfCount(s), " is-shelf")).join("")}
     </div>`;

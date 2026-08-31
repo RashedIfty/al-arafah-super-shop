@@ -115,8 +115,13 @@ export async function shrinkImage(file, opts = {}){
     ctx.imageSmoothingQuality = "high";
     ctx.drawImage(source, 0, 0, w, h);
 
-    // The shop's mark, while the photo is already on a canvas.
-    await stamp(canvas, opts);
+    /* The shop's mark, while the photo is already on a canvas.
+
+       Category pictures skip it. The ribbon marks a photograph of
+       something the shop sells; a category tile is a sign above an aisle,
+       and stamping every one of them puts the same mark a dozen times on
+       a single screen. */
+    if (!opts.plain) await stamp(canvas, opts);
 
     // Step the quality down until it fits. Most photos land on the first
     // try; the loop is for the occasional dense one.

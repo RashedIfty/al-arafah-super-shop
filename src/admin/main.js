@@ -319,10 +319,18 @@ async function handleImage(file, apply){
   const before = file.size;
   toast("Preparing photo…");
 
+  /* A category picture is a sign above an aisle rather than a photograph
+     of stock, so it gets neither the ribbon nor the seal — a dozen tiles
+     each carrying the shop's mark is the mark repeated, not branding.
+     Which form is open is what decides it. */
+  const isCategory = apply === setCatPhoto;
+
   let small;
   try {
     // The halal seal is a per-photo choice, taken from the form.
-    small = await shrinkImage(file, { halal: $("#fHalal")?.checked });
+    small = await shrinkImage(file, isCategory
+      ? { plain: true }
+      : { halal: $("#fHalal")?.checked });
   } catch {
     small = file;                          // never block on a shrink failure
   }
