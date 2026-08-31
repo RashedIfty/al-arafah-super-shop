@@ -918,55 +918,34 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   text-transform:uppercase;color:var(--navy-d);white-space:nowrap;
 }
 
-/* A warm ground and a coloured edge, so a shelf tile is recognisable as a
-   different kind of thing even once it has scrolled away from the rule.
-   Orange rather than the shop's red, which the categories already use. */
-.cat-tile.is-shelf .cat-tile-img{
-  border-color:var(--navy);
-  background:linear-gradient(150deg,#fff6f2,#ffeee7);
-}
-/* A photograph rather than a drawn icon: on white, like the category
+/* An orange edge marks a shelf tile as a different kind of thing even
+   once it has scrolled away from the rule. On white like the category
    pictures, so it is not sitting in a tinted box of its own. */
-.cat-tile.is-shelf .cat-tile-img{background:#fff}
+.cat-tile.is-shelf .cat-tile-img{border-color:var(--navy);background:#fff}
 .cat-tile.is-shelf b{color:var(--navy-d)}
 .cat-tile.is-shelf:hover .cat-tile-img{border-color:var(--navy-d)}
 
-/* Centred under the categories rather than lining up with their left
-   edge. There are only three of them against a row of six, so aligning
-   left would read as a short fourth row of categories — which is the one
-   thing this section exists not to look like.
+/* The three shelves fill the row, rather than being sized to match one
+   category tile and centred with space either side. Three tiles the size
+   of a category tile left a quarter of the row empty beside them, which
+   read as something missing.
 
-   Done by narrowing the grid itself and centring it with auto margins,
-   rather than by fixing the column width: a percentage inside
-   grid-template-columns resolves against a width the centring has not
-   settled yet, and comes out wrong. The width below is what --cols tiles
-   and the gaps between them occupy in the category grid above, so a
-   shelf tile ends up exactly the size of a category tile. */
+   Filling it makes them larger than the categories above, which is
+   right: these are the three shortcuts into the whole shop, not a
+   thirteenth, fourteenth and fifteenth category. */
 .shelf-tiles{
   --gap:14px;
-  /* Matched to the category grid at this width, not to --catcols, which
-     is the count for the widest layout. Narrow screens cap the categories
-     at two or three columns, and a shelf tile sized against six would
-     come out a third of the size of the tiles above it. */
-  --w:min(var(--catcols,2),2);
-  --n:var(--cols,3);
   gap:var(--gap);
-  grid-template-columns:repeat(var(--n),minmax(0,1fr));
-  width:calc(
-    (100% - (var(--w) - 1) * var(--gap)) / var(--w)
-      * var(--n)
-    + (var(--n) - 1) * var(--gap));
-  max-width:100%;
-  margin-inline:auto;
+  grid-template-columns:repeat(var(--cols,3),minmax(0,1fr));
 }
 
-/* On a phone the categories run two across. Squeezing three shelves into
-   that same width would leave them noticeably smaller than every tile
-   above; wrapping to two and one keeps them the same size, and the odd
-   one out centres itself. */
+/* Two across on a phone, where three would leave the names too narrow to
+   read. The odd one out takes the full width and centres itself. */
 @media(max-width:599px){
-  .shelf-tiles{--n:2}
-  .shelf-tiles .cat-tile:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:calc(50% - var(--gap)/2)}
+  .shelf-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .shelf-tiles .cat-tile:last-child:nth-child(odd){
+    grid-column:1/-1;justify-self:center;width:calc(50% - var(--gap)/2);
+  }
 }
 
 /* The sidebar's own heading for the same group. */
@@ -980,18 +959,14 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 @media(min-width:600px){
   .cat-tiles{grid-template-columns:repeat(min(3,var(--cols,3)),1fr);gap:16px}
   .cat-tile b{font-size:14px}
-  /* Three tiles against three category columns fill the row exactly, so
-     there is nothing to centre until the grid grows past them. */
-  .shelf-tiles{--gap:16px;--w:min(var(--catcols,3),3)}
+  .shelf-tiles{--gap:16px}
 }
 
 @media(min-width:1000px){
   /* Sidebar on the left, tiles filling the rest — the reference layout */
   .cat-browse{grid-template-columns:262px 1fr;gap:24px}
-  .cat-tiles{grid-template-columns:repeat(var(--cols,5),1fr);gap:18px}
-  /* Full width: --catcols is set per render from the category grid, so a
-     shelf tile is exactly the size of a category tile above it. */
-  .shelf-tiles{--gap:18px;--w:var(--catcols,3)}
+  .cat-tiles{grid-template-columns:repeat(var(--cols,4),1fr);gap:18px}
+  .shelf-tiles{--gap:18px}
 }
 
 @media print{ .cat-side{display:none} }

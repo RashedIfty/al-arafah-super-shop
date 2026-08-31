@@ -64,11 +64,10 @@ export function categorySidebarHTML(){
  * Fewest rows wins, so nine categories are 5-4 rather than 3-3-3. Ties
  * go to the fullest last row, so eight are 4-4 rather than 5-3.
  *
- * Six is the widest the tiles read at: twelve categories become 6-6
- * rather than three rows of four, which is a lot of scrolling before a
- * customer has seen what the shop sells.
+ * Four across: the tiles are large enough to see what is in the picture,
+ * and twelve categories land as three even rows.
  */
-export function columnsFor(count, max = 6){
+export function columnsFor(count, max = 4){
   if (count <= max) return count;
 
   let best = null;
@@ -130,8 +129,7 @@ export function categoryTilesHTML(){
      Its count simply reads zero until the owner ticks something. */
   const rest = `
     <div class="shelf-rule"><span>${esc(T.browse_more)}</span></div>
-    <div class="cat-tiles shelf-tiles"
-         style="--cols:${shelves.length};--catcols:${catCols}">
+    <div class="cat-tiles shelf-tiles" style="--cols:${shelves.length}">
       ${shelves.map(s => tileHTML(
         s.href, s.img, s[lang] || s.en, shelfCount(s), " is-shelf")).join("")}
     </div>`;
