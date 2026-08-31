@@ -6,7 +6,17 @@ import { t, getLang, LANGS, itemCount } from "../../features/i18n/lang.js";
 import { yen, discount } from "../../shared/lib/format.js";
 import { SHOP } from "../../shared/shop.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
-import { realCategories } from "../../features/catalog/countries.js";
+
+/**
+ * Categories a customer can actually walk into, each keeping the position
+ * it holds in CATALOG.
+ *
+ * The index matters: the lightbox finds a product as CATALOG[c].items[p],
+ * so a card must carry where its category really sits, not where it sits
+ * once the empty ones have been dropped.
+ */
+const stocked = () =>
+  CATALOG.map((cat, ci) => ({ cat, ci })).filter(x => x.cat.items.length);
 
 /**
  * One product card.
@@ -62,16 +72,18 @@ export function catalogHTML(){
   const T = t(), lang = getLang();
 
   // Customers only see categories that actually have something in them.
-  return realCategories(CATALOG).filter(c => c.items.length).map((cat, i) => `
+  // `n` numbers the sections on screen; `ci` is the real position in
+  // CATALOG, which is what the lightbox looks the product up by.
+  return stocked().map(({ cat, ci }, n) => `
     <section class="sec wrap" id="${esc(cat.id)}">
       <div class="sec-head">
-        <span class="sec-no">${i + 1}</span>
+        <span class="sec-no">${n + 1}</span>
         <h2>${esc(cat[lang])}</h2>
         <span class="n">${esc(itemCount(cat.items.length))}</span>
       </div>
       <div class="grid">
         ${cat.items.map((p, j) =>
-          cardHTML(p, cat, i, j).replace("<article", `<article data-i="${j}"`)).join("")}
+          cardHTML(p, cat, ci, j).replace("<article", `<article data-i="${j}"`)).join("")}
       </div>
     </section>`).join("");
 }
@@ -81,7 +93,7 @@ export function chipsHTML(){
   const T = t(), lang = getLang();
   const prefix = document.body.dataset.page === "products" ? "" : "products.html";
 
-  return realCategories(CATALOG).filter(c => c.items.length).map(cat => `
+  return stocked().map(({ cat }) => `
     <a href="${prefix}#${esc(cat.id)}" class="chip">
       <img src="${esc(cat.img || SHOP.placeholder)}" alt="" loading="lazy"
            width="80" height="80" ${IMG_FALLBACK}>

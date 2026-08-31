@@ -11,7 +11,7 @@ import { shrinkImage, fileSize } from "../shared/lib/image.js";
 import { isLoggedIn, login, logout, usingSupabase } from "./auth.js";
 import * as store from "./local-store.js";
 import { DEFAULT_ANNOUNCEMENTS } from "../features/deals/deals.js";
-import { COUNTRIES, realCategories } from "../features/catalog/countries.js";
+import { COUNTRIES } from "../features/catalog/countries.js";
 import { autoTranslate } from "./translate.js";
 import * as api from "../backend/client.js";
 
@@ -148,15 +148,11 @@ on("#peek", "click", () => {
 /* ------------------------------ rendering ----------------------------- */
 
 function renderAll(){
-  // Countrywise is a way of browsing rather than a category: it is not
-  // counted, and it is never offered as a place to put a product.
-  const real = realCategories(catalog);
-
-  const products = real.reduce((s, c) => s + c.items.length, 0);
+  const products = catalog.reduce((s, c) => s + c.items.length, 0);
   $("#countLine").textContent =
-    `${products} products in ${real.length} categories`;
+    `${products} products in ${catalog.length} categories`;
 
-  $("#fCat").innerHTML = real
+  $("#fCat").innerHTML = catalog
     .map(c => `<option value="${esc(c.id)}">${esc(c.en)}</option>`)
     .join("");
 
@@ -175,12 +171,16 @@ function renderAll(){
 function renderList(){
   const q = $("#filter").value.trim().toLowerCase();
 
-  // Countrywise is not a category: it holds nothing, so a block for
-  // managing its products would be meaningless. It gets its own strip
-  // below, where its name and picture stay editable.
-  const html = realCategories(catalog).map(cat => {
+  const html = catalog.map(cat => {
     const rows = cat.items.map((p, i) => {
       if (q && ![p.en, p.bn, p.ja].join(" ").toLowerCase().includes(q)) return "";
+
+      // Where else this product shows up, so the owner can see at a
+      // glance what is on the New and Popular pages without opening each.
+      const shelves = [
+        p.isNew     ? `<span class="on-shelf new">NEW</span>`     : "",
+        p.isPopular ? `<span class="on-shelf pop">POPULAR</span>` : ""
+      ].join("");
 
       return `
         <div class="prod">
@@ -190,6 +190,7 @@ function renderList(){
             <b>${esc(p.en)}</b>
             <small>${esc(p.bn)}</small>
             <span class="prod-w">${esc(p.w)}</span>
+            ${shelves ? `<span class="shelf-marks">${shelves}</span>` : ""}
           </div>
           <div class="prod-price">
             <b>${yen(p.p)}</b>
@@ -260,6 +261,8 @@ function openForm(catId, index){
   $("#fWas").value = p?.was || "";
   $("#fTag").value = p?.tag || "";
   $("#fCountry").value = p?.country || "";
+  $("#fNew").checked     = Boolean(p?.isNew);
+  $("#fPopular").checked = Boolean(p?.isPopular);
   $("#fFile").value = "";
   // The seal is a choice about one photo, so it never carries over.
   if ($("#fHalal")) $("#fHalal").checked = false;
@@ -452,8 +455,11 @@ on("#form", "submit", async e => {
   const tag = $("#fTag").value;
   if (tag) product.tag = tag;
 
-  // Always send it, even empty: clearing a country has to reach the row.
-  product.country = $("#fCountry").value || null;
+  // Always sent, even when empty or false: clearing a country or
+  // unticking a shelf has to reach the row, not just be left off it.
+  product.country   = $("#fCountry").value || null;
+  product.isNew     = $("#fNew").checked;
+  product.isPopular = $("#fPopular").checked;
 
   const catId = $("#fCat").value;
 

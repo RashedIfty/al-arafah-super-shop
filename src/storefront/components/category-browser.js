@@ -6,33 +6,24 @@ import { esc, IMG_FALLBACK } from "../../shared/lib/dom.js";
 import { SHOP } from "../../shared/shop.js";
 import { t, getLang, itemCount } from "../../features/i18n/lang.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
-import { countriesInUse, isCountryCat } from "../../features/catalog/countries.js";
+import { shelvesInUse } from "../../features/catalog/shelves.js";
 
 /** Link prefix: stay on the page when we are already on products.html. */
 const prefix = () =>
   document.body.dataset.page === "products" ? "" : "products.html";
 
-/* Countrywise is a way of browsing rather than a category; the rule
-   lives in features/catalog/countries.js so every part of the site
-   agrees on it. Here it only changes where the tile points and what its
-   count reads. */
+/* Below the categories, under a rule, sit the shelves — Countrywise, New
+   and Popular. They are ways of looking across the shop rather than
+   places a product lives, so they are kept visibly apart from the
+   categories rather than mixed in among them. */
 
-/** Categories worth showing: those with products, plus the country tile
-    once at least one product has a country. */
-function visibleCategories(){
-  const countries = countriesInUse(CATALOG).length;
-  return CATALOG.filter(c =>
-    isCountryCat(c) ? countries > 0 : c.items.length);
-}
+/** Categories worth showing: an empty one is a dead end for a customer. */
+const visibleCategories = () => CATALOG.filter(c => c.items.length);
 
-/** Where a tile points, and what its count reads. */
-function catLink(cat, base){
-  return isCountryCat(cat) ? "countries.html" : `${base}#${esc(cat.id)}`;
-}
-
-function catCount(cat){
-  if (!isCountryCat(cat)) return itemCount(cat.items.length);
-  const n = countriesInUse(CATALOG).length;
+/** What a shelf tile's count reads — countries for one, products for two. */
+function shelfCount(shelf){
+  const n = shelf.count(CATALOG);
+  if (shelf.label !== "countries") return itemCount(n);
   const T = t();
   return n === 1 ? T.one_country : (T.n_countries || "").replace("{n}", n);
 }
@@ -41,22 +32,32 @@ function catCount(cat){
 export function categorySidebarHTML(){
   const T = t(), lang = getLang(), base = prefix();
 
+  const row = (href, img, name, count) => `
+    <li>
+      <a href="${href}">
+        <img src="${esc(img)}" alt="" loading="lazy"
+             width="40" height="40" ${IMG_FALLBACK}>
+        <span>${esc(name)}</span>
+        <em>${count}</em>
+      </a>
+    </li>`;
+
+  const shelves = shelvesInUse(CATALOG);
+
   return `
     <aside class="cat-side">
       <h3>${esc(T.cats_side)}</h3>
       <ul>
-        ${visibleCategories().map(cat => `
-          <li>
-            <a href="${catLink(cat, base)}">
-              <img src="${esc(cat.img || SHOP.placeholder)}" alt="" loading="lazy"
-                   width="40" height="40" ${IMG_FALLBACK}>
-              <span>${esc(cat[lang])}</span>
-              <em>${isCountryCat(cat)
-                    ? countriesInUse(CATALOG).length
-                    : cat.items.length}</em>
-            </a>
-          </li>`).join("")}
+        ${visibleCategories().map(cat =>
+          row(`${base}#${esc(cat.id)}`, cat.img || SHOP.placeholder,
+              cat[lang] || cat.en, cat.items.length)).join("")}
       </ul>
+      ${shelves.length ? `
+        <h3 class="cat-side-more">${esc(T.browse_more)}</h3>
+        <ul>
+          ${shelves.map(s =>
+            row(s.href, s.img, s[lang] || s.en, s.count(CATALOG))).join("")}
+        </ul>` : ""}
     </aside>`;
 }
 
@@ -86,23 +87,50 @@ export function columnsFor(count, max = 5){
   return best.cols;
 }
 
-/** Large photo tiles on the right. */
-export function categoryTilesHTML(){
-  const lang = getLang(), base = prefix();
-  const shown = visibleCategories();
-
+/** One large photo tile. */
+function tileHTML(href, img, name, count, extra = ""){
   return `
+    <a href="${href}" class="cat-tile${extra}">
+      <div class="cat-tile-img">
+        <img src="${esc(img)}" alt="${esc(name)}"
+             loading="lazy" width="400" height="400" ${IMG_FALLBACK}>
+      </div>
+      <b>${esc(name)}</b>
+      <span>${esc(count)}</span>
+    </a>`;
+}
+
+/**
+ * Large photo tiles on the right: the categories, then the shelves.
+ *
+ * The rule between them is the whole point of the arrangement. Above it
+ * is where a product lives; below it are other ways of finding the same
+ * products. Running them together as one grid was what made Countrywise
+ * read as a category in the first place.
+ */
+export function categoryTilesHTML(){
+  const T = t(), lang = getLang(), base = prefix();
+  const shown = visibleCategories();
+  const shelves = shelvesInUse(CATALOG);
+
+  const cats = `
     <div class="cat-tiles" style="--cols:${columnsFor(shown.length)}">
-      ${shown.map(cat => `
-        <a href="${catLink(cat, base)}" class="cat-tile">
-          <div class="cat-tile-img">
-            <img src="${esc(cat.img || SHOP.placeholder)}" alt="${esc(cat[lang])}"
-                 loading="lazy" width="400" height="400" ${IMG_FALLBACK}>
-          </div>
-          <b>${esc(cat[lang])}</b>
-          <span>${esc(catCount(cat))}</span>
-        </a>`).join("")}
+      ${shown.map(cat => tileHTML(
+        `${base}#${esc(cat.id)}`, cat.img || SHOP.placeholder,
+        cat[lang] || cat.en, itemCount(cat.items.length))).join("")}
     </div>`;
+
+  const rest = !shelves.length ? "" : `
+    <div class="shelf-rule"><span>${esc(T.browse_more)}</span></div>
+    <div class="cat-tiles shelf-tiles" style="--cols:${columnsFor(shelves.length)}">
+      ${shelves.map(s => tileHTML(
+        s.href, s.img, s[lang] || s.en, shelfCount(s), " is-shelf")).join("")}
+    </div>`;
+
+  /* One column, whatever is in it. The browser is a two-column grid at
+     desktop width, so returning two siblings would drop the shelves into
+     the sidebar's column instead of under the tiles. */
+  return `<div class="cat-main">${cats}${rest}</div>`;
 }
 
 /** The whole two-column browser. */
