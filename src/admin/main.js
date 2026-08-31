@@ -12,6 +12,7 @@ import { isLoggedIn, login, logout, usingSupabase } from "./auth.js";
 import * as store from "./local-store.js";
 import { DEFAULT_ANNOUNCEMENTS } from "../features/deals/deals.js";
 import { COUNTRIES } from "../features/catalog/countries.js";
+import { flag } from "../features/catalog/flags.js";
 import { autoTranslate } from "./translate.js";
 import * as api from "../backend/client.js";
 
@@ -156,10 +157,14 @@ function renderAll(){
     .map(c => `<option value="${esc(c.id)}">${esc(c.en)}</option>`)
     .join("");
 
-  // Optional, so "Not set" comes first and is the default.
+  /* Optional, so "Not set" comes first and is the default.
+     Nearly two hundred countries is a long scroll, but a native select
+     jumps to whatever the owner types — so "ban" reaches Bangladesh in
+     three keystrokes, which no custom list would beat. */
   $("#fCountry").innerHTML =
     `<option value="">— Not set —</option>` +
     COUNTRIES.map(c => `<option value="${esc(c.id)}">${esc(c.en)}</option>`).join("");
+  showCountryFlag();
 
   renderList();
   renderDeals();
@@ -261,6 +266,7 @@ function openForm(catId, index){
   $("#fWas").value = p?.was || "";
   $("#fTag").value = p?.tag || "";
   $("#fCountry").value = p?.country || "";
+  showCountryFlag();
   $("#fNew").checked     = Boolean(p?.isNew);
   $("#fPopular").checked = Boolean(p?.isPopular);
   $("#fFile").value = "";
@@ -419,6 +425,21 @@ document.addEventListener("drop", e => {
   e.preventDefault();
   handleImage(e.dataTransfer?.files?.[0], target.apply);
 });
+
+/**
+ * Show the flag of whichever country is chosen.
+ *
+ * A dropdown can only hold text, so the owner picking from two hundred
+ * names has nothing to confirm they got the right one. The flag beside it
+ * is that confirmation, and it is the same picture the customer will see.
+ */
+function showCountryFlag(){
+  const box = $("#fFlag");
+  if (!box) return;
+  box.innerHTML = flag($("#fCountry")?.value, { size: 34 });
+}
+
+on("#fCountry", "change", showCountryFlag);
 
 /* Live feedback on the sale price. */
 function updateSaleHint(){

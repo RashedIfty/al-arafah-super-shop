@@ -3,7 +3,8 @@
  *
  * Files under images/flags come from flagcdn (public domain), downloaded
  * once and served from the shop rather than fetched from a third party
- * at page load.
+ * at page load. There is one per country in COUNTRIES, named by its ISO
+ * code, so adding a country never means hunting for a picture.
  *
  * Each keeps its own proportions rather than being forced into a square:
  * cropping Bangladesh to a circle cut off the green field, and Nepal is
@@ -14,15 +15,30 @@
  * and a flag missing for any reason leaves a gap rather than breaking
  * the page.
  */
+import { COUNTRIES } from "./countries.js";
 
-/** Countries we hold a flag file for. */
-const HAVE = new Set([
-  "bd", "in", "pk", "jp", "id", "th", "tr", "my",
-  "np", "lk", "cn", "kr", "vn", "ph", "mm",
+/**
+ * The two dozen flags kept as PNG rather than SVG.
+ *
+ * Most national flags are a few bars and a star, and draw as a couple of
+ * kilobytes of vector. A handful carry a full coat of arms — El Salvador
+ * and Bolivia run past 200 KB each, more than any product photograph in
+ * the shop, and no amount of minifying helps because the weight is real
+ * detail rather than sloppy markup. At the size a flag is ever shown, a
+ * 320-pixel picture is indistinguishable and about a thousandth of the
+ * size.
+ */
+const RASTER = new Set([
+  "ad", "af", "bo", "bt", "bz", "cr", "do", "ec", "es", "fj", "gt",
+  "hr", "ht", "md", "me", "mx", "om", "rs", "sm", "sv", "tm", "va",
 ]);
 
-/** Path to one flag file. */
-export const flagSrc = id => HAVE.has(id) ? `/images/flags/${id}.svg` : "";
+/** Every country we hold a flag for. */
+const HAVE = new Set(COUNTRIES.map(c => c.id));
+
+/** Path to one flag file, or "" when we hold none. */
+export const flagSrc = id =>
+  HAVE.has(id) ? `/images/flags/${id}.${RASTER.has(id) ? "png" : "svg"}` : "";
 
 /**
  * One flag as an <img>, or an empty string when we have none.

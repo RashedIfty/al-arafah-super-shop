@@ -240,9 +240,13 @@
           <h3>Where does it go?</h3>
           <label><span>Category</span><select id="fCat" required></select></label>
           <label><span>Which country is it from? — optional</span>
-            <select id="fCountry"></select>
-            <small class="fld-note">Pick a country and it also shows under
-              Countrywise on your website. Leave it as “Not set” to skip.</small>
+            <span class="ctry-pick">
+              <select id="fCountry"></select>
+              <span class="ctry-flag" id="fFlag" aria-hidden="true"></span>
+            </span>
+            <small class="fld-note">Start typing a country name to jump to
+              it. Pick one and the product also shows under Countrywise on
+              your website, with its flag. Leave it as “Not set” to skip.</small>
           </label>
 
           <div class="shelf-opts">
