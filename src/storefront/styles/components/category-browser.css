@@ -41,12 +41,29 @@
 }
 
 .cat-tile{text-align:center;transition:.2s var(--ease)}
+
+/* Wider than tall, because that is the shape the pictures are.
+ *
+ * These are group shots — a spread of bottles, a pile of spices — and
+ * they come out roughly 3:2. In a square box that left a band of empty
+ * white above and below every one, so the tiles looked mostly blank with
+ * a small picture floating in the middle. Matching the box to the
+ * pictures fills it without cropping anything away.
+ */
 .cat-tile-img{
   border:1px solid var(--line);border-radius:var(--radius);
   overflow:hidden;background:#fff;margin-bottom:9px;
-  aspect-ratio:1/1;transition:.2s var(--ease);
+  aspect-ratio:4/3;transition:.2s var(--ease);
 }
-.cat-tile-img img{width:100%;height:100%;object-fit:contain;transition:transform .4s var(--ease)}
+/* `contain`, never `cover`: a category picture has its subject arranged
+   across the whole frame, and cropping the edges off cuts the bottles at
+   either end out of the shot. No padding either — the margin is trimmed
+   out of the files themselves, so adding more here would only reintroduce
+   the empty band this is meant to remove. */
+.cat-tile-img img{
+  width:100%;height:100%;object-fit:contain;
+  transition:transform .4s var(--ease);
+}
 .cat-tile:hover .cat-tile-img{border-color:var(--red);box-shadow:var(--sh-lg)}
 .cat-tile:hover .cat-tile-img img{transform:scale(1.07)}
 .cat-tile:hover{transform:translateY(-3px)}
@@ -84,8 +101,14 @@
 
 /* An orange edge marks a shelf tile as a different kind of thing even
    once it has scrolled away from the rule. On white like the category
-   pictures, so it is not sitting in a tinted box of its own. */
-.cat-tile.is-shelf .cat-tile-img{border-color:var(--navy);background:#fff}
+   pictures, so it is not sitting in a tinted box of its own.
+
+   Square, unlike the categories: a globe and two round badges are as tall
+   as they are wide, and a 4:3 box would leave a margin down each side
+   rather than removing one. */
+.cat-tile.is-shelf .cat-tile-img{
+  border-color:var(--navy);background:#fff;aspect-ratio:1/1;
+}
 .cat-tile.is-shelf b{color:var(--navy-d)}
 .cat-tile.is-shelf:hover .cat-tile-img{border-color:var(--navy-d)}
 
