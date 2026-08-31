@@ -29,19 +29,32 @@ create table if not exists products (
   img         text not null default '',
   tag         text,                       -- 'new' | 'out' | null
   country     text,                       -- 'bd', 'in', … null = not set
+  -- The shelves a product sits on, beside the category it lives in.
+  -- A product can be on both, or neither, and never leaves its category
+  -- to be on one.
+  is_new      boolean not null default false,
+  is_popular  boolean not null default false,
   sort        int  not null default 0,
   archived_at timestamptz,
   created_at  timestamptz default now()
 );
 
--- Existing shops upgrade in place; new ones already have it above.
-alter table products add column if not exists country text;
+-- Existing shops upgrade in place; new ones already have them above.
+alter table products add column if not exists country    text;
+alter table products add column if not exists is_new     boolean not null default false;
+alter table products add column if not exists is_popular boolean not null default false;
 
 create index if not exists products_category_idx on products(category_id);
 
 -- Browsing by country only ever asks for products that have one.
 create index if not exists products_country_idx
   on products(country) where country is not null and archived_at is null;
+
+-- Likewise a shelf page only ever asks for what is on it.
+create index if not exists products_new_idx
+  on products(sort) where is_new and archived_at is null;
+create index if not exists products_popular_idx
+  on products(sort) where is_popular and archived_at is null;
 
 -- The common query is "everything not archived".
 create index if not exists products_live_idx   on products(category_id) where archived_at is null;

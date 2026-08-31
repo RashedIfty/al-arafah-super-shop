@@ -68,21 +68,13 @@ export function productsFrom(catalog, countryId){
   return out;
 }
 
-/* ---------------------------- the country tile --------------------------
+/* --------------------------- browsing by country ------------------------
  *
- * "Countrywise" is a way of browsing, not a category. It sits in the
- * category grid because that is where a customer looks for it, but it
- * holds no products of its own, is not counted among the categories, and
- * must never be offered as a place to put a product.
+ * Countrywise is a way of browsing rather than a category, and it is now
+ * defined in features/catalog/shelves.js alongside New and Popular — the
+ * other two ways of looking at the shop that cut across its categories.
  *
- * It exists as a row in the categories table only so the owner can give
- * it a name and a picture. Everything else treats it as what it is.
+ * It used to be a row in the categories table, which is what kept letting
+ * it appear as somewhere a product could be filed. A shelf has no row, so
+ * every category the owner sees is a real one and needs no filtering.
  */
-export const COUNTRY_CAT = "others";
-
-export const isCountryCat = cat =>
-  (typeof cat === "string" ? cat : cat?.id) === COUNTRY_CAT;
-
-/** The shop's real categories — everything a product can belong to. */
-export const realCategories = catalog =>
-  (catalog ?? []).filter(c => !isCountryCat(c));

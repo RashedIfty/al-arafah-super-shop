@@ -58,6 +58,48 @@
 .cat-tile:hover b{color:var(--red)}
 .cat-tile span{font-size:11.5px;color:var(--mute)}
 
+/* ------------------------------ shelves ------------------------------- */
+/* Countrywise, New and Popular are ways of looking across the shop rather
+   than places a product lives. The rule says so: everything above it is a
+   category, everything below it is another way in. Without the separation
+   Countrywise reads as a tenth category, which is exactly the confusion
+   this arrangement exists to prevent. */
+
+.cat-main{min-width:0}
+
+.shelf-rule{
+  display:flex;align-items:center;gap:12px;
+  margin:26px 0 16px;
+}
+.shelf-rule::before,
+.shelf-rule::after{
+  content:"";height:2px;flex:1;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--navy));
+}
+.shelf-rule::after{background:linear-gradient(90deg,var(--navy),transparent)}
+.shelf-rule span{
+  font-size:11.5px;font-weight:900;letter-spacing:1.1px;
+  text-transform:uppercase;color:var(--navy-d);white-space:nowrap;
+}
+
+/* A warm ground and a coloured edge, so a shelf tile is recognisable as a
+   different kind of thing even once it has scrolled away from the rule.
+   Orange rather than the shop's red, which the categories already use. */
+.cat-tile.is-shelf .cat-tile-img{
+  border-color:var(--navy);
+  background:linear-gradient(150deg,#fff6f2,#ffeee7);
+}
+.cat-tile.is-shelf .cat-tile-img img{padding:8%}
+.cat-tile.is-shelf b{color:var(--navy-d)}
+.cat-tile.is-shelf:hover .cat-tile-img{border-color:var(--navy-d)}
+
+/* The sidebar's own heading for the same group. */
+.cat-side-more{
+  margin-top:9px;padding-top:11px;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  color:var(--navy-d);font-size:12px;letter-spacing:.6px;text-transform:uppercase;
+}
+
 /* ----------------------------- breakpoints ---------------------------- */
 @media(min-width:600px){
   .cat-tiles{grid-template-columns:repeat(min(3,var(--cols,3)),1fr);gap:16px}
@@ -68,6 +110,9 @@
   /* Sidebar on the left, tiles filling the rest — the reference layout */
   .cat-browse{grid-template-columns:262px 1fr;gap:24px}
   .cat-tiles{grid-template-columns:repeat(var(--cols,5),1fr);gap:18px}
+  /* Three shelves should not stretch to the full width of nine
+     categories: cap them so each stays the size of a category tile. */
+  .shelf-tiles{grid-template-columns:repeat(var(--cols,3),1fr);max-width:62%}
 }
 
 @media print{ .cat-side{display:none} }

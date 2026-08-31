@@ -16,6 +16,16 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://alarafahsupershop.com/new.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://alarafahsupershop.com/popular.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://alarafahsupershop.com/about.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
