@@ -70,10 +70,11 @@
 
 /* Capped on a wide screen, where the photograph would otherwise grow
    with the column and push the deals and categories off the first
-   screen. `cover` keeps the shopfront filling the frame rather than
-   letting the crop letterbox it. */
+   screen. `contain`, never `cover`: this is the owner's own shopfront and
+   the whole of it has to be visible — cropping cut the flags off the
+   awning and the shop sign off the right-hand side. */
 @media(min-width:900px){
-  .hero-shot img{max-height:290px;object-fit:cover;object-position:center}
+  .hero-shot img{max-height:290px;object-fit:contain;object-position:center}
 }
 
 /* ------------------------------ breakpoints ---------------------------- */

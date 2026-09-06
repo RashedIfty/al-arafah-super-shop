@@ -279,10 +279,11 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
 
 /* Capped on a wide screen, where the photograph would otherwise grow
    with the column and push the deals and categories off the first
-   screen. `cover` keeps the shopfront filling the frame rather than
-   letting the crop letterbox it. */
+   screen. `contain`, never `cover`: this is the owner's own shopfront and
+   the whole of it has to be visible — cropping cut the flags off the
+   awning and the shop sign off the right-hand side. */
 @media(min-width:900px){
-  .hero-shot img{max-height:290px;object-fit:cover;object-position:center}
+  .hero-shot img{max-height:290px;object-fit:contain;object-position:center}
 }
 
 /* ------------------------------ breakpoints ---------------------------- */
@@ -755,7 +756,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .ann-item{
   /* Narrower than it was, for the same reason the hero is shorter: the
      strip shares the first screen with the categories now. */
-  flex-shrink:0;width:225px;
+  flex-shrink:0;width:190px;
   background:#fff;border-radius:16px;overflow:hidden;
   display:flex;flex-direction:column;
   box-shadow:0 4px 14px rgba(0,0,0,.20);
@@ -837,7 +838,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 /* Small phones: a narrower card, and the arrows would crowd the screen. */
 @media(max-width:520px){
   .ann-in{padding:16px 14px 18px}
-  .ann-item{width:224px}
+  .ann-item{width:190px}
   .ann-row{gap:12px}
   .ann-nav{display:none}          /* swipe instead */
   .ann-head h2{font-size:17px}
@@ -847,13 +848,13 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 
 @media(min-width:600px){
   .ann-in{padding:22px 22px 26px}
-  .ann-item{width:300px}
+  .ann-item{width:240px}
   .ann-head h2{font-size:21px}
 }
 
 @media(min-width:1000px){
   .ann-head h2{font-size:22px}
-  .ann-item{width:340px}
+  .ann-item{width:265px}
 }
 
 @media(prefers-reduced-motion:reduce){
