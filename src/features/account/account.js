@@ -1,0 +1,162 @@
+/**
+ * Customer accounts — email and password, and the favourites they unlock.
+ *
+ * Three parts of the page need the same answer: the heart on every card,
+ * the count in the header, and the favourites page itself. They all read
+ * from here and all repaint when it changes, so a heart clicked on a
+ * card turns the header count over too.
+ *
+ * Signing in goes through an Edge Function rather than straight to
+ * Supabase Auth, because that is where the rate limit lives — see
+ * src/backend/functions/login. Signing up and signing out are ordinary
+ * Supabase calls: neither is worth guessing at.
+ */
+import { SUPABASE, isConfigured } from "../../backend/config.js";
+
+const LOGIN_URL = () => `${SUPABASE.URL}/functions/v1/login`;
+
+let user = null;
+let saved = new Set();
+
+const listeners = new Set();
+export const onAccountChange = fn => { listeners.add(fn); return () => listeners.delete(fn); };
+const announce = () => listeners.forEach(fn => { try { fn(); } catch { /* one bad listener must not stop the rest */ } });
+
+/* ------------------------------- reading ------------------------------ */
+
+export const isSignedIn = () => Boolean(user);
+export const isSaved = id => saved.has(id);
+export const savedCount = () => saved.size;
+export const savedIds = () => [...saved];
+
+/** What to call them: the part of their email before the @. */
+export const userName = () => (user?.email || "").split("@")[0];
+
+/* ------------------------------- loading ------------------------------ */
+
+/** Who is signed in, and what have they saved. */
+export async function refreshAccount(){
+  if (!isConfigured()){ user = null; saved = new Set(); return; }
+
+  try {
+    const api = await import("../../backend/client.js");
+    user = await api.currentUser();
+    saved = user ? new Set(await api.fetchFavourites()) : new Set();
+  } catch (e){
+    console.warn("account:", e.message);
+    user = null;
+    saved = new Set();
+  }
+  announce();
+}
+
+/* ------------------------------- session ------------------------------ */
+
+/**
+ * Sign in.
+ *
+ * The Edge Function counts the attempt and answers with the session, so
+ * the token has to be handed to the SDK afterwards — it is what keeps
+ * the customer signed in across pages and what row-level security reads
+ * when they save a favourite.
+ *
+ * Returns { ok } or { ok:false, message }.
+ */
+export async function signIn(email, password){
+  if (!isConfigured()) return { ok: false, message: "Not configured" };
+
+  try {
+    const res = await fetch(LOGIN_URL(), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${SUPABASE.KEY}`,
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const body = await res.json();
+    if (!res.ok) return { ok: false, message: body.error || "Could not sign in." };
+
+    const api = await import("../../backend/client.js");
+    const c = await api.db();
+    const { error } = await c.auth.setSession({
+      access_token: body.access_token,
+      refresh_token: body.refresh_token,
+    });
+    if (error) return { ok: false, message: error.message };
+
+    await refreshAccount();
+    return { ok: true };
+
+  } catch (e){
+    return { ok: false, message: e.message || "Could not sign in." };
+  }
+}
+
+/**
+ * Create an account.
+ *
+ * Straight to Supabase Auth: there is nothing here worth guessing at, and
+ * Supabase already limits how fast an address may sign up.
+ *
+ * Whether this signs them in or asks them to confirm their email first
+ * depends on the project's setting, so the caller is told which happened.
+ */
+export async function signUp(email, password){
+  if (!isConfigured()) return { ok: false, message: "Not configured" };
+
+  try {
+    const api = await import("../../backend/client.js");
+    const c = await api.db();
+    const { data, error } = await c.auth.signUp({ email, password });
+
+    if (error) return { ok: false, message: error.message };
+
+    // A session means they are in; none means a confirmation email.
+    if (data.session){ await refreshAccount(); return { ok: true, signedIn: true }; }
+    return { ok: true, signedIn: false };
+
+  } catch (e){
+    return { ok: false, message: e.message || "Could not create the account." };
+  }
+}
+
+export async function signOut(){
+  const api = await import("../../backend/client.js");
+  await api.signOut();
+  user = null;
+  saved = new Set();
+  announce();
+}
+
+/* ----------------------------- favourites ----------------------------- */
+
+/**
+ * Save a product, or take it off the list.
+ *
+ * The set changes first and the page repaints immediately: a heart that
+ * waits for the network before filling feels broken. If the write fails
+ * the change is put back, so the page never shows a favourite that was
+ * not actually saved.
+ */
+export async function toggleFavourite(productId){
+  if (!user) return { needsSignIn: true };
+
+  const had = saved.has(productId);
+  had ? saved.delete(productId) : saved.add(productId);
+  announce();
+
+  try {
+    const api = await import("../../backend/client.js");
+    const { error } = had
+      ? await api.removeFavourite(productId)
+      : await api.addFavourite(productId);
+    if (error) throw error;
+    return { ok: true };
+  } catch (e){
+    had ? saved.add(productId) : saved.delete(productId);
+    announce();
+    return { ok: false, message: e.message };
+  }
+}

@@ -20,9 +20,10 @@ import { categoryBrowserHTML, categorySidebarHTML, categoryTilesHTML }
   from "./components/category-browser.js";
 import { countriesHTML, initCountries } from "./components/countries.js";
 import { shelfHTML } from "./components/shelf.js";
-import { favouritesHTML } from "./components/favourites.js";
-import { refreshFavourites, onFavouritesChange, toggleFavourite, signIn, signOut, isSignedIn }
-  from "../features/favourites/favourites.js";
+import { accountDialogHTML, favouritesHTML, openAccount, initAccount }
+  from "./components/account.js";
+import { refreshAccount, onAccountChange, toggleFavourite, signOut }
+  from "../features/account/account.js";
 import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
 import { CATALOG, refreshCatalog } from "../features/catalog/catalog.js";
 import { ANNOUNCEMENTS, refreshDeals } from "../features/deals/deals.js";
@@ -90,6 +91,7 @@ function renderCity(){
 /** Full render — safe to call repeatedly. */
 function render(){
   put("#lbMount", lightboxHTML());
+  put("#acctMount", accountDialogHTML());
   put("#noticeMount", announcementHTML());
   put("#announce", announceBarHTML());
   put("#ticker", tickerHTML());
@@ -135,6 +137,7 @@ function bindDynamic(){
   initFilters();
   initCountries($("#countryMount"));
   initScrollSpy();
+  initAccount();
 
   // Keep the chosen sort order after a re-render.
   const sort = $("#sort");
@@ -233,43 +236,46 @@ initLang();
 /* A script error must never leave the shop hidden behind the splash. */
 window.addEventListener("error", reveal);
 window.addEventListener("unhandledrejection", reveal);
-/* ---------------------------- favourites ----------------------------- */
+/* ------------------------------ account ------------------------------- */
 
 /**
- * The heart, and the sign-in button.
+ * The heart, and the sign-in and sign-out buttons.
  *
  * Delegated from the document because render() replaces the cards
- * wholesale — a listener bound to a card would be thrown away on the
- * next repaint.
- *
- * Bound in the capture phase, which is what stops the card underneath
- * opening the lightbox: the lightbox listens on document too and was
- * registered first, so a bubble-phase stopPropagation here would come
- * too late to prevent it.
+ * wholesale. Bound in the capture phase, which is what stops the card
+ * underneath opening the lightbox: that listener is on document too and
+ * was registered first, so stopping propagation on the bubble would come
+ * too late.
  */
 document.addEventListener("click", async e => {
   const heart = e.target.closest("[data-fav]");
   if (heart){
-    /* The card underneath opens the lightbox; the heart must not. */
     e.preventDefault();
     e.stopPropagation();
-
     const r = await toggleFavourite(heart.dataset.fav);
-    if (r?.needsSignIn) await signIn();
+    if (r?.needsSignIn) openAccount();
     return;
   }
 
-  if (e.target.closest("[data-signin]")){ await signIn(); return; }
-  if (e.target.closest("[data-signout]")){ await signOut(); return; }
+  if (e.target.closest("[data-signin]")){ e.preventDefault(); openAccount(); return; }
+  if (e.target.closest("[data-signout]")){ e.preventDefault(); await signOut(); return; }
+  if (e.target.closest("[data-acct-close]")){
+    const box = $("#acctModal"); if (box) box.hidden = true;
+  }
 }, true);
 
-/* Repaint when the list or the session changes, so a heart clicked on a
-   card also turns the header count over. */
-onFavouritesChange(render);
+/* Escape closes the dialog, like every other modal on the site. */
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape"){ const b = $("#acctModal"); if (b) b.hidden = true; }
+});
 
-/* Who is signed in, and what have they saved. Runs after the first paint
+/* Repaint when the session or the list changes, so a heart clicked on a
+   card also turns the header count over. */
+onAccountChange(render);
+
+/* Who is signed in, and what have they saved. After the first paint
    rather than blocking it: the shop is worth showing before we know. */
-refreshFavourites();
+refreshAccount();
 
 initBackToTop();               // outside render — the button is static markup
 

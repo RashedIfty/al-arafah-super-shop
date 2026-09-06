@@ -1,9 +1,8 @@
-/* Favourites — the heart, the account button, and the saved list */
+/* Customer accounts — the heart, the header button, the sign-in dialog */
 
 /* ------------------------- the heart on a card ------------------------ */
 /* Opposite the discount badge, so the two never meet. Outlined until it
-   is saved, then filled: the difference has to read at a glance and from
-   the corner of the eye. */
+   is saved, then filled: the difference has to read at a glance. */
 .fav{
   position:absolute;top:7px;left:7px;z-index:3;
   width:29px;height:29px;border-radius:50%;
@@ -20,11 +19,10 @@
 .fav.on svg{fill:currentColor;stroke:currentColor}
 .fav:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 
-/* A small bounce when it fills, so the tap is acknowledged even before
-   the network answers. */
+/* A small bounce when it fills, so the tap is acknowledged before the
+   network answers. */
 @keyframes favPop{50%{transform:scale(1.28)}}
 .fav.on svg{animation:favPop .28s var(--ease)}
-@media(prefers-reduced-motion:reduce){ .fav.on svg{animation:none} }
 
 /* ------------------------ the header account ------------------------- */
 .hdr-acct{
@@ -37,10 +35,9 @@
 .hdr-acct:hover{border-color:var(--red);color:var(--red)}
 .hdr-acct-ic{
   width:24px;height:24px;border-radius:50%;flex-shrink:0;
-  display:grid;place-items:center;overflow:hidden;
+  display:grid;place-items:center;
   background:var(--bg);font-size:11px;font-weight:900;color:var(--body);
 }
-.hdr-acct-ic img{width:100%;height:100%;object-fit:cover}
 .hdr-acct.is-in .hdr-acct-ic{background:var(--red-l);color:var(--red)}
 
 /* How many are saved — the only visible sign anything was kept. */
@@ -54,12 +51,10 @@
 
 /* --------------------------- the saved page --------------------------- */
 .fav-hi{
-  font-size:13.5px;color:var(--body);font-weight:600;
+  font-size:13px;color:var(--mute);font-weight:600;
   margin:0 0 14px;padding:0 2px;
 }
 
-/* Signed out, or signed in with nothing saved. Both say what to do next
-   rather than only what is missing. */
 .fav-empty{
   text-align:center;max-width:420px;margin:26px auto 40px;
   padding:30px 22px;
@@ -75,4 +70,62 @@
 .fav-empty b{display:block;font-size:18px;color:var(--ink);margin-bottom:6px}
 .fav-empty p{font-size:13.5px;color:var(--body);line-height:1.55;margin-bottom:18px}
 
-@media print{ .fav, .hdr-acct{display:none} }
+/* --------------------------- the sign-in box -------------------------- */
+.acct-modal{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:18px}
+.acct-bg{position:absolute;inset:0;background:rgba(20,8,3,.55);backdrop-filter:blur(3px)}
+
+.acct-box{
+  position:relative;z-index:2;width:100%;max-width:370px;
+  background:#fff;border-radius:16px;padding:26px 24px 22px;
+  box-shadow:0 24px 60px rgba(0,0,0,.34);
+  animation:acctIn .22s var(--ease);
+}
+@keyframes acctIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+.acct-x{
+  position:absolute;top:10px;right:10px;
+  border:0;background:transparent;color:var(--mute);cursor:pointer;
+  padding:6px;line-height:0;border-radius:8px;
+}
+.acct-x:hover{color:var(--ink);background:var(--bg)}
+
+.acct-box h2{font-size:20px;color:var(--ink);margin-bottom:4px}
+.acct-sub{font-size:13px;color:var(--body);line-height:1.5;margin-bottom:18px}
+
+.acct-box label{display:block;margin-bottom:13px}
+.acct-box label span{
+  display:block;font-size:12px;font-weight:700;color:var(--body);
+  margin-bottom:5px;
+}
+.acct-box input{
+  width:100%;border:1.5px solid var(--line);border-radius:10px;
+  padding:11px 13px;font-size:15px;outline:0;background:#fff;color:var(--ink);
+  transition:.15s var(--ease);
+}
+.acct-box input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.11)}
+
+.acct-err{
+  font-size:12.5px;font-weight:600;line-height:1.45;
+  color:var(--red);background:var(--red-l);
+  border-radius:8px;padding:9px 11px;margin-bottom:12px;
+}
+/* The same box, for the one message that is good news. */
+.acct-err.ok{color:#12805c;background:#e3f4ed}
+
+.acct-go{width:100%;justify-content:center;padding:12px}
+.acct-go:disabled{opacity:.6;cursor:default}
+
+.acct-swap{
+  text-align:center;margin-top:14px;
+  font-size:12.5px;color:var(--mute);
+}
+.acct-swap button{
+  border:0;background:transparent;cursor:pointer;padding:0 0 0 4px;
+  font-size:12.5px;font-weight:800;color:var(--red);
+}
+.acct-swap button:hover{text-decoration:underline}
+
+@media(prefers-reduced-motion:reduce){
+  .fav.on svg, .acct-box{animation:none}
+}
+@media print{ .fav, .hdr-acct, .acct-modal{display:none} }

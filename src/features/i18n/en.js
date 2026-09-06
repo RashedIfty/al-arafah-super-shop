@@ -76,8 +76,15 @@ export default {
     fav_sub:"The products you have saved", fav_nav:"Favourites",
     fav_none:"Nothing saved yet",
     fav_none_s:"Tap the heart on any product and it will appear here.",
-    fav_signin:"Sign in with Google", fav_signout:"Sign out",
-    fav_why:"Sign in to save the products you buy often.",
-    fav_hi:"Hello, {n}",
+    fav_hi:"Signed in as {n}",
+    acct_signin:"Sign in", acct_create:"Create an account",
+    acct_signout:"Sign out",
+    acct_email:"Email", acct_pass:"Password",
+    acct_why:"Sign in to save the products you buy often.",
+    acct_why_new:"An email and a password is all it takes.",
+    acct_no_account:"New here?", acct_have:"Already have an account?",
+    acct_bad:"Please enter your email and a password of at least 6 characters.",
+    acct_working:"Please wait\u2026",
+    acct_check_email:"Almost there \u2014 check your email to confirm the account.",
     days:["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
 };

@@ -6,7 +6,7 @@ import { t, getLang, LANGS, itemCount } from "../../features/i18n/lang.js";
 import { yen, discount } from "../../shared/lib/format.js";
 import { SHOP } from "../../shared/shop.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
-import { isSaved } from "../../features/favourites/favourites.js";
+import { isSaved } from "../../features/account/account.js";
 
 /**
  * Categories a customer can actually walk into, each keeping the position
@@ -31,9 +31,9 @@ export function cardHTML(product, category, ci = 0, pi = 0){
 
   const badges = off ? `<span class="badge badge-off">-${off}% ${esc(T.off)}</span>` : "";
 
-  /* The heart sits on the photograph, opposite the discount badge. Shown
-     to everyone: a customer who is not signed in should be able to see
-     what the button does before being asked to sign in for it. */
+  /* Top-left, opposite the discount badge. Shown to everyone: a customer
+     should be able to see what the button does before being asked to
+     sign in for it. */
   const fav = product._id ? `
     <button class="fav${isSaved(product._id) ? " on" : ""}"
             data-fav="${esc(product._id)}"

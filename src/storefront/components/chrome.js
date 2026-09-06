@@ -5,8 +5,8 @@
 import { esc } from "../../shared/lib/dom.js";
 import { icon } from "../../shared/ui/icons.js";
 import { t, getLang, LANGS } from "../../features/i18n/lang.js";
-import { isSignedIn, savedCount, userName, userPhoto }
-  from "../../features/favourites/favourites.js";
+import { isSignedIn, savedCount, userName }
+  from "../../features/account/account.js";
 import { UI } from "../../features/i18n/index.js";
 import { SHOP } from "../../shared/shop.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
@@ -76,42 +76,28 @@ export function headerHTML(){
 /**
  * The customer's own corner of the header.
  *
- * Signed out it is a single button that starts the Google sign-in.
- * Signed in it becomes a link to their favourites, carrying their photo
- * and how many they have saved — the count is the point, since it is the
- * only sign anything was kept.
+ * Signed out it opens the sign-in dialog. Signed in it links to their
+ * favourites and carries the count — the only visible sign that anything
+ * was kept.
  */
 function accountHTML(){
   const T = t();
 
   if (!isSignedIn())
     return `
-      <button class="hdr-acct" data-signin title="${esc(T.fav_signin)}">
-        <span class="hdr-acct-ic">${googleMark()}</span>
-        <em>${esc(T.fav_signin)}</em>
+      <button class="hdr-acct" data-signin title="${esc(T.acct_signin)}">
+        <span class="hdr-acct-ic">${icon("lock",{size:13})}</span>
+        <em>${esc(T.acct_signin)}</em>
       </button>`;
 
   const n = savedCount();
-  const photo = userPhoto();
-
   return `
     <a href="favourites.html" class="hdr-acct is-in" title="${esc(T.fav_title)}">
-      <span class="hdr-acct-ic">${
-        photo ? `<img src="${esc(photo)}" alt="" referrerpolicy="no-referrer">`
-              : esc((userName()[0] || "?").toUpperCase())}</span>
+      <span class="hdr-acct-ic">${esc((userName()[0] || "?").toUpperCase())}</span>
       <em>${esc(T.fav_nav)}</em>
       ${n ? `<i class="hdr-acct-n">${n}</i>` : ""}
     </a>`;
 }
-
-/** Google's mark, so the button is recognisable at a glance. */
-const googleMark = () => `
-  <svg viewBox="0 0 48 48" width="16" height="16" aria-hidden="true">
-    <path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.7-.4-4H24v7.3h12.1c-.2 1.9-1.6 4.7-4.5 6.6l6.9 5.3c4.1-3.8 6.6-9.4 6.6-15.2"/>
-    <path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.3c-1.8 1.3-4.3 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-7.1 5.5C8.1 41.1 15.4 46 24 46"/>
-    <path fill="#FBBC05" d="M11.5 28.5A13.5 13.5 0 0 1 10.8 24c0-1.6.3-3.1.7-4.5l-7.1-5.5A22 22 0 0 0 2 24c0 3.5.8 6.9 2.4 10z"/>
-    <path fill="#EA4335" d="M24 10.2c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 4 29.9 2 24 2 15.4 2 8.1 6.9 4.4 14l7.1 5.5c1.8-5.3 6.7-9.3 12.5-9.3"/>
-  </svg>`;
 
 export function navHTML(){
   const T = t(), page = currentPage();
@@ -123,9 +109,9 @@ export function navHTML(){
     { href:"contact.html",  label:T.nav_contact,  page:"contact" },
   ];
 
-  /* Only once they are signed in, and only then because the header
-     button that leads here is hidden on a narrow screen — without this a
-     customer on a phone would have nothing to tap. */
+  /* Only once signed in, and only then because the header button that
+     leads here is hidden on a narrow screen — without this a customer on
+     a phone would have nothing to tap. */
   if (isSignedIn())
     items.push({ href:"favourites.html", label:T.fav_nav, page:"favourites" });
 

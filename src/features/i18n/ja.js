@@ -76,8 +76,15 @@ export default {
     fav_sub:"保存した商品", fav_nav:"お気に入り",
     fav_none:"まだ保存された商品はありません",
     fav_none_s:"商品のハートを押すと、ここに表示されます。",
-    fav_signin:"Googleでサインイン", fav_signout:"サインアウト",
-    fav_why:"よく買う商品を保存するにはサインインしてください。",
-    fav_hi:"こんにちは、{n}さん",
+    fav_hi:"{n} でサインイン中",
+    acct_signin:"サインイン", acct_create:"アカウント作成",
+    acct_signout:"サインアウト",
+    acct_email:"メールアドレス", acct_pass:"パスワード",
+    acct_why:"よく買う商品を保存するにはサインインしてください。",
+    acct_why_new:"メールアドレスとパスワードだけで作成できます。",
+    acct_no_account:"はじめてですか？", acct_have:"アカウントをお持ちですか？",
+    acct_bad:"メールアドレスと6文字以上のパスワードを入力してください。",
+    acct_working:"お待ちください\u2026",
+    acct_check_email:"あと少しです — メールを確認してアカウントを有効にしてください。",
     days:["月曜日","火曜日","水曜日","木曜日","金曜日","土曜日","日曜日"]
 };
