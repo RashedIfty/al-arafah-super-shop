@@ -3,19 +3,44 @@
 .cat-browse{display:grid;gap:18px}
 
 /* ------------------------------ sidebar ------------------------------- */
+/* The list and the tiles beside it end level.
+ *
+ * The list is one row per category and the tiles are six to a row, so
+ * the list ran far the taller of the two and left a tall column of white
+ * beside the grid. It now takes its height from the row and scrolls
+ * inside itself when it has more names than there is room for — the
+ * heading stays put while the names move under it. */
 .cat-side{
   border:1px solid var(--line);border-radius:var(--radius);
   padding:14px 0 8px;background:#fff;box-shadow:var(--sh);
-  align-self:start;
+  align-self:stretch;
+  display:flex;flex-direction:column;min-height:0;
+  overflow:hidden;
 }
 .cat-side h3{
   font-size:15px;padding:0 16px 11px;
   border-bottom:1px solid var(--line);margin-bottom:5px;
+  flex-shrink:0;
 }
+/* Everything below the heading scrolls as one: the categories, the rule,
+   and the three shelves under it. Scrolling only the first list meant the
+   shelves held a fixed strip at the bottom and left room for barely three
+   category names above them. */
+.cat-side{overflow:hidden}
+.cat-side-scroll{overflow-y:auto;min-height:0;flex:1;scrollbar-width:thin}
 .cat-side a{
   display:flex;align-items:center;gap:10px;padding:7px 16px;
   transition:.15s var(--ease);
 }
+
+/* Beside the shop the list has only the photograph's height to work
+   with, so its rows are tighter and its thumbnails smaller than on the
+   products page, where it has the whole column. */
+.hero-side .cat-side a{padding:5px 14px;gap:9px}
+.hero-side .cat-side img{width:28px;height:28px;border-radius:6px}
+.hero-side .cat-side h3{font-size:14px;padding:0 14px 8px;margin-bottom:3px}
+.hero-side .cat-side span{font-size:12.5px}
+.hero-side .cat-side-more{margin-top:6px;padding-top:8px;font-size:11px}
 .cat-side a:hover{background:var(--red-l)}
 .cat-side img{
   width:36px;height:36px;border-radius:7px;object-fit:contain;background:#fff;flex-shrink:0;
@@ -160,6 +185,9 @@
   margin-top:9px;padding-top:11px;
   border-top:1px solid var(--line);border-bottom:1px solid var(--line);
   color:var(--navy-d);font-size:12px;letter-spacing:.6px;text-transform:uppercase;
+  /* Stays put while the category names scroll past above it: the three
+     shelves are the fixed part of the list and should not scroll away. */
+  flex-shrink:0;
 }
 
 /* ----------------------------- breakpoints ---------------------------- */

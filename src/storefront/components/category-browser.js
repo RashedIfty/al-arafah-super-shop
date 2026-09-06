@@ -45,16 +45,18 @@ export function categorySidebarHTML(){
   return `
     <aside class="cat-side">
       <h3>${esc(T.cats_side)}</h3>
-      <ul>
-        ${visibleCategories().map(cat =>
-          row(`${base}#${esc(cat.id)}`, cat.img || SHOP.placeholder,
-              cat[lang] || cat.en, cat.items.length)).join("")}
-      </ul>
-      <h3 class="cat-side-more">${esc(T.browse_more)}</h3>
-      <ul>
-        ${SHELVES.map(s =>
-          row(s.href, s.img, s[lang] || s.en, s.count(CATALOG))).join("")}
-      </ul>
+      <div class="cat-side-scroll">
+        <ul>
+          ${visibleCategories().map(cat =>
+            row(`${base}#${esc(cat.id)}`, cat.img || SHOP.placeholder,
+                cat[lang] || cat.en, cat.items.length)).join("")}
+        </ul>
+        <h3 class="cat-side-more">${esc(T.browse_more)}</h3>
+        <ul>
+          ${SHELVES.map(s =>
+            row(s.href, s.img, s[lang] || s.en, s.count(CATALOG))).join("")}
+        </ul>
+      </div>
     </aside>`;
 }
 

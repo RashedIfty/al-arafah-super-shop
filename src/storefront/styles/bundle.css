@@ -219,6 +219,36 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
    presented on a modern retail site.
    ========================================================================== */
 
+/* ------------------------- the list beside the shop -------------------- */
+/* The category list sits next to the shopfront rather than next to the
+   tiles, which is how a grocery site is usually laid out: names down the
+   side at the top, pictures across the width below. It also means the
+   tiles get the whole page rather than three quarters of it.
+   One column on a phone, where the list would leave no room for the
+   photograph — there it drops away and the tiles carry the browsing. */
+.hero-band{background:var(--bg)}
+.hero-band-in{display:grid;gap:0}
+.hero-side{display:none}
+
+@media(min-width:1000px){
+  .hero-band-in{
+    grid-template-columns:250px minmax(0,1fr);
+    gap:18px;padding-top:18px;padding-bottom:18px;
+    /* The row takes its height from the shop, not from the list: fifteen
+       names would otherwise stretch the band far taller than the
+       photograph needs. */
+    grid-auto-rows:minmax(0,auto);align-items:stretch;
+  }
+  /* Taken out of the row's height calculation: the list is absolutely
+     placed inside its own column, so however many names it holds it can
+     never stretch the band. The shop sets the height; the list fills it
+     and scrolls inside itself. */
+  .hero-side{display:block;position:relative}
+  .hero-side .cat-side{position:absolute;inset:0}
+  .hero-main{min-width:0;display:flex}
+  .hero-main .hero{flex:1;border-radius:var(--radius);overflow:hidden}
+}
+
 .hero{
   background:
     radial-gradient(1200px 620px at 88% -12%, rgba(247,148,38,.34), transparent 62%),
@@ -274,7 +304,7 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
 .hero-shot img{
   display:block;width:100%;height:auto;
   border-radius:16px;
-  box-shadow:0 20px 44px rgba(0,0,0,.32), 0 44px 88px rgba(0,0,0,.20);
+  box-shadow:0 10px 26px rgba(0,0,0,.26);
 }
 
 /* Capped on a wide screen, where the photograph would otherwise grow
@@ -292,19 +322,19 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
   /* Tighter than it was. The homepage now has to carry the shop, the
      day's deals and every category near the top, and the hero was taking
      a third of that on its own. */
-  .hero{padding:26px 0 28px}
+  .hero{padding:26px 26px 28px}
 
   /* Copy left, shop right — the storefront layout people expect. */
   .hero-in{
-    grid-template-columns:minmax(0,.86fr) minmax(0,1.3fr);
-    align-items:center;gap:40px;text-align:left;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);
+    align-items:center;gap:26px;text-align:left;
   }
   /* The photo sat 15px further from the right edge than the copy sits
      from the left, because its column rounds down. Pushed out by that
      much so both margins measure the same. */
-  .hero-shot{margin-right:-15px}
+  .hero-shot{margin-right:0}
 
-  .hero h1{font-size:34px;margin-top:12px}
+  .hero h1{font-size:29px;margin-top:10px}
   .hero p{margin-left:0;margin-right:0;font-size:16px}
   .hero-cta{justify-content:flex-start}
   .hero-stats{margin-left:0;max-width:470px}
@@ -313,8 +343,8 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
 }
 
 @media(min-width:1200px){
-  .hero h1{font-size:38px}
-  .hero-in{gap:48px;grid-template-columns:minmax(0,.8fr) minmax(0,1.38fr)}
+  .hero h1{font-size:33px}
+  .hero-in{gap:32px;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
 }
 
 @media(prefers-reduced-motion:reduce){
@@ -924,19 +954,44 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .cat-browse{display:grid;gap:18px}
 
 /* ------------------------------ sidebar ------------------------------- */
+/* The list and the tiles beside it end level.
+ *
+ * The list is one row per category and the tiles are six to a row, so
+ * the list ran far the taller of the two and left a tall column of white
+ * beside the grid. It now takes its height from the row and scrolls
+ * inside itself when it has more names than there is room for — the
+ * heading stays put while the names move under it. */
 .cat-side{
   border:1px solid var(--line);border-radius:var(--radius);
   padding:14px 0 8px;background:#fff;box-shadow:var(--sh);
-  align-self:start;
+  align-self:stretch;
+  display:flex;flex-direction:column;min-height:0;
+  overflow:hidden;
 }
 .cat-side h3{
   font-size:15px;padding:0 16px 11px;
   border-bottom:1px solid var(--line);margin-bottom:5px;
+  flex-shrink:0;
 }
+/* Everything below the heading scrolls as one: the categories, the rule,
+   and the three shelves under it. Scrolling only the first list meant the
+   shelves held a fixed strip at the bottom and left room for barely three
+   category names above them. */
+.cat-side{overflow:hidden}
+.cat-side-scroll{overflow-y:auto;min-height:0;flex:1;scrollbar-width:thin}
 .cat-side a{
   display:flex;align-items:center;gap:10px;padding:7px 16px;
   transition:.15s var(--ease);
 }
+
+/* Beside the shop the list has only the photograph's height to work
+   with, so its rows are tighter and its thumbnails smaller than on the
+   products page, where it has the whole column. */
+.hero-side .cat-side a{padding:5px 14px;gap:9px}
+.hero-side .cat-side img{width:28px;height:28px;border-radius:6px}
+.hero-side .cat-side h3{font-size:14px;padding:0 14px 8px;margin-bottom:3px}
+.hero-side .cat-side span{font-size:12.5px}
+.hero-side .cat-side-more{margin-top:6px;padding-top:8px;font-size:11px}
 .cat-side a:hover{background:var(--red-l)}
 .cat-side img{
   width:36px;height:36px;border-radius:7px;object-fit:contain;background:#fff;flex-shrink:0;
@@ -1081,6 +1136,9 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   margin-top:9px;padding-top:11px;
   border-top:1px solid var(--line);border-bottom:1px solid var(--line);
   color:var(--navy-d);font-size:12px;letter-spacing:.6px;text-transform:uppercase;
+  /* Stays put while the category names scroll past above it: the three
+     shelves are the fixed part of the list and should not scroll away. */
+  flex-shrink:0;
 }
 
 /* ----------------------------- breakpoints ---------------------------- */
@@ -1754,8 +1812,8 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   .brand-tx i{display:block}
   .burger{display:none}
   .nav-in{justify-content:center}
-  .hero{padding:26px 0 28px}
-  .hero h1{font-size:31px}
+  .hero{padding:26px 24px 28px}
+  .hero h1{font-size:27px}
   .hero p{font-size:16px}
   .feats-in{grid-template-columns:repeat(4,1fr)}
   .chips-in{grid-template-columns:repeat(4,1fr)}
@@ -1774,8 +1832,8 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   .header-in{gap:24px}
   .search{max-width:640px}
   .tel{display:flex}
-  .hero{padding:30px 0 32px}
-  .hero h1{font-size:36px}
+  .hero{padding:28px 28px 30px}
+  .hero h1{font-size:30px}
   .chips-in{grid-template-columns:repeat(6,1fr)}
   .grid{grid-template-columns:repeat(5,1fr);gap:18px}
   .sec{padding-top:34px}

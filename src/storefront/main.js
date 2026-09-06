@@ -16,7 +16,8 @@ import { mapHTML } from "./components/map.js";
 import { initSearchBox } from "./components/search-box.js";
 import { filtersHTML, initFilters } from "./components/filters.js";
 import { catalogHTML, chipsHTML } from "./components/product-card.js";
-import { categoryBrowserHTML } from "./components/category-browser.js";
+import { categoryBrowserHTML, categorySidebarHTML, categoryTilesHTML }
+  from "./components/category-browser.js";
 import { countriesHTML, initCountries } from "./components/countries.js";
 import { shelfHTML } from "./components/shelf.js";
 import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
@@ -95,12 +96,13 @@ function render(){
   put("#footer", footerHTML());
 
   if ($("#chips"))    put("#chips",    chipsHTML());
-  /* Six across on the homepage, four on the products page. The homepage
-     has to fit the shop, the day's deals and every category on the first
-     screen; the products page has the room to show them larger. */
-  if ($("#catBrowse"))
-    put("#catBrowse", categoryBrowserHTML(
-      document.body.dataset.page === "products" ? 4 : 6));
+  /* The products page keeps the two-column browser: list beside tiles.
+     The homepage splits them — the list sits beside the shop photo at the
+     top, and the tiles run the full width lower down, which gives the
+     tiles the whole page rather than three quarters of it. */
+  if ($("#catBrowse")) put("#catBrowse", categoryBrowserHTML(4));
+  if ($("#catSide"))   put("#catSide", categorySidebarHTML());
+  if ($("#catTiles"))  put("#catTiles", categoryTilesHTML(7));
   if ($("#catalog")) put("#catalog", catalogHTML());
   if ($("#mapMount")) put("#mapMount", mapHTML());
   if ($("#filterMount")) put("#filterMount", filtersHTML());

@@ -7,8 +7,8 @@
   .brand-tx i{display:block}
   .burger{display:none}
   .nav-in{justify-content:center}
-  .hero{padding:26px 0 28px}
-  .hero h1{font-size:31px}
+  .hero{padding:26px 24px 28px}
+  .hero h1{font-size:27px}
   .hero p{font-size:16px}
   .feats-in{grid-template-columns:repeat(4,1fr)}
   .chips-in{grid-template-columns:repeat(4,1fr)}
@@ -27,8 +27,8 @@
   .header-in{gap:24px}
   .search{max-width:640px}
   .tel{display:flex}
-  .hero{padding:30px 0 32px}
-  .hero h1{font-size:36px}
+  .hero{padding:28px 28px 30px}
+  .hero h1{font-size:30px}
   .chips-in{grid-template-columns:repeat(6,1fr)}
   .grid{grid-template-columns:repeat(5,1fr);gap:18px}
   .sec{padding-top:34px}
