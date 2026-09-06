@@ -13,7 +13,7 @@
 
 .chat-card{
   background:#fff;border:1px solid var(--line);border-radius:var(--radius);
-  padding:22px 20px;text-align:center;
+  padding:14px 12px;text-align:center;
   box-shadow:var(--sh);transition:.2s var(--ease);
   display:flex;flex-direction:column;align-items:center;
 }
@@ -21,8 +21,8 @@
 
 /* Each service keeps its own colour — people recognise them by it. */
 .chat-ic{
-  display:grid;place-items:center;width:52px;height:52px;border-radius:14px;
-  margin-bottom:12px;color:#fff;
+  display:grid;place-items:center;width:40px;height:40px;border-radius:11px;
+  margin-bottom:8px;color:#fff;
 }
 .chat-card.wa   .chat-ic{background:#25d366}
 .chat-card.line .chat-ic{background:#06c755}
@@ -33,13 +33,13 @@
 .chat-card.grp:hover {border-color:#128c7e}
 .chat-card.fb:hover  {border-color:#1877f2}
 
-.chat-card h3{font-size:16.5px;color:var(--ink);margin-bottom:4px}
-.chat-card p{font-size:13.5px;color:var(--body);line-height:1.5;margin-bottom:14px}
+.chat-card h3{font-size:14px;color:var(--ink);margin-bottom:2px}
+.chat-card p{font-size:11.5px;color:var(--body);line-height:1.4;margin-bottom:9px}
 
 .chat-go{
   display:inline-flex;align-items:center;justify-content:center;
-  min-width:132px;padding:11px 22px;border-radius:10px;
-  background:var(--red);color:#fff;font-size:14px;font-weight:800;
+  min-width:100px;padding:8px 16px;border-radius:9px;
+  background:var(--red);color:#fff;font-size:12.5px;font-weight:800;
   transition:.18s var(--ease);
 }
 .chat-go:hover{background:var(--red-d);transform:translateY(-1px)}
@@ -59,5 +59,5 @@
   /* Four across once there is room: WhatsApp, LINE, the group, Facebook.
      Below this they pair up rather than squeezing to a quarter each. */
   .chat{grid-template-columns:repeat(4,1fr);gap:18px}
-  .chat-card{padding:26px 18px}
+  .chat-card{padding:16px 12px}
 }

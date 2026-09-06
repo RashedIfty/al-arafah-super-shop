@@ -149,7 +149,7 @@
      matches them however many columns the row happens to take. Capped at
      three tracks, since there are only ever three shelves. */
   gap:var(--gap);
-  grid-template-columns:repeat(3,minmax(0,118px));
+  grid-template-columns:repeat(3,minmax(0,140px));
   justify-content:center;
 }
 
@@ -197,12 +197,13 @@
 @media(min-width:1000px){
   /* Sidebar on the left, tiles filling the rest — the reference layout */
   .cat-browse{grid-template-columns:216px 1fr;gap:18px}
-  /* As many tiles as fit at about 150px, rather than a fixed count. The
-     balanced-rows calculation kept choosing six for twelve categories —
-     two even rows, but tiles half again as large as they need to be. A
-     minimum width lets the row take as many as the page can hold. */
+  /* Six to a row, at the tiles' own size rather than stretched to fill
+     the width, and the block centred. Filling the row made each tile half
+     again as large as it needs to be; letting the row run as wide as it
+     likes left the last one adrift. */
   .cat-tiles:not(.shelf-tiles){
-    grid-template-columns:repeat(auto-fill,minmax(118px,1fr));
+    grid-template-columns:repeat(6,minmax(0,140px));
+    justify-content:center;
   }
   .cat-tiles{gap:9px}
   .shelf-tiles{--gap:9px}

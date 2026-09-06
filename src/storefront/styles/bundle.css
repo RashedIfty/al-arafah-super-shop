@@ -845,19 +845,19 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 
 /* text below the photo */
-.ann-tx{padding:9px 11px 11px;display:flex;flex-direction:column;flex:1}
+.ann-tx{padding:7px 9px 9px;display:flex;flex-direction:column;flex:1}
 .ann-tx b{
-  display:block;color:var(--ink);font-size:13.5px;font-weight:700;
+  display:block;color:var(--ink);font-size:12.5px;font-weight:700;
   line-height:1.28;margin-bottom:2px;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-  overflow:hidden;min-height:35px;
+  overflow:hidden;min-height:0;
 }
 .ann-w{
   font-size:11px;color:var(--mute);font-weight:600;margin-bottom:5px;
 }
 .ann-price{margin-top:auto;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
 .ann-price .now{
-  color:var(--red);font-size:18px;font-weight:900;letter-spacing:-.5px;
+  color:var(--red);font-size:16px;font-weight:900;letter-spacing:-.5px;
 }
 .ann-price .was{
   font-size:13px;color:var(--mute);text-decoration:line-through;
@@ -878,13 +878,13 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 
 @media(min-width:600px){
   .ann-in{padding:16px 18px 18px}
-  .ann-item{width:240px}
+  .ann-item{width:200px}
   .ann-head h2{font-size:21px}
 }
 
 @media(min-width:1000px){
   .ann-head h2{font-size:22px}
-  .ann-item{width:265px}
+  .ann-item{width:215px}
 }
 
 @media(prefers-reduced-motion:reduce){
@@ -1102,7 +1102,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
      matches them however many columns the row happens to take. Capped at
      three tracks, since there are only ever three shelves. */
   gap:var(--gap);
-  grid-template-columns:repeat(3,minmax(0,118px));
+  grid-template-columns:repeat(3,minmax(0,140px));
   justify-content:center;
 }
 
@@ -1150,12 +1150,13 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 @media(min-width:1000px){
   /* Sidebar on the left, tiles filling the rest — the reference layout */
   .cat-browse{grid-template-columns:216px 1fr;gap:18px}
-  /* As many tiles as fit at about 150px, rather than a fixed count. The
-     balanced-rows calculation kept choosing six for twelve categories —
-     two even rows, but tiles half again as large as they need to be. A
-     minimum width lets the row take as many as the page can hold. */
+  /* Six to a row, at the tiles' own size rather than stretched to fill
+     the width, and the block centred. Filling the row made each tile half
+     again as large as it needs to be; letting the row run as wide as it
+     likes left the last one adrift. */
   .cat-tiles:not(.shelf-tiles){
-    grid-template-columns:repeat(auto-fill,minmax(118px,1fr));
+    grid-template-columns:repeat(6,minmax(0,140px));
+    justify-content:center;
   }
   .cat-tiles{gap:9px}
   .shelf-tiles{--gap:9px}
@@ -1253,7 +1254,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .dlv-card{
   position:relative;background:#fff;
   border:1px solid var(--line);border-radius:var(--radius);
-  padding:22px 20px 20px;
+  padding:15px 16px 20px;
   box-shadow:var(--sh);
   transition:.2s var(--ease);
 }
@@ -1271,28 +1272,28 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 
 .dlv-ic{
-  display:grid;place-items:center;width:46px;height:46px;border-radius:12px;
-  background:var(--navy-l);color:var(--navy);margin-bottom:12px;
+  display:grid;place-items:center;width:36px;height:36px;border-radius:10px;
+  background:var(--navy-l);color:var(--navy);margin-bottom:8px;
 }
 
 .dlv-card h3{
-  font-size:16.5px;color:var(--ink);margin-bottom:5px;letter-spacing:-.2px;
+  font-size:14.5px;color:var(--ink);margin-bottom:5px;letter-spacing:-.2px;
 }
 .dlv-card p{
-  font-size:14px;color:var(--body);line-height:1.55;margin-bottom:14px;
+  font-size:12px;color:var(--body);line-height:1.45;margin-bottom:9px;
 }
 
 /* The number a customer came to find. */
 .dlv-amt{
   display:flex;align-items:baseline;gap:8px;
-  font-size:25px;font-weight:900;color:var(--navy);letter-spacing:-.5px;
+  font-size:20px;font-weight:900;color:var(--navy);letter-spacing:-.5px;
 }
 .dlv-amt span{
   font-size:11.5px;font-weight:700;color:var(--mute);letter-spacing:.3px;
 }
 
 .dlv-ask{
-  text-align:center;margin-top:16px;font-size:13.5px;
+  text-align:center;margin-top:11px;font-size:12.5px;
 }
 .dlv-ask a{
   display:inline-flex;align-items:center;gap:7px;
@@ -1304,9 +1305,9 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 /* ----------------------------- breakpoints ---------------------------- */
 @media(min-width:760px){
   .dlv{grid-template-columns:1fr 1fr;gap:18px}
-  .dlv-card{padding:26px 24px 22px}
-  .dlv-card h3{font-size:17.5px}
-  .dlv-amt{font-size:28px}
+  .dlv-card{padding:16px 18px 15px}
+  .dlv-card h3{font-size:14.5px}
+  .dlv-amt{font-size:22px}
 }
 
 /* ===== components/chat.css ===== */
@@ -1325,7 +1326,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 
 .chat-card{
   background:#fff;border:1px solid var(--line);border-radius:var(--radius);
-  padding:22px 20px;text-align:center;
+  padding:14px 12px;text-align:center;
   box-shadow:var(--sh);transition:.2s var(--ease);
   display:flex;flex-direction:column;align-items:center;
 }
@@ -1333,8 +1334,8 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 
 /* Each service keeps its own colour — people recognise them by it. */
 .chat-ic{
-  display:grid;place-items:center;width:52px;height:52px;border-radius:14px;
-  margin-bottom:12px;color:#fff;
+  display:grid;place-items:center;width:40px;height:40px;border-radius:11px;
+  margin-bottom:8px;color:#fff;
 }
 .chat-card.wa   .chat-ic{background:#25d366}
 .chat-card.line .chat-ic{background:#06c755}
@@ -1345,13 +1346,13 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .chat-card.grp:hover {border-color:#128c7e}
 .chat-card.fb:hover  {border-color:#1877f2}
 
-.chat-card h3{font-size:16.5px;color:var(--ink);margin-bottom:4px}
-.chat-card p{font-size:13.5px;color:var(--body);line-height:1.5;margin-bottom:14px}
+.chat-card h3{font-size:14px;color:var(--ink);margin-bottom:2px}
+.chat-card p{font-size:11.5px;color:var(--body);line-height:1.4;margin-bottom:9px}
 
 .chat-go{
   display:inline-flex;align-items:center;justify-content:center;
-  min-width:132px;padding:11px 22px;border-radius:10px;
-  background:var(--red);color:#fff;font-size:14px;font-weight:800;
+  min-width:100px;padding:8px 16px;border-radius:9px;
+  background:var(--red);color:#fff;font-size:12.5px;font-weight:800;
   transition:.18s var(--ease);
 }
 .chat-go:hover{background:var(--red-d);transform:translateY(-1px)}
@@ -1371,7 +1372,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   /* Four across once there is room: WhatsApp, LINE, the group, Facebook.
      Below this they pair up rather than squeezing to a quarter each. */
   .chat{grid-template-columns:repeat(4,1fr);gap:18px}
-  .chat-card{padding:26px 18px}
+  .chat-card{padding:16px 12px}
 }
 
 /* ===== components/card.css ===== */

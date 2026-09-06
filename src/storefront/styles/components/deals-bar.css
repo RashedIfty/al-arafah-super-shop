@@ -145,19 +145,19 @@
 }
 
 /* text below the photo */
-.ann-tx{padding:9px 11px 11px;display:flex;flex-direction:column;flex:1}
+.ann-tx{padding:7px 9px 9px;display:flex;flex-direction:column;flex:1}
 .ann-tx b{
-  display:block;color:var(--ink);font-size:13.5px;font-weight:700;
+  display:block;color:var(--ink);font-size:12.5px;font-weight:700;
   line-height:1.28;margin-bottom:2px;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-  overflow:hidden;min-height:35px;
+  overflow:hidden;min-height:0;
 }
 .ann-w{
   font-size:11px;color:var(--mute);font-weight:600;margin-bottom:5px;
 }
 .ann-price{margin-top:auto;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
 .ann-price .now{
-  color:var(--red);font-size:18px;font-weight:900;letter-spacing:-.5px;
+  color:var(--red);font-size:16px;font-weight:900;letter-spacing:-.5px;
 }
 .ann-price .was{
   font-size:13px;color:var(--mute);text-decoration:line-through;
@@ -178,13 +178,13 @@
 
 @media(min-width:600px){
   .ann-in{padding:16px 18px 18px}
-  .ann-item{width:240px}
+  .ann-item{width:200px}
   .ann-head h2{font-size:21px}
 }
 
 @media(min-width:1000px){
   .ann-head h2{font-size:22px}
-  .ann-item{width:265px}
+  .ann-item{width:215px}
 }
 
 @media(prefers-reduced-motion:reduce){

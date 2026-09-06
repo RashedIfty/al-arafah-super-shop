@@ -11,7 +11,7 @@
 .dlv-card{
   position:relative;background:#fff;
   border:1px solid var(--line);border-radius:var(--radius);
-  padding:22px 20px 20px;
+  padding:15px 16px 20px;
   box-shadow:var(--sh);
   transition:.2s var(--ease);
 }
@@ -29,28 +29,28 @@
 }
 
 .dlv-ic{
-  display:grid;place-items:center;width:46px;height:46px;border-radius:12px;
-  background:var(--navy-l);color:var(--navy);margin-bottom:12px;
+  display:grid;place-items:center;width:36px;height:36px;border-radius:10px;
+  background:var(--navy-l);color:var(--navy);margin-bottom:8px;
 }
 
 .dlv-card h3{
-  font-size:16.5px;color:var(--ink);margin-bottom:5px;letter-spacing:-.2px;
+  font-size:14.5px;color:var(--ink);margin-bottom:5px;letter-spacing:-.2px;
 }
 .dlv-card p{
-  font-size:14px;color:var(--body);line-height:1.55;margin-bottom:14px;
+  font-size:12px;color:var(--body);line-height:1.45;margin-bottom:9px;
 }
 
 /* The number a customer came to find. */
 .dlv-amt{
   display:flex;align-items:baseline;gap:8px;
-  font-size:25px;font-weight:900;color:var(--navy);letter-spacing:-.5px;
+  font-size:20px;font-weight:900;color:var(--navy);letter-spacing:-.5px;
 }
 .dlv-amt span{
   font-size:11.5px;font-weight:700;color:var(--mute);letter-spacing:.3px;
 }
 
 .dlv-ask{
-  text-align:center;margin-top:16px;font-size:13.5px;
+  text-align:center;margin-top:11px;font-size:12.5px;
 }
 .dlv-ask a{
   display:inline-flex;align-items:center;gap:7px;
@@ -62,7 +62,7 @@
 /* ----------------------------- breakpoints ---------------------------- */
 @media(min-width:760px){
   .dlv{grid-template-columns:1fr 1fr;gap:18px}
-  .dlv-card{padding:26px 24px 22px}
-  .dlv-card h3{font-size:17.5px}
-  .dlv-amt{font-size:28px}
+  .dlv-card{padding:16px 18px 15px}
+  .dlv-card h3{font-size:14.5px}
+  .dlv-amt{font-size:22px}
 }
