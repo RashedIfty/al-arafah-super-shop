@@ -26,6 +26,8 @@ export default {
     chat_wa:"WhatsApp", chat_wa_p:"お店へ直接メッセージ",
     chat_line:"LINE", chat_line_p:"LINEで友だち追加",
     chat_grp:"WhatsApp グループ", chat_grp_p:"毎日のお得情報と新商品",
+    chat_fb:"Facebook", chat_fb_p:"お得情報・写真・お知らせをフォロー",
+    chat_follow:"フォロー",
     chat_open:"開く", chat_join:"グループに参加",
     dlv_title:"配達", dlv_sub:"ご自宅までお届けします",
     dlv_local_t:"店舗から10km以内",

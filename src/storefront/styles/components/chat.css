@@ -27,9 +27,11 @@
 .chat-card.wa   .chat-ic{background:#25d366}
 .chat-card.line .chat-ic{background:#06c755}
 .chat-card.grp  .chat-ic{background:linear-gradient(135deg,#128c7e,#25d366)}
+.chat-card.fb   .chat-ic{background:#1877f2}
 .chat-card.wa:hover  {border-color:#25d366}
 .chat-card.line:hover{border-color:#06c755}
 .chat-card.grp:hover {border-color:#128c7e}
+.chat-card.fb:hover  {border-color:#1877f2}
 
 .chat-card h3{font-size:16.5px;color:var(--ink);margin-bottom:4px}
 .chat-card p{font-size:13.5px;color:var(--body);line-height:1.5;margin-bottom:14px}
@@ -50,7 +52,12 @@
 .chat-card.grp .chat-go{margin-top:auto}
 
 /* ----------------------------- breakpoints ---------------------------- */
-@media(min-width:760px){
-  .chat{grid-template-columns:repeat(3,1fr);gap:18px}
-  .chat-card{padding:26px 22px}
+@media(min-width:600px){
+  .chat{grid-template-columns:repeat(2,1fr);gap:16px}
+}
+@media(min-width:900px){
+  /* Four across once there is room: WhatsApp, LINE, the group, Facebook.
+     Below this they pair up rather than squeezing to a quarter each. */
+  .chat{grid-template-columns:repeat(4,1fr);gap:18px}
+  .chat-card{padding:26px 18px}
 }

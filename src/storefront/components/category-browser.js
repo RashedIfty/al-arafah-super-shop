@@ -64,8 +64,11 @@ export function categorySidebarHTML(){
  * Fewest rows wins, so nine categories are 5-4 rather than 3-3-3. Ties
  * go to the fullest last row, so eight are 4-4 rather than 5-3.
  *
- * Four across: the tiles are large enough to see what is in the picture,
- * and twelve categories land as three even rows.
+ * Four across on the products page, where the tiles are what the visitor
+ * came for and can afford the room. Six on the homepage, where they have
+ * to share the first screen with the shop and the day's deals — smaller,
+ * but all of them visible without scrolling, which is the point of having
+ * them there at all.
  */
 export function columnsFor(count, max = 4){
   if (count <= max) return count;
@@ -108,12 +111,12 @@ function tileHTML(href, img, name, count, extra = ""){
  * products. Running them together as one grid was what made Countrywise
  * read as a category in the first place.
  */
-export function categoryTilesHTML(){
+export function categoryTilesHTML(max){
   const T = t(), lang = getLang(), base = prefix();
   const shown = visibleCategories();
   const shelves = SHELVES;
 
-  const catCols = columnsFor(shown.length);
+  const catCols = columnsFor(shown.length, max);
 
   const cats = `
     <div class="cat-tiles" style="--cols:${catCols}">
@@ -141,11 +144,17 @@ export function categoryTilesHTML(){
   return `<div class="cat-main">${cats}${rest}</div>`;
 }
 
-/** The whole two-column browser. */
-export function categoryBrowserHTML(){
+/**
+ * The whole two-column browser.
+ *
+ * `max` is the widest the tile grid may go — the homepage asks for more
+ * columns than the products page, to fit every category on the first
+ * screen alongside the shop and the deals.
+ */
+export function categoryBrowserHTML(max){
   return `
     <div class="cat-browse">
       ${categorySidebarHTML()}
-      ${categoryTilesHTML()}
+      ${categoryTilesHTML(max)}
     </div>`;
 }

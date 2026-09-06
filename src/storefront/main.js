@@ -95,7 +95,12 @@ function render(){
   put("#footer", footerHTML());
 
   if ($("#chips"))    put("#chips",    chipsHTML());
-  if ($("#catBrowse")) put("#catBrowse", categoryBrowserHTML());
+  /* Six across on the homepage, four on the products page. The homepage
+     has to fit the shop, the day's deals and every category on the first
+     screen; the products page has the room to show them larger. */
+  if ($("#catBrowse"))
+    put("#catBrowse", categoryBrowserHTML(
+      document.body.dataset.page === "products" ? 4 : 6));
   if ($("#catalog")) put("#catalog", catalogHTML());
   if ($("#mapMount")) put("#mapMount", mapHTML());
   if ($("#filterMount")) put("#filterMount", filtersHTML());

@@ -255,7 +255,7 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
 
 .hero-stats{
   display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
-  max-width:540px;margin:28px auto 0;
+  max-width:540px;margin:20px auto 0;
 }
 .hero-stats div{
   background:rgba(255,255,255,.09);
@@ -277,10 +277,21 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
   box-shadow:0 20px 44px rgba(0,0,0,.32), 0 44px 88px rgba(0,0,0,.20);
 }
 
+/* Capped on a wide screen, where the photograph would otherwise grow
+   with the column and push the deals and categories off the first
+   screen. `cover` keeps the shopfront filling the frame rather than
+   letting the crop letterbox it. */
+@media(min-width:900px){
+  .hero-shot img{max-height:290px;object-fit:cover;object-position:center}
+}
+
 /* ------------------------------ breakpoints ---------------------------- */
 
 @media(min-width:900px){
-  .hero{padding:52px 0 58px}
+  /* Tighter than it was. The homepage now has to carry the shop, the
+     day's deals and every category near the top, and the hero was taking
+     a third of that on its own. */
+  .hero{padding:26px 0 28px}
 
   /* Copy left, shop right — the storefront layout people expect. */
   .hero-in{
@@ -292,7 +303,7 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
      much so both margins measure the same. */
   .hero-shot{margin-right:-15px}
 
-  .hero h1{font-size:40px;margin-top:17px}
+  .hero h1{font-size:34px;margin-top:12px}
   .hero p{margin-left:0;margin-right:0;font-size:16px}
   .hero-cta{justify-content:flex-start}
   .hero-stats{margin-left:0;max-width:470px}
@@ -301,7 +312,7 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
 }
 
 @media(min-width:1200px){
-  .hero h1{font-size:46px}
+  .hero h1{font-size:38px}
   .hero-in{gap:48px;grid-template-columns:minmax(0,.8fr) minmax(0,1.38fr)}
 }
 
@@ -742,7 +753,9 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 
 /* -------------------------- item = photo card ------------------------- */
 .ann-item{
-  flex-shrink:0;width:260px;
+  /* Narrower than it was, for the same reason the hero is shorter: the
+     strip shares the first screen with the categories now. */
+  flex-shrink:0;width:225px;
   background:#fff;border-radius:16px;overflow:hidden;
   display:flex;flex-direction:column;
   box-shadow:0 4px 14px rgba(0,0,0,.20);
@@ -771,8 +784,11 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .ann-item.deal:hover{box-shadow:0 12px 28px rgba(0,0,0,.32),0 0 0 2px var(--gold)}
 
 /* big image — the highlight */
+/* Wider than tall. A square photo made each card nearly 400px, which put
+   the categories below a second screenful; 4:3 shows the same product in
+   two thirds of the height. */
 .ann-img{
-  position:relative;aspect-ratio:1/1;background:#fff;overflow:hidden;
+  position:relative;aspect-ratio:4/3;background:#fff;overflow:hidden;
 }
 .ann-img img{
   width:100%;height:100%;object-fit:contain;display:block;
@@ -1262,9 +1278,11 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .chat-card.wa   .chat-ic{background:#25d366}
 .chat-card.line .chat-ic{background:#06c755}
 .chat-card.grp  .chat-ic{background:linear-gradient(135deg,#128c7e,#25d366)}
+.chat-card.fb   .chat-ic{background:#1877f2}
 .chat-card.wa:hover  {border-color:#25d366}
 .chat-card.line:hover{border-color:#06c755}
 .chat-card.grp:hover {border-color:#128c7e}
+.chat-card.fb:hover  {border-color:#1877f2}
 
 .chat-card h3{font-size:16.5px;color:var(--ink);margin-bottom:4px}
 .chat-card p{font-size:13.5px;color:var(--body);line-height:1.5;margin-bottom:14px}
@@ -1285,9 +1303,14 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .chat-card.grp .chat-go{margin-top:auto}
 
 /* ----------------------------- breakpoints ---------------------------- */
-@media(min-width:760px){
-  .chat{grid-template-columns:repeat(3,1fr);gap:18px}
-  .chat-card{padding:26px 22px}
+@media(min-width:600px){
+  .chat{grid-template-columns:repeat(2,1fr);gap:16px}
+}
+@media(min-width:900px){
+  /* Four across once there is room: WhatsApp, LINE, the group, Facebook.
+     Below this they pair up rather than squeezing to a quarter each. */
+  .chat{grid-template-columns:repeat(4,1fr);gap:18px}
+  .chat-card{padding:26px 18px}
 }
 
 /* ===== components/card.css ===== */
@@ -1730,8 +1753,8 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   .brand-tx i{display:block}
   .burger{display:none}
   .nav-in{justify-content:center}
-  .hero{padding:52px 0 56px}
-  .hero h1{font-size:35px}
+  .hero{padding:26px 0 28px}
+  .hero h1{font-size:31px}
   .hero p{font-size:16px}
   .feats-in{grid-template-columns:repeat(4,1fr)}
   .chips-in{grid-template-columns:repeat(4,1fr)}
@@ -1750,8 +1773,8 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   .header-in{gap:24px}
   .search{max-width:640px}
   .tel{display:flex}
-  .hero{padding:64px 0 68px}
-  .hero h1{font-size:42px}
+  .hero{padding:30px 0 32px}
+  .hero h1{font-size:36px}
   .chips-in{grid-template-columns:repeat(6,1fr)}
   .grid{grid-template-columns:repeat(5,1fr);gap:18px}
   .sec{padding-top:34px}

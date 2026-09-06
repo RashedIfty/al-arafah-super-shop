@@ -84,7 +84,9 @@
 
 /* -------------------------- item = photo card ------------------------- */
 .ann-item{
-  flex-shrink:0;width:260px;
+  /* Narrower than it was, for the same reason the hero is shorter: the
+     strip shares the first screen with the categories now. */
+  flex-shrink:0;width:225px;
   background:#fff;border-radius:16px;overflow:hidden;
   display:flex;flex-direction:column;
   box-shadow:0 4px 14px rgba(0,0,0,.20);
@@ -113,8 +115,11 @@
 .ann-item.deal:hover{box-shadow:0 12px 28px rgba(0,0,0,.32),0 0 0 2px var(--gold)}
 
 /* big image — the highlight */
+/* Wider than tall. A square photo made each card nearly 400px, which put
+   the categories below a second screenful; 4:3 shows the same product in
+   two thirds of the height. */
 .ann-img{
-  position:relative;aspect-ratio:1/1;background:#fff;overflow:hidden;
+  position:relative;aspect-ratio:4/3;background:#fff;overflow:hidden;
 }
 .ann-img img{
   width:100%;height:100%;object-fit:contain;display:block;
