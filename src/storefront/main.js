@@ -20,7 +20,7 @@ import { categoryBrowserHTML, categorySidebarHTML, categoryTilesHTML }
   from "./components/category-browser.js";
 import { countriesHTML, initCountries } from "./components/countries.js";
 import { shelfHTML } from "./components/shelf.js";
-import { accountDialogHTML, favouritesHTML, openAccount, initAccount }
+import { accountFormHTML, favouritesHTML, goToSignIn, initAccount }
   from "./components/account.js";
 import { refreshAccount, onAccountChange, toggleFavourite, signOut }
   from "../features/account/account.js";
@@ -91,7 +91,6 @@ function renderCity(){
 /** Full render — safe to call repeatedly. */
 function render(){
   put("#lbMount", lightboxHTML());
-  put("#acctMount", accountDialogHTML());
   put("#noticeMount", announcementHTML());
   put("#announce", announceBarHTML());
   put("#ticker", tickerHTML());
@@ -114,6 +113,7 @@ function render(){
   if ($("#countryMount")) put("#countryMount", countriesHTML());
   if ($("#shelfMount")) put("#shelfMount", shelfHTML());
   if ($("#favMount")) put("#favMount", favouritesHTML());
+  if ($("#acctMount")) put("#acctMount", accountFormHTML());
 
   applyTranslations();
   renderStats();
@@ -253,21 +253,13 @@ document.addEventListener("click", async e => {
     e.preventDefault();
     e.stopPropagation();
     const r = await toggleFavourite(heart.dataset.fav);
-    if (r?.needsSignIn) openAccount();
+    if (r?.needsSignIn) goToSignIn();
     return;
   }
 
-  if (e.target.closest("[data-signin]")){ e.preventDefault(); openAccount(); return; }
+  if (e.target.closest("[data-signin]")){ e.preventDefault(); goToSignIn(); return; }
   if (e.target.closest("[data-signout]")){ e.preventDefault(); await signOut(); return; }
-  if (e.target.closest("[data-acct-close]")){
-    const box = $("#acctModal"); if (box) box.hidden = true;
-  }
 }, true);
-
-/* Escape closes the dialog, like every other modal on the site. */
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape"){ const b = $("#acctModal"); if (b) b.hidden = true; }
-});
 
 /* Repaint when the session or the list changes, so a heart clicked on a
    card also turns the header count over. */

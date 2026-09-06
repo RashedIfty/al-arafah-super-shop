@@ -1457,7 +1457,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:5px}
 
 /* ===== components/account.css ===== */
-/* Customer accounts — the heart, the header button, the sign-in dialog */
+/* Customer accounts — the heart, the header button, the sign-in page */
 
 /* ------------------------- the heart on a card ------------------------ */
 /* Opposite the discount badge, so the two never meet. Outlined until it
@@ -1529,24 +1529,16 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .fav-empty b{display:block;font-size:18px;color:var(--ink);margin-bottom:6px}
 .fav-empty p{font-size:13.5px;color:var(--body);line-height:1.55;margin-bottom:18px}
 
-/* --------------------------- the sign-in box -------------------------- */
-.acct-modal{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:18px}
-.acct-bg{position:absolute;inset:0;background:rgba(20,8,3,.55);backdrop-filter:blur(3px)}
+/* --------------------------- the sign-in page ------------------------- */
+/* A card on a page of its own, like the owner's login, rather than a
+   dialog over the shop. */
+.acct-page{display:grid;place-items:start center;padding:6px 0 40px}
 
 .acct-box{
-  position:relative;z-index:2;width:100%;max-width:370px;
-  background:#fff;border-radius:16px;padding:26px 24px 22px;
-  box-shadow:0 24px 60px rgba(0,0,0,.34);
-  animation:acctIn .22s var(--ease);
+  width:100%;max-width:370px;
+  background:#fff;border:1px solid var(--line);border-radius:16px;
+  padding:26px 24px 22px;box-shadow:var(--sh-md);
 }
-@keyframes acctIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-
-.acct-x{
-  position:absolute;top:10px;right:10px;
-  border:0;background:transparent;color:var(--mute);cursor:pointer;
-  padding:6px;line-height:0;border-radius:8px;
-}
-.acct-x:hover{color:var(--ink);background:var(--bg)}
 
 .acct-box h2{font-size:20px;color:var(--ink);margin-bottom:4px}
 .acct-sub{font-size:13px;color:var(--body);line-height:1.5;margin-bottom:18px}
@@ -1584,10 +1576,20 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 .acct-swap button:hover{text-decoration:underline}
 
-@media(prefers-reduced-motion:reduce){
-  .fav.on svg, .acct-box{animation:none}
+/* Signing out, at the foot of the favourites page. Quiet: it is not
+   something a customer should be nudged towards. */
+.fav-out{
+  text-align:center;margin:26px 0 8px;
 }
-@media print{ .fav, .hdr-acct, .acct-modal{display:none} }
+.fav-out button{
+  border:0;background:transparent;cursor:pointer;
+  font-size:12.5px;font-weight:700;color:var(--mute);
+  padding:8px 14px;border-radius:8px;
+}
+.fav-out button:hover{color:var(--red);background:var(--red-l)}
+
+@media(prefers-reduced-motion:reduce){ .fav.on svg{animation:none} }
+@media print{ .fav, .hdr-acct, .acct-page{display:none} }
 
 /* ===== components/promo.css ===== */
 /* Promo banners & info band */

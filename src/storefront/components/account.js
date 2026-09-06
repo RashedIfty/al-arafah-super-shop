@@ -1,7 +1,7 @@
 /**
- * The customer's sign-in dialog and favourites page.
+ * The customer's sign-in page and favourites page.
  *
- * One dialog does both signing in and creating an account, because they
+ * One form does both signing in and creating an account, because they
  * ask for the same two things and a customer who lands on the wrong one
  * should not have to go looking for the other.
  */
@@ -12,20 +12,19 @@ import { isSignedIn, savedIds, userName, signIn, signUp }
   from "../../features/account/account.js";
 import { cardHTML } from "./product-card.js";
 
-/* ------------------------------ the dialog ---------------------------- */
+/* ------------------------------- the form ----------------------------- */
 
-/** Rendered once and left in the page; opening it only unhides it. */
-export function accountDialogHTML(){
+/**
+ * A page of its own, like the owner's login, rather than a dialog over
+ * the shop. Signing in is a thing a customer sets out to do, and a page
+ * can be linked to, bookmarked and returned to by the back button.
+ */
+export function accountFormHTML(){
   const T = t();
 
   return `
-    <div class="acct-modal" id="acctModal" hidden>
-      <div class="acct-bg" data-acct-close></div>
+    <div class="acct-page">
       <form class="acct-box" id="acctForm" novalidate>
-        <button type="button" class="acct-x" data-acct-close aria-label="Close">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
-        </button>
-
         <h2 id="acctTitle">${esc(T.acct_signin)}</h2>
         <p class="acct-sub" id="acctSub">${esc(T.acct_why)}</p>
 
@@ -91,7 +90,10 @@ export function favouritesHTML(){
     <p class="fav-hi">${esc((T.fav_hi || "").replace("{n}", userName()))}</p>
     <div class="grid">
       ${items.map(x => cardHTML(x.p, x.cat, x.ci, x.pi)).join("")}
-    </div>`;
+    </div>
+    <p class="fav-out">
+      <button type="button" data-signout>${esc(T.acct_signout)}</button>
+    </p>`;
 }
 
 /** Signed out, or signed in with nothing saved: both say what to do next. */
@@ -106,22 +108,24 @@ const empty = (title, line, action) => `
 const heart = () =>
   `<svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M12 21s-7.5-4.7-9.6-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.6 12c-2.1 4.3-9.6 9-9.6 9z"/></svg>`;
 
-/* ---------------------------- dialog control -------------------------- */
+/* ----------------------------- the controls --------------------------- */
 
 /** Signing in, or creating an account. */
 let creating = false;
 
-export function openAccount(){
-  const box = $("#acctModal");
-  if (!box) return;
-  box.hidden = false;
-  $("#acctErr").hidden = true;
-  $("#acctEmail")?.focus();
+/**
+ * Where to send someone who needs to sign in.
+ *
+ * Their current page is carried along, so tapping a heart on the
+ * products page and signing in puts them back among the products rather
+ * than somewhere they did not ask to be.
+ */
+export function goToSignIn(){
+  const back = location.pathname.split("/").pop() || "index.html";
+  location.href = `signin.html?from=${encodeURIComponent(back)}`;
 }
 
-export const closeAccount = () => { const b = $("#acctModal"); if (b) b.hidden = true; };
-
-/** Swap the dialog between signing in and signing up. */
+/** Swap the form between signing in and signing up. */
 function setMode(create){
   creating = create;
   const T = t();
@@ -135,8 +139,8 @@ function setMode(create){
 }
 
 /**
- * Wire the dialog up. Bound once — the dialog is static markup, unlike
- * the cards, so it survives a re-render.
+ * Wire the form up. Bound once per render, guarded by a flag on the form
+ * itself, since render() replaces it whenever the language changes.
  */
 export function initAccount(){
   const form = $("#acctForm");
@@ -186,6 +190,10 @@ export function initAccount(){
       return;
     }
 
-    closeAccount();
+    /* Back where they came from, or the favourites they were heading
+       for. A page that simply went blank on success would leave them
+       wondering whether it had worked. */
+    const from = new URLSearchParams(location.search).get("from");
+    location.href = from && /^[\w.-]+\.html$/.test(from) ? from : "favourites.html";
   });
 }
