@@ -466,8 +466,13 @@ function updateSaleHint(){
 on("#fP", "input", updateSaleHint);
 on("#fWas", "input", updateSaleHint);
 
+/* Same guard as the deals form: saving is asynchronous, so without it a
+   double-click adds the product twice. */
+let savingProduct = false;
+
 on("#form", "submit", async e => {
   e.preventDefault();
+  if (savingProduct) return;
 
   const now = +$("#fP").value;
   const was = +$("#fWas").value || 0;
@@ -476,6 +481,14 @@ on("#form", "submit", async e => {
     toast("The old price must be higher than the price now.", true);
     return;
   }
+
+  savingProduct = true;
+  const saveBtn = $("#saveBtn");
+  if (saveBtn) saveBtn.disabled = true;
+  const releaseProduct = () => {
+    savingProduct = false;
+    if (saveBtn) saveBtn.disabled = false;
+  };
 
   const product = {
     en: $("#fEn").value.trim(),
@@ -511,6 +524,8 @@ on("#form", "submit", async e => {
       await reload();
     } catch (err){
       toast(err.message || "Could not save. Please try again.", true);
+    } finally {
+      releaseProduct();
     }
     return;
   }
@@ -534,6 +549,7 @@ on("#form", "submit", async e => {
   } else {
     toast("Could not save — please use a smaller photo.", true);
   }
+  releaseProduct();
 });
 
 /* ---------------------------- category form --------------------------- */
@@ -574,72 +590,86 @@ function openCatForm(id){
 
 on("#addCatBtn", "click", () => openCatForm());
 
+let savingCat = false;
+
 on("#catForm", "submit", async e => {
   e.preventDefault();
+  if (savingCat) return;
+  savingCat = true;
+  const catBtn = $("#catSave");
+  if (catBtn) catBtn.disabled = true;
+  const releaseCat = () => {
+    savingCat = false;
+    if (catBtn) catBtn.disabled = false;
+  };
 
-  const en = $("#cEn").value.trim();
+  try {
+    const en = $("#cEn").value.trim();
 
-  /* ---- editing an existing category ---- */
-  if (editingCat){
-    const patch = {
-      en,
-      bn:  $("#cBn").value.trim(),
-      ja:  $("#cJa").value.trim(),
-      img: $("#cImg").value.trim() || "/images/placeholder.svg"
-    };
+    /* ---- editing an existing category ---- */
+    if (editingCat){
+      const patch = {
+        en,
+        bn:  $("#cBn").value.trim(),
+        ja:  $("#cJa").value.trim(),
+        img: $("#cImg").value.trim() || "/images/placeholder.svg"
+      };
 
-    if (usingSupabase()){
-      const { error } = await api.updateCategory(editingCat, patch);
-      if (error) return toast(error.message, true);
+      if (usingSupabase()){
+        const { error } = await api.updateCategory(editingCat, patch);
+        if (error) return toast(error.message, true);
+        $("#catModal").hidden = true;
+        setCatPhoto("");
+        editingCat = null;
+        toast("Category updated — live for everyone.");
+        return reload();
+      }
+
+      const cat = catalog.find(c => c.id === editingCat);
+      if (cat) Object.assign(cat, patch);
+      store.save(catalog);
       $("#catModal").hidden = true;
       setCatPhoto("");
       editingCat = null;
-      toast("Category updated — live for everyone.");
+      toast("Category updated.");
+      renderAll();
+      return;
+    }
+
+    // Build a safe id from the English name so the owner never sees one.
+    let id = en.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    if (!id) id = "category";
+    let n = 2, base = id;
+    while (catalog.some(c => c.id === id)) id = `${base}-${n++}`;
+
+    const cat = {
+      id,
+      icon: "",
+      img:  $("#cImg").value.trim() || "/images/placeholder.svg",
+      en,
+      bn: $("#cBn").value.trim(),
+      ja: $("#cJa").value.trim()
+    };
+
+    if (usingSupabase()){
+      const { error } = await api.insertCategory(cat, catalog.length);
+      if (error) return toast(error.message, true);
+      $("#catModal").hidden = true;
+      $("#catForm").reset();
+      setCatPhoto("");
+      toast(`“${en}” added — live for everyone.`);
       return reload();
     }
 
-    const cat = catalog.find(c => c.id === editingCat);
-    if (cat) Object.assign(cat, patch);
+    store.addCategory(catalog, cat);
     store.save(catalog);
     $("#catModal").hidden = true;
-    setCatPhoto("");
-    editingCat = null;
-    toast("Category updated.");
-    renderAll();
-    return;
-  }
-
-  // Build a safe id from the English name so the owner never sees one.
-  let id = en.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-  if (!id) id = "category";
-  let n = 2, base = id;
-  while (catalog.some(c => c.id === id)) id = `${base}-${n++}`;
-
-  const cat = {
-    id,
-    icon: "",
-    img:  $("#cImg").value.trim() || "/images/placeholder.svg",
-    en,
-    bn: $("#cBn").value.trim(),
-    ja: $("#cJa").value.trim()
-  };
-
-  if (usingSupabase()){
-    const { error } = await api.insertCategory(cat, catalog.length);
-    if (error) return toast(error.message, true);
-    $("#catModal").hidden = true;
     $("#catForm").reset();
-    setCatPhoto("");
-    toast(`“${en}” added — live for everyone.`);
-    return reload();
+    toast(`“${en}” category added.`);
+    renderAll();
+  } finally {
+    releaseCat();
   }
-
-  store.addCategory(catalog, cat);
-  store.save(catalog);
-  $("#catModal").hidden = true;
-  $("#catForm").reset();
-  toast(`“${en}” category added.`);
-  renderAll();
 });
 
 /* ------------------------------- actions ------------------------------ */
@@ -844,8 +874,18 @@ function updateDealHint(){
 on("#dP", "input", updateDealHint);
 on("#dWas", "input", updateDealHint);
 
+/* One save at a time.
+ *
+ * Saving is asynchronous and the duplicate check reads `deals`, which is
+ * only refreshed once the save has finished. A double-click therefore ran
+ * the check twice against the same stale list, both passed, and both
+ * inserted — nine clicks put nine copies of one product in the strip.
+ * The button is held from the first submit until the reload lands. */
+let savingDeal = false;
+
 on("#dealForm", "submit", async e => {
   e.preventDefault();
+  if (savingDeal) return;
 
   const now  = +$("#dP").value;
   const was  = +$("#dWas").value || 0;
@@ -856,6 +896,14 @@ on("#dealForm", "submit", async e => {
     return;
   }
 
+  savingDeal = true;
+  const dealBtn = $("#dealSave");
+  if (dealBtn) dealBtn.disabled = true;
+  const releaseDeal = () => {
+    savingDeal = false;
+    if (dealBtn) dealBtn.disabled = false;
+  };
+
   if (usingSupabase()){
     try {
       if (editingDeal !== null){
@@ -864,12 +912,18 @@ on("#dealForm", "submit", async e => {
         if (error) throw error;
       } else {
         const v = $("#dPick").value;
-        if (!v) return toast("Please choose a product first.", true);
+        if (!v){ toast("Please choose a product first.", true); return; }
         const [catId, i] = v.split(":");
         const prod = catalog.find(c => c.id === catId)?.items[+i];
         if (!prod) return;
-        if (deals.some(d => d.en === prod.en && d.w === prod.w))
-          return toast("That product is already in your deals.", true);
+
+        /* Asked of the database rather than of the copy in the page: the
+           copy is only as fresh as the last reload, and a deal added from
+           the owner's phone a moment ago would not be in it. */
+        if (await api.dealExists(prod.en, prod.w)){
+          toast("That product is already in your deals.", true);
+          return;
+        }
 
         // A new offer is the news: it belongs at the front of the strip,
         // not behind everything added before it.
@@ -883,6 +937,8 @@ on("#dealForm", "submit", async e => {
       await reload();
     } catch (err){
       toast(err.message || "Could not save the deal.", true);
+    } finally {
+      releaseDeal();
     }
     return;
   }
@@ -891,14 +947,15 @@ on("#dealForm", "submit", async e => {
     deals[editingDeal] = { ...deals[editingDeal], p: now, was, type };
   } else {
     const v = $("#dPick").value;
-    if (!v){ toast("Please choose a product first.", true); return; }
+    if (!v){ toast("Please choose a product first.", true); releaseDeal(); return; }
 
     const [catId, i] = v.split(":");
     const p = catalog.find(c => c.id === catId)?.items[+i];
-    if (!p) return;
+    if (!p){ releaseDeal(); return; }
 
     if (deals.some(d => d.en === p.en && d.w === p.w)){
       toast("That product is already in your deals.", true);
+      releaseDeal();
       return;
     }
 
@@ -909,6 +966,7 @@ on("#dealForm", "submit", async e => {
   toast(editingDeal !== null ? "Deal updated." : "Added to your homepage deals.");
   closeDealForm();
   renderAll();
+  releaseDeal();
 });
 
 /* --------------------------- deal actions ---------------------------- */

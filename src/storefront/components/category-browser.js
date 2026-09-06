@@ -72,7 +72,7 @@ export function categorySidebarHTML(){
  * but all of them visible without scrolling, which is the point of having
  * them there at all.
  */
-export function columnsFor(count, max = 4){
+export function columnsFor(count, max = 6){
   if (count <= max) return count;
 
   let best = null;

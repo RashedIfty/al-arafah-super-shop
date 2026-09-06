@@ -18,7 +18,7 @@
   overflow:hidden;
 }
 .cat-side h3{
-  font-size:15px;padding:0 16px 11px;
+  font-size:13.5px;padding:0 13px 9px;
   border-bottom:1px solid var(--line);margin-bottom:5px;
   flex-shrink:0;
 }
@@ -29,7 +29,7 @@
 .cat-side{overflow:hidden}
 .cat-side-scroll{overflow-y:auto;min-height:0;flex:1;scrollbar-width:thin}
 .cat-side a{
-  display:flex;align-items:center;gap:10px;padding:7px 16px;
+  display:flex;align-items:center;gap:9px;padding:5px 13px;
   transition:.15s var(--ease);
 }
 
@@ -43,11 +43,11 @@
 .hero-side .cat-side-more{margin-top:6px;padding-top:8px;font-size:11px}
 .cat-side a:hover{background:var(--red-l)}
 .cat-side img{
-  width:36px;height:36px;border-radius:7px;object-fit:contain;background:#fff;flex-shrink:0;
+  width:28px;height:28px;border-radius:6px;object-fit:contain;flex-shrink:0;
   border:1px solid var(--line);background:var(--bg);
 }
 .cat-side span{
-  flex:1;min-width:0;font-size:13.5px;color:var(--ink);font-weight:600;
+  flex:1;min-width:0;font-size:12.5px;color:var(--ink);font-weight:600;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .cat-side a:hover span{color:var(--red)}
@@ -94,11 +94,11 @@
 .cat-tile:hover{transform:translateY(-3px)}
 
 .cat-tile b{
-  display:block;font-size:13.5px;color:var(--ink);
-  font-weight:700;line-height:1.3;
+  display:block;font-size:12.5px;color:var(--ink);
+  font-weight:700;line-height:1.28;
 }
 .cat-tile:hover b{color:var(--red)}
-.cat-tile span{font-size:11.5px;color:var(--mute)}
+.cat-tile span{font-size:10.5px;color:var(--mute)}
 
 /* ------------------------------ shelves ------------------------------- */
 /* Countrywise, New and Popular are ways of looking across the shop rather
@@ -196,16 +196,16 @@
 @media(min-width:600px){
   .cat-tiles:not(.shelf-tiles){grid-template-columns:repeat(min(3,var(--cols,3)),1fr)}
   .cat-tiles{gap:16px}
-  .cat-tile b{font-size:14px}
+  .cat-tile b{font-size:13px}
   .shelf-tiles{--gap:16px}
 }
 
 @media(min-width:1000px){
   /* Sidebar on the left, tiles filling the rest — the reference layout */
-  .cat-browse{grid-template-columns:262px 1fr;gap:24px}
-  .cat-tiles:not(.shelf-tiles){grid-template-columns:repeat(var(--cols,4),1fr)}
-  .cat-tiles{gap:18px}
-  .shelf-tiles{--gap:18px}
+  .cat-browse{grid-template-columns:216px 1fr;gap:18px}
+  .cat-tiles:not(.shelf-tiles){grid-template-columns:repeat(var(--cols,6),1fr)}
+  .cat-tiles{gap:14px}
+  .shelf-tiles{--gap:14px}
 }
 
 @media print{ .cat-side{display:none} }

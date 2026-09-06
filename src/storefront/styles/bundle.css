@@ -714,10 +714,10 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   content:"";position:absolute;right:-80px;top:-80px;width:250px;height:250px;
   border-radius:50%;background:rgba(240,165,0,.10);pointer-events:none;
 }
-.ann-in{padding:20px 18px 24px;position:relative;z-index:2}
+.ann-in{padding:14px 16px 16px;position:relative;z-index:2}
 
 /* ------------------------------- heading ------------------------------ */
-.ann-head{display:flex;align-items:center;gap:11px;margin-bottom:16px}
+.ann-head{display:flex;align-items:center;gap:10px;margin-bottom:11px}
 .ann-star{
   color:var(--gold);font-size:20px;flex-shrink:0;
   animation:annPulse 2.4s ease-in-out infinite;
@@ -772,7 +772,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 
 /* dots */
 .ann-dots{
-  display:flex;justify-content:center;gap:7px;margin-top:14px;
+  display:flex;justify-content:center;gap:6px;margin-top:9px;
 }
 .ann-dots:empty{display:none}
 .ann-dot{
@@ -815,11 +815,11 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .ann-item.deal:hover{box-shadow:0 12px 28px rgba(0,0,0,.32),0 0 0 2px var(--gold)}
 
 /* big image — the highlight */
-/* Wider than tall. A square photo made each card nearly 400px, which put
-   the categories below a second screenful; 4:3 shows the same product in
-   two thirds of the height. */
+/* 5:4 rather than 4:3. Most of these are packets photographed upright,
+   and in a wide box `contain` left a band of white down each side; a
+   squarer box gives the picture more of the card. */
 .ann-img{
-  position:relative;aspect-ratio:4/3;background:#fff;overflow:hidden;
+  position:relative;aspect-ratio:5/4;background:#fff;overflow:hidden;
 }
 .ann-img img{
   width:100%;height:100%;object-fit:contain;display:block;
@@ -845,19 +845,19 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 
 /* text below the photo */
-.ann-tx{padding:14px 15px 16px;display:flex;flex-direction:column;flex:1}
+.ann-tx{padding:9px 11px 11px;display:flex;flex-direction:column;flex:1}
 .ann-tx b{
-  display:block;color:var(--ink);font-size:15px;font-weight:700;
-  line-height:1.3;margin-bottom:3px;
+  display:block;color:var(--ink);font-size:13.5px;font-weight:700;
+  line-height:1.28;margin-bottom:2px;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-  overflow:hidden;min-height:39px;
+  overflow:hidden;min-height:35px;
 }
 .ann-w{
-  font-size:12px;color:var(--mute);font-weight:600;margin-bottom:7px;
+  font-size:11px;color:var(--mute);font-weight:600;margin-bottom:5px;
 }
 .ann-price{margin-top:auto;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
 .ann-price .now{
-  color:var(--red);font-size:21px;font-weight:900;letter-spacing:-.5px;
+  color:var(--red);font-size:18px;font-weight:900;letter-spacing:-.5px;
 }
 .ann-price .was{
   font-size:13px;color:var(--mute);text-decoration:line-through;
@@ -877,7 +877,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 
 @media(min-width:600px){
-  .ann-in{padding:22px 22px 26px}
+  .ann-in{padding:16px 18px 18px}
   .ann-item{width:240px}
   .ann-head h2{font-size:21px}
 }
@@ -944,9 +944,11 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   margin-left:auto;font-size:11.5px;color:var(--mute);
   font-weight:700;white-space:nowrap;
 }
-.sec-title{text-align:center;margin-bottom:20px}
-.sec-title h2{font-size:22px}
-.sec-title p{font-size:14px;margin-top:5px}
+/* Tighter: the homepage carries the shop, the deals and every category
+   near the top, and each heading was taking a band of its own. */
+.sec-title{text-align:center;margin-bottom:13px}
+.sec-title h2{font-size:19px}
+.sec-title p{font-size:12.5px;margin-top:3px}
 
 /* ===== components/category-browser.css ===== */
 /* Category browser — sidebar list + photo tile grid */
@@ -969,7 +971,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   overflow:hidden;
 }
 .cat-side h3{
-  font-size:15px;padding:0 16px 11px;
+  font-size:13.5px;padding:0 13px 9px;
   border-bottom:1px solid var(--line);margin-bottom:5px;
   flex-shrink:0;
 }
@@ -980,7 +982,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .cat-side{overflow:hidden}
 .cat-side-scroll{overflow-y:auto;min-height:0;flex:1;scrollbar-width:thin}
 .cat-side a{
-  display:flex;align-items:center;gap:10px;padding:7px 16px;
+  display:flex;align-items:center;gap:9px;padding:5px 13px;
   transition:.15s var(--ease);
 }
 
@@ -994,11 +996,11 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .hero-side .cat-side-more{margin-top:6px;padding-top:8px;font-size:11px}
 .cat-side a:hover{background:var(--red-l)}
 .cat-side img{
-  width:36px;height:36px;border-radius:7px;object-fit:contain;background:#fff;flex-shrink:0;
+  width:28px;height:28px;border-radius:6px;object-fit:contain;flex-shrink:0;
   border:1px solid var(--line);background:var(--bg);
 }
 .cat-side span{
-  flex:1;min-width:0;font-size:13.5px;color:var(--ink);font-weight:600;
+  flex:1;min-width:0;font-size:12.5px;color:var(--ink);font-weight:600;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .cat-side a:hover span{color:var(--red)}
@@ -1045,11 +1047,11 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .cat-tile:hover{transform:translateY(-3px)}
 
 .cat-tile b{
-  display:block;font-size:13.5px;color:var(--ink);
-  font-weight:700;line-height:1.3;
+  display:block;font-size:12.5px;color:var(--ink);
+  font-weight:700;line-height:1.28;
 }
 .cat-tile:hover b{color:var(--red)}
-.cat-tile span{font-size:11.5px;color:var(--mute)}
+.cat-tile span{font-size:10.5px;color:var(--mute)}
 
 /* ------------------------------ shelves ------------------------------- */
 /* Countrywise, New and Popular are ways of looking across the shop rather
@@ -1147,16 +1149,16 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 @media(min-width:600px){
   .cat-tiles:not(.shelf-tiles){grid-template-columns:repeat(min(3,var(--cols,3)),1fr)}
   .cat-tiles{gap:16px}
-  .cat-tile b{font-size:14px}
+  .cat-tile b{font-size:13px}
   .shelf-tiles{--gap:16px}
 }
 
 @media(min-width:1000px){
   /* Sidebar on the left, tiles filling the rest — the reference layout */
-  .cat-browse{grid-template-columns:262px 1fr;gap:24px}
-  .cat-tiles:not(.shelf-tiles){grid-template-columns:repeat(var(--cols,4),1fr)}
-  .cat-tiles{gap:18px}
-  .shelf-tiles{--gap:18px}
+  .cat-browse{grid-template-columns:216px 1fr;gap:18px}
+  .cat-tiles:not(.shelf-tiles){grid-template-columns:repeat(var(--cols,6),1fr)}
+  .cat-tiles{gap:14px}
+  .shelf-tiles{--gap:14px}
 }
 
 @media print{ .cat-side{display:none} }
@@ -1818,8 +1820,8 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   .feats-in{grid-template-columns:repeat(4,1fr)}
   .chips-in{grid-template-columns:repeat(4,1fr)}
   .grid{grid-template-columns:repeat(3,1fr);gap:16px}
-  .sec-head h2{font-size:22px}
-  .sec-title h2{font-size:26px}
+  .sec-head h2{font-size:19px}
+  .sec-title h2{font-size:21px}
   .promos{grid-template-columns:1fr 1fr}
   .band-in{grid-template-columns:1.4fr 1fr;align-items:start}
   .foot-g{grid-template-columns:1.8fr 1fr 1fr}
@@ -1836,7 +1838,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   .hero h1{font-size:30px}
   .chips-in{grid-template-columns:repeat(6,1fr)}
   .grid{grid-template-columns:repeat(5,1fr);gap:18px}
-  .sec{padding-top:34px}
+  .sec{padding-top:24px}
   .promo h3{font-size:24px}
   .foot-g{grid-template-columns:1.9fr 1fr 1fr 1fr}
   .top-btn{right:24px;bottom:24px;width:50px;height:50px}

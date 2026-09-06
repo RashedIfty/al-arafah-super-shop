@@ -13,8 +13,8 @@
   .feats-in{grid-template-columns:repeat(4,1fr)}
   .chips-in{grid-template-columns:repeat(4,1fr)}
   .grid{grid-template-columns:repeat(3,1fr);gap:16px}
-  .sec-head h2{font-size:22px}
-  .sec-title h2{font-size:26px}
+  .sec-head h2{font-size:19px}
+  .sec-title h2{font-size:21px}
   .promos{grid-template-columns:1fr 1fr}
   .band-in{grid-template-columns:1.4fr 1fr;align-items:start}
   .foot-g{grid-template-columns:1.8fr 1fr 1fr}
@@ -31,7 +31,7 @@
   .hero h1{font-size:30px}
   .chips-in{grid-template-columns:repeat(6,1fr)}
   .grid{grid-template-columns:repeat(5,1fr);gap:18px}
-  .sec{padding-top:34px}
+  .sec{padding-top:24px}
   .promo h3{font-size:24px}
   .foot-g{grid-template-columns:1.9fr 1fr 1fr 1fr}
   .top-btn{right:24px;bottom:24px;width:50px;height:50px}
