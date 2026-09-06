@@ -57,9 +57,8 @@
 }
 
 /* ------------------------------- tiles -------------------------------- */
-/* --cols is set per render so rows stay balanced: nine categories are
-   5-4, eight are 4-4, never a lone tile on the last row. Narrow screens
-   override it, since balance matters less than fitting. */
+/* As many tiles as fit at the minimum width, rather than a fixed count
+   per row: the shop should show as much of itself as the screen allows. */
 .cat-tiles{
   display:grid;gap:14px;
   grid-template-columns:repeat(2,1fr);
@@ -77,7 +76,7 @@
  */
 .cat-tile-img{
   border:1px solid var(--line);border-radius:var(--radius);
-  overflow:hidden;background:#fff;margin-bottom:9px;
+  overflow:hidden;background:#fff;margin-bottom:6px;
   aspect-ratio:4/3;transition:.2s var(--ease);
 }
 /* `contain`, never `cover`: a category picture has its subject arranged
@@ -94,11 +93,11 @@
 .cat-tile:hover{transform:translateY(-3px)}
 
 .cat-tile b{
-  display:block;font-size:12.5px;color:var(--ink);
-  font-weight:700;line-height:1.28;
+  display:block;font-size:11.5px;color:var(--ink);
+  font-weight:700;line-height:1.25;
 }
 .cat-tile:hover b{color:var(--red)}
-.cat-tile span{font-size:10.5px;color:var(--mute)}
+.cat-tile span{font-size:9.5px;color:var(--mute)}
 
 /* ------------------------------ shelves ------------------------------- */
 /* Countrywise, New and Popular are ways of looking across the shop rather
@@ -111,7 +110,7 @@
 
 .shelf-rule{
   display:flex;align-items:center;gap:12px;
-  margin:26px 0 16px;
+  margin:18px 0 12px;
 }
 .shelf-rule::before,
 .shelf-rule::after{
@@ -142,18 +141,15 @@
    with three made them half again as large as everything above, which
    read as a banner rather than as part of the same set.
 
-   Three category-sized tracks, centred in the row. --catcols comes from
-   the render, so this follows however the categories are arranged. */
+   Three tracks at the categories' own minimum width, centred in the
+   row. */
 .shelf-tiles{
   --gap:14px;
-  /* One track the size of a category tile: the row divided the way the
-     categories above divide it. Written out rather than left to 1fr,
-     because the grid below is narrower than the row and a fraction of it
-     would come out smaller. */
-  --track:var(--catcols,2);
-  --tile:calc((100% - (var(--track) - 1) * var(--gap)) / var(--track));
+  /* The same minimum width the categories use, so a shelf tile always
+     matches them however many columns the row happens to take. Capped at
+     three tracks, since there are only ever three shelves. */
   gap:var(--gap);
-  grid-template-columns:repeat(var(--cols,3),var(--tile));
+  grid-template-columns:repeat(3,minmax(0,118px));
   justify-content:center;
 }
 
@@ -161,9 +157,7 @@
 /* Below 1000px the categories cap at three columns whatever --catcols
    says, so the shelves take three too — the row is exactly full, and
    there is nothing to centre. */
-@media(max-width:999px){
-  .shelf-tiles{--track:3}
-}
+
 
 /* Two across on a phone, matching the categories, where three would leave
    the names too narrow to read. --catcols still carries the desktop count,
@@ -174,9 +168,9 @@
      track width it would have had — spanning the row and halving itself
      would fight the fixed track and overflow — and centres in the row it
      has to itself. */
-  .shelf-tiles{grid-template-columns:repeat(2,var(--tile));--track:2}
+  .shelf-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
   .shelf-tiles > .cat-tile:last-child:nth-child(odd){
-    grid-column:1/-1;justify-self:center;width:var(--tile);
+    grid-column:1/-1;justify-self:center;width:calc(50% - var(--gap)/2);
   }
 }
 
@@ -196,16 +190,22 @@
 @media(min-width:600px){
   .cat-tiles:not(.shelf-tiles){grid-template-columns:repeat(min(3,var(--cols,3)),1fr)}
   .cat-tiles{gap:16px}
-  .cat-tile b{font-size:13px}
+  .cat-tile b{font-size:12px}
   .shelf-tiles{--gap:16px}
 }
 
 @media(min-width:1000px){
   /* Sidebar on the left, tiles filling the rest — the reference layout */
   .cat-browse{grid-template-columns:216px 1fr;gap:18px}
-  .cat-tiles:not(.shelf-tiles){grid-template-columns:repeat(var(--cols,6),1fr)}
-  .cat-tiles{gap:14px}
-  .shelf-tiles{--gap:14px}
+  /* As many tiles as fit at about 150px, rather than a fixed count. The
+     balanced-rows calculation kept choosing six for twelve categories —
+     two even rows, but tiles half again as large as they need to be. A
+     minimum width lets the row take as many as the page can hold. */
+  .cat-tiles:not(.shelf-tiles){
+    grid-template-columns:repeat(auto-fill,minmax(118px,1fr));
+  }
+  .cat-tiles{gap:9px}
+  .shelf-tiles{--gap:9px}
 }
 
 @media print{ .cat-side{display:none} }

@@ -100,7 +100,7 @@ function render(){
      The homepage splits them — the list sits beside the shop photo at the
      top, and the tiles run the full width lower down, which gives the
      tiles the whole page rather than three quarters of it. */
-  if ($("#catBrowse")) put("#catBrowse", categoryBrowserHTML(6));
+  if ($("#catBrowse")) put("#catBrowse", categoryBrowserHTML(7));
   if ($("#catSide"))   put("#catSide", categorySidebarHTML());
   if ($("#catTiles"))  put("#catTiles", categoryTilesHTML(7));
   if ($("#catalog")) put("#catalog", catalogHTML());
