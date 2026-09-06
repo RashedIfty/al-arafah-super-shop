@@ -6,6 +6,7 @@ import { t, getLang, LANGS, itemCount } from "../../features/i18n/lang.js";
 import { yen, discount } from "../../shared/lib/format.js";
 import { SHOP } from "../../shared/shop.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
+import { isSaved } from "../../features/favourites/favourites.js";
 
 /**
  * Categories a customer can actually walk into, each keeping the position
@@ -29,6 +30,17 @@ export function cardHTML(product, category, ci = 0, pi = 0){
   const img = product.img || SHOP.placeholder;
 
   const badges = off ? `<span class="badge badge-off">-${off}% ${esc(T.off)}</span>` : "";
+
+  /* The heart sits on the photograph, opposite the discount badge. Shown
+     to everyone: a customer who is not signed in should be able to see
+     what the button does before being asked to sign in for it. */
+  const fav = product._id ? `
+    <button class="fav${isSaved(product._id) ? " on" : ""}"
+            data-fav="${esc(product._id)}"
+            aria-pressed="${isSaved(product._id)}"
+            aria-label="${esc(T.fav_save)}" title="${esc(T.fav_save)}">
+      <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M12 21s-7.5-4.7-9.6-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.6 12c-2.1 4.3-9.6 9-9.6 9z"/></svg>
+    </button>` : "";
 
   /* Stock sits on the line with the weight rather than as a corner badge:
      it is a fact about the product, read alongside its size and price,
@@ -54,6 +66,7 @@ export function cardHTML(product, category, ci = 0, pi = 0){
            data-name="${esc(product[lang].toLowerCase())}"
            data-key="${esc(product.en.toLowerCase())}">
     <div class="card-img">
+      ${fav}
       <div class="badges">${badges}</div>
       <img src="${esc(img)}" alt="${esc(product[lang])}"
            loading="lazy" width="600" height="600" ${IMG_FALLBACK}>

@@ -20,6 +20,9 @@ import { categoryBrowserHTML, categorySidebarHTML, categoryTilesHTML }
   from "./components/category-browser.js";
 import { countriesHTML, initCountries } from "./components/countries.js";
 import { shelfHTML } from "./components/shelf.js";
+import { favouritesHTML } from "./components/favourites.js";
+import { refreshFavourites, onFavouritesChange, toggleFavourite, signIn, signOut, isSignedIn }
+  from "../features/favourites/favourites.js";
 import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
 import { CATALOG, refreshCatalog } from "../features/catalog/catalog.js";
 import { ANNOUNCEMENTS, refreshDeals } from "../features/deals/deals.js";
@@ -108,6 +111,7 @@ function render(){
   if ($("#filterMount")) put("#filterMount", filtersHTML());
   if ($("#countryMount")) put("#countryMount", countriesHTML());
   if ($("#shelfMount")) put("#shelfMount", shelfHTML());
+  if ($("#favMount")) put("#favMount", favouritesHTML());
 
   applyTranslations();
   renderStats();
@@ -229,6 +233,44 @@ initLang();
 /* A script error must never leave the shop hidden behind the splash. */
 window.addEventListener("error", reveal);
 window.addEventListener("unhandledrejection", reveal);
+/* ---------------------------- favourites ----------------------------- */
+
+/**
+ * The heart, and the sign-in button.
+ *
+ * Delegated from the document because render() replaces the cards
+ * wholesale — a listener bound to a card would be thrown away on the
+ * next repaint.
+ *
+ * Bound in the capture phase, which is what stops the card underneath
+ * opening the lightbox: the lightbox listens on document too and was
+ * registered first, so a bubble-phase stopPropagation here would come
+ * too late to prevent it.
+ */
+document.addEventListener("click", async e => {
+  const heart = e.target.closest("[data-fav]");
+  if (heart){
+    /* The card underneath opens the lightbox; the heart must not. */
+    e.preventDefault();
+    e.stopPropagation();
+
+    const r = await toggleFavourite(heart.dataset.fav);
+    if (r?.needsSignIn) await signIn();
+    return;
+  }
+
+  if (e.target.closest("[data-signin]")){ await signIn(); return; }
+  if (e.target.closest("[data-signout]")){ await signOut(); return; }
+}, true);
+
+/* Repaint when the list or the session changes, so a heart clicked on a
+   card also turns the header count over. */
+onFavouritesChange(render);
+
+/* Who is signed in, and what have they saved. Runs after the first paint
+   rather than blocking it: the shop is worth showing before we know. */
+refreshFavourites();
+
 initBackToTop();               // outside render — the button is static markup
 
 /* Map a clicked card back to its data object. */

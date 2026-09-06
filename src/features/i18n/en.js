@@ -72,5 +72,12 @@ export default {
     sort_hi:"Price: High to Low", sort_az:"Name: A–Z",
     showing:"showing", new:"NEW", out:"SOLD OUT", off:"OFF",
     in_stock:"IN STOCK", out_stock:"STOCK OUT",
+    fav_save:"Save to favourites", fav_title:"My Favourites",
+    fav_sub:"The products you have saved", fav_nav:"Favourites",
+    fav_none:"Nothing saved yet",
+    fav_none_s:"Tap the heart on any product and it will appear here.",
+    fav_signin:"Sign in with Google", fav_signout:"Sign out",
+    fav_why:"Sign in to save the products you buy often.",
+    fav_hi:"Hello, {n}",
     days:["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
 };

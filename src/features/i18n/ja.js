@@ -72,5 +72,12 @@ export default {
     sort_hi:"価格の高い順", sort_az:"名前順",
     showing:"表示中", new:"新商品", out:"売切", off:"OFF",
     in_stock:"在庫あり", out_stock:"在庫切れ",
+    fav_save:"お気に入りに保存", fav_title:"お気に入り",
+    fav_sub:"保存した商品", fav_nav:"お気に入り",
+    fav_none:"まだ保存された商品はありません",
+    fav_none_s:"商品のハートを押すと、ここに表示されます。",
+    fav_signin:"Googleでサインイン", fav_signout:"サインアウト",
+    fav_why:"よく買う商品を保存するにはサインインしてください。",
+    fav_hi:"こんにちは、{n}さん",
     days:["月曜日","火曜日","水曜日","木曜日","金曜日","土曜日","日曜日"]
 };

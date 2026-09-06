@@ -1,0 +1,78 @@
+/* Favourites — the heart, the account button, and the saved list */
+
+/* ------------------------- the heart on a card ------------------------ */
+/* Opposite the discount badge, so the two never meet. Outlined until it
+   is saved, then filled: the difference has to read at a glance and from
+   the corner of the eye. */
+.fav{
+  position:absolute;top:7px;left:7px;z-index:3;
+  width:29px;height:29px;border-radius:50%;
+  display:grid;place-items:center;cursor:pointer;
+  border:1px solid rgba(0,0,0,.09);
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  color:var(--mute);padding:0;
+  transition:.16s var(--ease);
+}
+.fav svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+.fav:hover{color:var(--red);border-color:var(--red);transform:scale(1.08)}
+.fav.on{color:var(--red);border-color:rgba(200,16,46,.35)}
+.fav.on svg{fill:currentColor;stroke:currentColor}
+.fav:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* A small bounce when it fills, so the tap is acknowledged even before
+   the network answers. */
+@keyframes favPop{50%{transform:scale(1.28)}}
+.fav.on svg{animation:favPop .28s var(--ease)}
+@media(prefers-reduced-motion:reduce){ .fav.on svg{animation:none} }
+
+/* ------------------------ the header account ------------------------- */
+.hdr-acct{
+  display:none;align-items:center;gap:7px;position:relative;
+  border:1px solid var(--line);border-radius:22px;
+  background:#fff;padding:5px 13px 5px 6px;cursor:pointer;
+  font-size:12.5px;font-weight:700;color:var(--ink);
+  transition:.16s var(--ease);
+}
+.hdr-acct:hover{border-color:var(--red);color:var(--red)}
+.hdr-acct-ic{
+  width:24px;height:24px;border-radius:50%;flex-shrink:0;
+  display:grid;place-items:center;overflow:hidden;
+  background:var(--bg);font-size:11px;font-weight:900;color:var(--body);
+}
+.hdr-acct-ic img{width:100%;height:100%;object-fit:cover}
+.hdr-acct.is-in .hdr-acct-ic{background:var(--red-l);color:var(--red)}
+
+/* How many are saved — the only visible sign anything was kept. */
+.hdr-acct-n{
+  font-style:normal;min-width:17px;height:17px;padding:0 5px;
+  border-radius:9px;background:var(--red);color:#fff;
+  font-size:10px;font-weight:900;display:grid;place-items:center;
+}
+
+@media(min-width:900px){ .hdr-acct{display:inline-flex} }
+
+/* --------------------------- the saved page --------------------------- */
+.fav-hi{
+  font-size:13.5px;color:var(--body);font-weight:600;
+  margin:0 0 14px;padding:0 2px;
+}
+
+/* Signed out, or signed in with nothing saved. Both say what to do next
+   rather than only what is missing. */
+.fav-empty{
+  text-align:center;max-width:420px;margin:26px auto 40px;
+  padding:30px 22px;
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--sh);
+}
+.fav-empty-ic{
+  display:grid;place-items:center;width:64px;height:64px;
+  margin:0 auto 14px;border-radius:50%;
+  background:var(--red-l);color:var(--red);
+}
+.fav-empty-ic svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.fav-empty b{display:block;font-size:18px;color:var(--ink);margin-bottom:6px}
+.fav-empty p{font-size:13.5px;color:var(--body);line-height:1.55;margin-bottom:18px}
+
+@media print{ .fav, .hdr-acct{display:none} }
