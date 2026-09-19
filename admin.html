@@ -181,6 +181,37 @@
         <b>Dispatch</b> when it leaves the shop, and <b>Delivered</b> once it has arrived.
       </div>
 
+      <div class="ord-filters">
+        <div class="ord-find">
+          <input type="search" id="ordSearch"
+                 placeholder="Find by order number, name or phone…">
+        </div>
+
+        <div class="ord-chips" id="ordWhen">
+          <button class="chip on" data-when="all">All</button>
+          <button class="chip" data-when="today">Today</button>
+          <button class="chip" data-when="yesterday">Yesterday</button>
+          <button class="chip" data-when="7">Last 7 days</button>
+          <button class="chip" data-when="30">Last 30 days</button>
+          <button class="chip" data-when="custom">Pick dates</button>
+        </div>
+
+        <div class="ord-dates" id="ordDates" hidden>
+          <label>From <input type="date" id="ordFrom"></label>
+          <label>To <input type="date" id="ordTo"></label>
+        </div>
+
+        <div class="ord-chips" id="ordWhat">
+          <button class="chip on" data-status="all">Any status</button>
+          <button class="chip" data-status="pending">Waiting</button>
+          <button class="chip" data-status="confirmed">Confirmed</button>
+          <button class="chip" data-status="dispatched">On its way</button>
+          <button class="chip" data-status="delivered">Delivered</button>
+          <button class="chip" data-status="rejected">Rejected</button>
+          <button class="chip" data-status="cancelled">Cancelled</button>
+        </div>
+      </div>
+
       <div id="ordList"></div>
     </section>
 

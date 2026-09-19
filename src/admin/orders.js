@@ -187,6 +187,87 @@ function orderRow(o){
     </div>`;
 }
 
+/* ------------------------------ filtering ----------------------------- */
+
+/**
+ * What the owner is looking at. Filtering happens here rather than in
+ * the database: a shop of this size will not have enough orders for a
+ * round trip to beat filtering in memory, and the list is already in
+ * hand for the realtime updates.
+ */
+let when = "all";       // all | today | yesterday | 7 | 30 | custom
+let what = "all";       // all, or one status
+let query = "";
+let from = "";          // ISO day, custom range only
+let to = "";
+
+/** Today in Tokyo, as a sortable "2026-09-19". */
+const todayJst = () => jstDay(new Date().toISOString());
+
+/** N days before today, in Tokyo. */
+function daysAgoJst(n){
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - n);
+  return jstDay(d.toISOString());
+}
+
+/**
+ * The window a chip means, as [firstDay, lastDay] inclusive, or null
+ * for no date limit. Compared as plain ISO strings, which sort
+ * correctly and sidestep every timezone trap a Date comparison invites.
+ */
+function windowFor(){
+  switch (when){
+    case "today":     return [todayJst(), todayJst()];
+    case "yesterday": return [daysAgoJst(1), daysAgoJst(1)];
+    case "7":         return [daysAgoJst(6), todayJst()];   // today counts as one
+    case "30":        return [daysAgoJst(29), todayJst()];
+    case "custom":
+      if (!from && !to) return null;
+      return [from || "0000-00-00", to || "9999-99-99"];
+    default: return null;
+  }
+}
+
+function visibleOrders(){
+  const win = windowFor();
+  const q = query.trim().toLowerCase();
+
+  return orders.filter(o => {
+    if (what !== "all" && o.status !== what) return false;
+
+    if (win){
+      const day = jstDay(o.placed_at);
+      if (day < win[0] || day > win[1]) return false;
+    }
+
+    if (q){
+      // Code, name and phone — the three things the owner has to hand
+      // when a customer rings.
+      const hay = [o.code, o.name, o.phone].join(" ").toLowerCase();
+      if (hay.includes(q)) return true;
+
+      /* A number typed the way Japan writes it, 080-3333-4444, must
+         find a number stored as digits, and the other way about. Only
+         worth trying when the search looks like a phone number at all,
+         or "1kg" would start matching order codes. */
+      let qDigits = q.replace(/\D/g, "");
+
+      // +81 80-3333-4444 is the same phone as 080-3333-4444 with the
+      // country code in front. Fold it back, the way checkout does.
+      if (qDigits.startsWith("81") && qDigits.length === 12)
+        qDigits = "0" + qDigits.slice(2);
+
+      if (qDigits.length >= 3 && /^[\d\s()+-]+$/.test(q))
+        return o.phone.replace(/\D/g, "").includes(qDigits);
+
+      return false;
+    }
+
+    return true;
+  });
+}
+
 /* ------------------------------ the list ------------------------------ */
 
 export function renderOrders(){
@@ -194,11 +275,16 @@ export function renderOrders(){
   const list = $("#ordList");
   if (!list) return;
 
+  const shown = visibleOrders();
+  const filtered = shown.length !== orders.length;
   const waiting = orders.filter(o => o.status === "pending").length;
+
   if (line){
     line.textContent = !orders.length
       ? "No orders yet."
-      : `${orders.length} order${orders.length === 1 ? "" : "s"}` +
+      : (filtered
+          ? `Showing ${shown.length} of ${orders.length} orders`
+          : `${orders.length} order${orders.length === 1 ? "" : "s"}`) +
         (waiting ? ` — ${waiting} waiting for you` : "");
   }
 
@@ -211,10 +297,22 @@ export function renderOrders(){
     return;
   }
 
+  /* Nothing matched is a different thing from nothing existing, and
+     needs a way back rather than an explanation. */
+  if (!shown.length){
+    list.innerHTML = `
+      <div class="none">
+        <b>Nothing matches</b>
+        <span>No order fits what you are looking for. Try a wider date range, or clear the search.</span>
+        <button class="act edit" id="ordClear" style="margin-top:12px">Show all orders</button>
+      </div>`;
+    return;
+  }
+
   /* Grouped by the day it was placed, Tokyo time. The list arrives
      newest first, so the days come out in order without sorting. */
   const days = [];
-  for (const o of orders){
+  for (const o of shown){
     const key = jstDay(o.placed_at);
     let g = days.find(d => d.key === key);
     if (!g) days.push(g = { key, rows: [] });
@@ -247,6 +345,8 @@ export function initOrders({ toast, ask, refresh }){
   $$(".tab").forEach(b => b.addEventListener("click", () => {
     if (b.dataset.tab === "orders") markSeen();
   }));
+
+  wireFilters();
 
   const alert = $("#ordAlert");
   $("#ordAlertX")?.addEventListener("click", () => { alert.hidden = true; });
@@ -306,6 +406,66 @@ export function initOrders({ toast, ask, refresh }){
     toast(`Order ${order.code} — ${LABEL[to].toLowerCase()}.`);
     renderOrders();
   }
+}
+
+/* --------------------------- the filter bar --------------------------- */
+
+/**
+ * Chips rather than dropdowns. The owner works on a phone behind a
+ * counter as often as at a desk, and a row of buttons is one tap where
+ * a select is three.
+ */
+function wireFilters(){
+  const search = $("#ordSearch");
+  if (search){
+    let t;
+    search.addEventListener("input", () => {
+      // Debounced: rebuilding the whole list on every keystroke makes
+      // typing stutter once there are a few hundred orders.
+      clearTimeout(t);
+      t = setTimeout(() => { query = search.value; renderOrders(); }, 140);
+    });
+  }
+
+  const pick = (wrap, attr, set) => {
+    $(wrap)?.addEventListener("click", e => {
+      const chip = e.target.closest(".chip");
+      if (!chip) return;
+      $$(`${wrap} .chip`).forEach(c => c.classList.toggle("on", c === chip));
+      set(chip.dataset[attr]);
+      renderOrders();
+    });
+  };
+
+  pick("#ordWhen", "when", v => {
+    when = v;
+    const box = $("#ordDates");
+    if (box) box.hidden = v !== "custom";
+  });
+
+  pick("#ordWhat", "status", v => { what = v; });
+
+  for (const id of ["#ordFrom", "#ordTo"]){
+    $(id)?.addEventListener("change", () => {
+      from = $("#ordFrom")?.value || "";
+      to   = $("#ordTo")?.value   || "";
+      renderOrders();
+    });
+  }
+
+  // "Show all orders", offered when a filter has hidden everything.
+  document.addEventListener("click", e => {
+    if (!e.target.closest("#ordClear")) return;
+    when = what = "all";
+    query = from = to = "";
+    if (search) search.value = "";
+    if ($("#ordFrom")) $("#ordFrom").value = "";
+    if ($("#ordTo")) $("#ordTo").value = "";
+    if ($("#ordDates")) $("#ordDates").hidden = true;
+    $$("#ordWhen .chip").forEach(c => c.classList.toggle("on", c.dataset.when === "all"));
+    $$("#ordWhat .chip").forEach(c => c.classList.toggle("on", c.dataset.status === "all"));
+    renderOrders();
+  });
 }
 
 /* ------------------------------ realtime ------------------------------ */
