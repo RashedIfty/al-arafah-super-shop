@@ -202,6 +202,11 @@ const card = (ic, title, line, action) => `
  * Bound once per render, guarded on the form itself — render() replaces
  * it whenever the language changes or the basket moves.
  */
+/* How checkout asks the page to repaint. main.js supplies render(); the
+   module cannot import it without the two files importing each other. */
+let onPlaced = null;
+export const setCheckoutRepaint = fn => { onPlaced = fn; };
+
 export function initCheckout(){
   const form = $("#chkForm");
   if (!form || form.dataset.bound) return;
@@ -272,8 +277,15 @@ export function initCheckout(){
 
     /* Held here rather than in a query string: the confirmation carries
        the whole order, and a page reload should not be able to conjure
-       one that was never placed. */
+       one that was never placed.
+
+       Set before repainting, not after. Emptying the basket already
+       told every listener to re-render, and that repaint happened while
+       this was still null — the customer watched their order turn into
+       "your basket is empty". The order is in the database either way;
+       what was lost was any sign of it. */
     placed = r.order;
+    onPlaced?.();
     window.scrollTo({ top: 0, behavior: "instant" });
   });
 }

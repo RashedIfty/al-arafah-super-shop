@@ -43,10 +43,42 @@ export const allOrders = () => orders;
 let audio = null;
 
 export function unlockAudio(){
-  if (audio) return;
+  if (audio){
+    // A context can be suspended again when the tab sleeps. Waking it
+    // on every click keeps it ready for the next order.
+    if (audio.state === "suspended") audio.resume().catch(() => {});
+    paintSound();
+    return;
+  }
   const Ctx = window.AudioContext || window.webkitAudioContext;
   if (!Ctx) return;
   try { audio = new Ctx(); } catch { /* no audio on this device */ }
+  paintSound();
+}
+
+/** True once the browser will actually let us make a noise. */
+export const soundReady = () => Boolean(audio) && audio.state === "running";
+
+/**
+ * Say whether the sound is armed.
+ *
+ * Silence is the one failure the owner cannot see. A panel that has
+ * been open all morning without a click will not chime, and without
+ * this he would only discover that by missing an order.
+ */
+function paintSound(){
+  const el = $("#ordSound");
+  if (!el) return;
+  const on = soundReady();
+  el.classList.toggle("off", !on);
+  el.textContent = on ? "🔔 Sound on" : "🔕 Click to turn sound on";
+}
+
+/** Play the alert on demand, so the owner can hear what it sounds like. */
+export function testChime(){
+  unlockAudio();
+  try { localStorage.removeItem("aa-order-chime"); } catch {}
+  chime();
 }
 
 /**
@@ -73,24 +105,51 @@ export function chime(){
   if (!audio || audio.state === "closed") return;
   if (!claimSound()) return;
 
-  // Resumes a context the browser suspended while the tab was hidden.
-  if (audio.state === "suspended") audio.resume().catch(() => {});
+  /* A suspended context — which is what a background tab gets — resumes
+     asynchronously. Scheduling the notes before it wakes puts them in
+     the past, and nothing is heard. Wait for the resume, then play. */
+  if (audio.state === "suspended"){
+    audio.resume().then(play).catch(() => {});
+    return;
+  }
+  play();
+}
 
+/**
+ * The alert itself: a rising three-note phrase, rung three times over
+ * about two and a half seconds.
+ *
+ * Loud and long on purpose. This has to carry to a shopkeeper who is
+ * serving somebody at the counter with the panel open on a tablet
+ * across the room, not politely notify a person staring at the screen.
+ */
+function play(){
   const t0 = audio.currentTime;
-  for (const [i, hz] of [880, 1320].entries()){
-    const osc = audio.createOscillator();
-    const amp = audio.createGain();
-    osc.type = "sine";
-    osc.frequency.value = hz;
+  const NOTES = [784, 988, 1319];   // G5, B5, E6 — carries over shop noise
+  const GAP = 0.13;                 // between notes
+  const RING = 0.62;                // between repeats
 
-    const at = t0 + i * 0.16;
-    amp.gain.setValueAtTime(0.0001, at);
-    amp.gain.exponentialRampToValueAtTime(0.18, at + 0.02);
-    amp.gain.exponentialRampToValueAtTime(0.0001, at + 0.34);
+  for (let rep = 0; rep < 3; rep++){
+    for (const [i, hz] of NOTES.entries()){
+      const at = t0 + rep * RING + i * GAP;
 
-    osc.connect(amp).connect(audio.destination);
-    osc.start(at);
-    osc.stop(at + 0.36);
+      /* Two oscillators an octave apart. A single sine is thin through
+         a laptop speaker; the octave gives it a body that cuts through. */
+      for (const [mult, level] of [[1, 0.5], [2, 0.22]]){
+        const osc = audio.createOscillator();
+        const amp = audio.createGain();
+        osc.type = mult === 1 ? "triangle" : "sine";
+        osc.frequency.value = hz * mult;
+
+        amp.gain.setValueAtTime(0.0001, at);
+        amp.gain.exponentialRampToValueAtTime(level, at + 0.012);
+        amp.gain.exponentialRampToValueAtTime(0.0001, at + 0.3);
+
+        osc.connect(amp).connect(audio.destination);
+        osc.start(at);
+        osc.stop(at + 0.32);
+      }
+    }
   }
 }
 
@@ -340,6 +399,9 @@ export function initOrders({ toast, ask, refresh }){
   // Any click in the panel is consent enough for the browser to allow
   // sound. Cheap to call repeatedly; it returns at once once unlocked.
   document.addEventListener("click", unlockAudio, { passive: true });
+  paintSound();
+
+  $("#ordTest")?.addEventListener("click", testChime);
 
   // Opening the tab clears the count.
   $$(".tab").forEach(b => b.addEventListener("click", () => {

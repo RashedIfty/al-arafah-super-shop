@@ -27,7 +27,8 @@ import { refreshAccount, onAccountChange, toggleFavourite, signOut }
 import { onCartChange, addToCart, setQty, qtyOf, removeFromCart, dropMissing }
   from "../features/cart/cart.js";
 import { cartPageHTML } from "./components/cart-page.js";
-import { checkoutHTML, initCheckout } from "./components/checkout.js";
+import { checkoutHTML, initCheckout, setCheckoutRepaint }
+  from "./components/checkout.js";
 import { ordersPageHTML } from "./components/orders-page.js";
 import { refreshOrders, onOrdersChange, watchMyOrders }
   from "../features/orders/orders.js";
@@ -311,6 +312,7 @@ document.addEventListener("click", async e => {
 onAccountChange(render);
 onCartChange(render);
 onOrdersChange(render);
+setCheckoutRepaint(render);
 
 /* Who is signed in, and what have they saved. After the first paint
    rather than blocking it: the shop is worth showing before we know. */
