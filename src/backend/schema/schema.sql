@@ -59,7 +59,9 @@ create index if not exists products_popular_idx
 -- The common query is "everything not archived".
 create index if not exists products_live_idx   on products(category_id) where archived_at is null;
 create index if not exists categories_live_idx on categories(sort)      where archived_at is null;
-create index if not exists deals_live_idx      on deals(sort)           where archived_at is null;
+-- deals_live_idx lives below, under the deals table: an index cannot be
+-- created before the table it indexes, and a clean run of this file
+-- from the top used to fail here.
 
 -- --------------------------- deals ----------------------------------
 -- "Today's Deal & New Arrival" strip on the homepage.
@@ -78,10 +80,19 @@ create table if not exists deals (
   created_at timestamptz default now()
 );
 
+create index if not exists deals_live_idx on deals(sort) where archived_at is null;
+
 -- =====================================================================
 --  SECURITY
 --  Anyone may READ (customers browsing the shop).
---  Only a signed-in user may WRITE (the owner in the admin panel).
+--
+--  The write rule below says "any signed-in user", which was true when
+--  the only account was the owner's. Customer sign-up has since gone
+--  live, so migrate-orders.sql replaces it with a rule naming the owner.
+--
+--  If you re-run this file on a shop that has already had that
+--  migration, run migrate-orders.sql again afterwards — otherwise this
+--  block hands the catalogue back to every customer.
 -- =====================================================================
 alter table categories enable row level security;
 alter table products   enable row level security;
