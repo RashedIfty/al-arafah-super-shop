@@ -132,6 +132,7 @@ export function navHTML(){
   const items = [
     { href:"index.html",    label:T.nav_home,     page:"home" },
     { href:"products.html", label:T.nav_products, page:"products" },
+    { href:"delivery.html", label:T.dlv_nav,      page:"delivery" },
     { href:"about.html",    label:T.nav_about,    page:"about" },
     { href:"contact.html",  label:T.nav_contact,  page:"contact" },
   ];

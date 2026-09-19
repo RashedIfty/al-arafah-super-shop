@@ -30,6 +30,7 @@ import { cartPageHTML } from "./components/cart-page.js";
 import { checkoutHTML, initCheckout, setCheckoutRepaint }
   from "./components/checkout.js";
 import { ordersPageHTML } from "./components/orders-page.js";
+import { deliveryHTML } from "./components/delivery.js";
 import { refreshOrders, onOrdersChange, watchMyOrders, hideMyOrder }
   from "../features/orders/orders.js";
 import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
@@ -125,6 +126,7 @@ function render(){
   if ($("#cartMount")) put("#cartMount", cartPageHTML());
   if ($("#checkoutMount")) put("#checkoutMount", checkoutHTML());
   if ($("#ordersMount")) put("#ordersMount", ordersPageHTML());
+  if ($("#deliveryMount")) put("#deliveryMount", deliveryHTML());
 
   applyTranslations();
   renderStats();
