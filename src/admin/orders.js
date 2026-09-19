@@ -19,6 +19,7 @@ import { $, $$, esc } from "../shared/lib/dom.js";
 import { icon } from "../shared/ui/icons.js";
 import { yen, jstDate, jstDay } from "../shared/lib/format.js";
 import * as api from "../backend/client.js";
+import { openInvoice } from "./invoice.js";
 
 /* ------------------------------- state -------------------------------- */
 
@@ -253,6 +254,10 @@ function orderRow(o, n){
           <button class="act ${cls}" data-ord="${esc(o.id)}:${to}" ${working ? "disabled" : ""}>
             ${icon(ic, { size: 14 })} ${esc(label)}
           </button>`).join("")}
+        ${["confirmed", "dispatched", "delivered"].includes(o.status) ? `
+          <button class="act" data-ord-invoice="${esc(o.id)}">
+            ${icon("box", { size: 14 })} Invoice
+          </button>` : ""}
         <button class="act del" data-ord-archive="${esc(o.id)}" ${working ? "disabled" : ""}>
           ${icon("archive", { size: 14 })} Remove
         </button>
@@ -505,6 +510,15 @@ export function initOrders({ toast, ask, refresh }){
   /* Archive, restore and delete-for-good. Archiving is reversible, so it
      asks nothing; deleting from the archive cannot be undone, so it does. */
   document.addEventListener("click", async e => {
+    const inv = e.target.closest("[data-ord-invoice]");
+    if (inv){
+      const o = [...orders, ...archived].find(x => String(x.id) === inv.dataset.ordInvoice);
+      if (!o) return;
+      if (!openInvoice(o))
+        toast("Your browser blocked the new window. Allow pop-ups for this site.", true);
+      return;
+    }
+
     const arc = e.target.closest("[data-ord-archive]");
     if (arc){
       const o = orders.find(x => String(x.id) === arc.dataset.ordArchive);
