@@ -436,10 +436,10 @@ export function invoiceHTML(o, method = "cod"){
  * no invoice on the server to navigate to — the document is built here
  * from the order already in hand.
  */
-export function openInvoice(o){
+export function openInvoice(o, method = "cod"){
   const w = window.open("", "_blank");
   if (!w) return false;          // a pop-up blocker got in the way
-  w.document.write(invoiceHTML(o));
+  w.document.write(invoiceHTML(o, method));
   w.document.close();
   return true;
 }
