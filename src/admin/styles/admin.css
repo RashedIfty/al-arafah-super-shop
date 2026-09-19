@@ -1059,3 +1059,14 @@ body{overflow-x:hidden}
   background:var(--navy-l);color:var(--navy-d);
   font-size:12px;font-weight:900;
 }
+
+/* Bulk actions. Set apart from the per-order buttons so "all" is never
+   mistaken for "this one". */
+.ord-bulk{
+  display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;
+}
+.ord-bulk-top{
+  justify-content:flex-end;padding-bottom:12px;
+  border-bottom:1px solid var(--line);margin-bottom:18px;
+}
+.ord-bulk .act{padding:8px 14px}

@@ -383,7 +383,14 @@ export function renderOrders(){
      at the same order. The count runs across days rather than restarting
      each morning, which would give three orders the number 1. */
   let n = 0;
-  list.innerHTML = days.map(d => `
+  const bulk = shown.length > 1 ? `
+    <div class="ord-bulk ord-bulk-top">
+      <button class="act del" data-ord-archive-all>
+        ${icon("archive", { size: 14 })} Remove all ${shown.length} from the list
+      </button>
+    </div>` : "";
+
+  list.innerHTML = bulk + days.map(d => `
     <section class="cat-block">
       <div class="cat-head">
         <b>${esc(jstDate(d.rows[0].placed_at, false))}</b>
@@ -410,6 +417,15 @@ function archivedHTML(){
         These are off your list but not gone. Put one back, or delete it
         for good — deleting cannot be undone.
       </p>
+
+      <div class="ord-bulk">
+        <button class="act edit" data-ord-restore-all>
+          ${icon("restore", { size: 14 })} Put all back
+        </button>
+        <button class="act del" data-ord-destroy-all>
+          ${icon("trash", { size: 14 })} Delete all forever
+        </button>
+      </div>
       ${archived.map(o => `
         <div class="arc-row ord-row">
           <div class="prod-tx">
@@ -488,6 +504,44 @@ export function initOrders({ toast, ask, refresh }){
       if (error) return toast(error.message, true);
       toast("Order put back on your list.");
       return refresh();
+    }
+
+    /* The bulk three. Each asks first: they reach every order at once,
+       and "all" on a phone behind a counter is an easy mis-tap. */
+    if (e.target.closest("[data-ord-archive-all]")){
+      const n = visibleOrders().length;
+      ask("Remove every order from the list?",
+          `All ${n} order${n === 1 ? "" : "s"} will move to Removed orders. ` +
+          `Nothing is deleted — you can put them back.`,
+          async () => {
+            const { data, error } = await api.archiveAllOrders();
+            if (error) return toast(error.message, true);
+            toast(`${data.length} order${data.length === 1 ? "" : "s"} removed from the list.`);
+            refresh();
+          });
+      return;
+    }
+
+    if (e.target.closest("[data-ord-restore-all]")){
+      const { data, error } = await api.restoreArchivedOrders();
+      if (error) return toast(error.message, true);
+      toast(`${data.length} order${data.length === 1 ? "" : "s"} put back.`);
+      return refresh();
+    }
+
+    if (e.target.closest("[data-ord-destroy-all]")){
+      const n = archived.length;
+      ask("Delete every removed order forever?",
+          `All ${n} order${n === 1 ? "" : "s"} in Removed orders will be gone permanently, ` +
+          `with everything in them. This cannot be undone, and it is the ` +
+          `shop's own record of those sales.`,
+          async () => {
+            const { data, error } = await api.destroyArchivedOrders();
+            if (error) return toast(error.message, true);
+            toast(`${data.length} order${data.length === 1 ? "" : "s"} deleted permanently.`);
+            refresh();
+          });
+      return;
     }
 
     const gone = e.target.closest("[data-ord-destroy]");

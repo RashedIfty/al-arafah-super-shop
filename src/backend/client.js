@@ -904,8 +904,53 @@ export async function destroyOrder(id){
   const c = await db();
   if (!c) return { error: { message: "Not configured" } };
 
-  const { error } = await c.from("orders").delete().eq("id", id);
-  return { error };
+  /* .select() so a refusal is visible. A delete that row-level security
+     blocks is not an error — it simply matches nothing and returns 200,
+     which is how the button came to do nothing while saying it worked. */
+  const { data, error } = await c.from("orders")
+    .delete().eq("id", id).select();
+
+  if (error) return { error };
+  if (!data?.length)
+    return { error: { message: "That order could not be deleted." } };
+  return { data: data[0] };
+}
+
+/** Everything in the archive, gone for good. Returns how many went. */
+export async function destroyArchivedOrders(){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data, error } = await c.from("orders")
+    .delete().not("archived_at", "is", null).select();
+
+  if (error) return { error };
+  return { data: data ?? [] };
+}
+
+/** Put the whole archive back on the owner's list. */
+export async function restoreArchivedOrders(){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data, error } = await c.from("orders")
+    .update({ archived_at: null }).not("archived_at", "is", null).select();
+
+  if (error) return { error };
+  return { data: data ?? [] };
+}
+
+/** Every order on the live list into the archive at once. */
+export async function archiveAllOrders(){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data, error } = await c.from("orders")
+    .update({ archived_at: new Date().toISOString() })
+    .is("archived_at", null).select();
+
+  if (error) return { error };
+  return { data: data ?? [] };
 }
 
 /**

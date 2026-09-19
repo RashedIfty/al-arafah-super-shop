@@ -102,3 +102,25 @@ create trigger orders_customer_guard
 /* ---------------------------- verification ---------------------------- */
 -- select column_name, data_type from information_schema.columns
 --   where table_name = 'orders' and column_name in ('hidden_at','archived_at');
+
+/* ------------------------- deleting for good -------------------------- */
+
+/*
+ * Only the owner, and only from the archive.
+ *
+ * Without this the Delete forever button did nothing at all: row-level
+ * security refuses whatever no policy permits, and there was no delete
+ * policy — so the request succeeded, changed nothing, and said nothing.
+ *
+ * order_items go with the order by cascade, but the cascade is itself a
+ * delete and needs its own permission.
+ */
+drop policy if exists "owner deletes orders" on orders;
+create policy "owner deletes orders" on orders
+  for delete to authenticated
+  using (is_owner());
+
+drop policy if exists "owner deletes order items" on order_items;
+create policy "owner deletes order items" on order_items
+  for delete to authenticated
+  using (is_owner());
