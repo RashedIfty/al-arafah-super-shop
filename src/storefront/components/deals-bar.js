@@ -107,6 +107,12 @@ export function initDealsCarousel(){
   const rail = document.getElementById("annScroll");
   if (!rail) return;
 
+  /* render() runs again whenever the language, basket or session
+     changes, and this used to clone the cards on top of the clones it
+     made last time — six became twelve became eighteen. Anything left
+     from a previous run goes first. */
+  rail.querySelectorAll('.ann-item[data-clone]').forEach(el => el.remove());
+
   const cards = [...rail.querySelectorAll(".ann-item")];
   if (!cards.length) return;
 

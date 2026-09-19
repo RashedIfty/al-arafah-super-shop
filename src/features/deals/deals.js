@@ -79,14 +79,22 @@ export let ANNOUNCEMENTS = cached
  * Deals are matched to products by name and weight, which is what the
  * deal was built from.
  */
+/* Matched loosely: case and spacing differ between a deal and its
+   product often enough — "CHINIGURA RICE" against "CHINIGURA Rice" —
+   and an exact match silently drops the deal off the homepage with
+   nothing to say why. */
+const shelfKey = (name, w) =>
+  `${String(name ?? "").trim().toLowerCase().replace(/\s+/g, " ")}|` +
+  `${String(w ?? "").trim().toLowerCase().replace(/\s+/g, "")}`;
+
 function onlyStillSold(items, catalog){
   if (!items?.length || !catalog?.length) return items ?? [];
 
   const shelf = new Set();
   for (const cat of catalog)
-    for (const p of cat.items) shelf.add(`${p.en} ${p.w}`);
+    for (const p of cat.items) shelf.add(shelfKey(p.en, p.w));
 
-  return items.filter(d => shelf.has(`${d.en} ${d.w}`));
+  return items.filter(d => shelf.has(shelfKey(d.en, d.w)));
 }
 
 export async function refreshDeals(){
