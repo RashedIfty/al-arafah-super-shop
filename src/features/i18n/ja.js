@@ -117,6 +117,8 @@ export default {
     ord_none_s:"ご注文いただくと、ここに表示されます。",
     ord_why:"ご注文を見るにはサインインしてください。",
     ord_keep:"買い物を続ける", ord_again:"注文を見る",
+    ord_remove:"注文履歴から削除",
+    ord_remove_ask:"この注文を履歴から削除しますか？\n\nここには二度と表示されません。店舗側の記録は残ります。",
     st_pending:"確認待ち", st_confirmed:"確認済み",
     st_dispatched:"配達中", st_delivered:"配達完了",
     st_rejected:"ご用意できませんでした", st_cancelled:"キャンセル",

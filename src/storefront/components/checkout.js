@@ -146,8 +146,13 @@ function confirmationHTML(o, T){
     </div>`;
 }
 
-/** One order, in full. Shared with the orders page. */
-export function orderCardHTML(o, T, lang){
+/**
+ * One order, in full. Shared with the orders page.
+ *
+ * `canRemove` is off on the confirmation screen: offering to delete an
+ * order in the same breath as confirming it invites a misplaced tap.
+ */
+export function orderCardHTML(o, T, lang, canRemove = false){
   const nameOf = i => i[`name_${lang}`] || i.name_en;
 
   return `
@@ -179,6 +184,11 @@ export function orderCardHTML(o, T, lang){
         〒${esc(o.postal)} ${esc(o.address)}
       </p>
       ${o.note ? `<p class="ord-note">${esc(o.note)}</p>` : ""}
+
+      ${canRemove ? `
+        <button type="button" class="ord-drop" data-drop-order="${esc(o.id)}">
+          ${icon("trash", { size: 14 })} ${esc(T.ord_remove)}
+        </button>` : ""}
     </div>`;
 }
 

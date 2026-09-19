@@ -16,7 +16,7 @@ import { flag } from "../features/catalog/flags.js";
 import { autoTranslate } from "./translate.js";
 import * as api from "../backend/client.js";
 import {
-  setOrders, renderOrders, initOrders, watchOrders,
+  setOrders, setArchivedOrders, renderOrders, initOrders, watchOrders,
 } from "./orders.js";
 
 let catalog = [];
@@ -53,15 +53,16 @@ async function openPanel(){
   $("#panel").hidden = false;
 
   if (usingSupabase()){
-    const [cat, dl, arc, ann, ord] = await Promise.all([
+    const [cat, dl, arc, ann, ord, ordArc] = await Promise.all([
       api.fetchCatalog(), api.fetchDeals(), api.fetchArchive(), api.fetchAnnouncement(),
-      api.fetchOrders()
+      api.fetchOrders(), api.fetchArchivedOrders()
     ]);
     notice = ann;
     catalog = cat || store.load();
     deals   = dl  || store.loadDeals(DEFAULT_ANNOUNCEMENTS.items);
     archive = arc || archive;
     setOrders(ord);
+    setArchivedOrders(ordArc);
   } else {
     catalog = store.load();
     deals   = store.loadDeals(DEFAULT_ANNOUNCEMENTS.items);
@@ -99,15 +100,16 @@ function startOrders(){
 /** Pull fresh data after a write. */
 async function reload(){
   if (!usingSupabase()) return;
-  const [cat, dl, arc, ann, ord] = await Promise.all([
+  const [cat, dl, arc, ann, ord, ordArc] = await Promise.all([
     api.fetchCatalog(), api.fetchDeals(), api.fetchArchive(), api.fetchAnnouncement(),
-    api.fetchOrders()
+    api.fetchOrders(), api.fetchArchivedOrders()
   ]);
   if (ann) notice = ann;
   if (cat) catalog = cat;
   if (dl)  deals   = dl;
   if (arc) archive = arc;
   if (ord) setOrders(ord);
+  if (ordArc) setArchivedOrders(ordArc);
   renderAll();
 }
 

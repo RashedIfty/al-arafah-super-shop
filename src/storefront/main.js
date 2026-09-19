@@ -30,7 +30,7 @@ import { cartPageHTML } from "./components/cart-page.js";
 import { checkoutHTML, initCheckout, setCheckoutRepaint }
   from "./components/checkout.js";
 import { ordersPageHTML } from "./components/orders-page.js";
-import { refreshOrders, onOrdersChange, watchMyOrders }
+import { refreshOrders, onOrdersChange, watchMyOrders, hideMyOrder }
   from "../features/orders/orders.js";
 import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
 import { CATALOG, refreshCatalog } from "../features/catalog/catalog.js";
@@ -300,6 +300,20 @@ document.addEventListener("click", async e => {
   if (drop){
     e.preventDefault(); e.stopPropagation();
     removeFromCart(drop.dataset.remove);
+    return;
+  }
+
+  /* Removing an order from your own history. It does not come back, so
+     it asks first — and says plainly that the shop keeps its copy,
+     rather than implying the sale itself is being undone. */
+  const dropOrder = e.target.closest("[data-drop-order]");
+  if (dropOrder){
+    e.preventDefault(); e.stopPropagation();
+    const T = t();
+    if (!confirm(T.ord_remove_ask)) return;
+
+    const r = await hideMyOrder(dropOrder.dataset.dropOrder);
+    if (!r.ok) alert(r.message);
     return;
   }
 

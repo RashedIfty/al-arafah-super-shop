@@ -802,11 +802,36 @@ export async function fetchMyOrders(){
   const c = await db();
   if (!c) return [];
 
+  // Orders the customer removed from their own history stay in the
+  // table for the shop's books, but never come back to them.
   const { data, error } = await c.from("orders")
-    .select("*, order_items(*)").order("placed_at", { ascending: false });
+    .select("*, order_items(*)")
+    .is("hidden_at", null)
+    .order("placed_at", { ascending: false });
 
   if (error){ console.warn("fetchMyOrders:", error.message); return []; }
   return data ?? [];
+}
+
+/**
+ * Remove one order from the customer's own history.
+ *
+ * Their copy only. The shop keeps the record of the sale — otherwise
+ * somebody could order, take delivery, and erase the evidence. A
+ * trigger on the table refuses every other column, so this cannot be
+ * bent into confirming an order or changing its total.
+ */
+export async function hideMyOrder(id){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data, error } = await c.from("orders")
+    .update({ hidden_at: new Date().toISOString() })
+    .eq("id", id).is("hidden_at", null).select();
+
+  if (error) return { error };
+  if (!data?.length) return { error: { message: "That order is already gone." } };
+  return { data: data[0] };
 }
 
 /** Every order, newest first. Only the owner may read this. */
@@ -815,10 +840,72 @@ export async function fetchOrders(){
   if (!c) return [];
 
   const { data, error } = await c.from("orders")
-    .select("*, order_items(*)").order("placed_at", { ascending: false });
+    .select("*, order_items(*)")
+    .is("archived_at", null)
+    .order("placed_at", { ascending: false });
 
   if (error){ console.warn("fetchOrders:", error.message); return []; }
   return data ?? [];
+}
+
+/** Orders the owner archived, newest first. */
+export async function fetchArchivedOrders(){
+  const c = await db();
+  if (!c) return [];
+
+  const { data, error } = await c.from("orders")
+    .select("*, order_items(*)")
+    .not("archived_at", "is", null)
+    .order("archived_at", { ascending: false });
+
+  if (error){ console.warn("fetchArchivedOrders:", error.message); return []; }
+  return data ?? [];
+}
+
+/**
+ * The owner's delete: to the archive, the way a product goes.
+ *
+ * Orders are the shop's books. One removed by a misplaced tap on a
+ * phone behind a counter has to be recoverable, so nothing is destroyed
+ * here — only hidden from the working list.
+ */
+export async function archiveOrder(id){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data, error } = await c.from("orders")
+    .update({ archived_at: new Date().toISOString() })
+    .eq("id", id).is("archived_at", null).select();
+
+  if (error) return { error };
+  if (!data?.length) return { error: { message: "That order is already archived." } };
+  return { data: data[0] };
+}
+
+/** Put an archived order back on the owner's list. */
+export async function restoreOrder(id){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data, error } = await c.from("orders")
+    .update({ archived_at: null }).eq("id", id).select();
+
+  if (error) return { error };
+  return { data: data?.[0] };
+}
+
+/**
+ * Delete an archived order for good. Items go with it, by cascade.
+ *
+ * Only reachable from the archive, so it always takes two deliberate
+ * acts — archive, then delete — and never one slip.
+ */
+export async function destroyOrder(id){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { error } = await c.from("orders").delete().eq("id", id);
+  return { error };
 }
 
 /**

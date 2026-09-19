@@ -279,3 +279,16 @@
 .ord-day:first-child{margin-top:0}
 
 .ord-loading{text-align:center;color:var(--mute);font-size:13px;padding:30px 0}
+
+/* Removing an order from your own history. Quiet by default — it is the
+   least likely thing anybody came to this page to do. */
+.ord-drop{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:14px;padding:7px 12px;
+  border:1px solid var(--line);border-radius:9px;
+  background:#fff;color:var(--mute);cursor:pointer;
+  font-size:12px;font-weight:700;font-family:inherit;
+  transition:.15s var(--ease);
+}
+.ord-drop:hover{border-color:var(--red);color:var(--red);background:var(--red-l)}
+.ord-drop:focus-visible{outline:2px solid var(--gold);outline-offset:2px}

@@ -152,6 +152,37 @@ export async function placeMyOrder({ lines, note = "" }){
 }
 
 /**
+ * Take one order out of the customer's own history.
+ *
+ * Gone from their side for good — nothing in the site will show it to
+ * them again. The shop keeps its copy, because a record of a sale is
+ * not the customer's to erase.
+ *
+ * Removed from the list here before the request finishes, and put back
+ * if it fails, so the tap feels immediate on a slow phone.
+ */
+export async function hideMyOrder(id){
+  const before = orders;
+  orders = orders.filter(o => o.id !== id);
+  announce();
+
+  try {
+    const api = await import("../../backend/client.js");
+    const { error } = await api.hideMyOrder(id);
+    if (error){
+      orders = before;
+      announce();
+      return { ok: false, message: error.message };
+    }
+    return { ok: true };
+  } catch (e){
+    orders = before;
+    announce();
+    return { ok: false, message: e.message || "Could not remove it." };
+  }
+}
+
+/**
  * Watch for the owner moving an order along, so the customer's page
  * changes under them rather than going stale.
  */

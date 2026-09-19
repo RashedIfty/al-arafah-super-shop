@@ -23,10 +23,12 @@ import * as api from "../backend/client.js";
 /* ------------------------------- state -------------------------------- */
 
 let orders = [];
+let archived = [];           // the owner's archive, shown under the live list
 let busy = new Set();        // ids mid-write, so a double-click cannot fire twice
 let unseen = 0;              // orders that arrived while the tab was not open
 
 export const setOrders = rows => { orders = rows || []; };
+export const setArchivedOrders = rows => { archived = rows || []; };
 export const allOrders = () => orders;
 
 /* ------------------------------ the chime ----------------------------- */
@@ -242,6 +244,9 @@ function orderRow(o){
           <button class="act ${cls}" data-ord="${esc(o.id)}:${to}" ${working ? "disabled" : ""}>
             ${icon(ic, { size: 14 })} ${esc(label)}
           </button>`).join("")}
+        <button class="act del" data-ord-archive="${esc(o.id)}" ${working ? "disabled" : ""}>
+          ${icon("archive", { size: 14 })} Remove
+        </button>
       </div>
     </div>`;
 }
@@ -352,7 +357,7 @@ export function renderOrders(){
       <div class="none">
         <b>No orders yet</b>
         <span>When a customer places an order it will appear here, and this panel will chime.</span>
-      </div>`;
+      </div>` + archivedHTML();   // removed orders are still reachable
     return;
   }
 
@@ -364,7 +369,7 @@ export function renderOrders(){
         <b>Nothing matches</b>
         <span>No order fits what you are looking for. Try a wider date range, or clear the search.</span>
         <button class="act edit" id="ordClear" style="margin-top:12px">Show all orders</button>
-      </div>`;
+      </div>` + archivedHTML();
     return;
   }
 
@@ -385,7 +390,52 @@ export function renderOrders(){
         <em>${d.rows.length}</em>
       </div>
       ${d.rows.map(orderRow).join("")}
-    </section>`).join("");
+    </section>`).join("") + archivedHTML();
+}
+
+/**
+ * The archive, folded away under the live list.
+ *
+ * A <details> rather than a tab of its own: it is looked at rarely, and
+ * putting it here keeps "removed" and "removed by mistake" in the same
+ * place the owner was already standing.
+ */
+function archivedHTML(){
+  if (!archived.length) return "";
+
+  return `
+    <details class="ord-archive">
+      <summary>Removed orders <em>${archived.length}</em></summary>
+      <p class="ord-archive-note">
+        These are off your list but not gone. Put one back, or delete it
+        for good — deleting cannot be undone.
+      </p>
+      ${archived.map(o => `
+        <div class="arc-row ord-row">
+          <div class="prod-tx">
+            <div class="ord-row-head">
+              <b>${esc(o.code)}</b>
+              <span class="ord-pill ${esc(o.status)}">${esc(LABEL[o.status] || o.status)}</span>
+            </div>
+            <span class="arc-when">
+              Placed ${esc(jstDate(o.placed_at))} · removed ${esc(jstDate(o.archived_at))}
+            </span>
+            <div class="ord-who">
+              <span class="ord-nm"><b>${esc(o.name)}</b>
+                <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a></span>
+              <span class="ord-ad">${(o.order_items || []).length} item(s) · ${yen(o.total)}</span>
+            </div>
+          </div>
+          <div class="prod-act">
+            <button class="act edit" data-ord-restore="${esc(o.id)}">
+              ${icon("restore", { size: 14 })} Put back
+            </button>
+            <button class="act del" data-ord-destroy="${esc(o.id)}">
+              ${icon("trash", { size: 14 })} Delete forever
+            </button>
+          </div>
+        </div>`).join("")}
+    </details>`;
 }
 
 /* ----------------------------- the actions ---------------------------- */
@@ -416,6 +466,44 @@ export function initOrders({ toast, ask, refresh }){
     alert.hidden = true;
     $(`.tab[data-tab="orders"]`)?.click();
     $("#ordList")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* Archive, restore and delete-for-good. Archiving is reversible, so it
+     asks nothing; deleting from the archive cannot be undone, so it does. */
+  document.addEventListener("click", async e => {
+    const arc = e.target.closest("[data-ord-archive]");
+    if (arc){
+      const o = orders.find(x => String(x.id) === arc.dataset.ordArchive);
+      if (!o) return;
+      const { error } = await api.archiveOrder(o.id);
+      if (error) return toast(error.message, true);
+      toast(`Order ${o.code} moved to the archive.`);
+      return refresh();
+    }
+
+    const put = e.target.closest("[data-ord-restore]");
+    if (put){
+      const { error } = await api.restoreOrder(put.dataset.ordRestore);
+      if (error) return toast(error.message, true);
+      toast("Order put back on your list.");
+      return refresh();
+    }
+
+    const gone = e.target.closest("[data-ord-destroy]");
+    if (gone){
+      const id = gone.dataset.ordDestroy;
+      const o = archived.find(x => String(x.id) === id);
+      ask("Delete this order forever?",
+          `Order ${o?.code ?? ""} and everything in it will be gone permanently. ` +
+          `This cannot be undone, and it is the shop's own record of a sale.`,
+          async () => {
+            const { error } = await api.destroyOrder(id);
+            if (error) return toast(error.message, true);
+            toast("Order deleted permanently.");
+            refresh();
+          });
+      return;
+    }
   });
 
   document.addEventListener("click", async e => {

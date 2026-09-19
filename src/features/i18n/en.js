@@ -117,6 +117,8 @@ export default {
     ord_none_s:"When you place an order it will appear here.",
     ord_why:"Sign in to see your orders.",
     ord_keep:"Keep shopping", ord_again:"View order",
+    ord_remove:"Remove from my orders",
+    ord_remove_ask:"Remove this order from your history?\n\nIt will not appear here again. The shop keeps its own record of the sale.",
     st_pending:"Pending confirmation", st_confirmed:"Confirmed",
     st_dispatched:"On its way", st_delivered:"Delivered",
     st_rejected:"Could not be fulfilled", st_cancelled:"Cancelled",

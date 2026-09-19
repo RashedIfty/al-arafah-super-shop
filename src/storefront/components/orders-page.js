@@ -47,7 +47,7 @@ export function ordersPageHTML(){
     <div class="ord-page">
       ${days.map(d => `
         <h2 class="ord-day">${esc(jstDate(d.orders[0].placed_at, false))}</h2>
-        ${d.orders.map(o => orderCardHTML(o, T, lang)).join("")}
+        ${d.orders.map(o => orderCardHTML(o, T, lang, true)).join("")}
       `).join("")}
     </div>`;
 }
