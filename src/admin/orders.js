@@ -158,11 +158,25 @@ export function markSeen(){
   paintBadge();
 }
 
+/**
+ * The badge counts orders waiting to be dealt with, not orders that
+ * happen to be new.
+ *
+ * It read "new since you last looked" and so went blank the moment the
+ * tab was opened — leaving an order still waiting with nothing on the
+ * tab to say so. The Archive badge beside it has always meant "this
+ * many things are in here", and two badges an inch apart should not
+ * mean two different kinds of thing.
+ */
 function paintBadge(){
-  const badge = $("#ordCount");
-  if (badge) badge.textContent = unseen ? unseen : "";
+  const waiting = orders.filter(o => o.status === "pending").length;
 
-  // The tab title too, for a panel sitting behind other windows.
+  const badge = $("#ordCount");
+  if (badge) badge.textContent = waiting ? waiting : "";
+
+  /* The window title is still about arrivals: it is glanced at from
+     another application, where "something has come in" is the useful
+     news, and it clears once the tab has been opened. */
   const base = "My Shop — Al-Arafah Super Shop";
   document.title = unseen ? `(${unseen}) ${base}` : base;
 }
@@ -330,6 +344,9 @@ function visibleOrders(){
 /* ------------------------------ the list ------------------------------ */
 
 export function renderOrders(){
+  // The badge tracks the data, so it is repainted wherever the data is.
+  paintBadge();
+
   const line = $("#ordLine");
   const list = $("#ordList");
   if (!list) return;
