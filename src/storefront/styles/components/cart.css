@@ -292,3 +292,11 @@
 }
 .ord-drop:hover{border-color:var(--red);color:var(--red);background:var(--red-l)}
 .ord-drop:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* The order's number in the customer's own list. */
+.ord-no{
+  flex-shrink:0;display:grid;place-items:center;
+  min-width:24px;height:24px;padding:0 6px;border-radius:7px;
+  background:var(--bg);color:var(--body);
+  font-size:12px;font-weight:900;
+}

@@ -1050,3 +1050,12 @@ body{overflow-x:hidden}
 .ord-archive .ord-row:hover{opacity:1}
 
 /* ------------------- the customer's own remove button ----------------- */
+
+/* The order's place in the list, so owner and customer can name the same
+   one down a phone line. */
+.ord-no{
+  flex-shrink:0;display:grid;place-items:center;
+  min-width:24px;height:24px;padding:0 6px;border-radius:7px;
+  background:var(--navy-l);color:var(--navy-d);
+  font-size:12px;font-weight:900;
+}

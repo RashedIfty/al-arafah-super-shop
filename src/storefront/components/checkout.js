@@ -15,7 +15,7 @@ import { t } from "../../features/i18n/lang.js";
 import { yen, jstDate } from "../../shared/lib/format.js";
 import { SHOP } from "../../shared/shop.js";
 import { icon } from "../../shared/ui/icons.js";
-import { isSignedIn } from "../../features/account/account.js";
+import { isSignedIn, accountKnown } from "../../features/account/account.js";
 import { cartLines, cartTotal, isEmpty } from "../../features/cart/cart.js";
 import {
   myProfile, saveMyProfile, placeMyOrder,
@@ -30,6 +30,11 @@ export function checkoutHTML(){
   const T = t();
 
   if (placed) return confirmationHTML(placed, T);
+
+  // Same reason as the orders page: do not claim they are signed out
+  // before anyone has looked.
+  if (!accountKnown())
+    return `<p class="ord-loading">${esc(T.acct_working)}</p>`;
 
   if (!isSignedIn())
     return card(icon("lock", { size: 28 }), T.acct_signin, T.chk_signin,
@@ -152,12 +157,13 @@ function confirmationHTML(o, T){
  * `canRemove` is off on the confirmation screen: offering to delete an
  * order in the same breath as confirming it invites a misplaced tap.
  */
-export function orderCardHTML(o, T, lang, canRemove = false){
+export function orderCardHTML(o, T, lang, canRemove = false, n = 0){
   const nameOf = i => i[`name_${lang}`] || i.name_en;
 
   return `
     <div class="ord-card">
       <div class="ord-head">
+        ${n ? `<span class="ord-no">${n}</span>` : ""}
         <b>${esc(o.code)}</b>
         <span class="ord-pill ${esc(o.status)}">${esc(statusLabel(o.status, T))}</span>
       </div>

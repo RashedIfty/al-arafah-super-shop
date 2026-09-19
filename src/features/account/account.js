@@ -18,6 +18,15 @@ const LOGIN_URL = () => `${SUPABASE.URL}/functions/v1/login`;
 let user = null;
 let saved = new Set();
 
+/* Whether we have heard back about the session yet.
+ *
+ * Reading it takes a moment, and "nobody is signed in" is
+ * indistinguishable from "we have not looked" unless this is tracked.
+ * Without it the pages that turn on being signed in paint their
+ * sign-in card first and correct themselves a moment later, which
+ * reads as being thrown out of your own account. */
+let known = !isConfigured();   // no backend: there is nothing to wait for
+
 const listeners = new Set();
 export const onAccountChange = fn => { listeners.add(fn); return () => listeners.delete(fn); };
 const announce = () => listeners.forEach(fn => { try { fn(); } catch { /* one bad listener must not stop the rest */ } });
@@ -25,6 +34,9 @@ const announce = () => listeners.forEach(fn => { try { fn(); } catch { /* one ba
 /* ------------------------------- reading ------------------------------ */
 
 export const isSignedIn = () => Boolean(user);
+
+/** False only until the first look at the session has come back. */
+export const accountKnown = () => known;
 export const isSaved = id => saved.has(id);
 export const savedCount = () => saved.size;
 export const savedIds = () => [...saved];
@@ -36,7 +48,7 @@ export const userName = () => (user?.email || "").split("@")[0];
 
 /** Who is signed in, and what have they saved. */
 export async function refreshAccount(){
-  if (!isConfigured()){ user = null; saved = new Set(); return; }
+  if (!isConfigured()){ user = null; saved = new Set(); known = true; return; }
 
   try {
     const api = await import("../../backend/client.js");
@@ -47,6 +59,7 @@ export async function refreshAccount(){
     user = null;
     saved = new Set();
   }
+  known = true;
   announce();
 }
 

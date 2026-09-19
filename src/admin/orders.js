@@ -76,12 +76,6 @@ function paintSound(){
   el.textContent = on ? "🔔 Sound on" : "🔕 Click to turn sound on";
 }
 
-/** Play the alert on demand, so the owner can hear what it sounds like. */
-export function testChime(){
-  unlockAudio();
-  try { localStorage.removeItem("aa-order-chime"); } catch {}
-  chime();
-}
 
 /**
  * One chime across every open tab.
@@ -199,7 +193,7 @@ const LABEL = {
   cancelled: "Cancelled",
 };
 
-function orderRow(o){
+function orderRow(o, n){
   const items = o.order_items || [];
   const acts = ACTIONS[o.status] || [];
   const working = busy.has(o.id);
@@ -208,6 +202,7 @@ function orderRow(o){
     <div class="arc-row ord-row${working ? " working" : ""}">
       <div class="prod-tx">
         <div class="ord-row-head">
+          <span class="ord-no">${n}</span>
           <b>${esc(o.code)}</b>
           <span class="ord-pill ${esc(o.status)}">${esc(LABEL[o.status] || o.status)}</span>
         </div>
@@ -383,13 +378,18 @@ export function renderOrders(){
     g.rows.push(o);
   }
 
+  /* Numbered straight through the list, newest first, so the owner can
+     say "the third one down" on the phone and both of them are looking
+     at the same order. The count runs across days rather than restarting
+     each morning, which would give three orders the number 1. */
+  let n = 0;
   list.innerHTML = days.map(d => `
     <section class="cat-block">
       <div class="cat-head">
         <b>${esc(jstDate(d.rows[0].placed_at, false))}</b>
         <em>${d.rows.length}</em>
       </div>
-      ${d.rows.map(orderRow).join("")}
+      ${d.rows.map(o => orderRow(o, ++n)).join("")}
     </section>`).join("") + archivedHTML();
 }
 
@@ -451,7 +451,8 @@ export function initOrders({ toast, ask, refresh }){
   document.addEventListener("click", unlockAudio, { passive: true });
   paintSound();
 
-  $("#ordTest")?.addEventListener("click", testChime);
+  // Clicking the indicator is itself the gesture the browser wants.
+  $("#ordSound")?.addEventListener("click", unlockAudio);
 
   // Opening the tab clears the count.
   $$(".tab").forEach(b => b.addEventListener("click", () => {
