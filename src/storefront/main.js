@@ -26,6 +26,11 @@ import { refreshAccount, onAccountChange, toggleFavourite, signOut }
   from "../features/account/account.js";
 import { onCartChange, addToCart, setQty, qtyOf, removeFromCart, dropMissing }
   from "../features/cart/cart.js";
+import { cartPageHTML } from "./components/cart-page.js";
+import { checkoutHTML, initCheckout } from "./components/checkout.js";
+import { ordersPageHTML } from "./components/orders-page.js";
+import { refreshOrders, onOrdersChange, watchMyOrders }
+  from "../features/orders/orders.js";
 import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
 import { CATALOG, refreshCatalog } from "../features/catalog/catalog.js";
 import { ANNOUNCEMENTS, refreshDeals } from "../features/deals/deals.js";
@@ -116,6 +121,9 @@ function render(){
   if ($("#shelfMount")) put("#shelfMount", shelfHTML());
   if ($("#favMount")) put("#favMount", favouritesHTML());
   if ($("#acctMount")) put("#acctMount", accountFormHTML());
+  if ($("#cartMount")) put("#cartMount", cartPageHTML());
+  if ($("#checkoutMount")) put("#checkoutMount", checkoutHTML());
+  if ($("#ordersMount")) put("#ordersMount", ordersPageHTML());
 
   applyTranslations();
   renderStats();
@@ -140,6 +148,7 @@ function bindDynamic(){
   initCountries($("#countryMount"));
   initScrollSpy();
   initAccount();
+  initCheckout();
 
   // Keep the chosen sort order after a re-render.
   const sort = $("#sort");
@@ -301,10 +310,19 @@ document.addEventListener("click", async e => {
    card also turns the header count over. */
 onAccountChange(render);
 onCartChange(render);
+onOrdersChange(render);
 
 /* Who is signed in, and what have they saved. After the first paint
    rather than blocking it: the shop is worth showing before we know. */
 refreshAccount();
+
+/* The customer's delivery details and past orders, but only on the pages
+   that show them — every other page would be paying for a query it never
+   draws. The realtime watch is what makes a status the owner changes
+   appear without a refresh. */
+if (["checkout", "orders"].includes(document.body.dataset.page)){
+  refreshOrders().then(watchMyOrders);
+}
 
 initBackToTop();               // outside render — the button is static markup
 

@@ -137,3 +137,145 @@
 }
 
 @media print{ .buy, .buy-qty, .hdr-cart, .cart-drop{display:none} }
+
+/* ========================= checkout and orders ======================== */
+
+.chk-page, .ord-page{max-width:640px;margin:0 auto;padding:6px 0 40px}
+
+.chk-box{
+  background:#fff;border:1px solid var(--line);border-radius:16px;
+  padding:24px 22px 20px;box-shadow:var(--sh-md);
+}
+.chk-box h2{font-size:17px;color:var(--ink);margin-bottom:14px}
+.chk-box h2.chk-h2{margin-top:22px}
+
+.chk-box label{display:block;margin-bottom:13px}
+.chk-box label span{
+  display:block;font-size:12px;font-weight:700;color:var(--body);
+  margin-bottom:5px;
+}
+.chk-box input, .chk-box textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:10px;
+  padding:11px 13px;font-size:15px;outline:0;background:#fff;color:var(--ink);
+  font-family:inherit;transition:.15s var(--ease);
+}
+.chk-box textarea{resize:vertical;min-height:62px;line-height:1.5}
+.chk-box input:focus, .chk-box textarea:focus{
+  border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.11);
+}
+
+.chk-err{
+  font-size:12.5px;font-weight:600;line-height:1.45;
+  color:var(--red);background:var(--red-l);
+  border-radius:8px;padding:9px 11px;margin-bottom:12px;
+}
+
+/* What they are about to buy, restated before the button. Nobody should
+   press Place order without the total in front of them. */
+.chk-review{
+  background:var(--bg);border-radius:11px;padding:13px 15px;margin-bottom:18px;
+}
+.chk-line{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  font-size:13px;color:var(--body);padding:5px 0;
+}
+.chk-line small{color:var(--mute);font-size:11.5px}
+.chk-line b{color:var(--ink);font-weight:700;white-space:nowrap}
+.chk-line.chk-sum{
+  border-top:1px solid var(--line);margin-top:6px;padding-top:10px;
+  font-weight:800;color:var(--ink);
+}
+.chk-line.chk-sum b{font-size:18px;color:var(--red);font-weight:900}
+
+.chk-go{width:100%;justify-content:center;padding:13px}
+.chk-go:disabled{opacity:.6;cursor:default}
+.chk-tax{text-align:center;font-size:11px;color:var(--mute);margin-top:9px}
+
+/* --------------------------- order placed ----------------------------- */
+.ord-done{
+  text-align:center;background:#fff;
+  border:1px solid var(--line);border-radius:16px;
+  padding:30px 22px 24px;margin-bottom:16px;box-shadow:var(--sh-md);
+}
+.ord-done-ic{
+  display:grid;place-items:center;width:64px;height:64px;
+  margin:0 auto 14px;border-radius:50%;
+  background:#e3f4ed;color:#12805c;
+}
+.ord-done b{display:block;font-size:20px;color:var(--ink);margin-bottom:6px}
+.ord-done p{font-size:13.5px;color:var(--body);line-height:1.55;margin-bottom:16px}
+
+/* The reference, big enough to read down a phone line. */
+.ord-code{
+  display:inline-block;font-size:19px;font-weight:900;letter-spacing:1px;
+  color:var(--ink);background:var(--bg);
+  border:1px dashed var(--line);border-radius:10px;
+  padding:9px 18px;margin-bottom:18px;
+}
+
+.ord-acts{display:grid;gap:9px}
+.ord-acts .btn{width:100%;justify-content:center;padding:12px}
+
+@media(min-width:520px){ .ord-acts{grid-template-columns:1fr 1fr} }
+
+.ord-after{
+  text-align:center;margin-top:16px;font-size:12.5px;color:var(--mute);
+}
+.ord-after a{color:var(--red);font-weight:700}
+.ord-after a:hover{text-decoration:underline}
+
+/* ----------------------------- one order ------------------------------ */
+.ord-card{
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:16px 18px;margin-bottom:12px;box-shadow:var(--sh);
+}
+.ord-head{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.ord-head b{font-size:15px;font-weight:900;letter-spacing:.4px;color:var(--ink)}
+
+/* Each status its own colour, and its own word. Colour alone would
+   leave a colour-blind reader guessing. */
+.ord-pill{
+  margin-left:auto;font-size:10px;font-weight:900;letter-spacing:.4px;
+  padding:3px 9px;border-radius:20px;white-space:nowrap;text-transform:uppercase;
+}
+.ord-pill.pending   {background:#fff3e0;color:#b4531d}
+.ord-pill.confirmed {background:#e3f4ed;color:#12805c}
+.ord-pill.dispatched{background:var(--navy-l);color:var(--navy-d)}
+.ord-pill.delivered {background:#e8eaed;color:var(--body)}
+.ord-pill.rejected,
+.ord-pill.cancelled {background:var(--red-l);color:var(--red)}
+
+.ord-when{font-size:11.5px;color:var(--mute);margin-bottom:12px}
+
+.ord-reason{
+  font-size:12.5px;color:var(--red);background:var(--red-l);
+  border-radius:8px;padding:8px 11px;margin-bottom:12px;line-height:1.45;
+}
+
+.ord-items{background:var(--bg);border-radius:10px;padding:11px 13px;margin-bottom:12px}
+.ord-item{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  font-size:12.5px;color:var(--body);padding:4px 0;
+}
+.ord-item small{color:var(--mute);font-size:11px}
+.ord-item b{color:var(--ink);font-weight:700;white-space:nowrap}
+.ord-item.ord-tot{
+  border-top:1px solid var(--line);margin-top:5px;padding-top:8px;font-weight:800;
+}
+.ord-item.ord-tot b{color:var(--red);font-size:15px;font-weight:900}
+
+.ord-to{font-size:12.5px;color:var(--body);line-height:1.6}
+.ord-to b{color:var(--ink);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.ord-note{
+  font-size:12.5px;color:var(--body);font-style:italic;
+  margin-top:8px;padding-left:10px;border-left:2px solid var(--line);
+}
+
+.ord-day{
+  font-size:13px;font-weight:800;color:var(--mute);
+  text-transform:uppercase;letter-spacing:.6px;
+  margin:20px 0 10px;padding:0 2px;
+}
+.ord-day:first-child{margin-top:0}
+
+.ord-loading{text-align:center;color:var(--mute);font-size:13px;padding:30px 0}
