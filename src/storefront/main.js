@@ -24,6 +24,8 @@ import { accountFormHTML, favouritesHTML, goToSignIn, initAccount }
   from "./components/account.js";
 import { refreshAccount, onAccountChange, toggleFavourite, signOut }
   from "../features/account/account.js";
+import { onCartChange, addToCart, setQty, qtyOf, removeFromCart, dropMissing }
+  from "../features/cart/cart.js";
 import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
 import { CATALOG, refreshCatalog } from "../features/catalog/catalog.js";
 import { ANNOUNCEMENTS, refreshDeals } from "../features/deals/deals.js";
@@ -209,7 +211,7 @@ initLang();
     render();
     reveal();
     Promise.all([refreshCatalog(), refreshDeals(), loadAnnouncement()])
-      .then(render)
+      .then(() => { dropMissing(); render(); })
       .catch(() => { /* keep what is on screen */ });
   } else {
     try {
@@ -219,6 +221,7 @@ initLang();
       ]);
     } catch { /* fall through and paint with whatever we have */ }
 
+    dropMissing();
     render();
     reveal();
   }
@@ -257,6 +260,39 @@ document.addEventListener("click", async e => {
     return;
   }
 
+  /* The basket buttons. Same capture-phase treatment as the heart, and
+     for the same reason: they sit inside a card that opens the lightbox.
+     No sign-in needed — a basket belongs to the browser, and asking
+     someone to log in before they can even pick something up would lose
+     more customers than it keeps. */
+  const add = e.target.closest("[data-add]");
+  if (add){
+    e.preventDefault(); e.stopPropagation();
+    addToCart(add.dataset.add);
+    return;
+  }
+
+  const up = e.target.closest("[data-qty-up]");
+  if (up){
+    e.preventDefault(); e.stopPropagation();
+    setQty(up.dataset.qtyUp, qtyOf(up.dataset.qtyUp) + 1);
+    return;
+  }
+
+  const down = e.target.closest("[data-qty-down]");
+  if (down){
+    e.preventDefault(); e.stopPropagation();
+    setQty(down.dataset.qtyDown, qtyOf(down.dataset.qtyDown) - 1);
+    return;
+  }
+
+  const drop = e.target.closest("[data-remove]");
+  if (drop){
+    e.preventDefault(); e.stopPropagation();
+    removeFromCart(drop.dataset.remove);
+    return;
+  }
+
   if (e.target.closest("[data-signin]")){ e.preventDefault(); goToSignIn(); return; }
   if (e.target.closest("[data-signout]")){ e.preventDefault(); await signOut(); return; }
 }, true);
@@ -264,6 +300,7 @@ document.addEventListener("click", async e => {
 /* Repaint when the session or the list changes, so a heart clicked on a
    card also turns the header count over. */
 onAccountChange(render);
+onCartChange(render);
 
 /* Who is signed in, and what have they saved. After the first paint
    rather than blocking it: the shop is worth showing before we know. */

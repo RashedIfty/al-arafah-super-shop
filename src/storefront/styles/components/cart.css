@@ -1,0 +1,139 @@
+/* The basket — buy buttons, the header badge, the cart page */
+
+/* ---------------------- the button on a card -------------------------- */
+/* Full width at the foot of the card, under the price. The heart is a
+   quiet mark in the corner; this is the thing the card is for. */
+.buy{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  width:100%;margin-top:9px;padding:8px 10px;
+  border:1px solid var(--red);border-radius:9px;
+  background:#fff;color:var(--red);cursor:pointer;
+  font-size:12.5px;font-weight:800;
+  transition:.16s var(--ease);
+}
+.buy:hover{background:var(--red);color:#fff}
+.buy:active{transform:translateY(1px)}
+.buy:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.buy .icon{flex-shrink:0}
+
+/* Once something is in the basket the button becomes a stepper, so the
+   second one can be added without leaving the shelf. */
+.buy-qty{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;margin-top:9px;
+  border:1px solid var(--red);border-radius:9px;overflow:hidden;
+}
+.qty-b{
+  width:34px;height:32px;flex-shrink:0;
+  border:0;background:var(--red-l);color:var(--red);cursor:pointer;
+  font-size:16px;font-weight:900;line-height:1;
+  transition:.14s var(--ease);
+}
+.qty-b:hover{background:var(--red);color:#fff}
+.qty-b:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.qty-n{
+  flex:1;text-align:center;
+  font-size:13.5px;font-weight:900;color:var(--ink);
+}
+
+/* ------------------------ the header basket --------------------------- */
+.hdr-cart{
+  display:none;align-items:center;gap:7px;
+  border:1px solid var(--red);border-radius:22px;
+  background:var(--red-l);padding:5px 13px 5px 6px;
+  font-size:12.5px;font-weight:700;color:var(--red);
+  transition:.16s var(--ease);
+}
+.hdr-cart:hover{background:var(--red);color:#fff}
+.hdr-cart-ic{
+  width:24px;height:24px;border-radius:50%;flex-shrink:0;
+  display:grid;place-items:center;background:#fff;color:var(--red);
+}
+.hdr-cart-n{
+  font-style:normal;min-width:17px;height:17px;padding:0 5px;
+  border-radius:9px;background:var(--red);color:#fff;
+  font-size:10px;font-weight:900;display:grid;place-items:center;
+}
+.hdr-cart:hover .hdr-cart-n{background:#fff;color:var(--red)}
+
+@media(min-width:900px){ .hdr-cart{display:inline-flex} }
+
+/* --------------------------- the cart page ---------------------------- */
+.cart-page{max-width:760px;margin:0 auto;padding:6px 0 40px}
+
+.cart-line{
+  display:flex;align-items:center;gap:13px;
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:11px 13px;margin-bottom:9px;
+}
+.cart-line img{
+  width:62px;height:62px;flex-shrink:0;border-radius:9px;
+  object-fit:contain;background:#fff;border:1px solid var(--line);
+}
+.cart-tx{flex:1;min-width:0}
+.cart-tx b{
+  display:block;font-size:14px;color:var(--ink);line-height:1.3;
+  margin-bottom:2px;
+}
+.cart-tx small{display:block;font-size:11.5px;color:var(--mute)}
+
+/* The stepper on a cart line is the same control as on a card, only
+   smaller: there is no photograph competing with it here. */
+.cart-line .buy-qty{width:auto;margin:6px 0 0}
+.cart-line .qty-b{width:28px;height:26px;font-size:14px}
+.cart-line .qty-n{min-width:34px;font-size:12.5px}
+
+.cart-money{text-align:right;flex-shrink:0}
+.cart-money b{
+  display:block;font-size:15px;font-weight:900;color:var(--red);
+  letter-spacing:-.3px;
+}
+.cart-money small{display:block;font-size:10.5px;color:var(--mute);margin-top:2px}
+
+.cart-drop{
+  border:0;background:transparent;cursor:pointer;padding:6px;
+  color:var(--mute);border-radius:7px;line-height:0;flex-shrink:0;
+  transition:.15s var(--ease);
+}
+.cart-drop:hover{color:var(--red);background:var(--red-l)}
+
+/* ------------------------------ the sum ------------------------------- */
+.cart-sum{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 18px;margin-top:14px;box-shadow:var(--sh);
+}
+.cart-sum-row{
+  display:flex;align-items:baseline;justify-content:space-between;
+  margin-bottom:14px;
+}
+.cart-sum-row span{font-size:13.5px;font-weight:700;color:var(--body)}
+.cart-sum-row b{font-size:22px;font-weight:900;color:var(--red);letter-spacing:-.5px}
+.cart-sum .btn{width:100%;justify-content:center;padding:12px}
+.cart-sum .tax{
+  text-align:center;font-size:11px;color:var(--mute);margin-top:9px;
+}
+
+/* --------------------------- empty states ----------------------------- */
+/* The same card the favourites page uses when nothing is saved, so the
+   two read as one shop rather than two. */
+.cart-empty{
+  text-align:center;max-width:420px;margin:26px auto 40px;
+  padding:30px 22px;
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--sh);
+}
+.cart-empty-ic{
+  display:grid;place-items:center;width:64px;height:64px;
+  margin:0 auto 14px;border-radius:50%;
+  background:var(--red-l);color:var(--red);
+}
+.cart-empty b{display:block;font-size:18px;color:var(--ink);margin-bottom:6px}
+.cart-empty p{font-size:13.5px;color:var(--body);line-height:1.55;margin-bottom:18px}
+
+@media(max-width:560px){
+  .cart-line{flex-wrap:wrap}
+  .cart-line img{width:52px;height:52px}
+  .cart-money{margin-left:auto}
+}
+
+@media print{ .buy, .buy-qty, .hdr-cart, .cart-drop{display:none} }

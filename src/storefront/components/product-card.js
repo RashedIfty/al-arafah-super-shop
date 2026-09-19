@@ -2,11 +2,13 @@
  * Product card + category section markup.
  */
 import { esc, IMG_FALLBACK } from "../../shared/lib/dom.js";
+import { icon } from "../../shared/ui/icons.js";
 import { t, getLang, LANGS, itemCount } from "../../features/i18n/lang.js";
 import { yen, discount } from "../../shared/lib/format.js";
 import { SHOP } from "../../shared/shop.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
 import { isSaved } from "../../features/account/account.js";
+import { qtyOf } from "../../features/cart/cart.js";
 
 /**
  * Categories a customer can actually walk into, each keeping the position
@@ -51,6 +53,24 @@ export function cardHTML(product, category, ci = 0, pi = 0){
     : product.tag === "out" ? `<span class="card-stock out">${esc(T.out_stock)}</span>`
     : "";
 
+  /* Sold out means sold out: no button, rather than a button that takes
+     an order the owner would only have to ring up and refuse. The red
+     STOCK OUT mark below already says why it is missing. */
+  const buyable = product._id && product.tag !== "out";
+  const n = buyable ? qtyOf(product._id) : 0;
+
+  const buy = !buyable ? "" : n ? `
+      <div class="buy-qty" data-qty-for="${esc(product._id)}">
+        <button type="button" class="qty-b" data-qty-down="${esc(product._id)}"
+                aria-label="${esc(T.cart_less)}">&minus;</button>
+        <span class="qty-n">${n}</span>
+        <button type="button" class="qty-b" data-qty-up="${esc(product._id)}"
+                aria-label="${esc(T.cart_more)}">+</button>
+      </div>` : `
+      <button type="button" class="buy" data-add="${esc(product._id)}">
+        ${icon("cart", { size: 14 })} ${esc(T.cart_add)}
+      </button>`;
+
   const alt = LANGS.filter(l => l !== lang).map(l => product[l]).join(" · ");
   const searchIndex = LANGS.map(l => product[l]).join(" ").toLowerCase();
 
@@ -84,6 +104,7 @@ export function cardHTML(product, category, ci = 0, pi = 0){
         ${product.was ? `<span class="was">${yen(product.was)}</span>` : ""}
       </div>
       <div class="tax">${esc(T.withtax)}</div>
+      ${buy}
     </div>
   </article>`;
 }

@@ -7,6 +7,7 @@ import { icon } from "../../shared/ui/icons.js";
 import { t, getLang, LANGS } from "../../features/i18n/lang.js";
 import { isSignedIn, savedCount, userName }
   from "../../features/account/account.js";
+import { cartCount } from "../../features/cart/cart.js";
 import { UI } from "../../features/i18n/index.js";
 import { SHOP } from "../../shared/shop.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
@@ -64,6 +65,7 @@ export function headerHTML(){
         <span><b>${esc(SHOP.tel)}</b><small>${esc(T.callOrder)}</small></span>
       </a>
 
+      ${cartHTML()}
       ${accountHTML()}
 
       <a href="admin.html" class="hdr-login" title="${esc(T.owner_login)}">
@@ -99,6 +101,26 @@ function accountHTML(){
     </a>`;
 }
 
+/**
+ * The basket, in the header beside the account.
+ *
+ * Hidden while empty. A basket icon showing nothing is a permanent
+ * reminder of a thing the customer has not done; once there is something
+ * in it, the count is worth carrying on every page.
+ */
+function cartHTML(){
+  const T = t();
+  const n = cartCount();
+  if (!n) return "";
+
+  return `
+    <a href="cart.html" class="hdr-cart" title="${esc(T.cart_title)}">
+      <span class="hdr-cart-ic">${icon("cart",{size:15})}</span>
+      <em>${esc(T.cart_nav)}</em>
+      <i class="hdr-cart-n">${n}</i>
+    </a>`;
+}
+
 export function navHTML(){
   const T = t(), page = currentPage();
 
@@ -112,8 +134,10 @@ export function navHTML(){
   /* Only once signed in, and only then because the header button that
      leads here is hidden on a narrow screen — without this a customer on
      a phone would have nothing to tap. */
-  if (isSignedIn())
+  if (isSignedIn()){
     items.push({ href:"favourites.html", label:T.fav_nav, page:"favourites" });
+    items.push({ href:"orders.html",     label:T.ord_nav, page:"orders" });
+  }
 
   return `<div class="nav-scroll"><div class="wrap nav-in">${
     items.map(i => `<a href="${i.href}"${
