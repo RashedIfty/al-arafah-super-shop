@@ -1,12 +1,15 @@
 /**
  * What it costs to send a box, and when it costs nothing.
  *
- * The figures come from a Sagawa Express quote (佐川急便 運賃御見積書,
- * quote no. 1771002 0720) issued by their Tsukuba branch on 12 February
- * 2020, for parcels sent from Kanto. That quote was valid for two
- * months, so every number here is long out of date and is shown as a
- * guide only — the shop confirms the real figure on the phone before
- * anything is sent. Nothing on the site charges from this table.
+ * The figures are the shop's standing rate sheet from Sagawa Express
+ * (佐川急便 運賃御見積書, quote no. 1771002 0720, Tsukuba branch), for
+ * parcels sent from Kanto. The owner confirms these are the rates he
+ * works to.
+ *
+ * They are still shown as a guide rather than a charge: what a box
+ * actually costs depends on its size and weight once it is packed, and
+ * the shop agrees the figure with the customer on the phone. Nothing on
+ * the site charges from this table.
  *
  * Kept as data rather than a picture of the sheet so it can be read on
  * a phone, read aloud by a screen reader, and translated.

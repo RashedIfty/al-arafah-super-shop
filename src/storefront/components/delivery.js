@@ -7,10 +7,10 @@
  * never open it, because most orders either clear ¥8,000 locally or are
  * being carried home from the shop anyway.
  *
- * Every price here is a guide. The quote it came from expired in 2020,
- * and the page says so plainly rather than quietly: a customer who is
- * told ¥670 and charged ¥900 has been misled, whatever the small print
- * said.
+ * Every price here is a guide, and the page says so plainly rather than
+ * quietly. These are the rates the shop works to, but what a box costs
+ * depends on its size and weight once packed — and a customer told ¥670
+ * and charged ¥900 has been misled, whatever the small print said.
  */
 import { esc } from "../../shared/lib/dom.js";
 import { t } from "../../features/i18n/lang.js";
@@ -89,7 +89,7 @@ export function deliveryHTML(){
 
         <div class="dlv-warn">
           ${icon("warn", { size: 16 })}
-          <span>${esc(T.dlv_warn).replace("{date}", "February 2020")}</span>
+          <span>${esc(T.dlv_warn)}</span>
         </div>
 
         <details class="dlv-rates">
@@ -123,8 +123,7 @@ export function deliveryHTML(){
             ${esc(T.dlv_limit).replace("{kg}", LIMITS.maxKg).replace("{size}", LIMITS.maxSize)}<br>
             ${esc(T.dlv_source)
                 .replace("{carrier}", QUOTE.carrier)
-                .replace("{branch}", QUOTE.branch)
-                .replace("{date}", "12 February 2020")}
+                .replace("{branch}", QUOTE.branch)}
           </p>
         </details>
       </section>
