@@ -92,32 +92,37 @@ function accountHTML(){
         <em>${esc(T.acct_signin)}</em>
       </button>`;
 
+  /* Nothing saved, nothing to show. A favourites button with no
+     favourites behind it is a link to an empty room. The account itself
+     is still reachable from the nav. */
   const n = savedCount();
+  if (!n) return "";
+
   return `
     <a href="favourites.html" class="hdr-acct is-in" title="${esc(T.fav_title)}">
       <span class="hdr-acct-ic">${esc((userName()[0] || "?").toUpperCase())}</span>
       <em>${esc(T.fav_nav)}</em>
-      ${n ? `<i class="hdr-acct-n">${n}</i>` : ""}
+      <i class="hdr-acct-n">${n}</i>
     </a>`;
 }
 
 /**
  * The basket, in the header beside the account.
  *
- * Hidden while empty. A basket icon showing nothing is a permanent
- * reminder of a thing the customer has not done; once there is something
- * in it, the count is worth carrying on every page.
+ * Always there, empty or not. It is how a customer gets back to what
+ * they were buying, and a shop whose basket appears only once you have
+ * used it is a shop you have to learn. The count shows only when there
+ * is something to count.
  */
 function cartHTML(){
   const T = t();
   const n = cartCount();
-  if (!n) return "";
 
   return `
     <a href="cart.html" class="hdr-cart" title="${esc(T.cart_title)}">
       <span class="hdr-cart-ic">${icon("cart",{size:15})}</span>
       <em>${esc(T.cart_nav)}</em>
-      <i class="hdr-cart-n">${n}</i>
+      ${n ? `<i class="hdr-cart-n">${n}</i>` : ""}
     </a>`;
 }
 
