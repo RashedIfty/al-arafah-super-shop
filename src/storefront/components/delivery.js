@@ -3,9 +3,9 @@
  *
  * Two things a customer wants to know, in this order: can I get it free,
  * and if not, what does it cost. So free delivery comes first and large,
- * and the carrier's table is below it, folded away — most people will
- * never open it, because most orders either clear ¥8,000 locally or are
- * being carried home from the shop anyway.
+ * and the carrier's table is below it, in full. It was behind a fold at
+ * first; the owner wanted it open, and he is right — a price list nobody
+ * clicks is a price list nobody reads.
  *
  * Every price here is a guide, and the page says so plainly rather than
  * quietly. These are the rates the shop works to, but what a box costs
@@ -92,9 +92,7 @@ export function deliveryHTML(){
           <span>${esc(T.dlv_warn)}</span>
         </div>
 
-        <details class="dlv-rates">
-          <summary>${esc(T.dlv_table_open)}</summary>
-
+        <div class="dlv-rates">
           <p class="dlv-rates-note">${esc(T.dlv_table_note)}</p>
 
           <div class="dlv-scroll">
@@ -125,7 +123,7 @@ export function deliveryHTML(){
                 .replace("{carrier}", QUOTE.carrier)
                 .replace("{branch}", QUOTE.branch)}
           </p>
-        </details>
+        </div>
       </section>
 
       <!-- Ask, rather than guess. -->

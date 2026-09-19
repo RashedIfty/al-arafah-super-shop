@@ -1983,17 +1983,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .dlv-warn .icon{flex-shrink:0;margin-top:1px;color:#b4801d}
 
 /* ---------------------------- the rate table -------------------------- */
-.dlv-rates{margin-top:6px}
-.dlv-rates summary{
-  cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:8px;
-  font-size:13.5px;font-weight:800;color:var(--navy);
-  padding:9px 15px;border:1.5px solid var(--navy-l);border-radius:10px;
-  background:var(--navy-l);transition:.15s var(--ease);
-}
-.dlv-rates summary::-webkit-details-marker{display:none}
-.dlv-rates summary::before{content:"▸";transition:.15s var(--ease)}
-.dlv-rates[open] summary::before{transform:rotate(90deg)}
-.dlv-rates summary:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+.dlv-rates{margin-top:16px}
 
 .dlv-rates-note{
   font-size:12.5px;color:var(--mute);line-height:1.6;margin:14px 0 11px;

@@ -138,7 +138,6 @@ export default {
     dlv_ship_h:"Everywhere else in Japan",
     dlv_ship_1:"Sent by Sagawa Express, and free on orders of {amt} or more. Below that, the carrier charges by the size of the box and how far it goes.",
     dlv_warn:"These are the rates the shop works to, from its agreement with the carrier. Treat them as a guide: the exact charge depends on the size and weight of your boxes, and the shop confirms it with you by phone before anything is sent. You will never be charged a delivery fee you have not agreed to.",
-    dlv_table_open:"See the carrier's price table",
     dlv_table_note:"Prices in yen, per box, sent from Ibaraki. Size is the three sides of the box added together in centimetres. Where a box is heavy for its size, the carrier charges on the weight instead.",
     dlv_th_region:"Where it is going", dlv_here:"(the shop is here)",
     dlv_size_note:"Size 60 means the length, width and height add up to 60 cm or less, and so on up.",
