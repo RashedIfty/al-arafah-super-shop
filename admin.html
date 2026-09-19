@@ -70,6 +70,7 @@
       <button class="tab on" data-tab="products"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 6h-3V4a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2M9 4h6v2H9z"/></svg> My Products</button>
       <button class="tab" data-tab="deals"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 17.27 6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> Today's Deals</button>
       <button class="tab" data-tab="notice"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9zm3-19A7 7 0 0 0 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7"/></svg> Announcement <em id="anDot"></em></button>
+      <button class="tab" data-tab="orders"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4m10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4M7.2 14.6 7 15a1 1 0 0 0 1 1h11v-2H8.4l.7-1.3 8.2-.1a1 1 0 0 0 .9-.6l3-6A1 1 0 0 0 20.3 4H6.2l-.9-2H2v2h2z"/></svg> Orders <em id="ordCount"></em></button>
       <button class="tab" data-tab="archive"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 2H4a2 2 0 0 0-2 2v3h20V4a2 2 0 0 0-2-2M3 9v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9zm11 5H10v-2h4z"/></svg> Archive <em id="arcCount"></em></button>
     </div>
   </div>
@@ -165,6 +166,24 @@
     </section>
 
     <!-- ===================== TAB: ARCHIVE ====================== -->
+    <!-- ====================== TAB: ORDERS ====================== -->
+    <section class="panel-tab" id="tab-orders" hidden>
+      <div class="ad-hero">
+        <div class="ad-hero-tx">
+          <h2>Orders</h2>
+          <p id="ordLine">…</p>
+        </div>
+      </div>
+
+      <div class="deal-note">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9zm3-19A7 7 0 0 0 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7"/></svg>
+        Ring the customer to agree a time, then press <b>Confirm</b>.
+        <b>Dispatch</b> when it leaves the shop, and <b>Delivered</b> once it has arrived.
+      </div>
+
+      <div id="ordList"></div>
+    </section>
+
     <section class="panel-tab" id="tab-archive" hidden>
       <div class="ad-hero arc-hero">
         <div class="ad-hero-tx">
@@ -434,6 +453,14 @@
 </div>
 
 <div class="ad-toast" id="toast" hidden></div>
+
+<!-- A new order has landed. Stays until the owner looks or dismisses it. -->
+<div class="ord-alert" id="ordAlert" hidden>
+  <span class="ord-alert-ic"><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4m10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4M7.2 14.6 7 15a1 1 0 0 0 1 1h11v-2H8.4l.7-1.3 8.2-.1a1 1 0 0 0 .9-.6l3-6A1 1 0 0 0 20.3 4H6.2l-.9-2H2v2h2z"/></svg></span>
+  <div class="ord-alert-tx"><b id="ordAlertTitle">New order</b><span id="ordAlertSub"></span></div>
+  <button type="button" class="ad-btn" id="ordAlertGo">See it</button>
+  <button type="button" class="ad-x" id="ordAlertX" aria-label="Dismiss"><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+</div>
 
 <script type="module" src="src/admin/main.js"></script>
 </body>

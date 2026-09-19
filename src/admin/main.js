@@ -15,6 +15,9 @@ import { COUNTRIES } from "../features/catalog/countries.js";
 import { flag } from "../features/catalog/flags.js";
 import { autoTranslate } from "./translate.js";
 import * as api from "../backend/client.js";
+import {
+  setOrders, renderOrders, initOrders, watchOrders,
+} from "./orders.js";
 
 let catalog = [];
 let editing = null;            // {catId, index} when editing, null when adding
@@ -50,13 +53,15 @@ async function openPanel(){
   $("#panel").hidden = false;
 
   if (usingSupabase()){
-    const [cat, dl, arc, ann] = await Promise.all([
-      api.fetchCatalog(), api.fetchDeals(), api.fetchArchive(), api.fetchAnnouncement()
+    const [cat, dl, arc, ann, ord] = await Promise.all([
+      api.fetchCatalog(), api.fetchDeals(), api.fetchArchive(), api.fetchAnnouncement(),
+      api.fetchOrders()
     ]);
     notice = ann;
     catalog = cat || store.load();
     deals   = dl  || store.loadDeals(DEFAULT_ANNOUNCEMENTS.items);
     archive = arc || archive;
+    setOrders(ord);
   } else {
     catalog = store.load();
     deals   = store.loadDeals(DEFAULT_ANNOUNCEMENTS.items);
@@ -72,18 +77,37 @@ async function openPanel(){
   }
 
   renderAll();
+  startOrders();
+}
+
+/**
+ * The orders tab, wired once.
+ *
+ * openPanel() runs again after a sign-in, and binding the listeners a
+ * second time would act on every click twice.
+ */
+let ordersStarted = false;
+
+function startOrders(){
+  if (ordersStarted) return;
+  ordersStarted = true;
+
+  initOrders({ toast, ask, refresh: reload });
+  if (usingSupabase()) watchOrders({ refresh: reload });
 }
 
 /** Pull fresh data after a write. */
 async function reload(){
   if (!usingSupabase()) return;
-  const [cat, dl, arc, ann] = await Promise.all([
-    api.fetchCatalog(), api.fetchDeals(), api.fetchArchive(), api.fetchAnnouncement()
+  const [cat, dl, arc, ann, ord] = await Promise.all([
+    api.fetchCatalog(), api.fetchDeals(), api.fetchArchive(), api.fetchAnnouncement(),
+    api.fetchOrders()
   ]);
   if (ann) notice = ann;
   if (cat) catalog = cat;
   if (dl)  deals   = dl;
   if (arc) archive = arc;
+  if (ord) setOrders(ord);
   renderAll();
 }
 
@@ -171,6 +195,7 @@ function renderAll(){
   renderDealPicker();
   renderArchive();
   renderNotice();
+  renderOrders();
 }
 
 function renderList(){
