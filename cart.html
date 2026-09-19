@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Basket | Al-Arafah Super Shop</title>
+<meta name="description" content="The products in your basket at Al-Arafah Super Shop.">
+<meta name="theme-color" content="#c8102e">
+<link rel="icon" href="/images/logo.jpeg">
+
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://alarafahsupershop.com/cart.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Al-Arafah Super Shop">
+<meta property="og:url" content="https://alarafahsupershop.com/cart.html">
+<meta property="og:title" content="Your Basket | Al-Arafah Super Shop">
+<meta property="og:description" content="The products in your basket at Al-Arafah Super Shop.">
+<meta property="og:image" content="https://alarafahsupershop.com/cover.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<script>
+/* Ask the database for the shop before the JavaScript that needs it has
+   even downloaded. Both requests are in flight while the modules load,
+   so the page is not waiting on a round trip it could have started
+   half a second earlier. main.js picks these up. */
+(function(){
+  var U = "https://fkftvudfngcmrtylevnl.supabase.co";
+  var K = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrZnR2dWRmbmdjbXJ0eWxldm5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NTU5MzYsImV4cCI6MjEwMzMzMTkzNn0.nNmgcDiSIYDkfn4bVoR9CdsojlFxPIunIdG68PAOysI";
+  var h = { apikey: K, Authorization: "Bearer " + K };
+  function grab(t){
+    return fetch(U + "/rest/v1/" + t + "?select=*&archived_at=is.null&order=sort",
+                 { headers: h }).then(function(r){ return r.ok ? r.json() : null; })
+                                .catch(function(){ return null; });
+  }
+  window.__preload = {
+    categories: grab("categories"),
+    products:   grab("products"),
+    deals:      grab("deals")
+  };
+})();
+</script>
+<link rel="stylesheet" href="src/storefront/styles/bundle.css">
+</head>
+<body data-page="cart">
+
+<script>
+/* Runs before the splash paints. Inside a visit the shop should feel
+   continuous, so the opening screen is skipped entirely rather than
+   flashing for a frame on every click. */
+try {
+  if (sessionStorage.getItem("aa-splashed") === "1")
+    document.documentElement.className += " no-splash";
+} catch (e) {}
+</script>
+
+<div class="splash" id="splash">
+  <div class="splash-in">
+    <div class="splash-ring"></div>
+    <div class="splash-word">Al-Arafah</div>
+  </div>
+</div>
+
+
+<a href="#main" class="skip">Skip to content</a>
+
+<div class="page-hide">
+<div class="tick-mount" id="ticker"></div>
+<div class="topbar" id="topbar"></div>
+<header class="header" id="header"></header>
+<nav class="nav" id="nav"></nav>
+<div id="noticeMount"></div>
+
+<section class="page-head">
+  <div class="wrap">
+    <p class="crumb"><a href="index.html" data-t="nav_home"></a> &rsaquo; <span data-t="cart_nav"></span></p>
+    <h1 data-t="cart_title"></h1>
+    <p data-t="cart_sub"></p>
+  </div>
+</section>
+
+<main id="main">
+  <section style="padding:20px 0 30px">
+    <div id="cartMount"></div>
+  </section>
+</main>
+
+<footer class="footer" id="footer"></footer>
+<button class="top-btn" id="topBtn" aria-label="Back to top"><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.4 15.4 12 10.8l4.6 4.6L18 14l-6-6-6 6z"/></svg></button>
+
+</div><!-- /page-hide -->
+
+<div id="lbMount"></div>
+
+<script type="module" src="src/storefront/main.js"></script>
+</body>
+</html>

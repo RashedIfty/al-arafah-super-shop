@@ -669,6 +669,197 @@ export async function removeFavourite(productId){
     .delete().eq("user_id", uid).eq("product_id", productId);
 }
 
+/* ------------------------------ profiles ----------------------------- */
+
+/**
+ * The delivery details this customer has given, or null.
+ *
+ * Row-level security scopes it to whoever is signed in, so there is no
+ * user_id filter here — the same reason fetchFavourites has none.
+ */
+export async function fetchProfile(){
+  const c = await db();
+  if (!c) return null;
+
+  const { data, error } = await c.from("profiles")
+    .select("full_name, phone, postal, address").maybeSingle();
+
+  if (error){ console.warn("fetchProfile:", error.message); return null; }
+  return data ?? null;
+}
+
+/**
+ * Save the delivery details.
+ *
+ * upsert because a customer filling the form for the second time is
+ * editing, not erroring. The phone and postal shapes are checked again
+ * by the database, so a malformed value cannot get in by another route.
+ */
+export async function saveProfile(p){
+  const c = await db();
+  const { data } = await c.auth.getUser();
+  const uid = data?.user?.id;
+  if (!uid) return { error: { message: "Not signed in" } };
+
+  return c.from("profiles")
+    .upsert({
+      user_id: uid,
+      full_name: p.full_name,
+      phone: p.phone,
+      postal: p.postal,
+      address: p.address,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id" });
+}
+
+/* ------------------------------- orders ------------------------------ */
+
+/**
+ * A short reference a customer can read out on the phone.
+ *
+ * Date first so the owner can see at a glance when it was placed, then
+ * four characters from a 32-letter alphabet with the easily-confused
+ * ones (I, O, 0, 1) left out. Uniqueness is enforced by the database;
+ * this only has to make a clash unlikely enough not to matter.
+ */
+function orderCode(){
+  const A = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const d = new Date();
+  const ymd = [
+    String(d.getFullYear()).slice(2),
+    String(d.getMonth() + 1).padStart(2, "0"),
+    String(d.getDate()).padStart(2, "0"),
+  ].join("");
+
+  let tail = "";
+  const r = crypto.getRandomValues(new Uint8Array(4));
+  for (const n of r) tail += A[n % A.length];
+
+  return `AA-${ymd}-${tail}`;
+}
+
+/**
+ * Place an order.
+ *
+ * The customer's details and every product's name and price are copied
+ * into the order rather than referenced, so the receipt still reads
+ * correctly after a price change, a rename, or the product being
+ * removed from the shop altogether.
+ *
+ * `lines` is [{ product, qty }] where product is a catalogue item.
+ * Returns { data: order } or { error }.
+ */
+export async function placeOrder({ profile, lines, note = "" }){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data: u } = await c.auth.getUser();
+  const uid = u?.user?.id;
+  if (!uid) return { error: { message: "Not signed in" } };
+
+  if (!lines?.length) return { error: { message: "The cart is empty" } };
+
+  const items = lines.map(({ product, qty }) => ({
+    product_id: product._id,
+    name_en: product.en, name_bn: product.bn, name_ja: product.ja,
+    w: product.w || "",
+    unit_price: product.p,
+    qty,
+    line_total: product.p * qty,
+  }));
+
+  const total = items.reduce((s, i) => s + i.line_total, 0);
+
+  const order = await c.from("orders").insert({
+    code: orderCode(),
+    user_id: uid,
+    name: profile.full_name,
+    phone: profile.phone,
+    postal: profile.postal,
+    address: profile.address,
+    total,
+    note: note.trim() || null,
+  }).select().single();
+
+  if (order.error) return order;
+
+  const rows = items.map(i => ({ ...i, order_id: order.data.id }));
+  const { error } = await c.from("order_items").insert(rows);
+
+  /* An order with no items is worse than no order: the owner would ring
+     a customer about an empty basket. Remove it and report the failure
+     rather than leaving the wreckage. */
+  if (error){
+    await c.from("orders").delete().eq("id", order.data.id);
+    return { error };
+  }
+
+  return { data: { ...order.data, items } };
+}
+
+/** One customer's own orders, newest first. RLS does the scoping. */
+export async function fetchMyOrders(){
+  const c = await db();
+  if (!c) return [];
+
+  const { data, error } = await c.from("orders")
+    .select("*, order_items(*)").order("placed_at", { ascending: false });
+
+  if (error){ console.warn("fetchMyOrders:", error.message); return []; }
+  return data ?? [];
+}
+
+/** Every order, newest first. Only the owner may read this. */
+export async function fetchOrders(){
+  const c = await db();
+  if (!c) return [];
+
+  const { data, error } = await c.from("orders")
+    .select("*, order_items(*)").order("placed_at", { ascending: false });
+
+  if (error){ console.warn("fetchOrders:", error.message); return []; }
+  return data ?? [];
+}
+
+/**
+ * Move an order along.
+ *
+ * The sequence is checked here — pending to confirmed to dispatched to
+ * delivered — so a stale page cannot dispatch something that was never
+ * confirmed. `.eq("status", from)` makes the guard atomic: two clicks
+ * race, the first wins, the second matches no row and changes nothing.
+ */
+const NEXT = {
+  confirmed:  { from: ["pending"],    stamp: "confirmed_at"  },
+  dispatched: { from: ["confirmed"],  stamp: "dispatched_at" },
+  delivered:  { from: ["dispatched"], stamp: "delivered_at"  },
+  rejected:   { from: ["pending"],    stamp: "cancelled_at"  },
+  cancelled:  { from: ["pending", "confirmed"], stamp: "cancelled_at" },
+};
+
+export async function setOrderStatus(id, status, reason = ""){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const step = NEXT[status];
+  if (!step) return { error: { message: `Unknown status: ${status}` } };
+
+  const patch = { status, [step.stamp]: new Date().toISOString() };
+  if (reason.trim()) patch.cancel_reason = reason.trim();
+
+  const { data, error } = await c.from("orders")
+    .update(patch).eq("id", id).in("status", step.from).select();
+
+  if (error) return { error };
+
+  /* No row came back: the order was not in a state this step could
+     follow. Either somebody else moved it, or this is a second click. */
+  if (!data?.length)
+    return { error: { message: "That order has already moved on. Refreshing." } };
+
+  return { data: data[0] };
+}
+
 /* -------------------------------- auth ------------------------------- */
 
 export async function signIn(email, password){
@@ -706,5 +897,48 @@ export async function subscribe(onChange){
     .on("postgres_changes", { event: "*", schema: "public", table: "categories" }, onChange)
     .on("postgres_changes", { event: "*", schema: "public", table: "deals"      }, onChange)
     .on("postgres_changes", { event: "*", schema: "public", table: "announcement" }, onChange)
+    .subscribe();
+}
+
+/**
+ * Tell the owner's panel about orders as they happen.
+ *
+ * A channel of its own rather than a fifth table on "shop-changes",
+ * for two reasons: that callback takes no argument and so cannot say
+ * what arrived, and it re-fetches the whole catalogue on every event,
+ * which would be absurd work for one order.
+ *
+ * `onInsert` gets the new row. `onChange` fires for any update, so a
+ * status changed from another device reaches this one too.
+ */
+export async function subscribeOrders({ onInsert, onChange }){
+  const c = await db();
+  if (!c) return null;
+
+  return c.channel("shop-orders")
+    .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "orders" },
+        payload => onInsert?.(payload.new))
+    .on("postgres_changes",
+        { event: "UPDATE", schema: "public", table: "orders" },
+        payload => onChange?.(payload.new))
+    .subscribe();
+}
+
+/**
+ * Watch one customer's own orders, so a status the owner changes shows
+ * on their screen without a refresh.
+ *
+ * Row-level security applies to realtime as well, so this only ever
+ * delivers rows the signed-in customer may read.
+ */
+export async function subscribeMyOrders(onChange){
+  const c = await db();
+  if (!c) return null;
+
+  return c.channel("my-orders")
+    .on("postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        payload => onChange?.(payload.new))
     .subscribe();
 }
