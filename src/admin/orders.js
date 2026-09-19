@@ -19,7 +19,7 @@ import { $, $$, esc } from "../shared/lib/dom.js";
 import { icon } from "../shared/ui/icons.js";
 import { yen, jstDate, jstDay } from "../shared/lib/format.js";
 import * as api from "../backend/client.js";
-import { openInvoice } from "./invoice.js";
+import { openInvoice, PAY_METHODS } from "./invoice.js";
 
 /* ------------------------------- state -------------------------------- */
 
@@ -513,11 +513,22 @@ export function initOrders({ toast, ask, refresh }){
     const inv = e.target.closest("[data-ord-invoice]");
     if (inv){
       const o = [...orders, ...archived].find(x => String(x.id) === inv.dataset.ordInvoice);
-      if (!o) return;
-      if (!openInvoice(o))
+      if (o) askPayMethod(o);
+      return;
+    }
+
+    /* Choosing the method, then printing. */
+    const pay = e.target.closest("[data-pay-go]");
+    if (pay){
+      const o = [...orders, ...archived].find(x => String(x.id) === payFor);
+      const chosen = $("#payPick")?.value || "cod";
+      closePayPick();
+      if (o && !openInvoice(o, chosen))
         toast("Your browser blocked the new window. Allow pop-ups for this site.", true);
       return;
     }
+
+    if (e.target.closest("[data-pay-x]")){ closePayPick(); return; }
 
     const arc = e.target.closest("[data-ord-archive]");
     if (arc){
@@ -642,6 +653,71 @@ export function initOrders({ toast, ask, refresh }){
     toast(`Order ${order.code} — ${LABEL[to].toLowerCase()}.`);
     renderOrders();
   }
+}
+
+/* ------------------------ how did they pay? --------------------------- */
+
+/**
+ * Ask before printing.
+ *
+ * The invoice is the paper the customer keeps, and one that says "cash
+ * on delivery" for an order settled by PayPay is simply wrong. The owner
+ * knows how it was paid; the software does not, and should not guess.
+ *
+ * Built and thrown away each time rather than living in admin.html: it
+ * belongs to this feature, and the panel's own confirm dialog only
+ * answers yes or no.
+ */
+let payFor = null;
+
+function askPayMethod(o){
+  payFor = o.id;
+  closePayPick();
+
+  const box = document.createElement("div");
+  box.className = "ad-modal pay-modal";
+  box.id = "payPickWrap";
+  box.innerHTML = `
+    <div class="ad-modal-bg" data-pay-x></div>
+    <div class="ad-modal-box pay-box">
+      <div class="ad-modal-head">
+        <h2>How was this paid?</h2>
+        <button type="button" class="ad-x" data-pay-x aria-label="Close">
+          ${icon("close", { size: 20 })}
+        </button>
+      </div>
+
+      <div class="pay-body">
+        <p class="pay-for">
+          Order <b>${esc(o.code)}</b> · ${esc(o.name)} · <b>${yen(o.total)}</b>
+        </p>
+
+        <label class="pay-lab" for="payPick">Payment method</label>
+        <select id="payPick" class="pay-sel">
+          ${PAY_METHODS.map(m =>
+            `<option value="${esc(m.id)}">${esc(m.label)}</option>`).join("")}
+        </select>
+
+        <p class="pay-hint">
+          This is printed on the invoice the customer keeps, so it should
+          say what actually happened.
+        </p>
+      </div>
+
+      <div class="ad-modal-foot">
+        <button type="button" class="btn btn-out" data-pay-x>Cancel</button>
+        <button type="button" class="btn btn-red" data-pay-go>
+          ${icon("box", { size: 15 })} Open the invoice
+        </button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(box);
+  $("#payPick")?.focus();
+}
+
+function closePayPick(){
+  $("#payPickWrap")?.remove();
 }
 
 /* --------------------------- the filter bar --------------------------- */

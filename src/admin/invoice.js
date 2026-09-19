@@ -42,7 +42,42 @@ const LABEL = {
  * panel around it, so what the owner sees on screen is exactly what
  * comes out of the printer.
  */
-export function invoiceHTML(o){
+/**
+ * How the customer paid, as it should read on the paper.
+ *
+ * The owner picks one before printing rather than the invoice assuming
+ * cash: a receipt that says "cash on delivery" for an order settled by
+ * PayPay is simply wrong, and it is the piece of paper the customer
+ * keeps.
+ */
+export const PAY_METHODS = [
+  { id: "cod",        label: "Cash on delivery",
+    line: "Cash on delivery. Please pay the driver on receipt." },
+  { id: "cash-shop",  label: "Cash at the shop",
+    line: "Paid in cash at the shop." },
+  { id: "paypay",     label: "PayPay",
+    line: "Paid by PayPay." },
+  { id: "visa",       label: "Visa",
+    line: "Paid by Visa card." },
+  { id: "mastercard", label: "Mastercard",
+    line: "Paid by Mastercard." },
+  { id: "amex",       label: "American Express",
+    line: "Paid by American Express." },
+  { id: "jcb",        label: "JCB",
+    line: "Paid by JCB card." },
+  { id: "card-cod",   label: "Card on delivery",
+    line: "Card on delivery. Please pay the driver on receipt." },
+  { id: "bank",       label: "Bank transfer",
+    line: "Paid by bank transfer." },
+];
+
+const payLine = id =>
+  (PAY_METHODS.find(m => m.id === id) || PAY_METHODS[0]).line;
+
+/** Whether the money has already changed hands, or is owed on delivery. */
+const isDue = id => id === "cod" || id === "card-cod";
+
+export function invoiceHTML(o, method = "cod"){
   const items = o.order_items || o.items || [];
   const subtotal = items.reduce((s, i) => s + Number(i.line_total || 0), 0);
 
@@ -195,12 +230,23 @@ export function invoiceHTML(o){
   .note.bad{border-left-color:var(--red);background:#fdf3f4}
   .note.bad b{color:var(--red)}
 
+  /* Money still owed and money already taken are different pieces of
+     paper. A driver glancing at this must not have to read a sentence
+     to know whether to collect anything. */
   .pay{
     margin-top:5.5mm;padding:11px 14px;border-radius:5px;
-    border:1.5px dashed #e0b48e;background:#fffdfb;
     font-size:11.5px;line-height:1.7;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
   }
-  .pay b{color:var(--o-d);font-weight:800}
+  .pay b{font-weight:800;flex-shrink:0}
+  .pay.due{border:1.5px dashed #e0b48e;background:#fffdfb}
+  .pay.due b{color:var(--o-d)}
+  .pay.paid{border:1.5px solid #bfe3d4;background:#f2faf7}
+  .pay.paid b{color:#0d6b4d}
+  .due-amt{
+    margin-left:auto;font-size:16px;font-weight:800;color:var(--red);
+    white-space:nowrap;
+  }
 
   /* ------------------------------- foot ------------------------------- */
   .foot{
@@ -363,9 +409,10 @@ export function invoiceHTML(o){
         ${esc(o.cancel_reason)}
       </div>` : ""}
 
-    <div class="pay">
-      <b>Payment:</b> Cash on delivery. All prices include tax.
-      Please pay the driver on receipt, or at the shop if collecting.
+    <div class="pay${isDue(method) ? " due" : " paid"}">
+      <b>${isDue(method) ? "Amount due:" : "Paid:"}</b>
+      ${esc(payLine(method))} All prices include tax.
+      ${isDue(method) ? `<span class="due-amt">${yen(o.total)}</span>` : ""}
     </div>
 
   </div>
