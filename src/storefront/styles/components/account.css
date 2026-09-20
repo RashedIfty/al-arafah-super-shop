@@ -47,7 +47,22 @@
   font-size:10px;font-weight:900;display:grid;place-items:center;
 }
 
-@media(min-width:900px){ .hdr-acct{display:inline-flex} }
+/* Shown at every width. It was desktop-only, which left a customer on a
+   phone with no way into their account at all: the nav links to
+   favourites and orders only appear once signed in, and signing in was
+   the thing behind this button. Trimmed rather than hidden on a narrow
+   screen — the icon alone carries it. */
+.hdr-acct{display:inline-flex}
+
+@media(max-width:899px){
+  .hdr-acct{padding:4px 10px 4px 4px;font-size:12px;gap:5px}
+  .hdr-acct em{font-style:normal}
+}
+@media(max-width:400px){
+  /* At the narrowest the word goes and the circle speaks for itself. */
+  .hdr-acct em{display:none}
+  .hdr-acct{padding:4px}
+}
 
 /* --------------------------- the saved page --------------------------- */
 .fav-hi{

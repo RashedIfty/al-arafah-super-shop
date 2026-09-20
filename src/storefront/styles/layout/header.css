@@ -11,7 +11,17 @@
 
 
 .header{padding:13px 0;background:#fff;border-bottom:1px solid var(--line)}
-.header-in{display:flex;align-items:center;gap:12px}
+.header-in{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* On the narrowest phones the brand and the controls stop fitting on one
+   line, so the controls drop to their own row rather than pushing the
+   basket off the side of the screen. */
+@media(max-width:420px){
+  .header-in{gap:8px}
+  .header-in .lang{margin-left:auto}
+  .brand-logo{width:42px;height:42px}
+  .brand-tx b{font-size:15px}
+}
 
 /* On pages without a search box, push the controls to the right so the
    header does not look half-empty. */
@@ -83,6 +93,11 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
 .hdr-login:hover{border-color:var(--red);color:var(--red);background:var(--red-l)}
 .hdr-login em{font-style:normal;display:none}
 @media(min-width:1100px){ .hdr-login em{display:inline} }
+
+/* Off the header on a phone. It is the owner's way in, not a customer's,
+   and on a narrow screen it was pushing the customer's own sign-in
+   button off the edge. The footer still carries an Owner Login link. */
+@media(max-width:560px){ .hdr-login{display:none} }
 
 /* Very small phones: shrink the brand and language buttons so the row
    never wraps or overflows. */
