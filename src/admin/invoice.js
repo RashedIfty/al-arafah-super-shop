@@ -385,11 +385,11 @@ export function invoiceHTML(o, method = "cod"){
           <td>Subtotal</td>
           <td class="r">${yen(subtotal)}</td>
         </tr>
-        <tr class="line">
-          <td>Delivery</td>
-          <td class="r">${subtotal === Number(o.total)
-            ? "Free" : yen(Number(o.total) - subtotal)}</td>
-        </tr>
+        ${Number(o.total) !== subtotal ? `
+          <tr class="line">
+            <td>Delivery</td>
+            <td class="r">${yen(Number(o.total) - subtotal)}</td>
+          </tr>` : ""}
         <tr class="grand">
           <td>Total</td>
           <td class="r">${yen(o.total)}</td>
