@@ -39,7 +39,7 @@ function buyHTML(item, T){
               aria-label="${esc(T.cart_more)}">+</button>
     </div>` : `
     <button type="button" class="btn btn-red lb-buy" data-add="${esc(item._id)}">
-      ${icon("cart",{size:16})} ${esc(T.cart_add)}
+      ${icon("cart",{size:16})} ${esc(T.cart_add_long || T.cart_add)}
     </button>`;
 }
 

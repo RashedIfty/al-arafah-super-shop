@@ -86,7 +86,7 @@ export default {
     acct_bad:"Please enter your email and a password of at least 6 characters.",
     acct_working:"Please wait\u2026",
     acct_check_email:"Almost there \u2014 check your email to confirm the account.",
-    cart_add:"Add", cart_more:"One more", cart_less:"One fewer",
+    cart_add:"Add", cart_add_long:"Add to cart", cart_more:"One more", cart_less:"One fewer",
     cart_nav:"Cart", cart_title:"Your Basket", cart_sub:"Check it over before you order",
     cart_none:"Your basket is empty",
     cart_none_s:"Add something from the shop and it will appear here.",

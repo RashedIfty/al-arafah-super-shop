@@ -86,7 +86,7 @@ export default {
     acct_bad:"メールアドレスと6文字以上のパスワードを入力してください。",
     acct_working:"お待ちください\u2026",
     acct_check_email:"あと少しです — メールを確認してアカウントを有効にしてください。",
-    cart_add:"カートに入れる", cart_more:"1つ増やす", cart_less:"1つ減らす",
+    cart_add:"カートに入れる", cart_add_long:"カートに入れる", cart_more:"1つ増やす", cart_less:"1つ減らす",
     cart_nav:"カート", cart_title:"カート", cart_sub:"ご注文の前にご確認ください",
     cart_none:"カートは空です",
     cart_none_s:"商品を追加すると、ここに表示されます。",

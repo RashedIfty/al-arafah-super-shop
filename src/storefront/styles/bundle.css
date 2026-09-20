@@ -2095,10 +2095,22 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 /* Full width above Call to order. Buying is now the first thing offered
    and ringing the shop the second, which is the way round it should have
    been since the basket existed. */
-.lb-buy{width:100%;justify-content:center;padding:13px;margin-bottom:9px}
-.buy-qty.lb-buy{margin-top:0;height:50px}
-.buy-qty.lb-buy .qty-b{width:52px;height:100%;font-size:20px}
-.buy-qty.lb-buy .qty-n{font-size:16px}
+/* The two buttons are a pair and must look like one: same width, same
+   height, same padding. Only the weight differs — buying is the filled
+   one, ringing the outlined one. */
+.lb-buy, .lb-call{
+  width:100%;box-sizing:border-box;justify-content:center;
+  padding:14px 16px;min-height:52px;
+}
+.lb-buy{margin-bottom:9px}
+
+/* The stepper is the whole control here, not a strip on a card, so the
+   buttons are given a real height rather than 100% of a flex parent
+   that had none to give — they were coming out 22px, half of what a
+   thumb needs. */
+.buy-qty.lb-buy{margin-top:0;align-items:stretch}
+.buy-qty.lb-buy .qty-b{width:56px;min-height:50px;font-size:22px}
+.buy-qty.lb-buy .qty-n{font-size:17px;display:grid;place-items:center;min-height:50px}
 
 /* ===== components/promo.css ===== */
 /* Promo banners & info band */
@@ -2235,7 +2247,10 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   }
   .lb-info h3{font-size:24px}
   .lb-price .now{font-size:34px}
-  .lb-call{width:auto;align-self:flex-start}
+  /* Both buttons keep the same width on a wide screen too. They are a
+     pair, and one shrink-wrapped beside one stretched looks like a
+     mistake rather than a hierarchy. */
+  .lb-buy, .lb-call{width:100%;align-self:stretch}
 }
 
 /* Cards that open the lightbox */

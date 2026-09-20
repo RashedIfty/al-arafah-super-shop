@@ -91,7 +91,10 @@
   }
   .lb-info h3{font-size:24px}
   .lb-price .now{font-size:34px}
-  .lb-call{width:auto;align-self:flex-start}
+  /* Both buttons keep the same width on a wide screen too. They are a
+     pair, and one shrink-wrapped beside one stretched looks like a
+     mistake rather than a hierarchy. */
+  .lb-buy, .lb-call{width:100%;align-self:stretch}
 }
 
 /* Cards that open the lightbox */
