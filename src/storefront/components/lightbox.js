@@ -9,8 +9,39 @@ import { icon } from "../../shared/ui/icons.js";
 import { t, getLang } from "../../features/i18n/lang.js";
 import { yen, discount } from "../../shared/lib/format.js";
 import { SHOP } from "../../shared/shop.js";
+import { qtyOf } from "../../features/cart/cart.js";
 
 let opener = null;   // element to refocus on close
+
+/**
+ * Add to basket, or the stepper once it is in there.
+ *
+ * Same markup and the same data- hooks as the product card, so the
+ * capture-phase handler in main.js already knows what to do with it —
+ * and a quantity changed here shows on the card behind, because both
+ * read the one basket.
+ *
+ * Only for a real catalogue product that is in stock. A deal strip item
+ * carries no id to put in a basket, and a sold-out one shows its mark
+ * and nothing to press.
+ */
+function buyHTML(item, T){
+  if (!item._id || item.tag === "out") return "";
+
+  const n = qtyOf(item._id);
+
+  return n ? `
+    <div class="buy-qty lb-buy">
+      <button type="button" class="qty-b" data-qty-down="${esc(item._id)}"
+              aria-label="${esc(T.cart_less)}">&minus;</button>
+      <span class="qty-n">${n}</span>
+      <button type="button" class="qty-b" data-qty-up="${esc(item._id)}"
+              aria-label="${esc(T.cart_more)}">+</button>
+    </div>` : `
+    <button type="button" class="btn btn-red lb-buy" data-add="${esc(item._id)}">
+      ${icon("cart",{size:16})} ${esc(T.cart_add)}
+    </button>`;
+}
 
 /** The empty shell — content is filled on open. */
 export function lightboxHTML(){
@@ -25,9 +56,18 @@ export function lightboxHTML(){
 }
 
 /** Fill and show. `item` is a catalogue product or an announcement item. */
+/* What is on screen, so the basket controls can be repainted in place
+   when the quantity changes without rebuilding the whole panel. */
+let shown = null;
+
+/** True while the panel is on screen. render() leaves it alone then. */
+export const lightboxOpen = () => shown !== null;
+
 export function openLightbox(item, opts = {}){
   const box = $("#lb");
   if (!box) return;
+
+  shown = { item, opts };
 
   const T = t(), lang = getLang();
   const name = item[lang] || item.en;
@@ -65,10 +105,19 @@ export function openLightbox(item, opts = {}){
         ${item.was ? `<span class="was">${yen(item.was)}</span>` : ""}
       </div>
       <p class="lb-tax">${esc(T.withtax)}</p>
-      <a href="tel:${esc(SHOP.telRaw)}" class="btn btn-red lb-call">
+      ${buyHTML(item, T)}
+      <a href="tel:${esc(SHOP.telRaw)}" class="btn btn-out lb-call">
         ${icon("phone",{size:16})} ${esc(T.callOrder)} · ${esc(SHOP.tel)}
       </a>
     </div>`;
+
+  refreshBuy._bound ||= (() => {
+    // Pressing + here must also turn the count over on the card behind.
+    import("../../features/cart/cart.js")
+      .then(({ onCartChange }) => onCartChange(refreshBuy))
+      .catch(() => {});
+    return true;
+  })();
 
   opener = document.activeElement;
   box.hidden = false;
@@ -76,7 +125,22 @@ export function openLightbox(item, opts = {}){
   box.querySelector(".lb-close")?.focus();
 }
 
+/** Redraw just the buy control, leaving focus and scroll alone. */
+function refreshBuy(){
+  const box = $("#lb");
+  if (!box || box.hidden || !shown) return;
+
+  const old = box.querySelector(".lb-buy");
+  if (!old) return;
+
+  const wrap = document.createElement("div");
+  wrap.innerHTML = buyHTML(shown.item, t());
+  const fresh = wrap.firstElementChild;
+  if (fresh) old.replaceWith(fresh);
+}
+
 export function closeLightbox(){
+  shown = null;
   const box = $("#lb");
   if (!box || box.hidden) return;
 

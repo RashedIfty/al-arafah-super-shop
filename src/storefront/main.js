@@ -11,7 +11,7 @@ import { topbarHTML, headerHTML, navHTML, footerHTML } from "./components/chrome
 import { tickerHTML } from "./components/ticker.js";
 import { announceBarHTML, initAnnounceBar, initDealsCarousel } from "./components/deals-bar.js";
 import { announcementHTML, setAnnouncement } from "./components/announcement.js";
-import { lightboxHTML, initLightbox } from "./components/lightbox.js";
+import { lightboxHTML, initLightbox, lightboxOpen } from "./components/lightbox.js";
 import { mapHTML } from "./components/map.js";
 import { initSearchBox } from "./components/search-box.js";
 import { filtersHTML, initFilters } from "./components/filters.js";
@@ -99,7 +99,10 @@ function renderCity(){
 
 /** Full render — safe to call repeatedly. */
 function render(){
-  put("#lbMount", lightboxHTML());
+  /* Not while it is open. Adding to the basket from inside the lightbox
+     triggers a render, and rebuilding the shell would tear the panel out
+     from under the person using it. */
+  if (!lightboxOpen()) put("#lbMount", lightboxHTML());
   put("#noticeMount", announcementHTML());
   put("#announce", announceBarHTML());
   put("#ticker", tickerHTML());

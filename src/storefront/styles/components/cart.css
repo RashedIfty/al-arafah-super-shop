@@ -466,3 +466,12 @@
   .dlv-table tbody th{min-width:112px}
   .dlv-table tbody th small{display:none}
 }
+
+/* ------------------- the basket button in the lightbox ---------------- */
+/* Full width above Call to order. Buying is now the first thing offered
+   and ringing the shop the second, which is the way round it should have
+   been since the basket existed. */
+.lb-buy{width:100%;justify-content:center;padding:13px;margin-bottom:9px}
+.buy-qty.lb-buy{margin-top:0;height:50px}
+.buy-qty.lb-buy .qty-b{width:52px;height:100%;font-size:20px}
+.buy-qty.lb-buy .qty-n{font-size:16px}
