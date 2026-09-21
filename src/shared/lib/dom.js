@@ -11,7 +11,26 @@ export const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
 /** Set innerHTML if the target exists; no-op otherwise. */
 export function put(sel, html, root = document){
   const el = $(sel, root);
-  if (el) el.innerHTML = html;
+  if (!el) return el;
+
+  /* Only when it has actually changed.
+   *
+   * render() rebuilds every mount on the page, and it runs again the
+   * moment the session comes back from the network — so the catalogue,
+   * the footer and seventy images were thrown away and recreated
+   * identical a few hundred milliseconds after the first paint. That is
+   * the flicker: not slow work, but visible work that did not need
+   * doing.
+   *
+   * Compared against what was last written, not against innerHTML. The
+   * browser rewrites what it stores — a <path/> comes back as
+   * <path></path> — so reading it back never matches what was generated
+   * and every mount rewrote regardless. */
+  const next = String(html);
+  if (el.__put === next) return el;
+
+  el.innerHTML = next;
+  el.__put = next;
   return el;
 }
 
