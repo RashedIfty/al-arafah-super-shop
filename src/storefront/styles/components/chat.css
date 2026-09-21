@@ -72,9 +72,14 @@
 @media(max-width:620px){
   .chat{gap:9px;grid-template-columns:repeat(4,minmax(0,1fr))}
 
+  /* Flex, not grid. The card inherited align-items:center from the
+     desktop flex column, and the grid's own place-items was fighting it
+     — the mark ended up flush left and sitting high rather than in the
+     middle of its square. One layout, stated plainly. */
   .chat-card{
     position:relative;padding:0;min-width:0;overflow:hidden;
-    aspect-ratio:1/1;display:grid;place-items:center;
+    aspect-ratio:1/1;
+    display:flex;flex-direction:row;align-items:center;justify-content:center;
   }
 
   /* The mark, as large as the card will carry. Percentages resolved
@@ -89,7 +94,7 @@
     width:calc((100vw - 56px) / 4 * 0.66);
     height:calc((100vw - 56px) / 4 * 0.66);
     max-width:62px;max-height:62px;
-    margin:0;border-radius:15px;
+    flex:0 0 auto;margin:0;border-radius:15px;
   }
   .chat-card .chat-ic svg{width:54%;height:54%;max-width:34px;max-height:34px}
 
