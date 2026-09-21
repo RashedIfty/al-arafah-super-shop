@@ -19,7 +19,7 @@
 import { esc } from "../shared/lib/dom.js";
 import { yen, jstDate } from "../shared/lib/format.js";
 import { SHOP } from "../shared/shop.js";
-import { photoOf } from "./orders.js";
+import { photoOf } from "./photos.js";
 
 /** 08022289967 -> 080-2228-9967, the way a Japanese number is written. */
 const phone = n => {

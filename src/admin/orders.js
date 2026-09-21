@@ -20,6 +20,7 @@ import { icon } from "../shared/ui/icons.js";
 import { yen, jstDate, jstDay } from "../shared/lib/format.js";
 import * as api from "../backend/client.js";
 import { openInvoice, PAY_METHODS } from "./invoice.js";
+export { setPhotos } from "./photos.js";
 
 /* ------------------------------- state -------------------------------- */
 
@@ -30,22 +31,6 @@ let unseen = 0;              // orders that arrived while the tab was not open
 
 export const setOrders = rows => { orders = rows || []; };
 
-/* Product photos, by id, for the invoice.
- *
- * order_items freezes the name and the price but not the picture, which
- * would have meant a base64 photograph copied into every line of every
- * order. The id is enough: the catalogue is already loaded here, and a
- * product since deleted simply prints without one. */
-let photos = new Map();
-
-export const setPhotos = cat => {
-  photos = new Map();
-  for (const c of cat || [])
-    for (const p of c.items || [])
-      if (p._id && p.img) photos.set(String(p._id), p.img);
-};
-
-export const photoOf = id => photos.get(String(id)) || "";
 export const setArchivedOrders = rows => { archived = rows || []; };
 export const allOrders = () => orders;
 
