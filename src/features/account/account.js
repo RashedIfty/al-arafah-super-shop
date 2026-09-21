@@ -122,7 +122,18 @@ export async function signUp(email, password){
   try {
     const api = await import("../../backend/client.js");
     const c = await api.db();
-    const { data, error } = await c.auth.signUp({ email, password });
+    /* Where the confirmation link comes back to.
+     *
+     * Without this Supabase uses the Site URL from its dashboard, which
+     * is still the default localhost:3000 — so every customer who
+     * confirmed their email landed on a page that refused to connect.
+     * Sending it explicitly means the link works whatever that setting
+     * says, and it works the same from the live site or a local copy
+     * because it is read from the address the customer is actually on. */
+    const { data, error } = await c.auth.signUp({
+      email, password,
+      options: { emailRedirectTo: `${location.origin}/signin.html?confirmed=1` },
+    });
 
     if (error) return { ok: false, message: error.message };
 

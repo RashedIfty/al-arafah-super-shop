@@ -78,6 +78,7 @@ export default {
     fav_none_s:"商品のハートを押すと、ここに表示されます。",
     fav_hi:"{n} でサインイン中",
     acct_signin:"サインイン", acct_create:"アカウント作成",
+    acct_confirmed:"メールアドレスが確認されました。下記からサインインしてください。",
     acct_signout:"サインアウト",
     acct_email:"メールアドレス", acct_pass:"パスワード",
     acct_why:"よく買う商品を保存するにはサインインしてください。",

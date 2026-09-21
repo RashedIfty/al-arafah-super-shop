@@ -6,6 +6,7 @@
  * should not have to go looking for the other.
  */
 import { $, esc } from "../../shared/lib/dom.js";
+import { icon } from "../../shared/ui/icons.js";
 import { t } from "../../features/i18n/lang.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
 import { isSignedIn, savedIds, userName, signIn, signUp }
@@ -22,8 +23,15 @@ import { cardHTML } from "./product-card.js";
 export function accountFormHTML(){
   const T = t();
 
+  /* Arrived from the link in the confirmation email. Saying so matters:
+     the customer clicked something, waited, and landed on a sign-in
+     form — without a word they cannot tell whether it worked. */
+  const confirmed = new URLSearchParams(location.search).has("confirmed");
+
   return `
     <div class="acct-page">
+      ${confirmed ? `
+        <p class="acct-ok">${icon("check", { size: 16 })} ${esc(T.acct_confirmed)}</p>` : ""}
       <form class="acct-box" id="acctForm" novalidate>
         <h2 id="acctTitle">${esc(T.acct_signin)}</h2>
         <p class="acct-sub" id="acctSub">${esc(T.acct_why)}</p>

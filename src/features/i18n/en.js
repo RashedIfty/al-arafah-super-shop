@@ -78,6 +78,7 @@ export default {
     fav_none_s:"Tap the heart on any product and it will appear here.",
     fav_hi:"Signed in as {n}",
     acct_signin:"Sign in", acct_create:"Create an account",
+    acct_confirmed:"Your email is confirmed. Sign in below.",
     acct_signout:"Sign out",
     acct_email:"Email", acct_pass:"Password",
     acct_why:"Sign in to save the products you buy often.",
