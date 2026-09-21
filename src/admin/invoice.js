@@ -19,6 +19,7 @@
 import { esc } from "../shared/lib/dom.js";
 import { yen, jstDate } from "../shared/lib/format.js";
 import { SHOP } from "../shared/shop.js";
+import { photoOf } from "./orders.js";
 
 /** 08022289967 -> 080-2228-9967, the way a Japanese number is written. */
 const phone = n => {
@@ -200,6 +201,18 @@ export function invoiceHTML(o, method = "cod"){
   }
   table.items tbody td.r{text-align:right;white-space:nowrap}
   table.items tbody td.n{color:var(--mute);font-size:11px}
+  /* The photograph beside the name, so a driver checking a box against
+     the paper can match what is in his hand without reading anything.
+     A product since deleted keeps the space, so the column does not
+     shift about between lines. */
+  table.items tbody .item{display:flex;align-items:flex-start;gap:9px}
+  table.items tbody .thumb{
+    width:34px;height:34px;flex-shrink:0;border-radius:4px;
+    border:1px solid var(--line);background:#fff;
+    object-fit:contain;
+  }
+  table.items tbody .thumb-none{background:#f5f6f7;border-style:dashed}
+  table.items tbody .item-tx{min-width:0}
   table.items tbody .nm{font-weight:600}
   table.items tbody .sub{display:block;font-size:10px;color:var(--mute);margin-top:1.5px}
   table.items tbody tr:nth-child(even) td{background:#fdfaf7}
@@ -366,10 +379,17 @@ export function invoiceHTML(o, method = "cod"){
           <tr>
             <td class="n">${n + 1}</td>
             <td>
-              <span class="nm">${esc(i.name_en)}</span>
-              ${i.name_ja || i.name_bn
-                ? `<span class="sub">${esc([i.name_ja, i.name_bn].filter(Boolean).join(" · "))}</span>`
-                : ""}
+              <span class="item">
+                ${photoOf(i.product_id)
+                  ? `<img class="thumb" src="${esc(photoOf(i.product_id))}" alt="">`
+                  : `<span class="thumb thumb-none"></span>`}
+                <span class="item-tx">
+                  <span class="nm">${esc(i.name_en)}</span>
+                  ${i.name_ja || i.name_bn
+                    ? `<span class="sub">${esc([i.name_ja, i.name_bn].filter(Boolean).join(" · "))}</span>`
+                    : ""}
+                </span>
+              </span>
             </td>
             <td>${esc(i.w || "")}</td>
             <td class="r">${i.qty}</td>

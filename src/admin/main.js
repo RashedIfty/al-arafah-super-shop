@@ -16,7 +16,7 @@ import { flag } from "../features/catalog/flags.js";
 import { autoTranslate } from "./translate.js";
 import * as api from "../backend/client.js";
 import {
-  setOrders, setArchivedOrders, renderOrders, initOrders, watchOrders,
+  setOrders, setArchivedOrders, setPhotos, renderOrders, initOrders, watchOrders,
 } from "./orders.js";
 
 let catalog = [];
@@ -224,6 +224,8 @@ function renderAll(){
     `<option value="">— Not set —</option>` +
     COUNTRIES.map(c => `<option value="${esc(c.id)}">${esc(c.en)}</option>`).join("");
   showCountryFlag();
+
+  setPhotos(catalog);        // invoices print the product photographs
 
   renderList();
   renderDeals();
