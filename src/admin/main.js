@@ -18,6 +18,7 @@ import * as api from "../backend/client.js";
 import {
   setOrders, setArchivedOrders, setPhotos, renderOrders, initOrders, watchOrders,
 } from "./orders.js";
+import { setRestock, renderRestock, initRestock } from "./restock.js";
 
 let catalog = [];
 let editing = null;            // {catId, index} when editing, null when adding
@@ -53,9 +54,9 @@ async function openPanel(){
   $("#panel").hidden = false;
 
   if (usingSupabase()){
-    const [cat, dl, arc, ann, ord, ordArc] = await Promise.all([
+    const [cat, dl, arc, ann, ord, ordArc, rs] = await Promise.all([
       api.fetchCatalog(), api.fetchDeals(), api.fetchArchive(), api.fetchAnnouncement(),
-      api.fetchOrders(), api.fetchArchivedOrders()
+      api.fetchOrders(), api.fetchArchivedOrders(), api.fetchRestock()
     ]);
     notice = ann;
     catalog = cat || store.load();
@@ -63,6 +64,7 @@ async function openPanel(){
     archive = arc || archive;
     setOrders(ord);
     setArchivedOrders(ordArc);
+    setRestock(rs);
   } else {
     catalog = store.load();
     deals   = store.loadDeals(DEFAULT_ANNOUNCEMENTS.items);
@@ -94,15 +96,16 @@ function startOrders(){
   ordersStarted = true;
 
   initOrders({ toast, ask, refresh: reload });
+  initRestock({ toast, ask, refresh: reload });
   if (usingSupabase()) watchOrders({ refresh: reload });
 }
 
 /** Pull fresh data after a write. */
 async function reload(){
   if (!usingSupabase()) return;
-  const [cat, dl, arc, ann, ord, ordArc] = await Promise.all([
+  const [cat, dl, arc, ann, ord, ordArc, rs] = await Promise.all([
     api.fetchCatalog(), api.fetchDeals(), api.fetchArchive(), api.fetchAnnouncement(),
-    api.fetchOrders(), api.fetchArchivedOrders()
+    api.fetchOrders(), api.fetchArchivedOrders(), api.fetchRestock()
   ]);
   if (ann) notice = ann;
   if (cat) catalog = cat;
@@ -110,6 +113,7 @@ async function reload(){
   if (arc) archive = arc;
   if (ord) setOrders(ord);
   if (ordArc) setArchivedOrders(ordArc);
+  if (rs) setRestock(rs);
   renderAll();
 }
 
@@ -238,6 +242,7 @@ function renderAll(){
   renderArchive();
   renderNotice();
   renderOrders();
+  renderRestock();
 }
 
 function renderList(){

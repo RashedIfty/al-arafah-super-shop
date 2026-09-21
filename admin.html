@@ -75,6 +75,7 @@
       <button class="tab" data-tab="deals"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 17.27 6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> Today's Deals</button>
       <button class="tab" data-tab="notice"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9zm3-19A7 7 0 0 0 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7"/></svg> Announcement <em id="anDot"></em></button>
       <button class="tab" data-tab="orders"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4m10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4M7.2 14.6 7 15a1 1 0 0 0 1 1h11v-2H8.4l.7-1.3 8.2-.1a1 1 0 0 0 .9-.6l3-6A1 1 0 0 0 20.3 4H6.2l-.9-2H2v2h2z"/></svg> Orders <em id="ordCount"></em></button>
+      <button class="tab" data-tab="restock"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg> Restock <em id="rsCount"></em></button>
       <button class="tab" data-tab="archive"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 2H4a2 2 0 0 0-2 2v3h20V4a2 2 0 0 0-2-2M3 9v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9zm11 5H10v-2h4z"/></svg> Archive <em id="arcCount"></em></button>
     </div>
   </div>
@@ -220,6 +221,25 @@
       </div>
 
       <div id="ordList"></div>
+    </section>
+
+    <!-- ====================== TAB: RESTOCK ===================== -->
+    <section class="panel-tab" id="tab-restock" hidden>
+      <div class="ad-hero">
+        <div class="ad-hero-tx">
+          <h2>Restock requests</h2>
+          <p id="rsLine">…</p>
+        </div>
+      </div>
+
+      <div class="deal-note">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9zm3-19A7 7 0 0 0 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7"/></svg>
+        These customers asked to be told when something sold out comes back.
+        Press <b>Back in stock</b> once you have it in — they are emailed,
+        and the product stops showing as sold out.
+      </div>
+
+      <div id="rsList"></div>
     </section>
 
     <section class="panel-tab" id="tab-archive" hidden>

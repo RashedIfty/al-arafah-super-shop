@@ -9,6 +9,7 @@ import { SHOP } from "../../shared/shop.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
 import { isSaved } from "../../features/account/account.js";
 import { qtyOf } from "../../features/cart/cart.js";
+import { isWaiting } from "../../features/restock/restock.js";
 
 /**
  * Categories a customer can actually walk into, each keeping the position
@@ -26,6 +27,25 @@ const stocked = () =>
  * Names in the two inactive languages are shown as a secondary line, so a
  * customer can always recognise the item whichever language they read.
  */
+/**
+ * The button where a sold-out product's buy button would be.
+ *
+ * Once asked it stays pressed rather than offering to ask again — the
+ * shop has the message, and a second press would only take it back.
+ * Pressing it again does exactly that, which is why it is a toggle.
+ */
+function restockHTML(id, T){
+  const asked = isWaiting(id);
+
+  return `
+    <button type="button" class="buy restock${asked ? " asked" : ""}"
+            data-restock="${esc(id)}"
+            title="${esc(asked ? T.rs_asked : T.rs_ask)}">
+      ${icon(asked ? "check" : "bulb", { size: 14 })}
+      <span>${esc(asked ? T.rs_asked_short : T.rs_ask_short)}</span>
+    </button>`;
+}
+
 export function cardHTML(product, category, ci = 0, pi = 0){
   const T = t(), lang = getLang();
   const off = discount(product.was, product.p);
@@ -53,13 +73,15 @@ export function cardHTML(product, category, ci = 0, pi = 0){
     : product.tag === "out" ? `<span class="card-stock out">${esc(T.out_stock)}</span>`
     : "";
 
-  /* Sold out means sold out: no button, rather than a button that takes
-     an order the owner would only have to ring up and refuse. The red
-     STOCK OUT mark below already says why it is missing. */
+  /* Sold out takes no order — the owner would only have to ring up and
+     refuse it. But the space is not left empty either: somebody who
+     wanted this is exactly the person worth telling when it returns. */
+  const soldOut = product._id && product.tag === "out";
   const buyable = product._id && product.tag !== "out";
   const n = buyable ? qtyOf(product._id) : 0;
 
-  const buy = !buyable ? "" : n ? `
+  const buy = soldOut ? restockHTML(product._id, T)
+    : !buyable ? "" : n ? `
       <div class="buy-qty" data-qty-for="${esc(product._id)}">
         <button type="button" class="qty-b" data-qty-down="${esc(product._id)}"
                 aria-label="${esc(T.cart_less)}">&minus;</button>

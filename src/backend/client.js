@@ -994,6 +994,139 @@ export async function setOrderStatus(id, status, reason = ""){
   return { data: data[0] };
 }
 
+/* ----------------------------- restocking ---------------------------- */
+
+/**
+ * The sold-out products this customer is waiting for.
+ *
+ * Ids only; the names and pictures come from the catalogue the page
+ * already has. Row-level security scopes it to whoever is signed in.
+ */
+export async function fetchMyRestock(){
+  const c = await db();
+  if (!c) return [];
+
+  const { data, error } = await c.from("restock_requests")
+    .select("product_id").is("done_at", null);
+
+  if (error){ console.warn("fetchMyRestock:", error.message); return []; }
+  return (data ?? []).map(r => r.product_id);
+}
+
+/**
+ * Ask for something to come back.
+ *
+ * An upsert, so pressing the button a second time is not an error and
+ * not a second request — the primary key sees to that. A repeat press
+ * costs a round trip and changes nothing, which is what it should do.
+ */
+export async function askRestock(productId){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data: { user } } = await c.auth.getUser();
+  if (!user) return { error: { message: "Not signed in" } };
+
+  return c.from("restock_requests").upsert(
+    { user_id: user.id, product_id: productId },
+    { onConflict: "user_id,product_id" });
+}
+
+/** Changed their mind. */
+export async function withdrawRestock(productId){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data: { user } } = await c.auth.getUser();
+  if (!user) return { error: { message: "Not signed in" } };
+
+  return c.from("restock_requests")
+    .delete().eq("user_id", user.id).eq("product_id", productId);
+}
+
+/**
+ * Everyone waiting, for the owner.
+ *
+ * Reads the view rather than the table: the customer's name and phone
+ * are in profiles and their email is in auth.users, and the view is
+ * what reaches across all three. It answers nobody but the owner.
+ */
+export async function fetchRestock(){
+  const c = await db();
+  if (!c) return [];
+
+  const { data, error } = await c.from("restock_board")
+    .select("*").is("done_at", null).order("created_at", { ascending: false });
+
+  if (error){ console.warn("fetchRestock:", error.message); return []; }
+  return data ?? [];
+}
+
+/**
+ * The thing is back in.
+ *
+ * Clears every open request for that product in one go, and takes the
+ * sold-out mark off the product itself — the owner has just told us it
+ * is back, and making him say so twice in two places is how one of them
+ * ends up forgotten.
+ */
+export async function markRestocked(productId){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data, error } = await c.from("restock_requests")
+    .update({ done_at: new Date().toISOString() })
+    .eq("product_id", productId).is("done_at", null).select();
+
+  if (error) return { error };
+
+  const { error: pErr } = await c.from("products")
+    .update({ tag: "in" }).eq("id", productId);
+
+  if (pErr) return { error: pErr };
+  return { data: data ?? [] };
+}
+
+/**
+ * Tell everyone waiting that it is back.
+ *
+ * Through an Edge Function, because sending mail needs the shop's Resend
+ * key and anything the browser holds is readable by whoever opens the
+ * page. The function checks the caller is the owner before it sends.
+ *
+ * Deployed separately from the site, so it may not be there yet — the
+ * caller treats a failure as "the list is cleared but nobody was told"
+ * rather than as the whole operation failing.
+ */
+export async function notifyRestocked(productId){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data: { session } } = await c.auth.getSession();
+  if (!session) return { error: { message: "Not signed in" } };
+
+  try {
+    const res = await fetch(`${SUPABASE.URL}/functions/v1/restock-notify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+        apikey: SUPABASE.KEY,
+      },
+      body: JSON.stringify({ product_id: productId }),
+    });
+
+    if (!res.ok){
+      const body = await res.json().catch(() => ({}));
+      return { error: { message: body.error || `mail service said ${res.status}` } };
+    }
+    return { data: await res.json() };
+
+  } catch (e){
+    return { error: { message: e.message || "could not reach the mail service" } };
+  }
+}
+
 /* -------------------------------- auth ------------------------------- */
 
 export async function signIn(email, password){

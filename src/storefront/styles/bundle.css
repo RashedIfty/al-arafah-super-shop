@@ -2327,6 +2327,19 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .buy-qty.lb-buy .qty-b{width:56px;min-height:50px;font-size:22px}
 .buy-qty.lb-buy .qty-n{font-size:17px;display:grid;place-items:center;min-height:50px}
 
+/* ------------------- waiting for something to return ------------------ */
+/* Where the buy button would be on a sold-out card. Outlined rather than
+   filled: this is a message to the shop, not a purchase. */
+.buy.restock{
+  border-color:var(--gold);color:#8a6100;background:#fffaf0;
+}
+.buy.restock:hover{background:var(--gold);color:#3a2a00}
+.buy.restock.asked{
+  border-color:#9fd9c1;background:#f2faf7;color:#0d6b4d;
+}
+.buy.restock.asked:hover{background:#e0f2ea;color:#0d6b4d}
+.buy.restock span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 /* ===== components/promo.css ===== */
 /* Promo banners & info band */
 

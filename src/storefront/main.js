@@ -26,6 +26,7 @@ import { refreshAccount, onAccountChange, toggleFavourite, signOut }
   from "../features/account/account.js";
 import { onCartChange, addToCart, setQty, qtyOf, removeFromCart, dropMissing }
   from "../features/cart/cart.js";
+import { onRestockChange, refreshRestock } from "../features/restock/restock.js";
 import { cartPageHTML } from "./components/cart-page.js";
 import { checkoutHTML, initCheckout, setCheckoutRepaint }
   from "./components/checkout.js";
@@ -283,6 +284,20 @@ document.addEventListener("click", async e => {
      No sign-in needed — a basket belongs to the browser, and asking
      someone to log in before they can even pick something up would lose
      more customers than it keeps. */
+  /* Asking for a sold-out product to come back. In the capture phase
+     with the rest, or the card underneath opens the lightbox instead. */
+  const rs = e.target.closest("[data-restock]");
+  if (rs){
+    e.preventDefault(); e.stopPropagation();
+
+    const { toggleRestock } = await import("../features/restock/restock.js");
+    const r = await toggleRestock(rs.dataset.restock);
+
+    if (r.needsSignIn) goToSignIn();
+    else if (!r.ok && r.message) alert(r.message);
+    return;
+  }
+
   const add = e.target.closest("[data-add]");
   if (add){
     e.preventDefault(); e.stopPropagation();
@@ -333,6 +348,7 @@ document.addEventListener("click", async e => {
    card also turns the header count over. */
 onAccountChange(render);
 onCartChange(render);
+onRestockChange(render);
 onOrdersChange(render);
 setCheckoutRepaint(render);
 setResetRepaint(render);
@@ -354,6 +370,7 @@ if (/[#&]type=recovery/.test(location.hash) &&
 /* Who is signed in, and what have they saved. After the first paint
    rather than blocking it: the shop is worth showing before we know. */
 refreshAccount();
+refreshRestock();   // which sold-out things this customer is waiting for
 
 /* The customer's delivery details and past orders, but only on the pages
    that show them — every other page would be paying for a query it never
