@@ -74,6 +74,15 @@
  * a small picture floating in the middle. Matching the box to the
  * pictures fills it without cropping anything away.
  */
+/* The tint, as under the promises above and Order on Chat below. The
+   tiles were already white cards; all they wanted was a ground to sit
+   against instead of white on white. */
+.cat-band{
+  background:var(--bg);
+  border-bottom:1px solid var(--line);
+  padding:24px 0 28px;
+}
+
 .cat-tile-img{
   border:1px solid var(--line);border-radius:var(--radius);
   overflow:hidden;background:#fff;margin-bottom:6px;
