@@ -1188,14 +1188,14 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
    so the track is pinned here rather than inherited. The odd one out takes
    the full width and centres itself. */
 @media(max-width:599px){
-  /* Two tracks, so the three wrap to two and one. The last tile keeps the
-     track width it would have had — spanning the row and halving itself
-     would fight the fixed track and overflow — and centres in the row it
-     has to itself. */
-  .shelf-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .shelf-tiles > .cat-tile:last-child:nth-child(odd){
-    grid-column:1/-1;justify-self:center;width:calc(50% - var(--gap)/2);
-  }
+  /* All three on one row. Two-and-one left the last shelf alone on a
+     line of its own, which read as an afterthought rather than the third
+     of three. Narrower tiles are the price and they carry it: these are
+     pictures with a word under them. */
+  .shelf-tiles{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .shelf-tiles .cat-tile-img{aspect-ratio:1/1}
+  .shelf-tiles .cat-tile b{font-size:10px;line-height:1.2}
+  .shelf-tiles .cat-tile small{font-size:9px}
 }
 
 /* The sidebar's own heading for the same group. */
