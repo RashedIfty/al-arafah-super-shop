@@ -142,12 +142,37 @@
   .hero-shot{transform:none}
 }
 
-.feats{background:var(--bg);border-bottom:1px solid var(--line);padding:16px 0}
-.feats-in{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.feat{display:flex;align-items:center;gap:10px}
-.feat i{font-style:normal;font-size:22px;flex-shrink:0}
+/* The four promises, on the tint with a hairline top and bottom so the
+   strip is bounded on both sides rather than trailing off into the
+   page. Same treatment as Order on Chat: the ground steps back, the
+   cards come forward. */
+.feats{
+  background:var(--bg);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  padding:18px 0;
+}
+.feats-in{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+
+/* White against the tint. They were four claims floating on grey with
+   nothing to separate one from the next. */
+.feat{
+  display:flex;align-items:center;gap:10px;
+  background:#fff;border:1px solid var(--line);
+  border-radius:var(--radius);padding:12px 14px;
+  box-shadow:var(--sh);
+}
+.feat i{font-style:normal;font-size:22px;flex-shrink:0;color:var(--red)}
 .feat b{display:block;color:var(--ink);font-size:13px;line-height:1.25}
-.feat span{font-size:11.5px;color:var(--mute)}
+.feat span{font-size:11.5px;color:var(--mute);line-height:1.35}
+
+/* Two up on a phone, and "Meat, fish & vegetables" wraps while "Fair,
+   honest rates" does not — which left one card in each row taller than
+   the other. Equal height, so the four read as a set. */
+@media(max-width:620px){
+  .feats-in{align-items:stretch}
+  .feat{height:100%}
+}
 
 /* ------------------------------ on a phone ---------------------------- */
 /* The panel had no horizontal padding at all, so the heading, the
