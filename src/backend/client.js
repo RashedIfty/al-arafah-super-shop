@@ -1074,17 +1074,31 @@ export async function markRestocked(productId){
   const c = await db();
   if (!c) return { error: { message: "Not configured" } };
 
-  const { data, error } = await c.from("restock_requests")
-    .update({ done_at: new Date().toISOString() })
-    .eq("product_id", productId).is("done_at", null).select();
-
-  if (error) return { error };
-
-  const { error: pErr } = await c.from("products")
+  /* Only the shelf mark. The requests are stamped done by the function
+     that sends the emails, because it is the only thing that knows who
+     it actually reached — stamping them here first left it looking for
+     open requests, finding none, and telling nobody. */
+  const { error } = await c.from("products")
     .update({ tag: "in" }).eq("id", productId);
 
-  if (pErr) return { error: pErr };
-  return { data: data ?? [] };
+  if (error) return { error };
+  return { data: true };
+}
+
+/**
+ * Clear the requests when the email could not be sent.
+ *
+ * The owner still pressed the button and the thing is still back on the
+ * shelf; leaving the list full would have him pressing it again at
+ * people who cannot be emailed anyway.
+ */
+export async function clearRestock(productId){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  return c.from("restock_requests")
+    .update({ done_at: new Date().toISOString() })
+    .eq("product_id", productId).is("done_at", null);
 }
 
 /**

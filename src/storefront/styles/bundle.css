@@ -2340,6 +2340,23 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .buy.restock.asked:hover{background:#e0f2ea;color:#0d6b4d}
 .buy.restock span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
+/* "Request restock" needs about 140px; three to a row on a phone gives
+   the button 98. The full words where they fit, one word where they do
+   not — rather than the same words cut off. */
+.buy.restock .rs-short{display:none}
+@media(max-width:620px){
+  .buy.restock .rs-long{display:none}
+  .buy.restock .rs-short{display:inline}
+  .buy.restock{padding-left:6px;padding-right:6px;gap:4px;font-size:11px}
+}
+
+/* On the narrowest phones the word alone is the whole button. A mark
+   beside a word that has to be cut in half helps nobody. */
+@media(max-width:380px){
+  .buy.restock .icon{display:none}
+  .buy.restock{padding-left:4px;padding-right:4px;font-size:10.5px}
+}
+
 /* ===== components/promo.css ===== */
 /* Promo banners & info band */
 

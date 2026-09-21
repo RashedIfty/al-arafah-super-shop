@@ -42,7 +42,8 @@ function restockHTML(id, T){
             data-restock="${esc(id)}"
             title="${esc(asked ? T.rs_asked : T.rs_ask)}">
       ${icon(asked ? "check" : "bulb", { size: 14 })}
-      <span>${esc(asked ? T.rs_asked_short : T.rs_ask_short)}</span>
+      <span class="rs-long">${esc(asked ? T.rs_asked_short : T.rs_ask)}</span>
+      <span class="rs-short">${esc(asked ? T.rs_asked_short : T.rs_ask_short)}</span>
     </button>`;
 }
 

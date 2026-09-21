@@ -131,6 +131,9 @@ export function initRestock({ toast, ask, refresh }){
           busy.add(id);
           renderRestock();
 
+          /* The shelf first, then the emails. The function stamps the
+             requests done itself, and only for the people it actually
+             reached — so it has to run while they are still open. */
           const { error } = await api.markRestocked(id);
           busy.delete(id);
 
@@ -139,17 +142,22 @@ export function initRestock({ toast, ask, refresh }){
             return refresh();
           }
 
-          /* The email goes through an Edge Function, which may not be
-             deployed yet. The list is already cleared and the shelf is
-             already right, so a failure here is worth saying out loud
-             but is not worth undoing any of it. */
           try {
-            const { error: mailErr } = await api.notifyRestocked(id);
-            toast(mailErr
-              ? `Back on the shelf. The emails did not send: ${mailErr.message}`
-              : `Told ${n} ${n === 1 ? "person" : "people"}. It is back on the shelf.`,
-              Boolean(mailErr));
+            const { data, error: mailErr } = await api.notifyRestocked(id);
+
+            if (mailErr){
+              /* Nobody was told, but the thing is back. Clear the list
+                 anyway rather than leave him pressing at it. */
+              await api.clearRestock(id);
+              toast(`Back on the shelf. The emails did not send: ${mailErr.message}`, true);
+            } else {
+              const told = data?.sent ?? 0;
+              toast(told
+                ? `Told ${told} ${told === 1 ? "person" : "people"}. It is back on the shelf.`
+                : "Back on the shelf. Nobody was waiting.");
+            }
           } catch (ex){
+            await api.clearRestock(id);
             toast("Back on the shelf. The emails did not send.", true);
           }
 

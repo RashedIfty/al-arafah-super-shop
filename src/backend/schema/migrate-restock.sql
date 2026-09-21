@@ -90,10 +90,15 @@ security definer
 set search_path = public
 as $$
 begin
-  if is_owner() then
+  /* The owner through the browser, or the service role — which is the
+     function that sends the emails, and the only thing that knows who
+     it actually managed to reach. A customer is neither. */
+  if is_owner() or auth.role() = 'service_role'
+     or current_setting('role', true) = 'service_role' then
     return new;
   end if;
-  new.done_at    := old.done_at;      -- only the owner clears a request
+
+  new.done_at    := old.done_at;      -- only the shop clears a request
   new.created_at := old.created_at;   -- and the clock is not theirs to set
   return new;
 end;
