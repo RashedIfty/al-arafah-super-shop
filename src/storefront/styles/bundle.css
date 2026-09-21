@@ -247,6 +247,26 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
 .nav-in a:hover{opacity:1;background:rgba(0,0,0,.09)}
 .nav-in a.on{opacity:1;border-bottom-color:var(--gold)}
 
+/* ------------------------- on a phone --------------------------------
+   Five links came to 446px against a 390px screen, so Contact sat off
+   the edge and had to be scrolled to — and a link you cannot see is a
+   link most people never find. They share the width instead: the
+   padding gives way first, then the type, and every one of them is on
+   screen without moving anything.
+   -------------------------------------------------------------------- */
+@media(max-width:620px){
+  .nav-scroll{overflow-x:hidden}
+  .nav-in{justify-content:space-between}
+  .nav-in a{
+    flex:1 1 auto;min-width:0;justify-content:center;
+    padding:0 6px;font-size:12px;text-align:center;
+  }
+}
+
+@media(max-width:400px){
+  .nav-in a{padding:0 3px;font-size:11px;letter-spacing:-.2px}
+}
+
 /* ===== layout/hero.css ===== */
 /* Hero & feature strip */
 
@@ -1288,8 +1308,11 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
    set large at the foot of each card rather than buried in the sentence.
    ========================================================================== */
 
+/* Two offers, shown as a pair at every width. Stacked, the second one —
+   free delivery anywhere in Japan — fell below the fold on a phone and
+   most people never saw it. */
 .dlv{
-  display:grid;gap:14px;grid-template-columns:1fr;
+  display:grid;gap:11px;grid-template-columns:1fr 1fr;
 }
 
 .dlv-card{
@@ -1343,9 +1366,21 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .dlv-ask a:hover{color:var(--red)}
 .dlv-ask .icon{color:var(--red)}
 
+/* On a phone each card gets about 175px. The sentence is what will not
+   fit, and it only repeats what the amount underneath already says, so
+   it goes and the number stays. */
+@media(max-width:620px){
+  .dlv{gap:9px}
+  .dlv-card{padding:12px 11px 14px}
+  .dlv-card p{display:none}
+  .dlv-card h3{font-size:12.5px;line-height:1.3}
+  .dlv-amt{font-size:17px}
+  .dlv-amt span{font-size:9px}
+}
+
 /* ----------------------------- breakpoints ---------------------------- */
 @media(min-width:760px){
-  .dlv{grid-template-columns:1fr 1fr;gap:18px}
+  .dlv{gap:18px}
   .dlv-card{padding:16px 18px 15px}
   .dlv-card h3{font-size:14.5px}
   .dlv-amt{font-size:22px}

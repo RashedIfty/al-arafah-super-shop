@@ -88,7 +88,7 @@ function accountHTML(){
   if (!isSignedIn())
     return `
       <button class="hdr-acct" data-signin title="${esc(T.customer_login)}">
-        <span class="hdr-acct-ic">${icon("lock",{size:13})}</span>
+        <span class="hdr-acct-ic">${icon("user",{size:14})}</span>
         <em>${esc(T.customer_login)}</em>
       </button>`;
 
