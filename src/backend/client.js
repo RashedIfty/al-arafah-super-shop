@@ -1039,6 +1039,23 @@ export async function signOut(){
   return c?.auth.signOut();
 }
 
+/**
+ * Is the signed-in account the shop's owner?
+ *
+ * Asked of the database, which compares auth.uid() against
+ * settings.owner_uid — the same function every write policy uses. There
+ * is no list of addresses in this code to edit, and changing who the
+ * owner is means changing that one row.
+ */
+export async function amOwner(){
+  const c = await db();
+  if (!c) return false;
+
+  const { data, error } = await c.rpc("is_owner");
+  if (error){ console.warn("is_owner:", error.message); return false; }
+  return data === true;
+}
+
 /** Current signed-in user, or null. */
 export async function currentUser(){
   const c = await db();

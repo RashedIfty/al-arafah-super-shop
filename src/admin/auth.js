@@ -18,8 +18,11 @@ export const usingSupabase = () => isConfigured();
 export async function isLoggedIn(){
   if (usingSupabase()){
     try {
-      const { currentUser } = await import("../backend/client.js");
-      return Boolean(await currentUser());
+      /* Signed in is not the same as being the owner. Every customer
+         account can sign in — the panel belongs to one of them, and
+         which one is a row in the database, not a name in this file. */
+      const { amOwner } = await import("../backend/client.js");
+      return await amOwner();
     } catch { return false; }
   }
   try { return sessionStorage.getItem(KEY) === "1"; }
@@ -37,7 +40,19 @@ export async function login(email = "", pass = ""){
       const { data, error } = await signIn(email.trim(), pass);
 
       if (error) return { ok: false, message: friendly(error.message) };
-      return { ok: Boolean(data?.user) };
+      if (!data?.user) return { ok: false, message: "That email or password is not right." };
+
+      /* The password was right, but this is not the shop's account. Sign
+         the session straight back out — leaving it would hand a customer
+         a half-open door — and say nothing about which of the two was
+         wrong. */
+      const { amOwner, signOut } = await import("../backend/client.js");
+      if (!(await amOwner())){
+        await signOut();
+        return { ok: false, message: "That email or password is not right." };
+      }
+
+      return { ok: true };
     } catch (e) {
       // Surface the real cause; a generic message here hid a module-load
       // failure for far too long.
