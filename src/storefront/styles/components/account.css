@@ -118,6 +118,10 @@
 @media print{ .fav, .hdr-acct, .acct-page{display:none} }
 
 /* Arrived from the confirmation email. */
+/* display:flex overrides the hidden attribute, so this box was showing
+   as an empty green rectangle before there was anything to say. Hidden
+   wins now, and flex applies only when it is actually shown. */
+.acct-ok[hidden]{display:none}
 .acct-ok{
   display:flex;align-items:center;justify-content:center;gap:8px;
   max-width:420px;margin:0 auto 14px;padding:11px 14px;
