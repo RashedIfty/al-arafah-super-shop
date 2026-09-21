@@ -1102,6 +1102,16 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   width:100%;height:100%;object-fit:contain;
   transition:transform .4s var(--ease);
 }
+
+/* Shorter on a phone. At 4:3 across half a 390px screen each picture ran
+   to 127px tall, so two rows of tiles filled the view and the categories
+   below them were never seen. A wider box shows the same picture in less
+   height. */
+@media(max-width:620px){
+  .cat-tiles{gap:9px}
+  .cat-tile-img{aspect-ratio:16/10}
+  .cat-tile b{font-size:12px}
+}
 .cat-tile:hover .cat-tile-img{border-color:var(--red);box-shadow:var(--sh-lg)}
 .cat-tile:hover .cat-tile-img img{transform:scale(1.07)}
 .cat-tile:hover{transform:translateY(-3px)}
@@ -1396,8 +1406,23 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
    reading on a laptop with their phone in hand.
    ========================================================================== */
 
+/* Four ways to reach the shop, shown as four rather than as a column
+   four screens tall. On a phone they share the row and the card shrinks
+   to its icon, its name and its button. */
 .chat{
-  display:grid;gap:14px;grid-template-columns:1fr;
+  display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+@media(max-width:620px){
+  .chat{gap:7px}
+  /* minmax(0,1fr) lets a column go narrower than its content; without it
+     the four cards insisted on their natural width and pushed the page
+     150px wider than the screen. */
+  .chat-card{padding:11px 5px;min-width:0;overflow:hidden}
+  .chat-card > *{min-width:0;max-width:100%}
+  .chat-card b{font-size:11.5px;line-height:1.25}
+  .chat-card p{display:none}       /* the name says it */
+  .chat-card .btn{width:100%;padding:7px 4px;font-size:11px}
 }
 
 .chat-card{
@@ -2143,7 +2168,21 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 /* ===== components/promo.css ===== */
 /* Promo banners & info band */
 
-.promos{display:grid;gap:14px;padding:24px 16px 6px}
+/* The two panels are a pair and are shown as one. Stacked, the second
+   was a screen further down and read as an afterthought. */
+.promos{display:grid;gap:14px;padding:24px 16px 6px;grid-template-columns:1fr 1fr}
+
+/* Half a phone screen is about 175px, and the panel was built for a
+   full one: 24px of side padding and a 21px heading needed 229px and
+   spilled out of its own box. Everything comes down a step. */
+@media(max-width:620px){
+  .promos{gap:9px;padding:18px 12px 4px}
+  .promo{padding:16px 13px}
+  .promo::after{width:120px;height:120px;right:-40px;top:-40px}
+  .promo span{font-size:8.5px;letter-spacing:.8px;line-height:1.3;display:block}
+  .promo h3{font-size:15px;margin:5px 0 11px;line-height:1.25}
+  .promo .btn{padding:8px 11px;font-size:11.5px;width:100%;justify-content:center}
+}
 .promo{
   border-radius:var(--radius);padding:26px 24px;color:#fff;
   position:relative;overflow:hidden;

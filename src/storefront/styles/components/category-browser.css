@@ -88,6 +88,16 @@
   width:100%;height:100%;object-fit:contain;
   transition:transform .4s var(--ease);
 }
+
+/* Shorter on a phone. At 4:3 across half a 390px screen each picture ran
+   to 127px tall, so two rows of tiles filled the view and the categories
+   below them were never seen. A wider box shows the same picture in less
+   height. */
+@media(max-width:620px){
+  .cat-tiles{gap:9px}
+  .cat-tile-img{aspect-ratio:16/10}
+  .cat-tile b{font-size:12px}
+}
 .cat-tile:hover .cat-tile-img{border-color:var(--red);box-shadow:var(--sh-lg)}
 .cat-tile:hover .cat-tile-img img{transform:scale(1.07)}
 .cat-tile:hover{transform:translateY(-3px)}

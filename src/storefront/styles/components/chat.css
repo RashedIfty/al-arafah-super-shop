@@ -7,8 +7,23 @@
    reading on a laptop with their phone in hand.
    ========================================================================== */
 
+/* Four ways to reach the shop, shown as four rather than as a column
+   four screens tall. On a phone they share the row and the card shrinks
+   to its icon, its name and its button. */
 .chat{
-  display:grid;gap:14px;grid-template-columns:1fr;
+  display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+@media(max-width:620px){
+  .chat{gap:7px}
+  /* minmax(0,1fr) lets a column go narrower than its content; without it
+     the four cards insisted on their natural width and pushed the page
+     150px wider than the screen. */
+  .chat-card{padding:11px 5px;min-width:0;overflow:hidden}
+  .chat-card > *{min-width:0;max-width:100%}
+  .chat-card b{font-size:11.5px;line-height:1.25}
+  .chat-card p{display:none}       /* the name says it */
+  .chat-card .btn{width:100%;padding:7px 4px;font-size:11px}
 }
 
 .chat-card{
