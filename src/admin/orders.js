@@ -47,6 +47,29 @@ export const allOrders = () => orders;
  */
 let audio = null;
 
+/**
+ * Whether the owner wants to hear it at all.
+ *
+ * On unless he has said otherwise, because a shop that misses an order
+ * is worse off than one that hears a chime it did not need. The choice
+ * is remembered per browser, so turning it off at the counter does not
+ * silence his phone.
+ */
+const WANT_KEY = "aa-order-sound";
+
+let wanted = (() => {
+  try { return localStorage.getItem(WANT_KEY) !== "off"; }
+  catch { return true; }          // private mode: default to hearing it
+})();
+
+export const soundWanted = () => wanted;
+
+function setWanted(on){
+  wanted = on;
+  try { localStorage.setItem(WANT_KEY, on ? "on" : "off"); } catch { /* not fatal */ }
+  paintSound();
+}
+
 export function unlockAudio(){
   if (audio){
     // A context can be suspended again when the tab sleeps. Waking it
@@ -65,18 +88,28 @@ export function unlockAudio(){
 export const soundReady = () => Boolean(audio) && audio.state === "running";
 
 /**
- * Say whether the sound is armed.
+ * The button says one of three things, because there are three states
+ * and the owner needs to tell them apart.
  *
- * Silence is the one failure the owner cannot see. A panel that has
- * been open all morning without a click will not chime, and without
- * this he would only discover that by missing an order.
+ * Off is his own choice. Waiting is the browser's: it will not let a
+ * page make noise until someone has clicked, so a panel left open all
+ * morning is silent through no fault of his. Silence is the one failure
+ * he cannot see, and without this he would discover it by missing an
+ * order.
  */
 function paintSound(){
   const el = $("#ordSound");
   if (!el) return;
-  const on = soundReady();
-  el.classList.toggle("off", !on);
-  el.textContent = on ? "🔔 Sound on" : "🔕 Click to turn sound on";
+
+  const ready = soundReady();
+
+  el.classList.toggle("off",     !wanted);
+  el.classList.toggle("waiting", wanted && !ready);
+  el.setAttribute("aria-pressed", wanted ? "true" : "false");
+
+  el.textContent = !wanted ? "🔕 Sound off"
+                 : ready   ? "🔔 Sound on"
+                           : "🔔 Sound on — click anywhere to arm";
 }
 
 
@@ -101,6 +134,7 @@ function claimSound(){
 }
 
 export function chime(){
+  if (!wanted) return;                               // he asked for quiet
   if (!audio || audio.state === "closed") return;
   if (!claimSound()) return;
 
@@ -491,8 +525,13 @@ export function initOrders({ toast, ask, refresh }){
   document.addEventListener("click", unlockAudio, { passive: true });
   paintSound();
 
-  // Clicking the indicator is itself the gesture the browser wants.
-  $("#ordSound")?.addEventListener("click", unlockAudio);
+  // The button turns it off and on. Unlocking first means that the same
+  // click both arms the audio and leaves it on — the browser wants a
+  // gesture, and this is one.
+  $("#ordSound")?.addEventListener("click", () => {
+    unlockAudio();
+    setWanted(!wanted);
+  });
 
   // Opening the tab clears the count.
   $$(".tab").forEach(b => b.addEventListener("click", () => {

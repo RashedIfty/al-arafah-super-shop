@@ -1006,17 +1006,26 @@ body{overflow-x:hidden}
 /* Silence is the one failure the owner cannot see. This says out loud
    whether the panel will chime, because a tab that has sat untouched
    all morning will not, and he would only find out by missing an order. */
+/* Green when it will ring, grey when the owner has switched it off,
+   amber while it is on but the browser has not had a click yet. It is a
+   switch in all three, so it is always a pointer. */
 .ord-sound{
   border:1.5px solid #12805c;background:#e3f4ed;color:#12805c;
-  border-radius:22px;padding:9px 16px;cursor:default;
+  border-radius:22px;padding:9px 16px;cursor:pointer;
   font-size:12.5px;font-weight:800;white-space:nowrap;
   transition:.15s var(--ease);
 }
-.ord-sound.off{
-  border-color:var(--red);background:var(--red-l);color:var(--red);
-  cursor:pointer;
+.ord-sound:hover{background:#12805c;color:#fff}
+
+.ord-sound.waiting{
+  border-color:#b26a00;background:#fdf1dc;color:#b26a00;
 }
-.ord-sound.off:hover{background:var(--red);color:#fff}
+.ord-sound.waiting:hover{background:#b26a00;color:#fff}
+
+.ord-sound.off{
+  border-color:var(--line);background:#f4f5f7;color:#6b7280;
+}
+.ord-sound.off:hover{background:#6b7280;color:#fff;border-color:#6b7280}
 
 @media(max-width:620px){
   .ord-sound{width:100%;text-align:center}
