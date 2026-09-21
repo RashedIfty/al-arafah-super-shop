@@ -244,6 +244,58 @@ const LABEL = {
   cancelled: "Cancelled",
 };
 
+/**
+ * One line of an order, with the button that refuses it.
+ *
+ * A shop runs out of one thing, not of everything. Refusing a line
+ * leaves the rest of the order standing, and the customer keeps the
+ * four items that were on the shelf instead of losing all five.
+ *
+ * The refused line stays, struck through: an order that quietly lists
+ * four items when five were asked for is how a shop loses an argument
+ * it should have won.
+ *
+ * Only while there is still something to decide. Once an order is on
+ * the van the contents are settled, and a button that rewrites a
+ * delivered bill is a mistake waiting to be tapped.
+ */
+const CAN_REFUSE = ["pending", "confirmed"];
+
+function lineRow(i, o, working){
+  const open = CAN_REFUSE.includes(o.status);
+  const off  = i.rejected;
+
+  return `
+    <div class="ord-line${off ? " refused" : ""}">
+      <span>
+        ${esc(i.name_en)} <small>${esc(i.w)} × ${i.qty}</small>
+        ${off && i.reject_note
+          ? `<em class="ord-line-why">${esc(i.reject_note)}</em>` : ""}
+      </span>
+      <b>${yen(i.line_total)}</b>
+      ${open ? `
+        <button class="ord-line-x${off ? " on" : ""}"
+                data-item="${esc(i.id)}:${off ? "undo" : "no"}"
+                title="${off ? "Put this back on the order" : "We cannot supply this"}"
+                ${working ? "disabled" : ""}>
+          ${icon(off ? "restore" : "close", { size: 13 })}
+        </button>` : ""}
+    </div>`;
+}
+
+/** What was refused, totalled, so the owner sees what he turned away. */
+function refusedSum(items){
+  const off = items.filter(i => i.rejected);
+  if (!off.length) return "";
+
+  const lost = off.reduce((s, i) => s + Number(i.line_total || 0), 0);
+  return `
+    <div class="ord-line ord-line-off">
+      <span>${off.length} item${off.length === 1 ? "" : "s"} not supplied</span>
+      <b>−${yen(lost)}</b>
+    </div>`;
+}
+
 function orderRow(o, n){
   const items = o.order_items || [];
   const acts = ACTIONS[o.status] || [];
@@ -269,14 +321,11 @@ function orderRow(o, n){
         </div>
 
         <div class="ord-lines">
-          ${items.map(i => `
-            <div class="ord-line">
-              <span>${esc(i.name_en)} <small>${esc(i.w)} × ${i.qty}</small></span>
-              <b>${yen(i.line_total)}</b>
-            </div>`).join("")}
+          ${items.map(i => lineRow(i, o, working)).join("")}
           <div class="ord-line ord-line-sum">
             <span>Total</span><b>${yen(o.total)}</b>
           </div>
+          ${refusedSum(items)}
         </div>
 
         ${o.note ? `<div class="ord-msg">“${esc(o.note)}”</div>` : ""}
@@ -672,6 +721,68 @@ export function initOrders({ toast, ask, refresh }){
    */
   const promptReason = () =>
     (window.prompt("Why? The customer will see this.", "") || "").trim();
+
+  /* ---------------------- one line at a time ------------------------ */
+
+  /**
+   * Refuse a single item, or put it back.
+   *
+   * Refusing asks why and warns; putting one back does not — restoring
+   * a line the shop can supply after all needs no ceremony, and an
+   * accidental press is undone by pressing again.
+   */
+  document.addEventListener("click", async e => {
+    const btn = e.target.closest("[data-item]");
+    if (!btn) return;
+
+    const [itemId, what] = btn.dataset.item.split(":");
+    const order = orders.find(o =>
+      (o.order_items || []).some(i => String(i.id) === itemId));
+    if (!order || busy.has(order.id)) return;
+
+    const item = order.order_items.find(i => String(i.id) === itemId);
+
+    if (what === "undo") return runItem(order, item, "", true);
+
+    ask("Cannot supply this item?",
+        `${item.name_en} ${item.w} × ${item.qty} — ${yen(item.line_total)}. ` +
+        `The rest of order ${order.code} goes ahead and the total drops. ` +
+        `Please ring ${order.name} as well.`,
+        () => runItem(order, item, promptReason(), false));
+  });
+
+  async function runItem(order, item, note, undo){
+    busy.add(order.id);
+    renderOrders();
+
+    const { data, error } = await api.rejectOrderItem(item.id, note, undo);
+    busy.delete(order.id);
+
+    if (error){
+      toast(error.message, true);
+      await refresh();
+      return;
+    }
+
+    /* Patch the line and the order's new total in place. The whole list
+       is not worth refetching for one line, and the total came back
+       from the database rather than being added up again here. */
+    const oi = orders.findIndex(o => o.id === order.id);
+    if (oi !== -1){
+      const items = (orders[oi].order_items || []).map(i =>
+        String(i.id) === String(item.id)
+          ? { ...i, rejected: !undo,
+                    reject_note: undo ? null : (note || null) }
+          : i);
+      orders[oi] = { ...orders[oi], order_items: items,
+                     total: data.total ?? orders[oi].total };
+    }
+
+    toast(undo
+      ? `${item.name_en} is back on order ${order.code}.`
+      : `${item.name_en} refused. Order ${order.code} is now ${yen(data.total ?? 0)}.`);
+    renderOrders();
+  }
 
   async function run(order, to, reason){
     busy.add(order.id);

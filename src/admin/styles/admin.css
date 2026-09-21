@@ -911,6 +911,46 @@ body{overflow-x:hidden}
 .ord-line-sum{
   border-top:1px solid var(--line);margin-top:4px;padding-top:7px;font-weight:800;
 }
+
+/* ------------------------ a line the shop cannot fill ----------------
+   Struck through rather than removed. The owner needs to see what he
+   turned away as plainly as what he is sending, and so does the
+   customer when they ring up about it.
+   -------------------------------------------------------------------- */
+.ord-line.refused > span,
+.ord-line.refused > b{
+  text-decoration:line-through;color:var(--mute);opacity:.75;
+}
+/* The reason is the one thing on a struck line that must stay legible —
+   it is why the customer will be ringing.
+
+   A strike-through drawn on the parent is painted across its children
+   whatever they set, and text-decoration:none cannot lift it. An
+   inline-block starts a new decoration context, which can. */
+.ord-line.refused > span .ord-line-why{
+  display:inline-block;font-style:normal;
+  text-decoration:none;
+  font-size:10.5px;color:var(--red);font-weight:700;margin-top:2px;
+  opacity:1;
+}
+
+/* The refuse button sits at the end of the line, quiet until wanted. */
+.ord-line-x{
+  flex:0 0 auto;display:grid;place-items:center;
+  width:23px;height:23px;border-radius:7px;
+  border:1px solid var(--line);background:#fff;color:var(--mute);
+  cursor:pointer;transition:.15s var(--ease);
+}
+.ord-line-x:hover{border-color:var(--red);background:var(--red-l);color:var(--red)}
+.ord-line-x.on{border-color:#12805c;background:#e3f4ed;color:#12805c}
+.ord-line-x.on:hover{background:#12805c;color:#fff}
+.ord-line-x:disabled{opacity:.4;cursor:default}
+
+/* What was turned away, totalled. */
+.ord-line-off{
+  color:var(--red);font-weight:700;font-size:11.5px;padding-top:2px;
+}
+.ord-line-off b{color:var(--red)}
 .ord-line-sum b{color:var(--red);font-size:14.5px;font-weight:900}
 
 .ord-msg{

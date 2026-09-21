@@ -994,6 +994,45 @@ export async function setOrderStatus(id, status, reason = ""){
   return { data: data[0] };
 }
 
+/**
+ * Refuse one line of an order, or put it back.
+ *
+ * The shop has the rice but not the fish. The line stays on the order
+ * struck through rather than vanishing, so the customer can see what was
+ * dropped and why — and the order total is recomputed by the database,
+ * not here, so the customer's page, the owner's panel and the printed
+ * invoice cannot disagree about what is owed.
+ *
+ * Returns the order's new total, since the caller almost always wants to
+ * say it out loud.
+ */
+export async function rejectOrderItem(itemId, note = "", undo = false){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const patch = undo
+    ? { rejected: false, reject_note: null, rejected_at: null }
+    : { rejected: true,  reject_note: note.trim() || null,
+        rejected_at: new Date().toISOString() };
+
+  const { data, error } = await c.from("order_items")
+    .update(patch).eq("id", itemId).select("id, order_id, rejected");
+
+  if (error) return { error };
+
+  /* Nothing came back: row-level security refused it. An update that RLS
+     blocks is not an error — it matches no row and returns 200. */
+  if (!data?.length)
+    return { error: { message: "That line could not be changed." } };
+
+  /* The trigger has already retotalled the order; read it back rather
+     than adding the lines up again here. */
+  const { data: ord } = await c.from("orders")
+    .select("total").eq("id", data[0].order_id).single();
+
+  return { data: { ...data[0], total: ord?.total ?? null } };
+}
+
 /* ----------------------------- restocking ---------------------------- */
 
 /**

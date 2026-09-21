@@ -137,6 +137,7 @@ export default {
     ord_call:"Call to confirm order", ord_wa:"Send on WhatsApp",
     ord_id:"Order", ord_placed:"Placed", ord_to:"Delivering to",
     ord_items:"Items", ord_total:"Total", ord_status:"Status",
+    ord_unavailable:"Not available",
     ord_nav:"My Orders", ord_title:"My Orders", ord_sub:"Everything you have ordered",
     ord_none:"No orders yet",
     ord_none_s:"When you place an order it will appear here.",

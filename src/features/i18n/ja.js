@@ -137,6 +137,7 @@ export default {
     ord_call:"電話で注文を確認", ord_wa:"WhatsAppで送る",
     ord_id:"注文番号", ord_placed:"ご注文日時", ord_to:"お届け先",
     ord_items:"商品", ord_total:"合計", ord_status:"状況",
+    ord_unavailable:"ご用意できませんでした",
     ord_nav:"注文履歴", ord_title:"注文履歴", ord_sub:"これまでのご注文",
     ord_none:"ご注文はまだありません",
     ord_none_s:"ご注文いただくと、ここに表示されます。",

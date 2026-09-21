@@ -175,8 +175,13 @@ export function orderCardHTML(o, T, lang, canRemove = false, n = 0){
 
       <div class="ord-items">
         ${(o.order_items || o.items || []).map(i => `
-          <div class="ord-item">
-            <span>${esc(nameOf(i))} <small>${esc(i.w)} × ${i.qty}</small></span>
+          <div class="ord-item${i.rejected ? " refused" : ""}">
+            <span>
+              ${esc(nameOf(i))} <small>${esc(i.w)} × ${i.qty}</small>
+              ${i.rejected ? `
+                <em class="ord-item-why">${esc(
+                  i.reject_note || T.ord_unavailable)}</em>` : ""}
+            </span>
             <b>${yen(i.line_total)}</b>
           </div>`).join("")}
         <div class="ord-item ord-tot">

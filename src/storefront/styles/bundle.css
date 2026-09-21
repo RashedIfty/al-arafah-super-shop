@@ -2203,6 +2203,22 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 .ord-item small{color:var(--mute);font-size:11px}
 .ord-item b{color:var(--ink);font-weight:700;white-space:nowrap}
+
+/* Something the shop could not supply. Struck through and still there,
+   so the customer can see what was dropped and what they were not
+   charged for, rather than wondering whether it was ever ordered. */
+.ord-item.refused > span,
+.ord-item.refused > b{
+  text-decoration:line-through;color:var(--mute);opacity:.75;
+}
+/* Inline-block, not block: a strike-through drawn on the parent paints
+   across its children whatever they set, and only a new decoration
+   context lifts it. The reason must stay readable. */
+.ord-item.refused > span .ord-item-why{
+  display:inline-block;font-style:normal;text-decoration:none;
+  font-size:11px;color:var(--red);font-weight:700;margin-top:2px;
+  opacity:1;
+}
 .ord-item.ord-tot{
   border-top:1px solid var(--line);margin-top:5px;padding-top:8px;font-weight:800;
 }

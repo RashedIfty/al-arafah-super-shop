@@ -79,7 +79,12 @@ const payLine = id =>
 const isDue = id => id === "cod" || id === "card-cod";
 
 export function invoiceHTML(o, method = "cod"){
-  const items = o.order_items || o.items || [];
+  /* Only what is actually being handed over. A line the shop could not
+     supply is not billed, and does not belong on the paper the customer
+     keeps — what was ordered is a matter for the orders page; an invoice
+     is a demand for money, and it should ask for exactly what was
+     delivered and nothing else. */
+  const items = (o.order_items || o.items || []).filter(i => !i.rejected);
   const subtotal = items.reduce((s, i) => s + Number(i.line_total || 0), 0);
 
   return `<!DOCTYPE html>

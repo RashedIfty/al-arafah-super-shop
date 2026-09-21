@@ -137,6 +137,7 @@ export default {
     ord_call:"ফোন করে অর্ডার নিশ্চিত করুন", ord_wa:"হোয়াটসঅ্যাপে পাঠান",
     ord_id:"অর্ডার", ord_placed:"দেওয়া হয়েছে", ord_to:"পৌঁছে দেওয়া হবে",
     ord_items:"পণ্য", ord_total:"সর্বমোট", ord_status:"অবস্থা",
+    ord_unavailable:"পাওয়া যায়নি",
     ord_nav:"আমার অর্ডার", ord_title:"আমার অর্ডার", ord_sub:"আপনার সব অর্ডার",
     ord_none:"এখনো কোনো অর্ডার নেই",
     ord_none_s:"অর্ডার করলে সেটি এখানে দেখা যাবে।",
