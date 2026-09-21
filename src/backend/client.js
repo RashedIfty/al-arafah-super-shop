@@ -54,10 +54,12 @@ export async function db(){
       storage: tabStorage,
       persistSession: true,
       autoRefreshToken: true,
-      /* Nothing on this site signs in through a link in the address, so
-         there is no token there worth reading — and looking for one on
-         every page load is work for nothing. */
-      detectSessionInUrl: false,
+      /* The password-reset link carries its session in the address bar,
+         and the page that sets a new password has nothing else to prove
+         who the person is. That was written when no link on this site
+         signed anybody in; one does now, and refusing to read it made
+         every reset link report itself expired. */
+      detectSessionInUrl: true,
     },
   });
 

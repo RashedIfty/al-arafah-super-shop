@@ -337,6 +337,20 @@ onOrdersChange(render);
 setCheckoutRepaint(render);
 setResetRepaint(render);
 
+/**
+ * A password-reset link that landed on the wrong page.
+ *
+ * Supabase only redirects to addresses on its allow-list; anything else
+ * falls back to the Site URL, so the link arrives at the homepage with
+ * the session still attached to the address. Rather than leave somebody
+ * staring at the shop wondering what happened, carry them to the page
+ * that sets a password, session and all.
+ */
+if (/[#&]type=recovery/.test(location.hash) &&
+    document.body.dataset.page !== "reset"){
+  location.replace("reset.html" + location.hash);
+}
+
 /* Who is signed in, and what have they saved. After the first paint
    rather than blocking it: the shop is worth showing before we know. */
 refreshAccount();

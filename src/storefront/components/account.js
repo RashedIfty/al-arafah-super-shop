@@ -185,7 +185,13 @@ export function initAccount(){
 
   /* ------------------------ forgotten password ---------------------- */
 
+  /* Its own guard, because it is its own element. render() replaces
+     both forms, and this one was being bound again on every repaint
+     while the check at the top looked only at the sign-in form — which
+     is why one press sent two emails. */
   const askBox = $("#pwAskBox");
+  const askFresh = askBox && !askBox.dataset.bound;
+  if (askFresh) askBox.dataset.bound = "1";
   const showAsk = on => {
     form.hidden = on;
     askBox.hidden = !on;
@@ -195,7 +201,7 @@ export function initAccount(){
   $("#acctForgot")?.addEventListener("click", () => showAsk(true));
   $("#pwAskBack")?.addEventListener("click", () => showAsk(false));
 
-  askBox?.addEventListener("submit", async e => {
+  if (askFresh) askBox.addEventListener("submit", async e => {
     e.preventDefault();
 
     const T = t();
