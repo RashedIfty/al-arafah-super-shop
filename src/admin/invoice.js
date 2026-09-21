@@ -205,9 +205,12 @@ export function invoiceHTML(o, method = "cod"){
      the paper can match what is in his hand without reading anything.
      A product since deleted keeps the space, so the column does not
      shift about between lines. */
-  table.items tbody .item{display:flex;align-items:flex-start;gap:9px}
+  /* An icon, not a photograph. Enough to recognise a packet by while
+     glancing down the column, small enough that the name is still the
+     thing being read. */
+  table.items tbody .item{display:flex;align-items:center;gap:7px}
   table.items tbody .thumb{
-    width:34px;height:34px;flex-shrink:0;border-radius:4px;
+    width:20px;height:20px;flex-shrink:0;border-radius:3px;
     border:1px solid var(--line);background:#fff;
     object-fit:contain;
   }
