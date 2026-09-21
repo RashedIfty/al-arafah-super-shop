@@ -1528,7 +1528,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
    four screens tall. On a phone they share the row and the card shrinks
    to its icon, its name and its button. */
 .chat{
-  display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr));
+  display:grid;gap:14px;grid-template-columns:repeat(5,minmax(0,1fr));
 }
 
 /* White against the tint, so each one reads as its own thing. */
@@ -1549,10 +1549,17 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .chat-card.line .chat-ic{background:#06c755}
 .chat-card.grp  .chat-ic{background:linear-gradient(135deg,#128c7e,#25d366)}
 .chat-card.fb   .chat-ic{background:#1877f2}
+/* Instagram's mark is a gradient, not a flat colour — a solid purple
+   would not be recognised as theirs. */
+.chat-card.ig   .chat-ic{
+  background:radial-gradient(circle at 30% 107%,
+    #fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285aeb 90%);
+}
 .chat-card.wa:hover  {border-color:#25d366}
 .chat-card.line:hover{border-color:#06c755}
 .chat-card.grp:hover {border-color:#128c7e}
 .chat-card.fb:hover  {border-color:#1877f2}
+.chat-card.ig:hover  {border-color:#d6249f}
 
 .chat-card h3{font-size:14px;color:var(--ink);margin-bottom:2px}
 .chat-card p{font-size:11.5px;color:var(--body);line-height:1.4;margin-bottom:9px}
@@ -1573,14 +1580,30 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .chat-card.grp .chat-go{margin-top:auto}
 
 /* ----------------------------- breakpoints ---------------------------- */
+/* Three, not two: five cards over two columns leaves Instagram alone on
+   a third row with a hole beside it. Over three they sit 3 + 2, and the
+   short row is centred rather than hanging off the left. */
 @media(min-width:600px){
-  .chat{grid-template-columns:repeat(2,1fr);gap:16px}
+  .chat{grid-template-columns:repeat(6,1fr);gap:16px}
+  .chat-card{grid-column:span 2}
+  /* The last two straddle the middle column, so the pair centres under
+     the three above. */
+  .chat-card:nth-child(4){grid-column:2/span 2}
+  .chat-card:nth-child(5){grid-column:4/span 2}
 }
 @media(min-width:900px){
-  /* Four across once there is room: WhatsApp, LINE, the group, Facebook.
-     Below this they pair up rather than squeezing to a quarter each. */
-  .chat{grid-template-columns:repeat(4,1fr);gap:18px}
-  .chat-card{padding:16px 12px}
+  /* Five across once there is room: WhatsApp, LINE, the group,
+     Facebook, Instagram. Below this they pair up rather than squeezing
+     to a fifth each — five narrow columns would put every description
+     on three lines. */
+  .chat{grid-template-columns:repeat(5,1fr);gap:14px}
+  /* Undo the 3+2 spans from the band below — here every card is simply
+     one column of five. */
+  .chat-card,
+  .chat-card:nth-child(4),
+  .chat-card:nth-child(5){grid-column:auto}
+  .chat-card{padding:16px 11px}
+  .chat-go{min-width:0;width:100%;padding:8px 10px}
 }
 
 /* ------------------------- on a phone --------------------------------
@@ -1595,7 +1618,11 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
    -------------------------------------------------------------------- */
 @media(max-width:620px){
   .chat-band{margin-top:18px;padding:18px 0 22px}
-  .chat{gap:9px;grid-template-columns:repeat(4,minmax(0,1fr))}
+  .chat{gap:7px;grid-template-columns:repeat(5,minmax(0,1fr))}
+  /* Five marks in one row; no spans from the wider layouts. */
+  .chat-card,
+  .chat-card:nth-child(4),
+  .chat-card:nth-child(5){grid-column:auto}
 
   /* Flex, not grid. The card inherited align-items:center from the
      desktop flex column, and the grid's own place-items was fighting it
@@ -1612,12 +1639,14 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
      almost nothing — these are absolute. */
   /* Measured from the screen, not from the card. A percentage here
      resolves against a grid item with no definite size and collapses to
-     almost nothing — the mark came out 23px inside an 83px card. Four
-     cards share the width, so a quarter of the viewport less the gaps
-     is what each one has, and the mark takes two thirds of that. */
+     almost nothing — the mark came out 23px inside an 83px card. Five
+     cards share the width now, so a fifth of the viewport less the
+     gaps is what each one has, and the mark takes seven tenths of that
+     — a larger share than at four, because a fifth is a smaller square
+     to begin with. */
   .chat-card .chat-ic{
-    width:calc((100vw - 56px) / 4 * 0.66);
-    height:calc((100vw - 56px) / 4 * 0.66);
+    width:calc((100vw - 60px) / 5 * 0.7);
+    height:calc((100vw - 60px) / 5 * 0.7);
     max-width:62px;max-height:62px;
     flex:0 0 auto;margin:0;border-radius:15px;
   }

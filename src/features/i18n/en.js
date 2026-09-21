@@ -27,6 +27,7 @@ export default {
     chat_line:"LINE", chat_line_p:"Add us on LINE",
     chat_grp:"WhatsApp Group", chat_grp_p:"Daily offers and new arrivals",
     chat_fb:"Facebook", chat_fb_p:"Follow us for offers, photos and news",
+    chat_ig:"Instagram", chat_ig_p:"Photos of what is in today",
     chat_follow:"Follow",
     chat_open:"Open", chat_join:"Join group",
     dlv_title:"Delivery", dlv_sub:"We bring your order to your door",
