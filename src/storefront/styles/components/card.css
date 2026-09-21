@@ -1,6 +1,9 @@
 /* Product grid & card */
 
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+/* Three across, even on a phone. Two made each card 173px, which is a
+   lot of screen for one packet of rice and meant scrolling past six to
+   see twelve. */
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 
 .card{
   border:1px solid var(--line);border-radius:var(--radius);background:#fff;
@@ -77,3 +80,29 @@
 
 .empty{text-align:center;padding:50px 16px;color:var(--body)}
 .empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:5px}
+
+/* ---------------------------- three to a row -------------------------- */
+/* At three across a card is about 114px on a phone and 91px on the
+   narrowest, and the body was keeping 12px of padding on each side —
+   which left 65px for a product name. Everything comes in a step, and
+   the name is allowed the two lines it needs rather than being cut. */
+@media(max-width:620px){
+  .card-b{padding:8px 7px 10px}
+  .card-cat{font-size:8.5px;letter-spacing:.4px;margin-bottom:3px}
+  .card h3{font-size:11.5px;line-height:1.25}
+  .card-w{font-size:9.5px}
+  .price{font-size:13px}
+  .tax{font-size:8.5px}
+  .buy{font-size:11px;padding:7px 4px;margin-top:7px;gap:4px}
+  .buy .icon{width:13px;height:13px}
+  .qty-b{width:26px;height:28px;font-size:14px}
+  .qty-n{font-size:12px}
+}
+
+@media(max-width:380px){
+  .grid{gap:6px}
+  .card-b{padding:7px 5px 9px}
+  .card h3{font-size:10.5px}
+  .price{font-size:12px}
+  .buy{font-size:10px;padding:6px 3px}
+}
