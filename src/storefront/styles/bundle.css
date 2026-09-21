@@ -1420,9 +1420,24 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
      150px wider than the screen. */
   .chat-card{padding:11px 5px;min-width:0;overflow:hidden}
   .chat-card > *{min-width:0;max-width:100%}
-  .chat-card b{font-size:11.5px;line-height:1.25}
+  /* The name is an h3 and the button is .chat-go — not b and .btn,
+     which is why these rules did nothing the first time and the 100px
+     button sat overflowing an 84px card with the overflow hidden. */
+  .chat-ic{width:34px;height:34px;margin-bottom:6px}
+  .chat-ic svg{width:19px;height:19px}
+  /* "WhatsApp Group" will not fit 84px on one line, so it takes two and
+     every card reserves the same two lines — otherwise the four cards
+     end at different heights and the row looks broken. */
+  .chat-card h3{
+    font-size:11px;line-height:1.2;margin:0;
+    min-height:2.4em;display:flex;align-items:center;justify-content:center;
+    overflow-wrap:anywhere;
+  }
   .chat-card p{display:none}       /* the name says it */
-  .chat-card .btn{width:100%;padding:7px 4px;font-size:11px}
+  .chat-card .chat-go{
+    width:100%;min-width:0;box-sizing:border-box;
+    padding:6px 3px;font-size:10.5px;margin-top:7px;
+  }
 }
 
 .chat-card{
