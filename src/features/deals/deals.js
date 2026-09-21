@@ -87,12 +87,22 @@ const shelfKey = (name, w) =>
   `${String(name ?? "").trim().toLowerCase().replace(/\s+/g, " ")}|` +
   `${String(w ?? "").trim().toLowerCase().replace(/\s+/g, "")}`;
 
+/*
+ * A deal is only a deal while the thing is on the shelf.
+ *
+ * Two ways a product stops being sellable: the owner removes it, or he
+ * marks it sold out. The first was already handled; the second was not,
+ * so the strip went on advertising a fish nobody could buy — the worst
+ * kind of promotion, since it is the first thing on the homepage and it
+ * leads to a card with no buy button.
+ */
 function onlyStillSold(items, catalog){
   if (!items?.length || !catalog?.length) return items ?? [];
 
   const shelf = new Set();
   for (const cat of catalog)
-    for (const p of cat.items) shelf.add(shelfKey(p.en, p.w));
+    for (const p of cat.items)
+      if (p.tag !== "out") shelf.add(shelfKey(p.en, p.w));
 
   return items.filter(d => shelf.has(shelfKey(d.en, d.w)));
 }
