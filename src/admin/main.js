@@ -164,6 +164,39 @@ async function doLogin(e){
 
 on("#loginForm", "submit", doLogin);
 
+/* ------------------------ forgotten password -------------------------- */
+
+/**
+ * The owner's own reset. Sends him to the same page the customers use —
+ * one page that sets a password is enough, and the link carries who it
+ * is for.
+ */
+on("#ownerForgot", "click", async () => {
+  const email = $("#email")?.value.trim();
+  const err = $("#loginErr");
+
+  if (!email){
+    err.textContent = "Type your email above first, then press this.";
+    err.hidden = false;
+    $("#email")?.focus();
+    return;
+  }
+
+  err.hidden = true;
+
+  const { sendPasswordReset } = await import("../backend/client.js");
+  const { error } = await sendPasswordReset(
+    email, `${location.origin}/reset.html`);
+
+  if (error && !/user not found/i.test(error.message)){
+    err.textContent = error.message;
+    err.hidden = false;
+    return;
+  }
+
+  toast("Check your email for the link.");
+});
+
 on("#logout", "click", async () => { await logout(); location.href = "index.html"; });
 
 /* Show / hide the password. */

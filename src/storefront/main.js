@@ -31,6 +31,7 @@ import { checkoutHTML, initCheckout, setCheckoutRepaint }
   from "./components/checkout.js";
 import { ordersPageHTML } from "./components/orders-page.js";
 import { deliveryHTML } from "./components/delivery.js";
+import { resetHTML, initReset, setResetRepaint } from "./components/reset.js";
 import { refreshOrders, onOrdersChange, watchMyOrders, hideMyOrder }
   from "../features/orders/orders.js";
 import { initSearch, initScrollSpy, initBackToTop, sortBy } from "./components/search.js";
@@ -130,6 +131,7 @@ function render(){
   if ($("#checkoutMount")) put("#checkoutMount", checkoutHTML());
   if ($("#ordersMount")) put("#ordersMount", ordersPageHTML());
   if ($("#deliveryMount")) put("#deliveryMount", deliveryHTML());
+  if ($("#resetMount")) put("#resetMount", resetHTML());
 
   applyTranslations();
   renderStats();
@@ -155,6 +157,7 @@ function bindDynamic(){
   initScrollSpy();
   initAccount();
   initCheckout();
+  initReset();
 
   // Keep the chosen sort order after a re-render.
   const sort = $("#sort");
@@ -332,6 +335,7 @@ onAccountChange(render);
 onCartChange(render);
 onOrdersChange(render);
 setCheckoutRepaint(render);
+setResetRepaint(render);
 
 /* Who is signed in, and what have they saved. After the first paint
    rather than blocking it: the shop is worth showing before we know. */

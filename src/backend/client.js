@@ -1000,6 +1000,38 @@ export async function signIn(email, password){
   return c.auth.signInWithPassword({ email, password });
 }
 
+/**
+ * Send the "set a new password" email.
+ *
+ * Always answers as though it worked, whatever the address. Telling a
+ * stranger "no account with that email" hands them a way to find out
+ * which of your customers is registered, one guess at a time.
+ */
+export async function sendPasswordReset(email, redirectTo){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { error } = await c.auth.resetPasswordForEmail(String(email).trim(), {
+    redirectTo,
+  });
+  return { error };
+}
+
+/**
+ * Set the new password.
+ *
+ * Only works while the one-time session from the emailed link is in
+ * hand, which is what proves the person reading the email is the person
+ * who owns the address.
+ */
+export async function setNewPassword(password){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { error } = await c.auth.updateUser({ password });
+  return { error };
+}
+
 export async function signOut(){
   const c = await db();
   return c?.auth.signOut();

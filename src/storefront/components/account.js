@@ -54,6 +54,32 @@ export function accountFormHTML(){
           <span id="acctSwapTx">${esc(T.acct_no_account)}</span>
           <button type="button" id="acctSwap">${esc(T.acct_create)}</button>
         </p>
+
+        <p class="acct-forgot" id="acctForgotWrap">
+          <button type="button" id="acctForgot">${esc(T.pw_forgot)}</button>
+        </p>
+      </form>
+
+      <!-- Asking for the link. Hidden until the customer says they have
+           forgotten, because most people have not. -->
+      <form class="acct-box" id="pwAskBox" hidden novalidate>
+        <h2>${esc(T.pw_ask_title)}</h2>
+        <p class="acct-sub">${esc(T.pw_ask_sub)}</p>
+
+        <label><span>${esc(T.acct_email)}</span>
+          <input id="pwAskEmail" type="email" autocomplete="email"
+                 inputmode="email" required></label>
+
+        <p class="acct-err" id="pwAskErr" hidden></p>
+        <p class="acct-ok" id="pwAskOk" hidden></p>
+
+        <button type="submit" class="btn btn-red acct-go" id="pwAskGo">
+          ${esc(T.pw_send)}
+        </button>
+
+        <p class="acct-swap">
+          <button type="button" id="pwAskBack">${esc(T.pw_back)}</button>
+        </p>
       </form>
     </div>`;
 }
@@ -156,6 +182,46 @@ export function initAccount(){
   form.dataset.bound = "1";
 
   $("#acctSwap").addEventListener("click", () => setMode(!creating));
+
+  /* ------------------------ forgotten password ---------------------- */
+
+  const askBox = $("#pwAskBox");
+  const showAsk = on => {
+    form.hidden = on;
+    askBox.hidden = !on;
+    if (on) $("#pwAskEmail").value = $("#acctEmail").value.trim();
+  };
+
+  $("#acctForgot")?.addEventListener("click", () => showAsk(true));
+  $("#pwAskBack")?.addEventListener("click", () => showAsk(false));
+
+  askBox?.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const T = t();
+    const err = $("#pwAskErr"), ok = $("#pwAskOk"), go = $("#pwAskGo");
+    const email = $("#pwAskEmail").value.trim();
+
+    if (!email){ $("#pwAskEmail").focus(); return; }
+
+    go.disabled = true;
+    const label = go.textContent;
+    go.textContent = T.pw_sending;
+    err.hidden = true; ok.hidden = true;
+
+    const { requestPasswordReset } = await import("../../features/account/account.js");
+    const r = await requestPasswordReset(email);
+
+    go.disabled = false;
+    go.textContent = label;
+
+    if (!r.ok){ err.textContent = r.message; err.hidden = false; return; }
+
+    /* The same answer whether or not that address has an account, so the
+       form cannot be used to find out who shops here. */
+    ok.textContent = T.pw_sent;
+    ok.hidden = false;
+  });
 
   form.addEventListener("submit", async e => {
     e.preventDefault();

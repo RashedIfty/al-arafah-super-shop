@@ -146,6 +146,45 @@ export async function signUp(email, password){
   }
 }
 
+/**
+ * Ask for a password-reset email.
+ *
+ * The answer is the same whether the address has an account or not, so
+ * the form cannot be used to discover who shops here.
+ */
+export async function requestPasswordReset(email){
+  if (!isConfigured()) return { ok: false, message: "Not configured" };
+
+  try {
+    const api = await import("../../backend/client.js");
+    const { error } = await api.sendPasswordReset(
+      email, `${location.origin}/reset.html`);
+
+    if (error && !/user not found/i.test(error.message))
+      return { ok: false, message: error.message };
+
+    return { ok: true };
+  } catch (e){
+    return { ok: false, message: e.message || "Could not send the email." };
+  }
+}
+
+/** Set the new password, using the session the emailed link carries. */
+export async function savePassword(password){
+  if (!isConfigured()) return { ok: false, message: "Not configured" };
+
+  try {
+    const api = await import("../../backend/client.js");
+    const { error } = await api.setNewPassword(password);
+    if (error) return { ok: false, message: error.message };
+
+    await refreshAccount();
+    return { ok: true };
+  } catch (e){
+    return { ok: false, message: e.message || "Could not save the password." };
+  }
+}
+
 export async function signOut(){
   const api = await import("../../backend/client.js");
   await api.signOut();

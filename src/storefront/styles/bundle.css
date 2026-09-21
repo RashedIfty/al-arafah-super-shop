@@ -1795,6 +1795,21 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 .acct-ok .icon{flex-shrink:0}
 
+/* ---------------------- forgotten password --------------------------- */
+.acct-forgot{text-align:center;margin-top:10px}
+.acct-forgot button{
+  background:none;border:0;padding:4px;cursor:pointer;font:inherit;
+  font-size:12.5px;font-weight:700;color:var(--mute);text-decoration:underline;
+}
+.acct-forgot button:hover{color:var(--red)}
+
+.acct-centre{text-align:center}
+.pw-done-ic{
+  display:grid;place-items:center;width:62px;height:62px;
+  margin:0 auto 14px;border-radius:50%;background:#e8f6ef;color:#0d6b4d;
+}
+.acct-centre h2{margin-bottom:16px;font-size:17px;line-height:1.45}
+
 /* ===== components/cart.css ===== */
 /* The basket — buy buttons, the header badge, the cart page */
 
