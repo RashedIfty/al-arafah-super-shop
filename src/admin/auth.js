@@ -36,18 +36,27 @@ export async function isLoggedIn(){
 export async function login(email = "", pass = ""){
   if (usingSupabase()){
     try {
-      const { signIn } = await import("../backend/client.js");
+      /* The address first, before the password is even tried. A
+         customer at the wrong door should be told it is the wrong door,
+         whatever they typed underneath — and the shop's password is
+         never put to the test by somebody who could not have it. */
+      const { isOwnerEmail, signIn } = await import("../backend/client.js");
+      if (!(await isOwnerEmail(email))){
+        return {
+          ok: false,
+          notOwner: true,
+          message: "This is not the owner's account. Sign in with the owner email.",
+        };
+      }
+
       const { data, error } = await signIn(email.trim(), pass);
 
       if (error) return { ok: false, message: friendly(error.message) };
       if (!data?.user) return { ok: false, message: "That email or password is not right." };
 
-      /* The password was right, but this is not the shop's account.
-         Told plainly: a customer who typed their own details has made an
-         honest mistake and needs to know which one, not be left thinking
-         they have forgotten a password they never had. The session is
-         signed straight back out — leaving it would hand them a
-         half-open door. */
+      /* Belt and braces. The address was checked above, but the panel
+         should never open on anything but the owner's session — and this
+         is the check the database itself uses. */
       const { amOwner, signOut } = await import("../backend/client.js");
       if (!(await amOwner())){
         await signOut();

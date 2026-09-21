@@ -1056,6 +1056,23 @@ export async function amOwner(){
   return data === true;
 }
 
+/**
+ * Is this address the shop's owner? Asked before any sign-in.
+ *
+ * So that a customer trying the owner's door is told which thing is
+ * wrong — the address, not the password — whatever they typed in the
+ * password field. It answers only about the address already in front of
+ * them and cannot be used to discover any other.
+ */
+export async function isOwnerEmail(email){
+  const c = await db();
+  if (!c) return false;
+
+  const { data, error } = await c.rpc("is_owner_email", { addr: String(email ?? "") });
+  if (error){ console.warn("is_owner_email:", error.message); return false; }
+  return data === true;
+}
+
 /** Current signed-in user, or null. */
 export async function currentUser(){
   const c = await db();
