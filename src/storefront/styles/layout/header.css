@@ -83,21 +83,44 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
 .hero h1 .gold{color:var(--gold)}
 .chip.on{border-color:var(--red);background:var(--red-l)}
 
-/* Owner login in the header — icon only on small screens */
-.hdr-login{
-  display:flex;align-items:center;gap:7px;flex-shrink:0;
-  border:1.5px solid var(--line);border-radius:22px;
-  padding:9px 14px;font-size:13px;font-weight:700;color:var(--body);
-  transition:.18s var(--ease);white-space:nowrap;
+/* ------------------- the two doors, side by side ---------------------
+   Customer sign-in and owner login are the same kind of control and are
+   built the same: one border, one radius, one height, a round icon and a
+   word. Only where they lead differs. Both are on the header at every
+   width — an owner behind the counter uses a phone as often as a
+   customer does.
+   -------------------------------------------------------------------- */
+.hdr-login, .hdr-acct{
+  display:inline-flex;align-items:center;gap:7px;flex-shrink:0;
+  box-sizing:border-box;position:relative;
+  border:1.5px solid var(--line);border-radius:22px;background:#fff;
+  padding:5px 13px 5px 5px;min-height:36px;cursor:pointer;
+  font-size:12.5px;font-weight:700;color:var(--ink);
+  transition:.16s var(--ease);white-space:nowrap;
 }
-.hdr-login:hover{border-color:var(--red);color:var(--red);background:var(--red-l)}
-.hdr-login em{font-style:normal;display:none}
-@media(min-width:1100px){ .hdr-login em{display:inline} }
+.hdr-login:hover, .hdr-acct:hover{
+  border-color:var(--red);color:var(--red);background:var(--red-l);
+}
 
-/* Off the header on a phone. It is the owner's way in, not a customer's,
-   and on a narrow screen it was pushing the customer's own sign-in
-   button off the edge. The footer still carries an Owner Login link. */
-@media(max-width:560px){ .hdr-login{display:none} }
+/* The round badge each one carries: a lock, a cart, or an initial. */
+.hdr-login > span, .hdr-acct-ic{
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  display:grid;place-items:center;
+  background:var(--bg);font-size:11px;font-weight:900;color:var(--body);
+}
+.hdr-acct.is-in .hdr-acct-ic{background:var(--red-l);color:var(--red)}
+
+/* <em> is a tag, not a tone. Everything the header puts in one is a
+   plain label or a count and must never lean. */
+.hdr-login em, .hdr-acct em, .hdr-cart em,
+.hdr-acct-n, .hdr-cart-n{font-style:normal}
+
+/* Below 1100px the owner's button keeps its word too, so the pair still
+   read as a pair rather than one word and one mystery circle. */
+@media(max-width:400px){
+  .hdr-login em, .hdr-acct em{display:none}
+  .hdr-login, .hdr-acct{padding:5px}
+}
 
 /* Very small phones: shrink the brand and language buttons so the row
    never wraps or overflows. */
@@ -107,7 +130,10 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
   .brand-tx b{font-size:16px}
   .brand-tx span{font-size:7.5px;letter-spacing:1.6px}
   .lang-b{padding:7px 7px;font-size:11px}
-  .hdr-login{padding:8px 10px}
+  /* Both, together. This once named only the owner's button, from when
+     the customer's was hidden on a phone — and left the pair different
+     heights once it came back. */
+  .hdr-login, .hdr-acct{padding:5px}
 }
 
 /* The delivery promise, carried on every page. Gold so it reads as an

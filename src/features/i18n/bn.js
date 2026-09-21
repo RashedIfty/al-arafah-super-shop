@@ -6,7 +6,7 @@ export default {
   sg_didyoumean:"আপনি কি খুঁজছেন",
   map_title:"আমাদের দোকানে আসুন",  map_sub:"সুকুবায় আমাদের খুঁজুন",  map_directions:"পথ দেখুন",
   pay_label:"আমরা গ্রহণ করি",  pay_cash:"নগদ",
-  owner_login:"মালিক লগইন",
+  owner_login:"মালিক লগইন", customer_login:"কাস্টমার লগইন",
   cats_side:"সকল ক্যাটাগরি",
   ann_title:"আজকের অফার ও নতুন এসেছে", ann_deal:"আজকের অফার", ann_new:"নতুন এসেছে",
   ann_deal_n:"টি আজকের অফার", ann_new_n:"টি নতুন পণ্য",

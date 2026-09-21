@@ -6,7 +6,7 @@ export default {
   sg_didyoumean:"Did you mean",
   map_title:"Visit Our Shop",  map_sub:"Find us in Tsukuba",  map_directions:"Get Directions",
   pay_label:"We accept",  pay_cash:"Cash",
-  owner_login:"Owner Login",
+  owner_login:"Owner Login", customer_login:"Customer Login",
   cats_side:"All Categories",
   ann_title:"Today's Deal & New Arrival", ann_deal:"TODAY'S DEAL", ann_new:"NEW ARRIVAL",
   ann_deal_n:"today's deals", ann_new_n:"new arrivals",

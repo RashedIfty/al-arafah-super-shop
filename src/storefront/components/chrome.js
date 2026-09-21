@@ -87,9 +87,9 @@ function accountHTML(){
 
   if (!isSignedIn())
     return `
-      <button class="hdr-acct" data-signin title="${esc(T.acct_signin)}">
+      <button class="hdr-acct" data-signin title="${esc(T.customer_login)}">
         <span class="hdr-acct-ic">${icon("lock",{size:13})}</span>
-        <em>${esc(T.acct_signin)}</em>
+        <em>${esc(T.customer_login)}</em>
       </button>`;
 
   /* Nothing saved, nothing to show. A favourites button with no

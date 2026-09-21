@@ -6,7 +6,7 @@ export default {
   sg_didyoumean:"もしかして",
   map_title:"店舗のご案内",  map_sub:"つくば市にあります",  map_directions:"ルート案内",
   pay_label:"お支払い方法",  pay_cash:"現金",
-  owner_login:"オーナーログイン",
+  owner_login:"オーナーログイン", customer_login:"お客様ログイン",
   cats_side:"全カテゴリ",
   ann_title:"本日のお買い得・新入荷", ann_deal:"本日のお買い得", ann_new:"新入荷",
   ann_deal_n:"件のお買い得", ann_new_n:"件の新入荷",

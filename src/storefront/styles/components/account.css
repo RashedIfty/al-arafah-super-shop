@@ -24,44 +24,14 @@
 @keyframes favPop{50%{transform:scale(1.28)}}
 .fav.on svg{animation:favPop .28s var(--ease)}
 
-/* ------------------------ the header account ------------------------- */
-.hdr-acct{
-  display:none;align-items:center;gap:7px;position:relative;
-  border:1px solid var(--line);border-radius:22px;
-  background:#fff;padding:5px 13px 5px 6px;cursor:pointer;
-  font-size:12.5px;font-weight:700;color:var(--ink);
-  transition:.16s var(--ease);
-}
-.hdr-acct:hover{border-color:var(--red);color:var(--red)}
-.hdr-acct-ic{
-  width:24px;height:24px;border-radius:50%;flex-shrink:0;
-  display:grid;place-items:center;
-  background:var(--bg);font-size:11px;font-weight:900;color:var(--body);
-}
-.hdr-acct.is-in .hdr-acct-ic{background:var(--red-l);color:var(--red)}
+/* ------------------------ the header account -------------------------
+   Shape, border and sizing live with .hdr-login in layout/header.css so
+   the two buttons cannot drift apart. Only the count badge is its own. */
 
-/* How many are saved — the only visible sign anything was kept. */
 .hdr-acct-n{
   font-style:normal;min-width:17px;height:17px;padding:0 5px;
   border-radius:9px;background:var(--red);color:#fff;
   font-size:10px;font-weight:900;display:grid;place-items:center;
-}
-
-/* Shown at every width. It was desktop-only, which left a customer on a
-   phone with no way into their account at all: the nav links to
-   favourites and orders only appear once signed in, and signing in was
-   the thing behind this button. Trimmed rather than hidden on a narrow
-   screen — the icon alone carries it. */
-.hdr-acct{display:inline-flex}
-
-@media(max-width:899px){
-  .hdr-acct{padding:4px 10px 4px 4px;font-size:12px;gap:5px}
-  .hdr-acct em{font-style:normal}
-}
-@media(max-width:400px){
-  /* At the narrowest the word goes and the circle speaks for itself. */
-  .hdr-acct em{display:none}
-  .hdr-acct{padding:4px}
 }
 
 /* --------------------------- the saved page --------------------------- */
