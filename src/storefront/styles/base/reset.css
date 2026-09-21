@@ -13,3 +13,38 @@ img{max-width:100%;display:block}
 button,input,select{font:inherit;color:inherit}
 h1,h2,h3,h4,h5{color:var(--ink);line-height:1.22;font-weight:800;letter-spacing:-.2px}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:4px}
+
+/* ---------------------------------------------------------------------
+   THE FONT, AND THE ONE PLACE TO CHANGE IT
+
+   The face is --ff in base/tokens.css and the file it comes from is the
+   @import at the top of main.css. Those two lines are the whole switch:
+   change them, run node build.js, and all fifteen pages and the panel
+   follow. No page names a font of its own.
+
+   NUMBERS
+
+   Playfair's figures are old-style by default: in 1680 the 6 and 8 ride
+   above the line and the 1 sits below it. Beautiful in a sentence, and
+   wrong on a price somebody is checking against their receipt or a
+   phone number they are about to dial.
+
+   Turning on lining figures fixes every number on the site in one rule.
+   The alternative was naming the classes that hold numbers, and the
+   first attempt at that list missed sixty of them across six pages —
+   prices, weights, "4 items", opening hours, delivery rates. A rule
+   that has to be updated whenever somebody adds a price is a rule that
+   will be wrong by next month.
+   ------------------------------------------------------------------- */
+body{
+  font-variant-numeric:lining-nums tabular-nums;
+  font-feature-settings:"lnum" 1,"tnum" 1;
+}
+
+/* Typed into, rather than read: a field wants the same plain face the
+   keyboard suggests, and a serif in a postal-code box looks like a
+   quotation. */
+input, textarea, select,
+code, kbd, samp{
+  font-family:var(--ff-ui);
+}

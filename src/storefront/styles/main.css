@@ -11,6 +11,20 @@
    which writes bundle.css. Commit both.
    ========================================================================== */
 
+/* ---------------------------------------------------------------------
+   THE FONT — the only place it is named.
+
+   Here rather than in a <link> on every page: there are fifteen pages
+   plus the panel, and a font that has to be changed in sixteen files is
+   a font that will one day be changed in fifteen. Both stylesheets that
+   the site loads come through this file, so this line reaches all of
+   them.
+
+   To change the shop's font, change this line and the --ff line in
+   base/tokens.css, then run: node build.js
+   ------------------------------------------------------------------- */
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
+
 /* base */
 @import url("base/tokens.css");
 @import url("base/reset.css");
