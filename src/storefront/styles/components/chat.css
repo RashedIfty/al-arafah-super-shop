@@ -61,38 +61,57 @@
 
 /* ------------------------- on a phone --------------------------------
    Last in the file on purpose: these override the desktop sizes above,
-   and at equal specificity the later rule is the one that wins. The
-   first attempt sat before them and lost silently. */
-@media(max-width:620px){
-  .chat{gap:7px}
-  /* minmax(0,1fr) lets a column go narrower than its content; without it
-     the four cards insisted on their natural width and pushed the page
-     150px wider than the screen. */
-  .chat-card{padding:11px 5px;min-width:0;overflow:hidden}
-  .chat-card > *{min-width:0;max-width:100%}
-  /* The name is an h3 and the button is .chat-go — not b and .btn,
-     which is why these rules did nothing the first time and the 100px
-     button sat overflowing an 84px card with the overflow hidden. */
-  .chat-ic{width:34px;height:34px;margin-bottom:6px}
-  .chat-ic svg{width:19px;height:19px}
-  /* "WhatsApp Group" will not fit 84px on one line, so it takes two and
-     every card reserves the same two lines — otherwise the four cards
-     end at different heights and the row looks broken. */
-  .chat-card h3{
-    font-size:9.5px;line-height:1.2;margin:0;
-    min-height:2.4em;display:flex;align-items:center;justify-content:center;
-    overflow-wrap:anywhere;
-  }
-  .chat-card p{display:none}       /* the name says it */
-  .chat-card .chat-go{
-    width:100%;min-width:0;box-sizing:border-box;
-    padding:6px 3px;font-size:10.5px;margin-top:7px;
-  }
-}
+   and at equal specificity the later rule is the one that wins.
 
-.chat-card{
-  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
-  padding:14px 12px;text-align:center;
-  box-shadow:var(--sh);transition:.2s var(--ease);
-  display:flex;flex-direction:column;align-items:center;
+   Just the logo. Four names and four descriptions and four buttons is a
+   lot of words for four things everyone already recognises by their
+   mark, so the words go and the mark is made big enough to press. The
+   link stretches across the whole card, so the thing you tap is the
+   thing you see.
+   -------------------------------------------------------------------- */
+@media(max-width:620px){
+  .chat{gap:9px;grid-template-columns:repeat(4,minmax(0,1fr))}
+
+  .chat-card{
+    position:relative;padding:0;min-width:0;overflow:hidden;
+    aspect-ratio:1/1;display:grid;place-items:center;
+  }
+
+  /* The mark, as large as the card will carry. Percentages resolved
+     against a grid item that had no fixed size, so they collapsed to
+     almost nothing — these are absolute. */
+  /* Measured from the screen, not from the card. A percentage here
+     resolves against a grid item with no definite size and collapses to
+     almost nothing — the mark came out 23px inside an 83px card. Four
+     cards share the width, so a quarter of the viewport less the gaps
+     is what each one has, and the mark takes two thirds of that. */
+  .chat-card .chat-ic{
+    width:calc((100vw - 56px) / 4 * 0.66);
+    height:calc((100vw - 56px) / 4 * 0.66);
+    max-width:62px;max-height:62px;
+    margin:0;border-radius:15px;
+  }
+  .chat-card .chat-ic svg{width:54%;height:54%;max-width:34px;max-height:34px}
+
+  /* Everything that was words. */
+  .chat-card h3,
+  .chat-card p{
+    position:absolute;width:1px;height:1px;overflow:hidden;
+    clip-path:inset(50%);white-space:nowrap;
+  }
+
+  /* The link covers the card. It keeps its text for a screen reader,
+     so the card still announces itself as "Open WhatsApp". */
+  .chat-card .chat-go{
+    position:absolute;top:0;right:0;bottom:0;left:0;
+    width:auto;height:auto;min-width:0;min-height:0;
+    margin:0;padding:0;border:0;background:none;border-radius:inherit;
+    display:block;
+  }
+  .chat-card .chat-go span{
+    position:absolute;width:1px;height:1px;overflow:hidden;
+    clip-path:inset(50%);white-space:nowrap;
+  }
+
+  .chat-card:active{transform:scale(.96)}
 }

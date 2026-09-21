@@ -94,9 +94,12 @@
    below them were never seen. A wider box shows the same picture in less
    height. */
 @media(max-width:620px){
-  .cat-tiles{gap:9px}
-  .cat-tile-img{aspect-ratio:16/10}
-  .cat-tile b{font-size:12px}
+  /* Three across, so a phone shows nine categories in the space that was
+     showing four. The picture goes square to suit the narrower tile. */
+  .cat-tiles{gap:7px;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .cat-tile-img{aspect-ratio:1/1}
+  .cat-tile b{font-size:10px;line-height:1.2}
+  .cat-tile small{font-size:9px}
 }
 .cat-tile:hover .cat-tile-img{border-color:var(--red);box-shadow:var(--sh-lg)}
 .cat-tile:hover .cat-tile-img img{transform:scale(1.07)}
