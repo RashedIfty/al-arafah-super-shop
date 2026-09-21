@@ -7,6 +7,18 @@
    reading on a laptop with their phone in hand.
    ========================================================================== */
 
+/* A tinted strip, the same one the info band downstairs uses. The four
+   marks are the only colour in this stretch of the page and on flat
+   white they floated, with no edge to say where the section began or
+   ended. The ground steps back and the cards come forward. */
+.chat-band{
+  background:var(--bg);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  margin-top:26px;
+  padding:26px 0 30px;
+}
+
 /* Four ways to reach the shop, shown as four rather than as a column
    four screens tall. On a phone they share the row and the card shrinks
    to its icon, its name and its button. */
@@ -14,6 +26,13 @@
   display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr));
 }
 
+/* White against the tint, so each one reads as its own thing. */
+.chat-card{
+  background:#fff;border:1px solid var(--line);
+  border-radius:var(--radius);padding:15px 13px;
+  box-shadow:var(--sh);
+  transition:.18s var(--ease);
+}
 .chat-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px)}
 
 /* Each service keeps its own colour — people recognise them by it. */
@@ -70,6 +89,7 @@
    thing you see.
    -------------------------------------------------------------------- */
 @media(max-width:620px){
+  .chat-band{margin-top:18px;padding:18px 0 22px}
   .chat{gap:9px;grid-template-columns:repeat(4,minmax(0,1fr))}
 
   /* Flex, not grid. The card inherited align-items:center from the
