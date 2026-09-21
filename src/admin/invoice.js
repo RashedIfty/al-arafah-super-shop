@@ -208,11 +208,18 @@ export function invoiceHTML(o, method = "cod"){
   /* An icon, not a photograph. Enough to recognise a packet by while
      glancing down the column, small enough that the name is still the
      thing being read. */
-  table.items tbody .item{display:flex;align-items:center;gap:7px}
+  /* The row is the measure. align-items:stretch lets the picture take
+     exactly the height of the text beside it — two lines where there are
+     two, one where there is one — so it is never the taller of the two. */
+  table.items tbody .item{display:flex;align-items:stretch;gap:7px}
+  /* Matched to the two lines of text beside it — a 12px name over a
+     10px subtitle — so the picture is large enough to recognise a packet
+     by and never taller than the words it belongs to. */
   table.items tbody .thumb{
-    width:20px;height:20px;flex-shrink:0;border-radius:3px;
+    width:28px;flex-shrink:0;border-radius:3px;
+    height:auto;max-height:28px;align-self:center;
     border:1px solid var(--line);background:#fff;
-    object-fit:contain;
+    object-fit:contain;aspect-ratio:1/1;
   }
   table.items tbody .thumb-none{background:#f5f6f7;border-style:dashed}
   table.items tbody .item-tx{min-width:0}
