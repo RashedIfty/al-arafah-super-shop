@@ -139,10 +139,15 @@ async function doLogin(e){
   if (!result.ok){
     signingIn = false;                          // let them try again
     err.textContent = result.message || "That email or password is not right.";
+    /* A customer at the wrong door is not the same as a bad password,
+       and should not be shaken at as though they had failed. */
+    err.classList.toggle("note", Boolean(result.notOwner));
     err.hidden = false;
-    $(".login-card").classList.remove("shake");
-    void $(".login-card").offsetWidth;          // restart the animation
-    $(".login-card").classList.add("shake");
+    if (!result.notOwner){
+      $(".login-card").classList.remove("shake");
+      void $(".login-card").offsetWidth;        // restart the animation
+      $(".login-card").classList.add("shake");
+    }
     return;
   }
 

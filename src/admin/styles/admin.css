@@ -1106,3 +1106,11 @@ body{overflow-x:hidden}
   text-decoration:underline;
 }
 .login-forgot button:hover{color:#fff}
+
+/* Not a failure, a wrong door. Amber rather than red, and the card does
+   not shake — the person has typed everything correctly, just not here. */
+.login-err.note{
+  background:rgba(240,165,0,.14);
+  border:1px solid rgba(240,165,0,.5);
+  color:#ffd98a;
+}

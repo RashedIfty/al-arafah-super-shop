@@ -42,14 +42,20 @@ export async function login(email = "", pass = ""){
       if (error) return { ok: false, message: friendly(error.message) };
       if (!data?.user) return { ok: false, message: "That email or password is not right." };
 
-      /* The password was right, but this is not the shop's account. Sign
-         the session straight back out — leaving it would hand a customer
-         a half-open door — and say nothing about which of the two was
-         wrong. */
+      /* The password was right, but this is not the shop's account.
+         Told plainly: a customer who typed their own details has made an
+         honest mistake and needs to know which one, not be left thinking
+         they have forgotten a password they never had. The session is
+         signed straight back out — leaving it would hand them a
+         half-open door. */
       const { amOwner, signOut } = await import("../backend/client.js");
       if (!(await amOwner())){
         await signOut();
-        return { ok: false, message: "That email or password is not right." };
+        return {
+          ok: false,
+          notOwner: true,
+          message: "This is not the owner's account. Sign in with the owner email.",
+        };
       }
 
       return { ok: true };
