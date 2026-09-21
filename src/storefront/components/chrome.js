@@ -68,10 +68,11 @@ export function headerHTML(){
       ${cartHTML()}
       ${accountHTML()}
 
-      <a href="admin.html" class="hdr-login" title="${esc(T.owner_login)}">
-        <span>${icon("lock",{size:15})}</span>
-        <em>${esc(T.owner_login)}</em>
-      </a>
+      ${isSignedIn() ? "" : `
+        <a href="admin.html" class="hdr-login" title="${esc(T.owner_login)}">
+          <span>${icon("lock",{size:15})}</span>
+          <em>${esc(T.owner_login)}</em>
+        </a>`}
     </div>`;
 }
 
@@ -95,15 +96,23 @@ function accountHTML(){
   /* Nothing saved, nothing to show. A favourites button with no
      favourites behind it is a link to an empty room. The account itself
      is still reachable from the nav. */
+  /* Signed in, the header carries their initial and the way out. The
+     favourites count rides along when there is one; the sign-out button
+     is there whether or not anything is saved, because being unable to
+     leave is worse than a button nobody presses. */
   const n = savedCount();
-  if (!n) return "";
 
   return `
     <a href="favourites.html" class="hdr-acct is-in" title="${esc(T.fav_title)}">
       <span class="hdr-acct-ic">${esc((userName()[0] || "?").toUpperCase())}</span>
       <em>${esc(T.fav_nav)}</em>
-      <i class="hdr-acct-n">${n}</i>
-    </a>`;
+      ${n ? `<i class="hdr-acct-n">${n}</i>` : ""}
+    </a>
+    <button type="button" class="hdr-out" data-signout
+            title="${esc(T.acct_signout)}">
+      ${icon("arrow",{size:15})}
+      <em>${esc(T.acct_signout)}</em>
+    </button>`;
 }
 
 /**
