@@ -2201,8 +2201,12 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   display:flex;align-items:baseline;justify-content:space-between;gap:12px;
   font-size:12.5px;color:var(--body);padding:4px 0;
 }
+.ord-item > span{flex:1 1 auto;min-width:0}
 .ord-item small{color:var(--mute);font-size:11px}
-.ord-item b{color:var(--ink);font-weight:700;white-space:nowrap}
+.ord-item b{
+  color:var(--ink);font-weight:700;white-space:nowrap;
+  flex:0 0 auto;text-align:right;
+}
 
 /* Something the shop could not supply. Struck through and still there,
    so the customer can see what was dropped and what they were not

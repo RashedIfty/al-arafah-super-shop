@@ -320,7 +320,7 @@ function orderRow(o, n){
           <span class="ord-ad">〒${esc(o.postal)} ${esc(o.address)}</span>
         </div>
 
-        <div class="ord-lines">
+        <div class="ord-lines${CAN_REFUSE.includes(o.status) ? " has-x" : ""}">
           ${items.map(i => lineRow(i, o, working)).join("")}
           <div class="ord-line ord-line-sum">
             <span>Total</span><b>${yen(o.total)}</b>
