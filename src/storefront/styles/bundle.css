@@ -2,8 +2,6 @@
    Change the files under src/storefront/styles/ and run: node build.js
    27 files, in import order. */
 
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
-
 /* ===== base/tokens.css ===== */
 /* Design tokens — brand palette, radii, shadows */
 
@@ -44,21 +42,7 @@
   --wrap:1280px;
   --nav-h:50px;
   --ease:cubic-bezier(.4,0,.2,1);
-  /* Playfair first, the old stack behind it.
-   *
-   * Playfair Display has Latin letters and nothing else — no Bengali,
-   * no Japanese. A browser does not pick one font per element but one
-   * per character, so English takes the serif and বাংলা and 日本語 fall
-   * straight through to the same faces they have always used. Naming it
-   * first is what makes that happen; naming it alone would leave two
-   * thirds of the shop's customers reading a fallback nobody chose. */
-  --ff:"Playfair Display",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans JP",sans-serif;
-
-  /* Numbers, and the places where the shop is giving an instruction
-     rather than talking: prices, weights, postal codes, form fields.
-     A display serif is built for a headline at 40px, and at 11px it
-     costs legibility on exactly the text a customer must not misread. */
-  --ff-ui:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans JP",sans-serif;
+  --ff:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans JP",sans-serif;
 }
 
 /* ===== base/reset.css ===== */
@@ -77,41 +61,6 @@ img{max-width:100%;display:block}
 button,input,select{font:inherit;color:inherit}
 h1,h2,h3,h4,h5{color:var(--ink);line-height:1.22;font-weight:800;letter-spacing:-.2px}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:4px}
-
-/* ---------------------------------------------------------------------
-   THE FONT, AND THE ONE PLACE TO CHANGE IT
-
-   The face is --ff in base/tokens.css and the file it comes from is the
-   @import at the top of main.css. Those two lines are the whole switch:
-   change them, run node build.js, and all fifteen pages and the panel
-   follow. No page names a font of its own.
-
-   NUMBERS
-
-   Playfair's figures are old-style by default: in 1680 the 6 and 8 ride
-   above the line and the 1 sits below it. Beautiful in a sentence, and
-   wrong on a price somebody is checking against their receipt or a
-   phone number they are about to dial.
-
-   Turning on lining figures fixes every number on the site in one rule.
-   The alternative was naming the classes that hold numbers, and the
-   first attempt at that list missed sixty of them across six pages —
-   prices, weights, "4 items", opening hours, delivery rates. A rule
-   that has to be updated whenever somebody adds a price is a rule that
-   will be wrong by next month.
-   ------------------------------------------------------------------- */
-body{
-  font-variant-numeric:lining-nums tabular-nums;
-  font-feature-settings:"lnum" 1,"tnum" 1;
-}
-
-/* Typed into, rather than read: a field wants the same plain face the
-   keyboard suggests, and a serif in a postal-code box looks like a
-   quotation. */
-input, textarea, select,
-code, kbd, samp{
-  font-family:var(--ff-ui);
-}
 
 /* ===== base/utilities.css ===== */
 /* Utility classes */
