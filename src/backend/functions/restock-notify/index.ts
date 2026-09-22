@@ -23,9 +23,18 @@ const CORS = {
 
 const URL_    = Deno.env.get("SUPABASE_URL")!;
 const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const RESEND  = Deno.env.get("RESEND_API_KEY");
 
-const FROM = "Al-Arafah Super Shop <orders@alarafahsupershop.com>";
+/* Two ways out, tried in that order. Resend is the shop's own domain and
+   sends a clean message; Brevo is there for the day Resend is over its
+   quota or simply down. Either key may be absent — one alone works, and
+   with neither the function says so plainly rather than reporting
+   success for letters nobody received. */
+const RESEND = Deno.env.get("RESEND_API_KEY");
+const BREVO  = Deno.env.get("BREVO_API_KEY");
+
+const FROM_NAME  = "Al-Arafah Super Shop";
+const FROM_EMAIL = "orders@alarafahsupershop.com";
+const FROM = `${FROM_NAME} <${FROM_EMAIL}>`;
 const SHOP = "https://alarafahsupershop.com";
 
 const json = (body: unknown, status = 200) =>
@@ -86,6 +95,83 @@ function body(name: string, product: string){
 </div>`;
 }
 
+/* ----------------------------- sending ------------------------------- */
+
+/** Resend. Returns null when it worked, or why it did not. */
+async function viaResend(to: string, subject: string, html: string){
+  if (!RESEND) return "no key";
+
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${RESEND}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+    });
+    return r.ok ? null : `resend ${r.status}: ${(await r.text()).slice(0, 140)}`;
+  } catch (e){
+    return `resend unreachable: ${(e as Error).message}`;
+  }
+}
+
+/** Brevo, which takes the same message in a different shape. */
+async function viaBrevo(to: string, subject: string, html: string){
+  if (!BREVO) return "no key";
+
+  try {
+    const r = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": BREVO,
+        "Content-Type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({
+        sender: { name: FROM_NAME, email: FROM_EMAIL },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      }),
+    });
+    return r.ok ? null : `brevo ${r.status}: ${(await r.text()).slice(0, 140)}`;
+  } catch (e){
+    return `brevo unreachable: ${(e as Error).message}`;
+  }
+}
+
+/**
+ * One letter, by whichever service will carry it.
+ *
+ * Brevo first, Resend behind it — deliberately the opposite way round
+ * from the shop's other mail.
+ *
+ * Supabase sends the sign-up and password-reset letters through one
+ * SMTP server and offers no second slot, so those are Resend's whatever
+ * happens here. Restock notices are the only mail this shop controls,
+ * and they are the bursty kind: one press of "Back in stock" with forty
+ * people waiting is forty letters in a minute. Putting them on the
+ * service with the larger daily allowance keeps them away from the
+ * quota that the sign-up letters depend on.
+ *
+ * So the two never compete. Each service gets its own allowance, and
+ * either one failing still leaves the other to carry the message.
+ *
+ * Which one carried it is returned, so the owner's panel can say when
+ * the shop has fallen back — a quota quietly running out otherwise
+ * looks exactly like everything being fine.
+ */
+async function send(to: string, subject: string, html: string){
+  const first = await viaBrevo(to, subject, html);
+  if (first === null) return { ok: true, via: "brevo" };
+
+  const second = await viaResend(to, subject, html);
+  if (second === null) return { ok: true, via: "resend", note: first };
+
+  return { ok: false, via: null, note: `${first} | ${second}` };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
@@ -123,6 +209,8 @@ Deno.serve(async (req) => {
        so they come through the admin endpoint. */
     const sent: string[] = [];
     const failed: string[] = [];
+    const byService: Record<string, number> = {};
+    let firstProblem = "";
 
     for (const r of rows){
       const u = await fetch(`${URL_}/auth/v1/admin/users/${r.user_id}`, {
@@ -135,23 +223,17 @@ Deno.serve(async (req) => {
       const prof = await db(`profiles?select=full_name&user_id=eq.${r.user_id}`);
       const name = prof?.[0]?.full_name ?? "";
 
-      if (!RESEND){ failed.push(email); continue; }
+      const out = await send(email,
+                             `${product} is back in stock`,
+                             body(name, product));
 
-      const mail = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${RESEND}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: FROM,
-          to: [email],
-          subject: `${product} is back in stock`,
-          html: body(name, product),
-        }),
-      });
-
-      mail.ok ? sent.push(email) : failed.push(email);
+      if (out.ok){
+        sent.push(email);
+        byService[out.via!] = (byService[out.via!] ?? 0) + 1;
+      } else {
+        failed.push(email);
+      }
+      if (out.note && !firstProblem) firstProblem = out.note;
     }
 
     /* Stamped only now. If the sending fell over the requests stay open,
@@ -163,10 +245,19 @@ Deno.serve(async (req) => {
         body: JSON.stringify({ done_at: new Date().toISOString() }),
       });
 
-    if (!RESEND)
-      return json({ error: "RESEND_API_KEY is not set on this project." }, 500);
+    if (!RESEND && !BREVO)
+      return json({ error: "Neither RESEND_API_KEY nor BREVO_API_KEY is set " +
+                           "on this project, so nothing could be sent." }, 500);
 
-    return json({ sent: sent.length, failed: failed.length });
+    /* `via` says who actually carried it. The owner's panel shows this
+       when it is not Resend, because a quota quietly running out looks
+       exactly like everything being fine. */
+    return json({
+      sent: sent.length,
+      failed: failed.length,
+      via: byService,
+      ...(firstProblem ? { note: firstProblem } : {}),
+    });
 
   } catch (e) {
     return json({ error: String((e as Error).message ?? e) }, 500);

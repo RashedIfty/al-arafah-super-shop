@@ -152,8 +152,19 @@ export function initRestock({ toast, ask, refresh }){
               toast(`Back on the shelf. The emails did not send: ${mailErr.message}`, true);
             } else {
               const told = data?.sent ?? 0;
+
+              /* Which service carried it. These go by Brevo normally,
+                 which is not worth saying; if they went by Resend the
+                 spare has been called on, and he should know — a quota
+                 quietly running out otherwise looks exactly like
+                 everything being fine, until the month it does not. */
+              const spare = data?.via?.resend && !data.via.brevo
+                ? " (sent by the backup service — check the Brevo limit)"
+                : "";
+
               toast(told
-                ? `Told ${told} ${told === 1 ? "person" : "people"}. It is back on the shelf.`
+                ? `Told ${told} ${told === 1 ? "person" : "people"}. ` +
+                  `It is back on the shelf.${spare}`
                 : "Back on the shelf. Nobody was waiting.");
             }
           } catch (ex){
