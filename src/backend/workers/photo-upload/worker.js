@@ -7,10 +7,14 @@
  * to the bucket by Cloudflare, so there are no keys in the code at all —
  * `env.BUCKET` is the binding, granted at deploy time.
  *
- * Only a signed-in shop owner may write. The browser sends its Supabase
- * session token; this asks Supabase whether that token is real before
- * touching the bucket. Without that check the endpoint would be an open
- * door for anyone to fill the shop's storage.
+ * Two kinds of caller. The owner writes and removes product photos and
+ * may do as they please. A customer may put up their own photo and take
+ * it down again, and nothing else: their uploads are named with their
+ * id, and a delete is refused unless the key carries that same id. The
+ * browser sends its Supabase session token; this asks Supabase who that
+ * is before touching the bucket. Without the check the endpoint would be
+ * an open door for anyone to fill the shop's storage — and without the
+ * split, any customer could delete the pictures of the rice.
  */
 
 /** Photos the shop will accept. Anything else is refused. */
@@ -18,6 +22,15 @@ const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/svg+xml
 
 /** Generous next to the ~100 KB the admin panel actually sends. */
 const MAX_BYTES = 8 * 1024 * 1024;
+
+/* A customer's own photo. Smaller, and no SVG: the page shrinks it to
+   about 40 KB before sending, so anything near the cap is not a photo,
+   and a vector file is a document that can carry a script. */
+const AVATAR_ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
+const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
+
+/** Every key a customer writes begins with their own id. */
+const avatarPrefix = uid => `av-${uid}-`;
 
 const EXT = {
   "image/jpeg": "jpg",
@@ -61,33 +74,53 @@ const json = (request, env, body, status = 200) =>
   });
 
 /**
- * True when the bearer token belongs to a real signed-in user.
+ * Who is asking: their id, and whether they are the shop's owner.
  *
- * Supabase is the authority on that, so we ask it rather than trying to
- * verify the token here. One request, and only on writes.
+ * Supabase is the authority on both, so we ask it rather than trying to
+ * verify the token here — once for the user, once for is_owner(), which
+ * reads the same settings row the database uses everywhere else, so
+ * there is no second idea here of who the owner is. Two requests, and
+ * only on writes. Null means refuse: a bad token, or network trouble,
+ * and we do not guess.
  */
-async function isOwner(request, env){
+async function caller(request, env){
   const auth = request.headers.get("Authorization") || "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-  if (!token) return false;
+  if (!token) return null;
 
   try {
     const res = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
       headers: { apikey: env.SUPABASE_ANON_KEY, Authorization: `Bearer ${token}` },
     });
-    if (!res.ok) return false;
+    if (!res.ok) return null;
     const user = await res.json();
-    return Boolean(user?.id);
+    if (!user?.id) return null;
+
+    const who = await fetch(`${env.SUPABASE_URL}/rest/v1/rpc/is_owner`, {
+      method: "POST",
+      headers: {
+        apikey: env.SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: "{}",
+    });
+    const owner = who.ok && (await who.json()) === true;
+
+    return { uid: user.id, owner };
   } catch {
-    return false;                       // network trouble: refuse, do not guess
+    return null;                        // network trouble: refuse, do not guess
   }
 }
 
-/** A name that cannot collide, and cannot be steered by the uploader. */
-function newName(type){
+/**
+ * A name that cannot collide, and cannot be steered by the uploader.
+ * The prefix, when there is one, is the customer's id — see caller().
+ */
+function newName(type, prefix = ""){
   const stamp = Date.now();
   const rand = crypto.randomUUID().slice(0, 8);
-  return `${stamp}-${rand}.${EXT[type] || "jpg"}`;
+  return `${prefix}${stamp}-${rand}.${EXT[type] || "jpg"}`;
 }
 
 /** The object's key, taken from a URL we issued. Null if it is not ours. */
@@ -107,8 +140,8 @@ export default {
 
     /* ---------------------------- upload ---------------------------- */
     if (request.method === "POST"){
-      if (!(await isOwner(request, env)))
-        return json(request, env, { error: "Not signed in" }, 401);
+      const who = await caller(request, env);
+      if (!who) return json(request, env, { error: "Not signed in" }, 401);
 
       let form;
       try {
@@ -121,13 +154,18 @@ export default {
       if (!file || typeof file === "string")
         return json(request, env, { error: "No file" }, 400);
 
-      if (!ALLOWED.has(file.type))
+      /* The owner's limits for product photos; a customer's tighter
+         ones for their own picture. */
+      const allowed = who.owner ? ALLOWED   : AVATAR_ALLOWED;
+      const cap     = who.owner ? MAX_BYTES : AVATAR_MAX_BYTES;
+
+      if (!allowed.has(file.type))
         return json(request, env, { error: `Unsupported type: ${file.type}` }, 415);
 
-      if (file.size > MAX_BYTES)
+      if (file.size > cap)
         return json(request, env, { error: "That photo is too large" }, 413);
 
-      const key = newName(file.type);
+      const key = newName(file.type, who.owner ? "" : avatarPrefix(who.uid));
 
       try {
         await env.BUCKET.put(key, file.stream(), {
@@ -146,8 +184,8 @@ export default {
 
     /* ---------------------------- delete ---------------------------- */
     if (request.method === "DELETE"){
-      if (!(await isOwner(request, env)))
-        return json(request, env, { error: "Not signed in" }, 401);
+      const who = await caller(request, env);
+      if (!who) return json(request, env, { error: "Not signed in" }, 401);
 
       let body;
       try {
@@ -158,6 +196,12 @@ export default {
 
       const key = keyFromUrl(body?.url, env.PUBLIC_BASE);
       if (!key) return json(request, env, { error: "Not a photo of this shop" }, 400);
+
+      /* A customer may take down their own photo and nothing else. The
+         key carries their id, so ownership is a prefix check — no lookup,
+         and no way to name somebody else's file. */
+      if (!who.owner && !key.startsWith(avatarPrefix(who.uid)))
+        return json(request, env, { error: "Not your photo" }, 403);
 
       try {
         await env.BUCKET.delete(key);

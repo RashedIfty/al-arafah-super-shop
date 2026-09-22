@@ -82,6 +82,12 @@ export async function shrinkImage(file, opts = {}){
   if (!file || !file.type?.startsWith("image/")) return file;
   if (leaveAlone(file)) return file;
 
+  /* Products keep the defaults. A customer's own photo asks for less:
+     it is drawn at 40px in the header and 96px on the account page, and
+     a 1000px file behind that is weight for nothing. */
+  const maxEdge = opts.maxEdge     ?? MAX_EDGE;
+  const target  = opts.targetBytes ?? TARGET_BYTES;
+
   let source;
   try {
     source = await decode(file);
@@ -98,7 +104,7 @@ export async function shrinkImage(file, opts = {}){
   // again. 100KB is a tight target, so there are three rungs.
   let out = null;
 
-  for (const edge of [MAX_EDGE, 820, 640]){
+  for (const edge of [1, 0.82, 0.64].map(r => Math.round(maxEdge * r))){
     const { w, h } = fitted(sw, sh, edge);
 
     const canvas = document.createElement("canvas");
@@ -129,10 +135,10 @@ export async function shrinkImage(file, opts = {}){
       const blob = await toBlob(canvas, "image/jpeg", q);
       if (!blob) break;
       out = blob;
-      if (blob.size <= TARGET_BYTES) break;
+      if (blob.size <= target) break;
     }
 
-    if (out && out.size <= TARGET_BYTES) break;
+    if (out && out.size <= target) break;
   }
 
   source.close?.();                     // release the bitmap where supported
