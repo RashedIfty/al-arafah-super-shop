@@ -308,14 +308,14 @@ export function footerHTML(){
              the licence. -->
         <p class="foot-credit">
           ${esc(T.credit_photos)}
-          <a href="https://commons.wikimedia.org/wiki/File:Traditional_Bangladeshi_Food.jpg"
-             target="_blank" rel="noopener">Rocky Masum</a>,
-          <a href="https://commons.wikimedia.org/wiki/File:Vegetables_market_in_Dhaka.jpg"
-             target="_blank" rel="noopener">NahidSultan</a>,
-          <a href="https://commons.wikimedia.org/wiki/File:Tea_garden_at_Sripur_(1).jpg"
-             target="_blank" rel="noopener">Moheen Reeyad</a>,
-          <a href="https://commons.wikimedia.org/wiki/File:Tanguar_haor,_Bangladesh_01.jpg"
-             target="_blank" rel="noopener">Abdul Momin</a>
+          <a href="https://commons.wikimedia.org/wiki/File:A_lunch_platter_of_Bengali_cuisine.jpg"
+             target="_blank" rel="noopener">Kingshukdeb6</a>,
+          <a href="https://commons.wikimedia.org/wiki/File:Bengali_Platter.jpg"
+             target="_blank" rel="noopener">JyotiPN</a>,
+          <a href="https://commons.wikimedia.org/wiki/File:Kacchi_Biryani.jpg"
+             target="_blank" rel="noopener">ANKAN</a>,
+          <a href="https://commons.wikimedia.org/wiki/File:Panta_Ilish_-_a_traditional_platter_in_Pohela_Boishakh_2016_(01).jpg"
+             target="_blank" rel="noopener">Moheen Reeyad</a>
           ·
           <a href="https://creativecommons.org/licenses/by-sa/4.0/"
              target="_blank" rel="noopener">CC BY-SA</a>
