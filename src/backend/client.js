@@ -1215,6 +1215,21 @@ export async function fetchRestock(){
 }
 
 /**
+ * Every customer who has put up a photo, for the owner's lists. A view
+ * the owner alone may read; anyone else gets an empty list, which draws
+ * as no faces at all.
+ */
+export async function fetchCustomerPhotos(){
+  const c = await db();
+  if (!c) return [];
+
+  const { data, error } = await c.from("customer_photos").select("user_id, avatar_url");
+
+  if (error){ console.warn("fetchCustomerPhotos:", error.message); return []; }
+  return data ?? [];
+}
+
+/**
  * The thing is back in.
  *
  * Clears every open request for that product in one go, and takes the

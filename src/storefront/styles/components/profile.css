@@ -120,7 +120,15 @@
 .chk-box select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.11)}
 
 /* The photo in the header, where the initial used to be. */
-.hdr-acct-ic img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+/* The badge is a grid, and a grid item sized 100% takes the photo's
+   own shape rather than the 26px circle — a portrait came out as a tall
+   oval spilling over the pill. Clip the badge and pin the picture to
+   its box, so any shape of photo becomes the same small circle. */
+.hdr-acct.is-in .hdr-acct-ic{overflow:hidden;padding:0}
+.hdr-acct-ic img{
+  width:26px;height:26px;max-width:none;border-radius:50%;
+  object-fit:cover;display:block;
+}
 
 /* ------------------------------ on a phone ---------------------------- */
 @media(max-width:620px){

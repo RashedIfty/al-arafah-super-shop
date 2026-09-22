@@ -16,9 +16,11 @@ import { flag } from "../features/catalog/flags.js";
 import { autoTranslate } from "./translate.js";
 import * as api from "../backend/client.js";
 import {
-  setOrders, setArchivedOrders, setPhotos, renderOrders, initOrders, watchOrders,
+  setOrders, setArchivedOrders, setPhotos, setCustomerPhotos,
+  renderOrders, initOrders, watchOrders,
 } from "./orders.js";
 import { setRestock, renderRestock, initRestock } from "./restock.js";
+import { initFaces } from "./photos.js";
 
 let catalog = [];
 let editing = null;            // {catId, index} when editing, null when adding
@@ -54,14 +56,16 @@ async function openPanel(){
   $("#panel").hidden = false;
 
   if (usingSupabase()){
-    const [cat, dl, arc, ann, ord, ordArc, rs] = await Promise.all([
+    const [cat, dl, arc, ann, ord, ordArc, rs, faces] = await Promise.all([
       api.fetchCatalog(), api.fetchDeals(), api.fetchArchive(), api.fetchAnnouncement(),
-      api.fetchOrders(), api.fetchArchivedOrders(), api.fetchRestock()
+      api.fetchOrders(), api.fetchArchivedOrders(), api.fetchRestock(),
+      api.fetchCustomerPhotos(),
     ]);
     notice = ann;
     catalog = cat || store.load();
     deals   = dl  || store.loadDeals(DEFAULT_ANNOUNCEMENTS.items);
     archive = arc || archive;
+    setCustomerPhotos(faces);   // before the orders draw, so the faces are there
     setOrders(ord);
     setArchivedOrders(ordArc);
     setRestock(rs);
@@ -103,14 +107,16 @@ function startOrders(){
 /** Pull fresh data after a write. */
 async function reload(){
   if (!usingSupabase()) return;
-  const [cat, dl, arc, ann, ord, ordArc, rs] = await Promise.all([
+  const [cat, dl, arc, ann, ord, ordArc, rs, faces] = await Promise.all([
     api.fetchCatalog(), api.fetchDeals(), api.fetchArchive(), api.fetchAnnouncement(),
-    api.fetchOrders(), api.fetchArchivedOrders(), api.fetchRestock()
+    api.fetchOrders(), api.fetchArchivedOrders(), api.fetchRestock(),
+    api.fetchCustomerPhotos(),
   ]);
   if (ann) notice = ann;
   if (cat) catalog = cat;
   if (dl)  deals   = dl;
   if (arc) archive = arc;
+  if (faces) setCustomerPhotos(faces);
   if (ord) setOrders(ord);
   if (ordArc) setArchivedOrders(ordArc);
   if (rs) setRestock(rs);
@@ -235,6 +241,7 @@ function renderAll(){
   showCountryFlag();
 
   setPhotos(catalog);        // invoices print the product photographs
+  initFaces();               // a customer's photo, tapped, shown large
 
   renderList();
   renderDeals();

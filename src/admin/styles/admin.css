@@ -887,6 +887,37 @@ body{overflow-x:hidden}
 
 .ord-who{font-size:13px;color:var(--body);line-height:1.6;margin:7px 0}
 
+/* ---------------------------- the customer's face --------------------
+   A small round photo beside the name, on the orders list and the
+   restock board. Forty orders is forty names; a face is quicker. */
+.face{
+  display:inline-grid;place-items:center;vertical-align:middle;
+  width:30px;height:30px;border-radius:50%;overflow:hidden;
+  border:1.5px solid var(--line);background:var(--bg);padding:0;
+  cursor:zoom-in;margin-right:7px;flex-shrink:0;
+  transition:.15s var(--ease);
+}
+.face img{width:30px;height:30px;max-width:none;object-fit:cover;display:block}
+.face:hover{border-color:var(--red);transform:scale(1.08)}
+.ord-who .face{float:left;margin-top:3px}
+
+/* Tapped: the photo large, with the name under it. */
+.face-box{
+  position:relative;z-index:2;max-width:min(92vw,520px);
+  display:grid;gap:12px;justify-items:center;
+}
+.face-box img{
+  max-width:100%;max-height:78vh;border-radius:14px;
+  box-shadow:0 20px 50px rgba(0,0,0,.5);background:#fff;
+}
+.face-box b{color:#fff;font-size:16px;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.face-x{
+  position:absolute;top:-14px;right:-14px;z-index:3;
+  width:36px;height:36px;border-radius:50%;border:0;cursor:pointer;
+  background:#fff;color:var(--ink);font-size:26px;line-height:1;
+  box-shadow:0 4px 14px rgba(0,0,0,.35);
+}
+
 /* Name and phone are one fact, not two. Kept on a single line with the
    separator drawn between them, so a narrow column cannot leave a
    dangling "· 09012345678" under an orphaned name. */

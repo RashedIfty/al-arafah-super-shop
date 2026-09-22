@@ -14,6 +14,7 @@ import { $, $$, esc } from "../shared/lib/dom.js";
 import { icon } from "../shared/ui/icons.js";
 import { jstDate } from "../shared/lib/format.js";
 import * as api from "../backend/client.js";
+import { faceHTML } from "./photos.js";
 
 let rows = [];
 let busy = new Set();          // products mid-write, so a double press cannot fire twice
@@ -94,6 +95,7 @@ export function renderRestock(){
           <div class="arc-row rs-row">
             <div class="prod-tx">
               <span class="rs-nm">
+                ${faceHTML(p.avatar_url, p.customer)}
                 <b>${esc(p.customer || "—")}</b>
                 ${p.phone ? `<a href="tel:${esc(p.phone)}">${esc(p.phone)}</a>` : ""}
               </span>

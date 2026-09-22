@@ -20,7 +20,8 @@ import { icon } from "../shared/ui/icons.js";
 import { yen, jstDate, jstDay } from "../shared/lib/format.js";
 import * as api from "../backend/client.js";
 import { openInvoice, PAY_METHODS } from "./invoice.js";
-export { setPhotos } from "./photos.js";
+export { setPhotos, setCustomerPhotos } from "./photos.js";
+import { faceHTML, customerPhotoOf } from "./photos.js";
 
 /* ------------------------------- state -------------------------------- */
 
@@ -313,6 +314,7 @@ function orderRow(o, n){
         <span class="arc-when">${esc(jstDate(o.placed_at))}</span>
 
         <div class="ord-who">
+          ${faceHTML(customerPhotoOf(o.user_id), o.name)}
           <span class="ord-nm">
             <b>${esc(o.name)}</b>
             <a href="tel:${esc(o.phone)}">${esc(o.phone)}</a>
