@@ -16,6 +16,7 @@
  */
 import { isConfigured } from "../../backend/config.js";
 import { shipComplete } from "../profile/profile.js";
+import { METHODS, PREPAID } from "../../shared/pay.js";
 
 let orders = [];
 let loaded = false;
@@ -61,13 +62,23 @@ export async function refreshOrders(){
  * safely in the database: a customer whose network drops mid-request
  * should still have their shopping when they try again.
  */
-export async function placeMyOrder({ lines, note = "", ship }){
+export async function placeMyOrder({ lines, note = "", ship, code = "", pay = {} }){
   if (!shipComplete(ship)) return { ok: false, message: "incomplete-profile" };
   if (!lines?.length) return { ok: false, message: "empty-cart" };
 
+  /* `pay` is { method, amount, ref }. A prepaid method must come with
+     what was sent and the number to find it by; cash on delivery comes
+     with neither. The checkout says these in words before it gets here;
+     this is the last line, not the first. */
+  if (!METHODS.includes(pay.method)) return { ok: false, message: "no-method" };
+  if (PREPAID.includes(pay.method)){
+    if (!(Number(pay.amount) > 0))   return { ok: false, message: "no-amount" };
+    if (!String(pay.ref || "").trim()) return { ok: false, message: "no-ref" };
+  }
+
   try {
     const api = await import("../../backend/client.js");
-    const { data, error } = await api.placeOrder({ ship, lines, note });
+    const { data, error } = await api.placeOrder({ ship, lines, note, code, pay });
     if (error) return { ok: false, message: error.message };
 
     const { clearCart } = await import("../cart/cart.js");

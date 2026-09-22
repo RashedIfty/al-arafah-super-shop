@@ -812,7 +812,7 @@ export const setDefaultAddress = id => updateAddress(id, { is_default: true });
  * ones (I, O, 0, 1) left out. Uniqueness is enforced by the database;
  * this only has to make a clash unlikely enough not to matter.
  */
-function orderCode(){
+export function orderCode(){
   const A = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
   const d = new Date();
   const ymd = [
@@ -839,7 +839,7 @@ function orderCode(){
  * `lines` is [{ product, qty }] where product is a catalogue item.
  * Returns { data: order } or { error }.
  */
-export async function placeOrder({ ship, lines, note = "" }){
+export async function placeOrder({ ship, lines, note = "", code = "", pay = {} }){
   const c = await db();
   if (!c) return { error: { message: "Not configured" } };
 
@@ -848,6 +848,15 @@ export async function placeOrder({ ship, lines, note = "" }){
   if (!uid) return { error: { message: "Not signed in" } };
 
   if (!lines?.length) return { error: { message: "The cart is empty" } };
+
+  /* How it is being paid. The database refuses anything outside the
+     four, but a clear message here beats a constraint name from there.
+     Amount and reference only mean something for a prepaid method. */
+  const method = ["paypay", "merpay", "bank", "cod"].includes(pay.method) ? pay.method : null;
+  if (!method) return { error: { message: "Choose how you will pay" } };
+  const prepaid = method !== "cod";
+  const amount  = prepaid ? Math.max(0, Math.round(Number(pay.amount) || 0)) : null;
+  const ref     = prepaid ? String(pay.ref || "").trim().slice(0, 80) || null : null;
 
   const items = lines.map(({ product, qty }) => ({
     product_id: product._id,
@@ -863,8 +872,11 @@ export async function placeOrder({ ship, lines, note = "" }){
   /* `ship` is where this one order goes, as the checkout form had it
      at the moment of pressing — copied in, not joined to the address
      book, so an address edited next month does not move this box. */
+  /* The code may arrive from the checkout, which minted it early so the
+     customer could write it as the transfer reference before the order
+     existed. Its shape is checked; anything else gets a fresh one. */
   const order = await c.from("orders").insert({
-    code: orderCode(),
+    code: /^AA-\d{6}-[A-Z2-9]{4}$/.test(code) ? code : orderCode(),
     user_id: uid,
     name: ship.full_name,
     phone: ship.phone,
@@ -872,6 +884,9 @@ export async function placeOrder({ ship, lines, note = "" }){
     address: ship.address,
     total,
     note: note.trim() || null,
+    pay_method: method,
+    pay_amount: amount,
+    pay_ref: ref,
   }).select().single();
 
   if (order.error) return order;

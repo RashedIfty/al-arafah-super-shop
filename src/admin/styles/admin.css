@@ -1199,6 +1199,21 @@ body{overflow-x:hidden}
 .ord-line-off b{color:var(--red)}
 .ord-line-sum b{color:var(--red);font-size:14.5px;font-weight:900}
 
+/* How it was paid, under the total. Green when the money has come in,
+   amber when it is due at the door, red when what they typed is not
+   what the order comes to. */
+.ord-pay{
+  font-size:11.5px;font-weight:700;color:#12805c;
+  border-top:1px dashed var(--line);margin-top:4px;padding-top:6px;
+}
+.ord-pay > span{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}
+.ord-pay small{color:var(--mute);font-weight:600;font-size:10.5px;letter-spacing:.2px}
+.ord-pay b{color:#12805c;font-size:12px}
+.ord-pay:has(.icon[class*="phone"]),
+.ord-pay.due{color:#b4531d}
+.ord-pay.short, .ord-pay.short b{color:var(--red)}
+.ord-lines.has-x .ord-pay{padding-right:35px}
+
 .ord-msg{
   font-size:12.5px;color:var(--body);font-style:italic;line-height:1.5;
   margin-top:8px;padding-left:10px;border-left:2px solid var(--line);

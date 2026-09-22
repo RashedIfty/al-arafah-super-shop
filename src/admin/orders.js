@@ -284,6 +284,30 @@ function lineRow(i, o, working){
     </div>`;
 }
 
+/**
+ * How the customer said they paid, under the total, so the owner can
+ * match it against the app or the bank before confirming. Red when the
+ * amount they typed is not the total — short, or over, either wants a
+ * look. Orders from before the payment step have no method and show
+ * nothing here.
+ */
+function payRow(o){
+  if (!o.pay_method) return "";
+  const m = PAY_METHODS.find(x => x.id === o.pay_method);
+  const label = m ? m.label : o.pay_method;
+  const prepaid = o.pay_method !== "cod";
+  const off = prepaid && o.pay_amount != null && Number(o.pay_amount) !== Number(o.total);
+
+  return `
+    <div class="ord-line ord-pay${off ? " short" : ""}">
+      <span>
+        ${icon(prepaid ? "check" : "phone", { size: 12 })}
+        ${esc(label)}${o.pay_ref ? ` <small>ref ${esc(o.pay_ref)}</small>` : ""}
+      </span>
+      <b>${prepaid ? `paid ${yen(o.pay_amount || 0)}` : `${yen(o.total)} on delivery`}</b>
+    </div>`;
+}
+
 /** What was refused, totalled, so the owner sees what he turned away. */
 function refusedSum(items){
   const off = items.filter(i => i.rejected);
@@ -328,6 +352,7 @@ function orderRow(o, n){
             <span>Total</span><b>${yen(o.total)}</b>
           </div>
           ${refusedSum(items)}
+          ${payRow(o)}
         </div>
 
         ${o.note ? `<div class="ord-msg">“${esc(o.note)}”</div>` : ""}
@@ -849,7 +874,7 @@ function askPayMethod(o){
         <label class="pay-lab" for="payPick">Payment method</label>
         <select id="payPick" class="pay-sel">
           ${PAY_METHODS.map(m =>
-            `<option value="${esc(m.id)}">${esc(m.label)}</option>`).join("")}
+            `<option value="${esc(m.id)}"${m.id === (o.pay_method || "cod") ? " selected" : ""}>${esc(m.label)}</option>`).join("")}
         </select>
 
         <p class="pay-hint">
@@ -950,8 +975,9 @@ export async function watchOrders({ refresh }){
 
       const alert = $("#ordAlert");
       if (alert){
+        const how = PAY_METHODS.find(x => x.id === row.pay_method)?.label;
         $("#ordAlertTitle").textContent = `New order — ${row.code}`;
-        $("#ordAlertSub").textContent = `${row.name} · ${yen(row.total)}`;
+        $("#ordAlertSub").textContent = `${row.name} · ${yen(row.total)}${how ? ` · ${how}` : ""}`;
         alert.hidden = false;
       }
 

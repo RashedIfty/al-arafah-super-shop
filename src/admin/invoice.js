@@ -58,6 +58,8 @@ export const PAY_METHODS = [
     line: "Paid in cash at the shop." },
   { id: "paypay",     label: "PayPay",
     line: "Paid by PayPay." },
+  { id: "merpay",     label: "Merpay / d払い",
+    line: "Paid by Merpay / d払い." },
   { id: "visa",       label: "Visa",
     line: "Paid by Visa card." },
   { id: "mastercard", label: "Mastercard",
@@ -446,7 +448,10 @@ export function invoiceHTML(o, method = "cod"){
 
     <div class="pay${isDue(method) ? " due" : " paid"}">
       <b>${isDue(method) ? "Amount due:" : "Paid:"}</b>
-      ${esc(payLine(method))} All prices include tax.
+      ${esc(payLine(method))}
+      ${!isDue(method) && method === o.pay_method && o.pay_amount != null
+        ? `${yen(o.pay_amount)}${o.pay_ref ? ` · ref ${esc(o.pay_ref)}` : ""}.` : ""}
+      All prices include tax.
       ${isDue(method) ? `<span class="due-amt">${yen(o.total)}</span>` : ""}
     </div>
 
@@ -471,7 +476,7 @@ export function invoiceHTML(o, method = "cod"){
  * no invoice on the server to navigate to — the document is built here
  * from the order already in hand.
  */
-export function openInvoice(o, method = "cod"){
+export function openInvoice(o, method = o.pay_method || "cod"){
   const w = window.open("", "_blank");
   if (!w) return false;          // a pop-up blocker got in the way
   w.document.write(invoiceHTML(o, method));

@@ -195,9 +195,132 @@
 }
 .chk-line.chk-sum b{font-size:18px;color:var(--red);font-weight:900}
 
-.chk-go{width:100%;justify-content:center;padding:13px}
+.chk-go{width:100%;justify-content:center;padding:13px;gap:8px}
 .chk-go:disabled{opacity:.6;cursor:default}
 .chk-tax{text-align:center;font-size:11px;color:var(--mute);margin-top:9px}
+
+/* ------------------------- the three screens -------------------------- */
+
+/* Delivery · Payment · Pay. The one they are on is red, the ones behind
+   them carry a tick, the ones ahead are grey. */
+.chk-steps{
+  display:flex;justify-content:center;gap:6px;list-style:none;
+  margin:0 0 14px;padding:0;
+}
+.chk-steps li{
+  display:flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:700;color:var(--mute);
+}
+.chk-steps li span{
+  display:grid;place-items:center;width:22px;height:22px;border-radius:50%;
+  background:var(--bg);border:1.5px solid var(--line);
+  font-size:11px;font-weight:900;color:var(--mute);
+}
+.chk-steps li + li::before{
+  content:"";width:18px;height:1.5px;background:var(--line);margin-right:6px;
+}
+.chk-steps li.on{color:var(--ink)}
+.chk-steps li.on span{background:var(--red);border-color:var(--red);color:#fff}
+.chk-steps li.done{color:var(--body)}
+.chk-steps li.done span{background:#e3f4ed;border-color:#bfe3d4;color:#12805c}
+.chk-steps li.done + li::before{background:#bfe3d4}
+
+/* The way back, under everything: it is the least likely press. */
+.chk-back{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:16px;padding:7px 11px;border:0;background:none;cursor:pointer;
+  font-size:12.5px;font-weight:700;color:var(--mute);font-family:inherit;
+}
+.chk-back .icon{transform:rotate(180deg)}
+.chk-back:hover{color:var(--red)}
+
+/* --- screen 2: four ways to pay, one per row, a tap each ------------- */
+.chk-methods{display:grid;gap:10px;margin-bottom:16px}
+.chk-method{
+  display:flex;align-items:center;gap:13px;width:100%;text-align:left;
+  padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;
+  background:#fff;cursor:pointer;font-family:inherit;
+  transition:.15s var(--ease);
+}
+.chk-method:hover{border-color:var(--red);background:var(--red-l)}
+.chk-method:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.chk-mbadge{
+  flex-shrink:0;display:grid;place-items:center;width:46px;height:46px;
+  border-radius:11px;background:var(--bg);color:var(--navy);
+}
+.chk-mqr{font-size:13px;font-weight:900;letter-spacing:.5px;color:var(--red)}
+.chk-method.paypay .chk-mbadge,
+.chk-method.merpay .chk-mbadge{background:#fdecec}
+.chk-method.bank .chk-mbadge{background:#e3f4ed;color:#12805c}
+.chk-method.cod .chk-mbadge{background:#fff3e0;color:#b4531d}
+.chk-mtx{flex:1;min-width:0}
+.chk-mtx b{display:block;font-size:15px;color:var(--ink);margin-bottom:2px}
+.chk-mtx small{display:block;font-size:12px;color:var(--mute);line-height:1.4}
+.chk-marrow{flex-shrink:0;color:var(--mute)}
+.chk-method:hover .chk-marrow{color:var(--red)}
+.chk-sum-alone{margin-bottom:0}
+
+/* --- screen 3: the code to scan --------------------------------------- */
+.chk-qr{
+  text-align:center;background:var(--bg);border-radius:14px;
+  padding:18px 16px 14px;margin-bottom:6px;
+}
+.chk-qr img{
+  width:220px;height:220px;max-width:100%;display:block;margin:0 auto;
+  background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;
+}
+.chk-qr-id{display:block;font-size:11.5px;color:var(--mute);margin-top:8px}
+.chk-qr-id b{color:var(--ink);letter-spacing:.3px}
+.chk-qr p{font-size:12.5px;color:var(--body);line-height:1.5;margin-top:10px}
+
+/* The amount to pay and the reference, both big enough to read across
+   a counter. Shared by the QR and the bank screens. */
+.chk-due, .chk-refline{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:9px 0 0;font-size:12.5px;color:var(--body);
+}
+.chk-due{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+.chk-due b{font-size:24px;font-weight:900;color:var(--red);letter-spacing:-.5px}
+.chk-refline b{font-size:15px;font-weight:900;color:var(--ink);letter-spacing:.6px}
+
+/* --- screen 3: the account to transfer to ----------------------------- */
+.chk-bank{background:var(--bg);border-radius:14px;padding:14px 16px;margin-bottom:6px}
+.chk-bank h3, .chk-cod h3{
+  font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px;
+  display:flex;align-items:center;gap:7px;
+}
+.chk-bank-row{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;
+}
+.chk-bank-row span{flex:0 0 92px;color:var(--mute);font-size:11.5px;font-weight:700}
+.chk-bank-row b{flex:1;min-width:0;color:var(--ink);font-weight:800;overflow-wrap:anywhere}
+.chk-copy{
+  flex-shrink:0;padding:4px 9px;border:1px solid var(--line);border-radius:7px;
+  background:#fff;color:var(--body);cursor:pointer;
+  font-size:11px;font-weight:700;font-family:inherit;transition:.15s var(--ease);
+}
+.chk-copy:hover{border-color:var(--red);color:var(--red)}
+.chk-copy.did{border-color:#bfe3d4;background:#e3f4ed;color:#12805c}
+.chk-bank p{font-size:12.5px;color:var(--body);line-height:1.5;margin-top:10px}
+
+/* --- screen 3: ring first --------------------------------------------- */
+.chk-cod{background:#fff8ef;border:1px solid #f3dcc0;border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.chk-cod h3{color:#b4531d}
+.chk-cod h3 .icon{color:#b4531d}
+.chk-cod p{font-size:13px;color:var(--body);line-height:1.55;margin-bottom:12px}
+.chk-cod .ord-acts{margin-bottom:12px}
+.chk-cod-ok{margin:0 !important;font-size:13.5px !important;color:var(--ink) !important}
+
+/* The payment, on the customer's own copy of an order. */
+.ord-pay{font-size:12.5px;color:var(--body);line-height:1.6;margin-bottom:8px}
+.ord-pay b{color:var(--ink);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+
+@media(max-width:420px){
+  .chk-steps li{font-size:11px}
+  .chk-steps li + li::before{width:10px}
+  .chk-bank-row span{flex-basis:78px}
+}
 
 /* --------------------------- order placed ----------------------------- */
 .ord-done{

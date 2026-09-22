@@ -9,5 +9,13 @@
 # Logs
 *.log
 
+# Photos dropped in the project root to be read (signs, cards) — never
+# the site's images/ folder, which is tracked.
+/*.JPG
+/*.jpg
+/*.jpeg
+/*.HEIC
+/*.png
+
 # Supabase CLI scratch
 supabase/.temp/
