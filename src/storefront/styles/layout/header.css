@@ -75,19 +75,53 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
 .tel b{display:block;font-size:15px;color:var(--navy);font-weight:800;line-height:1.15}
 .tel small{display:block;font-size:10.5px;color:var(--mute);font-weight:600}
 
-/* language switcher */
-.lang{
-  display:flex;flex-shrink:0;border:1px solid var(--line);
-  border-radius:8px;overflow:hidden;background:var(--bg);
+/* ------------------------ language switcher --------------------------
+   One flag, and the rest behind it. Three buttons in a row worked for
+   three languages and would not survive a fourth, and on a phone they
+   ate the width the basket and the account button need.
+   -------------------------------------------------------------------- */
+.lang{position:relative;flex-shrink:0}
+
+.lang-now{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:6px 9px;border:1.5px solid var(--line);border-radius:9px;
+  background:#fff;cursor:pointer;line-height:1;
+  transition:.16s var(--ease);
 }
-.lang-b{
-  border:0;background:transparent;cursor:pointer;
-  padding:8px 9px;font-size:12px;font-weight:800;color:var(--body);
-  transition:.18s var(--ease);white-space:nowrap;line-height:1.2;
+.lang-now:hover{border-color:var(--red);background:var(--red-l)}
+.lang-now[aria-expanded="true"]{border-color:var(--red);background:var(--red-l)}
+.lang-caret{color:var(--mute);transition:.16s var(--ease)}
+.lang-now[aria-expanded="true"] .lang-caret{transform:rotate(180deg);color:var(--red)}
+
+/* The flag is the control: big enough to read at a glance, and the
+   emoji font carries it on every phone the shop's customers use. */
+.lang-flag{
+  font-size:19px;line-height:1;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
 }
-.lang-b:not(:last-child){border-right:1px solid var(--line)}
-.lang-b:hover{background:var(--red-l);color:var(--red)}
-.lang-b.on{background:var(--red);color:#fff}
+
+.lang-menu{
+  position:absolute;top:calc(100% + 7px);right:0;z-index:90;
+  min-width:186px;padding:6px;
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 14px 40px rgba(10,22,44,.18);
+  animation:langIn .15s var(--ease);
+}
+.lang-menu[hidden]{display:none}
+@keyframes langIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+.lang-opt{
+  display:flex;align-items:center;gap:11px;width:100%;
+  padding:10px 12px;border:0;border-radius:10px;background:none;
+  cursor:pointer;font-family:inherit;text-align:left;
+  font-size:15px;font-weight:700;color:var(--ink);
+  transition:.14s var(--ease);
+}
+.lang-opt:hover{background:var(--bg)}
+.lang-opt.on{background:var(--red-l);color:var(--red);font-weight:800}
+.lang-opt:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.lang-name{flex:1;min-width:0}
+.lang-tick{color:var(--red);flex-shrink:0}
 
 .hero h1 .gold{color:var(--gold)}
 .chip.on{border-color:var(--red);background:var(--red-l)}
@@ -138,7 +172,8 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
   .brand-logo{width:44px;height:44px}
   .brand-tx b{font-size:16px}
   .brand-tx span{font-size:7.5px;letter-spacing:1.6px}
-  .lang-b{padding:7px 7px;font-size:11px}
+  .lang-now{padding:5px 7px}
+  .lang-flag{font-size:17px}
   /* Both, together. This once named only the owner's button, from when
      the customer's was hidden on a phone — and left the pair different
      heights once it came back. */

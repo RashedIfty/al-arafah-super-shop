@@ -7,7 +7,7 @@
 import { $, $$, put, esc, on, scrollToId } from "../shared/lib/dom.js";
 import { t, setLang, onLangChange, initLang } from "../features/i18n/lang.js";
 import { todayIndex } from "../shared/lib/format.js";
-import { topbarHTML, headerHTML, navHTML, footerHTML } from "./components/chrome.js";
+import { topbarHTML, headerHTML, navHTML, footerHTML, initLangMenu } from "./components/chrome.js";
 import { tickerHTML } from "./components/ticker.js";
 import { announceBarHTML, initAnnounceBar, initDealsCarousel } from "./components/deals-bar.js";
 import { announcementHTML, setAnnouncement } from "./components/announcement.js";
@@ -16,7 +16,8 @@ import { mapHTML } from "./components/map.js";
 import { initSearchBox } from "./components/search-box.js";
 import { filtersHTML, initFilters } from "./components/filters.js";
 import { catalogHTML, chipsHTML } from "./components/product-card.js";
-import { categoryBrowserHTML, categorySidebarHTML, categoryTilesHTML }
+import { categoryBrowserHTML, categorySidebarHTML, categoryTilesHTML,
+         categoryStripHTML, initCategoryStrip }
   from "./components/category-browser.js";
 import { countriesHTML, initCountries } from "./components/countries.js";
 import { shelfHTML } from "./components/shelf.js";
@@ -121,6 +122,7 @@ function render(){
      The homepage splits them — the list sits beside the shop photo at the
      top, and the tiles run the full width lower down, which gives the
      tiles the whole page rather than three quarters of it. */
+  if ($("#cstripMount")) put("#cstripMount", categoryStripHTML());
   if ($("#catBrowse")) put("#catBrowse", categoryBrowserHTML(7));
   if ($("#catSide"))   put("#catSide", categorySidebarHTML());
   if ($("#catTiles"))  put("#catTiles", categoryTilesHTML(7));
@@ -151,14 +153,14 @@ function render(){
 
 /** Listeners on markup that render() replaces. */
 function bindDynamic(){
-  $$(".lang-b").forEach(btn =>
-    btn.addEventListener("click", () => setLang(btn.dataset.lang)));
+  initLangMenu();
 
   initAnnounceBar();
   initDealsCarousel();
   initSearch();
   initSearchBox();
   initFilters();
+  initCategoryStrip();
   initCountries($("#countryMount"));
   initScrollSpy();
   initAccount();

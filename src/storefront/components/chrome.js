@@ -4,7 +4,7 @@
  */
 import { esc } from "../../shared/lib/dom.js";
 import { icon } from "../../shared/ui/icons.js";
-import { t, getLang, LANGS } from "../../features/i18n/lang.js";
+import { t, getLang, setLang, LANGS } from "../../features/i18n/lang.js";
 import { isSignedIn, savedCount, userName }
   from "../../features/account/account.js";
 import { avatarUrl } from "../../features/profile/profile.js";
@@ -15,6 +15,53 @@ import { CATALOG } from "../../features/catalog/catalog.js";
 
 /** Which nav item is highlighted — read from <body data-page>. */
 const currentPage = () => document.body.dataset.page || "home";
+
+/**
+ * The language menu: open it, choose, or dismiss it.
+ *
+ * Bound on the document once rather than on the header, because
+ * render() replaces the header whenever anything changes and a
+ * listener on the button itself would go with it.
+ */
+let langBound = false;
+
+export function initLangMenu(){
+  if (langBound) return;
+  langBound = true;
+
+  const menu = () => document.getElementById("langMenu");
+  const now  = () => document.getElementById("langNow");
+
+  const close = () => {
+    const m = menu(); if (m) m.hidden = true;
+    now()?.setAttribute("aria-expanded", "false");
+  };
+
+  document.addEventListener("click", e => {
+    const opt = e.target.closest?.("[data-lang]");
+    if (opt){ close(); setLang(opt.dataset.lang); return; }
+
+    if (e.target.closest?.("#langNow")){
+      const m = menu(); if (!m) return;
+      const open = m.hidden;
+      m.hidden = !open;
+      now()?.setAttribute("aria-expanded", String(open));
+      return;
+    }
+
+    if (!e.target.closest?.("[data-lang-wrap]")) close();
+  });
+
+  document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+}
+
+/* The flag for each language the shop speaks.
+ *
+ * Emoji rather than image files: they come with the system, cost
+ * nothing to load, and are already drawn correctly on every phone the
+ * shop's customers use. Bangla gets Bangladesh's flag, which is who
+ * the shop is speaking to, not India's. */
+const FLAG = { en: "🇬🇧", ja: "🇯🇵", bn: "🇧🇩" };
 
 export function topbarHTML(){
   const T = t();
@@ -35,9 +82,20 @@ export function topbarHTML(){
 export function headerHTML(){
   const T = t(), lang = getLang();
 
-  const langBtns = LANGS.map(l =>
-    `<button class="lang-b${l === lang ? " on" : ""}" data-lang="${l}"
-             lang="${l}">${esc(UI[l].lang)}</button>`).join("");
+  /* One flag, and the rest behind it.
+   *
+   * Three buttons in a row was fine for three languages and would not
+   * survive a fourth, and on a phone it ate the width the basket and
+   * the account button need. The flag says which language you are in
+   * without a word of any of them. */
+  const langMenu = LANGS.map(l => `
+    <button type="button" class="lang-opt${l === lang ? " on" : ""}"
+            data-lang="${l}" lang="${l}" role="menuitemradio"
+            aria-checked="${l === lang}">
+      <span class="lang-flag">${FLAG[l] || ""}</span>
+      <span class="lang-name">${esc(UI[l].lang)}</span>
+      ${l === lang ? icon("check", { size: 15, cls: "lang-tick" }) : ""}
+    </button>`).join("");
 
   return `
     <div class="wrap header-in">
@@ -59,7 +117,14 @@ export function headerHTML(){
         <div class="sg-box" id="sgBox" hidden></div>
       </form>` : ""}
 
-      <div class="lang" role="group" aria-label="Language">${langBtns}</div>
+      <div class="lang" data-lang-wrap>
+        <button type="button" class="lang-now" id="langNow"
+                aria-haspopup="true" aria-expanded="false" aria-label="Language">
+          <span class="lang-flag">${FLAG[lang] || ""}</span>
+          ${icon("down", { size: 13, cls: "lang-caret" })}
+        </button>
+        <div class="lang-menu" id="langMenu" role="menu" hidden>${langMenu}</div>
+      </div>
 
       <a href="tel:${esc(SHOP.telRaw)}" class="tel">
         <span class="tel-ico">${icon("phone")}</span>

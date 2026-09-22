@@ -3,6 +3,7 @@
  * the layout used by most halal grocery storefronts.
  */
 import { esc, IMG_FALLBACK } from "../../shared/lib/dom.js";
+import { icon } from "../../shared/ui/icons.js";
 import { SHOP } from "../../shared/shop.js";
 import { t, getLang, itemCount } from "../../features/i18n/lang.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
@@ -26,6 +27,128 @@ function shelfCount(shelf){
   if (shelf.label !== "countries") return itemCount(n);
   const T = t();
   return n === 1 ? T.one_country : (T.n_countries || "").replace("{n}", n);
+}
+
+/**
+ * Every category as a row of pills, scrolled sideways.
+ *
+ * A shop with twenty-odd shelves cannot put them all on screen at once
+ * without burying everything else, and a customer who knows they want
+ * fish should not have to scroll past the whole front page to say so.
+ * One line, dragged or swiped, with the shelves at the end — the same
+ * order as the sidebar, so the two never disagree.
+ *
+ * The list itself is a nav landmark, and the arrows are decoration: a
+ * keyboard or a screen reader walks the links, and the buttons are
+ * there for a mouse with no trackpad.
+ */
+export function categoryStripHTML(){
+  const T = t(), lang = getLang(), base = prefix();
+  const cats = visibleCategories();
+  if (!cats.length) return "";
+
+  /* The shelf's own photo rides in the pill. The shop already shows
+     these thumbnails down the sidebar and on the tiles, and a picture
+     of the fish counter is read faster than the word for it — which
+     matters most to the customer whose Japanese or English is the
+     shakiest. */
+  const pill = (href, img, name, count) => `
+    <a class="cstrip-pill" href="${href}">
+      <img src="${esc(img)}" alt="" loading="lazy" width="26" height="26" ${IMG_FALLBACK}>
+      <span>${esc(name)}</span>
+      <em>${count}</em>
+    </a>`;
+
+  return `
+    <nav class="cstrip" aria-label="${esc(T.cats_side)}">
+      <div class="wrap cstrip-in">
+        <a class="cstrip-all" href="${base || "products.html"}">
+          ${icon("grid", { size: 14 })} <span>${esc(T.fl_all)}</span>
+        </a>
+
+        <div class="cstrip-rail">
+          <button type="button" class="cstrip-arrow left" data-cstrip="-1"
+                  aria-label="${esc(T.ann_prev)}" hidden>
+            ${icon("arrow", { size: 15 })}
+          </button>
+
+          <div class="cstrip-scroll" id="cstripScroll">
+            ${cats.map(c =>
+              pill(`${base}#${esc(c.id)}`, c.img || SHOP.placeholder,
+                   c[lang] || c.en, c.items.length)).join("")}
+            ${SHELVES.map(s => `
+              <a class="cstrip-pill shelf" href="${s.href}">
+                <img src="${esc(s.img)}" alt="" loading="lazy"
+                     width="26" height="26" ${IMG_FALLBACK}>
+                <span>${esc(s[lang] || s.en)}</span>
+              </a>`).join("")}
+          </div>
+
+          <button type="button" class="cstrip-arrow right" data-cstrip="1"
+                  aria-label="${esc(T.ann_next)}" hidden>
+            ${icon("arrow", { size: 15 })}
+          </button>
+        </div>
+      </div>
+    </nav>`;
+}
+
+/**
+ * The arrows, and dragging with a mouse.
+ *
+ * Touch and trackpads already scroll this; a mouse has nothing to
+ * throw at it, so the strip can be dragged and the two arrows appear
+ * only when there is somewhere to go. Bound once.
+ */
+export function initCategoryStrip(){
+  const box = document.getElementById("cstripScroll");
+  if (!box || box.dataset.bound) return;
+  box.dataset.bound = "1";
+
+  const strip = box.closest(".cstrip");
+  const arrows = strip.querySelectorAll("[data-cstrip]");
+
+  /* Hide an arrow that would do nothing. The 2px allows for the
+     fractional widths a zoomed-out browser reports. */
+  const paint = () => {
+    const max = box.scrollWidth - box.clientWidth;
+    arrows.forEach(a => {
+      const back = a.dataset.cstrip === "-1";
+      a.hidden = max < 4 || (back ? box.scrollLeft < 2 : box.scrollLeft > max - 2);
+    });
+  };
+
+  arrows.forEach(a => a.addEventListener("click", () => {
+    box.scrollBy({ left: Number(a.dataset.cstrip) * box.clientWidth * 0.8,
+                   behavior: "smooth" });
+  }));
+
+  box.addEventListener("scroll", paint, { passive: true });
+  addEventListener("resize", paint, { passive: true });
+  paint();
+
+  /* Drag to scroll. `moved` is what stops a drag that happens to end on
+     a pill from also following it. */
+  let down = false, startX = 0, startLeft = 0, moved = false;
+
+  box.addEventListener("pointerdown", e => {
+    if (e.pointerType !== "mouse") return;
+    down = true; moved = false;
+    startX = e.clientX; startLeft = box.scrollLeft;
+    box.classList.add("dragging");
+  });
+
+  box.addEventListener("pointermove", e => {
+    if (!down) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 3) moved = true;
+    box.scrollLeft = startLeft - dx;
+  });
+
+  const stop = () => { down = false; box.classList.remove("dragging"); };
+  box.addEventListener("pointerup", stop);
+  box.addEventListener("pointerleave", stop);
+  box.addEventListener("click", e => { if (moved) e.preventDefault(); }, true);
 }
 
 /** Small thumbnail rows down the left. */

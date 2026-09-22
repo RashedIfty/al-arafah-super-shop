@@ -160,19 +160,53 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
 .tel b{display:block;font-size:15px;color:var(--navy);font-weight:800;line-height:1.15}
 .tel small{display:block;font-size:10.5px;color:var(--mute);font-weight:600}
 
-/* language switcher */
-.lang{
-  display:flex;flex-shrink:0;border:1px solid var(--line);
-  border-radius:8px;overflow:hidden;background:var(--bg);
+/* ------------------------ language switcher --------------------------
+   One flag, and the rest behind it. Three buttons in a row worked for
+   three languages and would not survive a fourth, and on a phone they
+   ate the width the basket and the account button need.
+   -------------------------------------------------------------------- */
+.lang{position:relative;flex-shrink:0}
+
+.lang-now{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:6px 9px;border:1.5px solid var(--line);border-radius:9px;
+  background:#fff;cursor:pointer;line-height:1;
+  transition:.16s var(--ease);
 }
-.lang-b{
-  border:0;background:transparent;cursor:pointer;
-  padding:8px 9px;font-size:12px;font-weight:800;color:var(--body);
-  transition:.18s var(--ease);white-space:nowrap;line-height:1.2;
+.lang-now:hover{border-color:var(--red);background:var(--red-l)}
+.lang-now[aria-expanded="true"]{border-color:var(--red);background:var(--red-l)}
+.lang-caret{color:var(--mute);transition:.16s var(--ease)}
+.lang-now[aria-expanded="true"] .lang-caret{transform:rotate(180deg);color:var(--red)}
+
+/* The flag is the control: big enough to read at a glance, and the
+   emoji font carries it on every phone the shop's customers use. */
+.lang-flag{
+  font-size:19px;line-height:1;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
 }
-.lang-b:not(:last-child){border-right:1px solid var(--line)}
-.lang-b:hover{background:var(--red-l);color:var(--red)}
-.lang-b.on{background:var(--red);color:#fff}
+
+.lang-menu{
+  position:absolute;top:calc(100% + 7px);right:0;z-index:90;
+  min-width:186px;padding:6px;
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 14px 40px rgba(10,22,44,.18);
+  animation:langIn .15s var(--ease);
+}
+.lang-menu[hidden]{display:none}
+@keyframes langIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+.lang-opt{
+  display:flex;align-items:center;gap:11px;width:100%;
+  padding:10px 12px;border:0;border-radius:10px;background:none;
+  cursor:pointer;font-family:inherit;text-align:left;
+  font-size:15px;font-weight:700;color:var(--ink);
+  transition:.14s var(--ease);
+}
+.lang-opt:hover{background:var(--bg)}
+.lang-opt.on{background:var(--red-l);color:var(--red);font-weight:800}
+.lang-opt:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.lang-name{flex:1;min-width:0}
+.lang-tick{color:var(--red);flex-shrink:0}
 
 .hero h1 .gold{color:var(--gold)}
 .chip.on{border-color:var(--red);background:var(--red-l)}
@@ -223,7 +257,8 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
   .brand-logo{width:44px;height:44px}
   .brand-tx b{font-size:16px}
   .brand-tx span{font-size:7.5px;letter-spacing:1.6px}
-  .lang-b{padding:7px 7px;font-size:11px}
+  .lang-now{padding:5px 7px}
+  .lang-flag{font-size:17px}
   /* Both, together. This once named only the owner's button, from when
      the customer's was hidden on a phone — and left the pair different
      heights once it came back. */
@@ -1349,6 +1384,123 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 
 @media print{ .cat-side{display:none} }
+
+/* ===================== every category, in one row ====================
+   Twenty-odd shelves will not fit across a screen and will not fit down
+   one either without burying the page, so they go sideways: swiped on a
+   phone, dragged or nudged with the arrows on a desktop.
+
+   On the shop's tint rather than white, sitting flush against the deals
+   band below it, so the two read as one block of the page instead of a
+   borrowed bar laid on top.
+   ==================================================================== */
+.cstrip{
+  background:var(--bg);
+  border-top:1px solid var(--line);
+  position:relative;z-index:5;
+}
+.cstrip-in{
+  display:flex;align-items:center;gap:11px;
+  padding-top:11px;padding-bottom:11px;
+}
+
+/* "All categories" stays put while the rest scrolls past it, and wears
+   the shop's red so the row has an anchor. */
+.cstrip-all{
+  flex-shrink:0;display:inline-flex;align-items:center;gap:7px;
+  padding:9px 15px;border-radius:22px;
+  background:var(--red);color:#fff;
+  font-size:12.5px;font-weight:800;white-space:nowrap;
+  box-shadow:0 3px 10px rgba(200,16,46,.22);
+  transition:.16s var(--ease);
+}
+.cstrip-all:hover{background:var(--red-d);transform:translateY(-1px)}
+.cstrip-all .icon{opacity:.9}
+
+/* The rail holds the arrows against the scroller, and carries the fade
+   that says there is more to the right. */
+.cstrip-rail{position:relative;flex:1;min-width:0;display:flex;align-items:center}
+
+.cstrip-scroll{
+  display:flex;align-items:center;gap:9px;
+  flex:1;min-width:0;overflow-x:auto;scroll-behavior:smooth;
+  /* The bar itself is noise on a strip this short; the fade at the end
+     is what says there is more. */
+  scrollbar-width:none;-ms-overflow-style:none;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x proximity;
+  padding:3px 1px;
+}
+.cstrip-scroll::-webkit-scrollbar{display:none}
+.cstrip-scroll.dragging{scroll-behavior:auto;cursor:grabbing}
+.cstrip-scroll.dragging .cstrip-pill{pointer-events:none}
+
+/* White cards on the tint, like every other card in the shop. */
+.cstrip-pill{
+  flex-shrink:0;display:inline-flex;align-items:center;gap:8px;
+  padding:6px 13px 6px 6px;border:1px solid var(--line);border-radius:22px;
+  background:#fff;color:var(--ink);
+  font-size:12.5px;font-weight:700;white-space:nowrap;
+  box-shadow:var(--sh);
+  transition:.16s var(--ease);scroll-snap-align:start;
+}
+.cstrip-pill:hover{
+  border-color:var(--red);color:var(--red);
+  box-shadow:var(--sh-md);transform:translateY(-1px);
+}
+.cstrip-pill:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* The shelf's own photo, the same one the sidebar and the tiles use. */
+.cstrip-pill img{
+  width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0;
+  background:var(--bg);
+}
+
+/* How many things are on that shelf, quieter than the name. */
+.cstrip-pill em{
+  font-style:normal;font-size:10.5px;font-weight:800;color:var(--mute);
+  background:var(--bg);border-radius:10px;padding:1px 6px;
+}
+.cstrip-pill:hover em{background:var(--red-l);color:var(--red)}
+
+/* Countrywise, New, Popular — ways of looking across the shop rather
+   than places a product lives, so they read a shade apart. */
+.cstrip-pill.shelf{color:var(--navy);background:var(--navy-l);border-color:transparent}
+.cstrip-pill.shelf:hover{color:var(--red);background:#fff;border-color:var(--red)}
+
+/* Only shown when there is somewhere to go, and only useful to a mouse.
+   They float over the ends of the row rather than taking width from it. */
+.cstrip-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:2;
+  display:grid;place-items:center;width:30px;height:30px;
+  border:1px solid var(--line);border-radius:50%;background:#fff;
+  color:var(--body);cursor:pointer;box-shadow:var(--sh-md);
+  transition:.16s var(--ease);
+}
+.cstrip-arrow:hover{border-color:var(--red);color:var(--red)}
+.cstrip-arrow[hidden]{display:none}
+.cstrip-arrow.left{left:-2px}
+.cstrip-arrow.right{right:-2px}
+.cstrip-arrow.left .icon{transform:rotate(180deg)}
+
+/* A hint that the row keeps going, rather than a hard edge. */
+.cstrip-rail::after{
+  content:"";position:absolute;right:0;top:0;bottom:0;width:38px;
+  background:linear-gradient(90deg,transparent,var(--bg));
+  pointer-events:none;
+}
+
+@media(max-width:620px){
+  .cstrip-in{gap:9px;padding-top:9px;padding-bottom:9px}
+  .cstrip-all{padding:8px 12px;font-size:12px}
+  .cstrip-all span{display:none}          /* the icon carries it */
+  .cstrip-pill{padding:5px 11px 5px 5px;font-size:12px;gap:7px}
+  .cstrip-pill img{width:24px;height:24px}
+  /* A thumb does the scrolling here. */
+  .cstrip-arrow{display:none}
+}
+
+@media print{ .cstrip{display:none} }
 
 /* ===== components/countries.css ===== */
 /* ==========================================================================

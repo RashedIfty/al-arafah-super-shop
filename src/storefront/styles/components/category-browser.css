@@ -232,3 +232,120 @@
 }
 
 @media print{ .cat-side{display:none} }
+
+/* ===================== every category, in one row ====================
+   Twenty-odd shelves will not fit across a screen and will not fit down
+   one either without burying the page, so they go sideways: swiped on a
+   phone, dragged or nudged with the arrows on a desktop.
+
+   On the shop's tint rather than white, sitting flush against the deals
+   band below it, so the two read as one block of the page instead of a
+   borrowed bar laid on top.
+   ==================================================================== */
+.cstrip{
+  background:var(--bg);
+  border-top:1px solid var(--line);
+  position:relative;z-index:5;
+}
+.cstrip-in{
+  display:flex;align-items:center;gap:11px;
+  padding-top:11px;padding-bottom:11px;
+}
+
+/* "All categories" stays put while the rest scrolls past it, and wears
+   the shop's red so the row has an anchor. */
+.cstrip-all{
+  flex-shrink:0;display:inline-flex;align-items:center;gap:7px;
+  padding:9px 15px;border-radius:22px;
+  background:var(--red);color:#fff;
+  font-size:12.5px;font-weight:800;white-space:nowrap;
+  box-shadow:0 3px 10px rgba(200,16,46,.22);
+  transition:.16s var(--ease);
+}
+.cstrip-all:hover{background:var(--red-d);transform:translateY(-1px)}
+.cstrip-all .icon{opacity:.9}
+
+/* The rail holds the arrows against the scroller, and carries the fade
+   that says there is more to the right. */
+.cstrip-rail{position:relative;flex:1;min-width:0;display:flex;align-items:center}
+
+.cstrip-scroll{
+  display:flex;align-items:center;gap:9px;
+  flex:1;min-width:0;overflow-x:auto;scroll-behavior:smooth;
+  /* The bar itself is noise on a strip this short; the fade at the end
+     is what says there is more. */
+  scrollbar-width:none;-ms-overflow-style:none;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x proximity;
+  padding:3px 1px;
+}
+.cstrip-scroll::-webkit-scrollbar{display:none}
+.cstrip-scroll.dragging{scroll-behavior:auto;cursor:grabbing}
+.cstrip-scroll.dragging .cstrip-pill{pointer-events:none}
+
+/* White cards on the tint, like every other card in the shop. */
+.cstrip-pill{
+  flex-shrink:0;display:inline-flex;align-items:center;gap:8px;
+  padding:6px 13px 6px 6px;border:1px solid var(--line);border-radius:22px;
+  background:#fff;color:var(--ink);
+  font-size:12.5px;font-weight:700;white-space:nowrap;
+  box-shadow:var(--sh);
+  transition:.16s var(--ease);scroll-snap-align:start;
+}
+.cstrip-pill:hover{
+  border-color:var(--red);color:var(--red);
+  box-shadow:var(--sh-md);transform:translateY(-1px);
+}
+.cstrip-pill:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* The shelf's own photo, the same one the sidebar and the tiles use. */
+.cstrip-pill img{
+  width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0;
+  background:var(--bg);
+}
+
+/* How many things are on that shelf, quieter than the name. */
+.cstrip-pill em{
+  font-style:normal;font-size:10.5px;font-weight:800;color:var(--mute);
+  background:var(--bg);border-radius:10px;padding:1px 6px;
+}
+.cstrip-pill:hover em{background:var(--red-l);color:var(--red)}
+
+/* Countrywise, New, Popular — ways of looking across the shop rather
+   than places a product lives, so they read a shade apart. */
+.cstrip-pill.shelf{color:var(--navy);background:var(--navy-l);border-color:transparent}
+.cstrip-pill.shelf:hover{color:var(--red);background:#fff;border-color:var(--red)}
+
+/* Only shown when there is somewhere to go, and only useful to a mouse.
+   They float over the ends of the row rather than taking width from it. */
+.cstrip-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:2;
+  display:grid;place-items:center;width:30px;height:30px;
+  border:1px solid var(--line);border-radius:50%;background:#fff;
+  color:var(--body);cursor:pointer;box-shadow:var(--sh-md);
+  transition:.16s var(--ease);
+}
+.cstrip-arrow:hover{border-color:var(--red);color:var(--red)}
+.cstrip-arrow[hidden]{display:none}
+.cstrip-arrow.left{left:-2px}
+.cstrip-arrow.right{right:-2px}
+.cstrip-arrow.left .icon{transform:rotate(180deg)}
+
+/* A hint that the row keeps going, rather than a hard edge. */
+.cstrip-rail::after{
+  content:"";position:absolute;right:0;top:0;bottom:0;width:38px;
+  background:linear-gradient(90deg,transparent,var(--bg));
+  pointer-events:none;
+}
+
+@media(max-width:620px){
+  .cstrip-in{gap:9px;padding-top:9px;padding-bottom:9px}
+  .cstrip-all{padding:8px 12px;font-size:12px}
+  .cstrip-all span{display:none}          /* the icon carries it */
+  .cstrip-pill{padding:5px 11px 5px 5px;font-size:12px;gap:7px}
+  .cstrip-pill img{width:24px;height:24px}
+  /* A thumb does the scrolling here. */
+  .cstrip-arrow{display:none}
+}
+
+@media print{ .cstrip{display:none} }
