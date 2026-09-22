@@ -962,12 +962,24 @@ body{overflow-x:hidden}
 }
 .cu-since{margin-left:auto}
 
+.cu-acts{display:flex;flex-wrap:wrap;gap:8px}
 .cu-more{
-  align-self:flex-start;border:1px solid var(--line);background:#fff;
+  display:inline-flex;align-items:center;gap:6px;
+  border:1px solid var(--line);background:#fff;
   border-radius:8px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:700;
   color:var(--body);cursor:pointer;
 }
 .cu-more:hover{border-color:var(--red);color:var(--red)}
+
+/* The letter. The pay picker's box, with a subject line and a body. */
+.cu-mail-in{
+  width:100%;border:2px solid var(--line);border-radius:10px;
+  padding:11px 13px;font:inherit;font-size:15px;outline:0;background:var(--bg);
+  color:var(--ink);margin-bottom:14px;resize:vertical;
+}
+.cu-mail-in:focus{border-color:var(--red);background:#fff}
+.cu-mail-modal .pay-hint{margin-bottom:10px}
+.cu-mail-modal .acct-err{margin:0}
 
 /* The history, unfolded. Orders as compact rows; requests below. */
 .cu-hist{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px}

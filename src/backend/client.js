@@ -1312,6 +1312,39 @@ export async function clearRestock(productId){
  * caller treats a failure as "the list is cleared but nobody was told"
  * rather than as the whole operation failing.
  */
+/**
+ * A note from the owner to one customer, sent under the shop's name.
+ *
+ * Only the id goes up; the function looks the address up itself, so the
+ * panel can never be made to mail an address of its own choosing. The
+ * reply says which service carried it, and the panel mentions it only
+ * when the spare was used.
+ */
+export async function mailCustomer(userId, subject, body){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data: { session } } = await c.auth.getSession();
+  if (!session) return { error: { message: "Not signed in" } };
+
+  try {
+    const res = await fetch(`${SUPABASE.URL}/functions/v1/customer-mail`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+        apikey: SUPABASE.KEY,
+      },
+      body: JSON.stringify({ user_id: userId, subject, body }),
+    });
+    const out = await res.json().catch(() => ({}));
+    if (!res.ok) return { error: { message: out.error || `Sending failed (${res.status})` } };
+    return { data: out };
+  } catch (e){
+    return { error: { message: e.message || "Could not reach the mail service" } };
+  }
+}
+
 export async function notifyRestocked(productId){
   const c = await db();
   if (!c) return { error: { message: "Not configured" } };

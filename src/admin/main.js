@@ -106,7 +106,7 @@ function startOrders(){
 
   initOrders({ toast, ask, refresh: reload });
   initRestock({ toast, ask, refresh: reload });
-  initCustomers();
+  initCustomers({ toast });
   if (usingSupabase()) watchOrders({ refresh: reload });
 }
 

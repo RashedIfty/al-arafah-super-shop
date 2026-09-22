@@ -148,10 +148,15 @@ function cardHTML(p, theirOrders, theirAsks){
         <span class="cu-since">Since ${esc(jstDate(p.joined_at, false))}</span>
       </div>
 
-      ${theirOrders.length || theirAsks.length ? `
-        <button type="button" class="cu-more" data-cu-toggle="${esc(p.user_id)}">
-          ${isOpen ? "Hide history" : "Show history"}
-        </button>` : ""}
+      <div class="cu-acts">
+        <button type="button" class="cu-more" data-cu-mail="${esc(p.user_id)}">
+          ${icon("send", { size: 13 })} Send email
+        </button>
+        ${theirOrders.length || theirAsks.length ? `
+          <button type="button" class="cu-more" data-cu-toggle="${esc(p.user_id)}">
+            ${isOpen ? "Hide history" : "Show history"}
+          </button>` : ""}
+      </div>
 
       ${isOpen ? historyHTML(theirOrders, theirAsks) : ""}
     </article>`;
@@ -193,19 +198,128 @@ function historyHTML(theirOrders, theirAsks){
     </div>`;
 }
 
+/* ------------------------------ the letter ---------------------------- */
+
+/**
+ * A subject and a few lines, to one customer, from the shop.
+ *
+ * Built and thrown away each time rather than living in admin.html: it
+ * belongs to this tab, and the panel's own confirm dialog only answers
+ * yes or no. Same box the pay picker uses, so it looks like everything
+ * else here.
+ */
+function openMail(p){
+  closeMail();
+
+  const name = nameOf(p);
+  const box = document.createElement("div");
+  box.className = "ad-modal cu-mail-modal";
+  box.id = "cuMailWrap";
+  box.innerHTML = `
+    <div class="ad-modal-bg" data-cu-mail-x></div>
+    <form class="ad-modal-box pay-box" id="cuMailForm" novalidate>
+      <div class="ad-modal-head">
+        <h2>Email ${esc(name)}</h2>
+        <button type="button" class="ad-x" data-cu-mail-x aria-label="Close">
+          ${icon("close", { size: 20 })}
+        </button>
+      </div>
+
+      <div class="pay-body">
+        <p class="pay-for">To <b>${esc(p.email)}</b> · from orders@alarafahsupershop.com</p>
+
+        <label class="pay-lab" for="cuMailSubj">Subject</label>
+        <input id="cuMailSubj" class="cu-mail-in" type="text" maxlength="150"
+               placeholder="Your order is ready to collect">
+
+        <label class="pay-lab" for="cuMailBody">Message</label>
+        <textarea id="cuMailBody" class="cu-mail-in" rows="7" maxlength="4000"
+                  placeholder="Assalamu alaikum ${esc(name.split(" ")[0])},&#10;&#10;"></textarea>
+
+        <p class="pay-hint">
+          Goes out under the shop's name with the shop's address at the
+          foot. They can reply straight to orders@alarafahsupershop.com.
+        </p>
+        <p class="acct-err" id="cuMailErr" hidden></p>
+      </div>
+
+      <div class="ad-modal-foot">
+        <button type="button" class="btn btn-out" data-cu-mail-x>Cancel</button>
+        <button type="submit" class="btn btn-red" id="cuMailGo">
+          ${icon("send", { size: 15 })} Send
+        </button>
+      </div>
+    </form>`;
+
+  document.body.appendChild(box);
+  $("#cuMailSubj")?.focus();
+
+  $("#cuMailForm").addEventListener("submit", async e => {
+    e.preventDefault();
+
+    const subject = $("#cuMailSubj").value.trim();
+    const body = $("#cuMailBody").value.trim();
+    const err = $("#cuMailErr"), go = $("#cuMailGo");
+
+    const fail = !subject ? ["Give it a subject.", "#cuMailSubj"]
+               : !body    ? ["Write the message first.", "#cuMailBody"]
+               : null;
+    if (fail){ err.textContent = fail[0]; err.hidden = false; $(fail[1])?.focus(); return; }
+
+    go.disabled = true;
+    const label = go.innerHTML;
+    go.textContent = "Sending…";
+    err.hidden = true;
+
+    const api = await import("../backend/client.js");
+    const { data, error } = await api.mailCustomer(p.user_id, subject, body);
+
+    if (error){
+      go.disabled = false; go.innerHTML = label;
+      err.textContent = error.message;
+      err.hidden = false;
+      return;
+    }
+
+    closeMail();
+    const spare = data?.via === "resend"
+      ? " (sent by the backup service — check the Brevo limit)" : "";
+    notify?.(`Sent to ${name}.${spare}`);
+  });
+}
+
+function closeMail(){ $("#cuMailWrap")?.remove(); }
+
 /* ------------------------------- controls ----------------------------- */
 
-export function initCustomers(){
+/* The panel's toast, handed in by main.js so this module does not reach
+   back into it. */
+let notify = null;
+
+export function initCustomers({ toast } = {}){
+  notify = toast;
+
   $("#cuSearch")?.addEventListener("input", e => {
     query = e.target.value;
     renderCustomers();
   });
 
   document.addEventListener("click", e => {
+    if (e.target.closest("[data-cu-mail-x]")){ closeMail(); return; }
+
+    const m = e.target.closest("[data-cu-mail]");
+    if (m){
+      const p = people.find(x => x.user_id === m.dataset.cuMail);
+      if (p) openMail(p);
+      return;
+    }
+
     const t = e.target.closest("[data-cu-toggle]");
     if (!t) return;
     const id = t.dataset.cuToggle;
     open.has(id) ? open.delete(id) : open.add(id);
     renderCustomers();
   });
+
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeMail(); });
 }
