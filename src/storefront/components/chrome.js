@@ -302,6 +302,24 @@ export function footerHTML(){
       <div class="wrap foot-bot-in">
         <p>© 2026 <b>${esc(SHOP.name)} ${esc(SHOP.name2)}</b> ·
            ${esc(T.rights)} · ${esc(T.tax)}</p>
+        <!-- The four photographs behind the headline on the home page.
+             They are Creative Commons, which is free to use but not
+             free of obligation: the photographer is named, and so is
+             the licence. -->
+        <p class="foot-credit">
+          ${esc(T.credit_photos)}
+          <a href="https://commons.wikimedia.org/wiki/File:Traditional_Bangladeshi_Food.jpg"
+             target="_blank" rel="noopener">Rocky Masum</a>,
+          <a href="https://commons.wikimedia.org/wiki/File:Vegetables_market_in_Dhaka.jpg"
+             target="_blank" rel="noopener">NahidSultan</a>,
+          <a href="https://commons.wikimedia.org/wiki/File:Tea_garden_at_Sripur_(1).jpg"
+             target="_blank" rel="noopener">Moheen Reeyad</a>,
+          <a href="https://commons.wikimedia.org/wiki/File:Tanguar_haor,_Bangladesh_01.jpg"
+             target="_blank" rel="noopener">Abdul Momin</a>
+          ·
+          <a href="https://creativecommons.org/licenses/by-sa/4.0/"
+             target="_blank" rel="noopener">CC BY-SA</a>
+        </p>
         <a href="admin.html" class="owner-link">${icon("lock",{size:14})} ${esc(T.owner_login)}</a>
       </div>
     </div>`;
