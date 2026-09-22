@@ -2,8 +2,12 @@
 
 .search{position:relative}
 
+/* Wider than the input it hangs from: a name, a shelf and a price do
+   not fit in a 220px search box, and the reference site's does not
+   try to. Capped to the viewport so it never runs off a phone. */
 .sg-box{
-  position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:80;
+  position:absolute;top:calc(100% + 6px);left:0;z-index:80;
+  width:max(100%,min(460px,calc(100vw - 32px)));
   background:#fff;border:1px solid var(--line);border-radius:12px;
   box-shadow:0 14px 40px rgba(10,22,44,.18);
   overflow:hidden;animation:sgIn .16s var(--ease);
@@ -12,6 +16,8 @@
 @keyframes sgIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
 
 .sg-list{max-height:min(60vh,420px);overflow-y:auto}
+/* At most three categories, so nothing to scroll. */
+.sg-cats{max-height:none}
 
 .sg-row{
   display:flex;align-items:center;gap:11px;
@@ -25,16 +31,34 @@
   width:44px;height:44px;border-radius:8px;object-fit:contain;background:#fff;flex-shrink:0;
   border:1px solid var(--line);background:var(--bg);
 }
+/* "CATEGORIES" and "PRODUCTS", each over its list. */
+.sg-head{
+  padding:11px 14px 6px;font-size:11px;font-weight:800;
+  letter-spacing:1.1px;text-transform:uppercase;color:var(--mute);
+  border-bottom:1px solid var(--line);
+}
+.sg-list + .sg-head{border-top:1px solid var(--line)}
+
 .sg-tx{flex:1;min-width:0}
-.sg-tx b{
-  display:block;font-size:14px;font-weight:700;color:var(--ink);
+/* The name in grey; only the typed part goes dark and bold, so the eye
+   lands on why the row is there. Inline, not block — a block would put
+   the highlighted letters on a line of their own. */
+.sg-name{
+  display:block;font-size:14px;font-weight:600;color:var(--body);
   line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.sg-tx small{font-size:11.5px;color:var(--mute)}
+.sg-name b{display:inline;font-weight:900;color:var(--ink)}
+.sg-w{color:var(--mute);font-weight:600}
+.sg-tx small{display:block;font-size:11.5px;color:var(--mute);margin-top:1px}
+.sg-out{
+  display:block;font-style:normal;font-size:9.5px;font-weight:800;
+  color:var(--red);letter-spacing:.3px;
+}
 
-.sg-price{text-align:right;flex-shrink:0;line-height:1.3}
-.sg-price b{display:block;font-size:14.5px;font-weight:900;color:var(--red)}
-.sg-price s{font-size:11px;color:var(--mute)}
+.sg-price{text-align:right;flex-shrink:0;line-height:1.3;max-width:34%}
+.sg-price b{display:inline;font-size:14.5px;font-weight:900;color:var(--red)}
+.sg-price s{font-size:11px;color:var(--mute);margin-right:4px}
+.sg-tax{font-size:10.5px;color:var(--mute);font-weight:600;white-space:nowrap}
 
 .sg-off{
   position:absolute;top:6px;right:6px;
@@ -42,10 +66,16 @@
   padding:1px 5px;border-radius:3px;
 }
 
-.sg-foot{
-  padding:8px 13px;font-size:11.5px;color:var(--mute);
-  background:var(--bg);border-top:1px solid var(--line);text-align:center;
+/* "SEE ALL PRODUCTS… (23)": a button the width of the box. Named with
+   its form so the form's red submit-button rule does not paint it. */
+.search .sg-foot{
+  display:block;width:100%;padding:11px 13px;cursor:pointer;
+  border:0;border-top:1px solid var(--line);border-radius:0;background:var(--bg);
+  font-family:inherit;font-size:11px;font-weight:800;letter-spacing:1px;
+  text-transform:uppercase;color:var(--body);text-align:center;
+  transition:.16s var(--ease);
 }
+.search .sg-foot:hover{background:var(--red-l);color:var(--red)}
 
 .sg-none{padding:22px 18px;text-align:center}
 .sg-none b{display:block;font-size:14.5px;color:var(--ink);margin-bottom:4px}
@@ -67,11 +97,12 @@
 
 @media(max-width:620px){
   .sg-box{
-    position:fixed;top:auto;left:8px;right:8px;
+    position:fixed;top:auto;left:8px;right:8px;width:auto;
     max-height:70vh;
   }
   .sg-img{width:38px;height:38px}
-  .sg-tx b{font-size:13px}
+  .sg-name{font-size:13px}
+  .sg-tax{display:none}
 }
 
 @media(prefers-reduced-motion:reduce){

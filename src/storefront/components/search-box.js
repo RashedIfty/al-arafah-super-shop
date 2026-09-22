@@ -12,33 +12,87 @@ import { t, getLang, itemCount } from "../../features/i18n/lang.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
 import { search, suggest } from "../../features/search/engine.js";
 import { rerank, worthAsking } from "../../features/search/smart.js";
+import { filter } from "./search.js";
 
-const MAX = 8;              // suggestions shown at once
-let active = -1;            // keyboard cursor
-let results = [];
+const MAX = 8;              // product suggestions shown at once
+const MAX_CATS = 3;         // category suggestions shown at once
+let active = -1;            // keyboard cursor, across every row shown
+let results = [];           // ranked products, before the MAX cut
+let cats = [];              // matching categories
 
 /** Flatten the catalogue once per keystroke, carrying the category name. */
 const allProducts = () =>
   CATALOG.flatMap(c => c.items.map(p => ({ ...p, _cat: c[getLang()] || c.en, _catId: c.id })));
 
+/**
+ * Categories whose name contains the typed text, in any of the three
+ * languages. A name that starts with it comes first. Only shelves with
+ * something on them — an empty section is nowhere to send anyone.
+ */
+function matchCats(q){
+  const needle = q.trim().toLowerCase();
+  if (!needle) return [];
+
+  const hits = [];
+  for (const c of CATALOG){
+    if (!c.items.length) continue;
+    const names = [c.en, c.bn, c.ja].filter(Boolean).map(s => s.toLowerCase());
+    const at = Math.min(...names.map(n => { const i = n.indexOf(needle); return i < 0 ? 99 : i; }));
+    if (at < 99) hits.push({ cat: c, at });
+  }
+  hits.sort((a, b) => a.at - b.at);
+  return hits.slice(0, MAX_CATS).map(h => h.cat);
+}
+
 /* ------------------------------ markup -------------------------------- */
 
-function rowHTML(product, i){
-  const T = t(), lang = getLang();
+/**
+ * The typed part, in bold, wherever it appears in the name — so the
+ * customer sees why each row is there. Escaped first, and the query
+ * escaped the same way before it is looked for, so the two agree.
+ */
+function mark(name, q){
+  const safe = esc(name);
+  const needle = esc(q.trim());
+  const at = needle ? safe.toLowerCase().indexOf(needle.toLowerCase()) : -1;
+  if (at === -1) return safe;
+  return safe.slice(0, at) +
+         `<b>${safe.slice(at, at + needle.length)}</b>` +
+         safe.slice(at + needle.length);
+}
+
+function catHTML(cat, q){
+  const lang = getLang();
+  return `
+    <li class="sg-row sg-cat" role="option" aria-selected="false" data-cat="${esc(cat.id)}">
+      <img class="sg-img" src="${esc(cat.img || "/images/placeholder.svg")}"
+           alt="" loading="lazy" width="44" height="44" ${IMG_FALLBACK}>
+      <span class="sg-tx">
+        <span class="sg-name">${mark(cat[lang] || cat.en, q)}</span>
+        <small>${esc(itemCount(cat.items.length))}</small>
+      </span>
+    </li>`;
+}
+
+function rowHTML(product, i, q = ""){
+  const lang = getLang();
+  const T = t();
   const off = discount(product.was, product.p);
 
   return `
-    <li class="sg-row${i === active ? " on" : ""}" role="option"
-        aria-selected="${i === active}" data-i="${i}">
+    <li class="sg-row" role="option" aria-selected="false" data-i="${i}">
       <img class="sg-img" src="${esc(product.img || "/images/placeholder.svg")}"
            alt="" loading="lazy" width="44" height="44" ${IMG_FALLBACK}>
       <span class="sg-tx">
-        <b>${esc(product[lang] || product.en)}</b>
-        <small>${esc(product._cat)} &middot; ${esc(product.w)}</small>
+        <span class="sg-name">${mark(product[lang] || product.en, q)}${
+          product.w ? ` <span class="sg-w">(${esc(product.w)})</span>` : ""}</span>
+        <small>in ${esc(product._cat)}</small>
       </span>
       <span class="sg-price">
-        <b>${yen(product.p)}</b>
         ${product.was > product.p ? `<s>${yen(product.was)}</s>` : ""}
+        <b>${yen(product.p)}</b>
+        <small class="sg-tax">${esc(T.withtax)}</small>
+        ${product.tag === "out" ? `<em class="sg-out">${esc(T.out_stock)}</em>` : ""}
       </span>
       ${off ? `<span class="sg-off">-${off}%</span>` : ""}
     </li>`;
@@ -56,7 +110,8 @@ function render(query){
   const products = allProducts();
   const local = search(query, products, getLang());
 
-  results = local.slice(0, MAX);
+  results = local;
+  cats = matchCats(query);
   active = -1;
   paint(query, box);
 
@@ -69,7 +124,7 @@ function render(query){
       if (mine !== seq) return;              // a newer query has started
       box.classList.remove("thinking");
       if (better === local) return;          // nothing changed
-      results = better.slice(0, MAX);
+      results = better;
       paint(query, box);
     });
   }
@@ -79,7 +134,7 @@ function paint(query, box){
   const products = allProducts();
   const T = t();
 
-  if (!results.length){
+  if (!results.length && !cats.length){
     const alt = suggest(query, products);
     box.innerHTML = `
       <div class="sg-none">
@@ -88,11 +143,21 @@ function paint(query, box){
               : `<span>${esc(T.noresult_s)}</span>`}
       </div>`;
   } else {
+    const shown = results.slice(0, MAX);
     box.innerHTML = `
+      ${cats.length ? `
+      <div class="sg-head">${esc(T.st_categories)}</div>
+      <ul class="sg-list sg-cats" role="listbox">
+        ${cats.map(c => catHTML(c, query)).join("")}
+      </ul>` : ""}
+      ${shown.length ? `
+      <div class="sg-head">${esc(T.st_products)}</div>
       <ul class="sg-list" role="listbox">
-        ${results.map((r, i) => rowHTML(r.product, i)).join("")}
+        ${shown.map((r, i) => rowHTML(r.product, i, query)).join("")}
       </ul>
-      <div class="sg-foot">${esc(itemCount(results.length))}</div>`;
+      <button type="button" class="sg-foot" data-all>
+        ${esc(T.sg_see_all)} (${results.length})
+      </button>` : ""}`;
   }
 
   box.hidden = false;
@@ -105,19 +170,36 @@ function close(){
   $("#search")?.setAttribute("aria-expanded", "false");
   active = -1;
   results = [];
+  cats = [];
 }
 
-/** Move the highlight and keep it in view. */
+/** Move the highlight down the rows, categories first, and keep it in view. */
 function move(step){
-  if (!results.length) return;
-  active = (active + step + results.length) % results.length;
+  const rows = $$(".sg-row");
+  if (!rows.length) return;
+  active = (active + step + rows.length) % rows.length;
 
-  $$(".sg-row").forEach((el, i) => {
+  rows.forEach((el, i) => {
     const on = i === active;
     el.classList.toggle("on", on);
     el.setAttribute("aria-selected", on);
     if (on) el.scrollIntoView({ block: "nearest" });
   });
+}
+
+const onProductsPage = () => document.body.dataset.page === "products";
+
+/** Open a category: scroll to its shelf here, or go to it on the products page. */
+function goCat(id){
+  close();
+  $("#search").value = "";
+
+  if (onProductsPage()){
+    filter("");
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    location.href = `products.html#${id}`;
+  }
 }
 
 /** Jump to a product on the products page and flash it. */
@@ -126,19 +208,43 @@ function go(i){
   if (!hit) return;
 
   const id = hit.product._catId;
-  const onProducts = document.body.dataset.page === "products";
+  const onProducts = onProductsPage();
   const url = `${onProducts ? "" : "products.html"}#${id}`;
 
   close();
   $("#search").value = "";
 
   if (onProducts){
+    filter("");
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
     highlight(hit.product);
   } else {
     sessionStorage.setItem("aa-find", hit.product.en);
     location.href = url;
   }
+}
+
+/**
+ * "See all": the whole list, not the first eight. On the products page
+ * the cards under the dropdown are already filtered to the query, so
+ * this only closes the dropdown and scrolls to the first of them. From
+ * any other page it carries the words over to the products page.
+ */
+function goAll(query){
+  close();
+  if (onProductsPage()){
+    filter(query);
+    $(".sec:not([hidden])")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  } else {
+    sessionStorage.setItem("aa-q", query);
+    location.href = "products.html";
+  }
+}
+
+/** Enter or a click on any row. */
+function pick(el){
+  if (el.dataset.cat) goCat(el.dataset.cat);
+  else if (el.dataset.i != null) go(+el.dataset.i);
 }
 
 /** Briefly outline the card the customer picked. */
@@ -159,6 +265,12 @@ export function initSearchBox(){
   const input = $("#search");
   if (!input) return;
 
+  // render() runs on every change of state and keeps the header when its
+  // markup has not changed, so this is called many times for one input.
+  // Bound twice, an arrow key moved two rows and a click picked twice.
+  if (input.dataset.sgBound) return;
+  input.dataset.sgBound = "1";
+
   input.setAttribute("role", "combobox");
   input.setAttribute("aria-autocomplete", "list");
   input.setAttribute("aria-expanded", "false");
@@ -174,9 +286,13 @@ export function initSearchBox(){
     switch (e.key){
       case "ArrowDown": e.preventDefault(); move(1);  break;
       case "ArrowUp":   e.preventDefault(); move(-1); break;
-      case "Enter":
-        if (active >= 0){ e.preventDefault(); go(active); }
+      case "Enter": {
+        e.preventDefault();
+        const row = active >= 0 ? $$(".sg-row")[active] : null;
+        if (row) pick(row);
+        else if (input.value.trim() && results.length) goAll(input.value);
         break;
+      }
       case "Escape":    close(); input.blur();        break;
     }
   });
@@ -194,8 +310,9 @@ export function initSearchBox(){
       render(input.value);
       return;
     }
-    const row = e.target.closest("[data-i]");
-    if (row){ e.preventDefault(); go(+row.dataset.i); }
+    if (e.target.closest("[data-all]")){ e.preventDefault(); goAll(input.value); return; }
+    const row = e.target.closest(".sg-row");
+    if (row){ e.preventDefault(); pick(row); }
   });
 
   document.addEventListener("click", e => {
@@ -207,5 +324,17 @@ export function initSearchBox(){
   if (wanted){
     sessionStorage.removeItem("aa-find");
     highlight({ en: wanted });
+  }
+
+  // Arriving from another page with words in mind: the cards filter
+  // to them, with no dropdown over the top.
+  const words = sessionStorage.getItem("aa-q");
+  if (words && onProductsPage()){
+    sessionStorage.removeItem("aa-q");
+    input.value = words;
+    setTimeout(() => {
+      filter(words);
+      $(".sec:not([hidden])")?.scrollIntoView({ block: "start" });
+    }, 0);
   }
 }

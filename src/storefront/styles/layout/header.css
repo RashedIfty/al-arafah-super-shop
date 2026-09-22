@@ -10,7 +10,11 @@
 .topbar-links a:hover{color:#fff}
 
 
-.header{padding:13px 0;background:#fff;border-bottom:1px solid var(--line)}
+/* Above the nav. The nav is sticky at z-index 50 and the search's
+   dropdown hangs off the header into the nav's space; without a
+   stacking context of its own the header paints beneath, and the
+   suggestions were drawn in full and hidden in full behind the red bar. */
+.header{padding:13px 0;background:#fff;border-bottom:1px solid var(--line);position:relative;z-index:60}
 .header-in{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 
 /* On the narrowest phones the brand and the controls stop fitting on one
@@ -42,18 +46,23 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
 }
 .brand-tx i{display:none;font-style:normal;font-size:9.5px;color:var(--mute);font-weight:600}
 
+/* No overflow:hidden here: the suggestions box hangs off this form and
+   was clipped to nothing by it. The corners are rounded on the two
+   children instead. */
 .search{
   flex:1;display:flex;border:2px solid var(--line);border-radius:10px;
-  overflow:hidden;background:var(--bg);min-width:0;transition:.2s var(--ease);
+  background:var(--bg);min-width:0;transition:.2s var(--ease);
 }
 .search input{
   flex:1;min-width:0;border:0;outline:0;background:transparent;
   padding:11px 14px;font-size:16px;color:var(--ink);
+  border-radius:8px 0 0 8px;
 }
 .search input::placeholder{color:var(--mute)}
 .search button{
   border:0;background:var(--red);color:#fff;padding:0 18px;
   cursor:pointer;font-size:15px;transition:.2s var(--ease);
+  border-radius:0 8px 8px 0;
 }
 .search button:hover{background:var(--red-d)}
 .search:focus-within{border-color:var(--red);background:#fff}

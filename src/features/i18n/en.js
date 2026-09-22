@@ -3,7 +3,7 @@ export default {
   fl_category:"Category",  fl_all:"All categories",  fl_upto:"Up to",  fl_sale:"On sale",  fl_stock:"In stock",  fl_clear:"Clear",
   item_one:"item",
   ann_prev:"Previous",  ann_next:"Next",
-  sg_didyoumean:"Did you mean",
+  sg_didyoumean:"Did you mean",  sg_see_all:"See all products…",
   map_title:"Visit Our Shop",  map_sub:"Find us in Tsukuba",  map_directions:"Get Directions",
   pay_label:"We accept",  pay_cash:"Cash",
   owner_login:"Owner Login", customer_login:"Customer Login",

@@ -3,7 +3,7 @@ export default {
   fl_category:"カテゴリ",  fl_all:"全カテゴリ",  fl_upto:"上限",  fl_sale:"セール中",  fl_stock:"在庫あり",  fl_clear:"クリア",
   item_one:"点",
   ann_prev:"前へ",  ann_next:"次へ",
-  sg_didyoumean:"もしかして",
+  sg_didyoumean:"もしかして",  sg_see_all:"すべての商品を見る…",
   map_title:"店舗のご案内",  map_sub:"つくば市にあります",  map_directions:"ルート案内",
   pay_label:"お支払い方法",  pay_cash:"現金",
   owner_login:"オーナーログイン", customer_login:"お客様ログイン",
