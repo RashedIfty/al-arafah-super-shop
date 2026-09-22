@@ -76,6 +76,7 @@
       <button class="tab" data-tab="notice"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9zm3-19A7 7 0 0 0 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7"/></svg> Announcement <em id="anDot"></em></button>
       <button class="tab" data-tab="orders"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4m10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4M7.2 14.6 7 15a1 1 0 0 0 1 1h11v-2H8.4l.7-1.3 8.2-.1a1 1 0 0 0 .9-.6l3-6A1 1 0 0 0 20.3 4H6.2l-.9-2H2v2h2z"/></svg> Orders <em id="ordCount"></em></button>
       <button class="tab" data-tab="restock"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg> Restock <em id="rsCount"></em></button>
+      <button class="tab" data-tab="customers"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3m-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3m0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5m8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5"/></svg> Customers <em id="cuCount"></em></button>
       <button class="tab" data-tab="archive"><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 2H4a2 2 0 0 0-2 2v3h20V4a2 2 0 0 0-2-2M3 9v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9zm11 5H10v-2h4z"/></svg> Archive <em id="arcCount"></em></button>
     </div>
   </div>
@@ -241,6 +242,29 @@
       </div>
 
       <div id="rsList"></div>
+    </section>
+
+    <!-- ===================== TAB: CUSTOMERS ==================== -->
+    <section class="panel-tab" id="tab-customers" hidden>
+      <div class="ad-hero">
+        <div class="ad-hero-tx">
+          <h2>Customers</h2>
+          <p id="cuLine">…</p>
+        </div>
+      </div>
+
+      <div class="deal-note">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9zm3-19A7 7 0 0 0 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7"/></svg>
+        Everyone with an account on the website, A to Z by first name.
+        Tap a photo to see it large; <b>Show history</b> lists everything
+        they have ordered and asked for.
+      </div>
+
+      <div class="ad-find">
+        <input type="search" id="cuSearch" placeholder="Find a customer by name, phone, email or address…">
+      </div>
+
+      <div id="cuList"></div>
     </section>
 
     <section class="panel-tab" id="tab-archive" hidden>

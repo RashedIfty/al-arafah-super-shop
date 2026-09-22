@@ -1215,6 +1215,39 @@ export async function fetchRestock(){
 }
 
 /**
+ * Every registered account, for the owner's customer book. One row per
+ * account whether or not they have set anything — the view reads the
+ * accounts themselves. The owner alone may read it; anyone else gets an
+ * empty list.
+ */
+export async function fetchCustomers(){
+  const c = await db();
+  if (!c) return [];
+
+  const { data, error } = await c.from("customer_directory").select("*");
+
+  if (error){ console.warn("fetchCustomers:", error.message); return []; }
+  return data ?? [];
+}
+
+/**
+ * Every restock request ever, open or done, for the customer book. The
+ * board view already carries the product name; this simply does not
+ * filter it to the open ones.
+ */
+export async function fetchAllRestock(){
+  const c = await db();
+  if (!c) return [];
+
+  const { data, error } = await c.from("restock_board")
+    .select("user_id, product_id, created_at, done_at, en, w")
+    .order("created_at", { ascending: false });
+
+  if (error){ console.warn("fetchAllRestock:", error.message); return []; }
+  return data ?? [];
+}
+
+/**
  * Every customer who has put up a photo, for the owner's lists. A view
  * the owner alone may read; anyone else gets an empty list, which draws
  * as no faces at all.

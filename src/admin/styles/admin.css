@@ -901,6 +901,99 @@ body{overflow-x:hidden}
 .face:hover{border-color:var(--red);transform:scale(1.08)}
 .ord-who .face{float:left;margin-top:3px}
 
+/* ------------------------------ customers -----------------------------
+   One card per account. The face is the first thing on it because it is
+   the first thing the owner recognises; the rest reads down from there.
+   ------------------------------------------------------------------- */
+.cu-grid{
+  display:grid;gap:14px;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+}
+.cu-card{
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:16px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:11px;
+  transition:.15s var(--ease);
+}
+.cu-card:hover{box-shadow:var(--sh-md)}
+.cu-card.is-open{grid-column:1 / -1}
+
+.cu-head{display:flex;gap:13px;align-items:center;min-width:0}
+/* The face here is bigger than on an order row; it is the whole point
+   of the card. The tap-to-enlarge button inside keeps its own size and
+   is scaled up to fill. */
+.cu-face{
+  flex:0 0 auto;width:56px;height:56px;border-radius:50%;overflow:hidden;
+  display:grid;place-items:center;
+}
+.cu-face .face{width:56px;height:56px;margin:0;border-width:2px}
+.cu-face .face img{width:56px;height:56px}
+/* No photo: their initial on the shop's pale red, the way the website
+   header shows a customer who has not put one up. */
+.cu-face-blank{
+  background:var(--red-l);color:var(--red);font-size:24px;font-weight:900;
+  border:2px solid #fff;box-shadow:var(--sh);
+}
+.cu-id{min-width:0;display:flex;flex-direction:column;gap:2px}
+.cu-id b{font-size:15.5px;color:var(--ink);overflow-wrap:anywhere}
+.cu-mail{font-size:12px;color:var(--mute);overflow-wrap:anywhere}
+.cu-mail:hover{color:var(--red);text-decoration:underline}
+.cu-tel{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:13px;font-weight:700;color:var(--navy);
+}
+.cu-tel:hover{text-decoration:underline}
+
+.cu-addr{
+  font-size:12.5px;color:var(--body);line-height:1.5;
+  background:var(--bg);border-radius:9px;padding:9px 11px;
+  overflow-wrap:anywhere;display:flex;flex-direction:column;gap:2px;
+}
+.cu-addr em{font-style:normal;font-size:11px;font-weight:800;color:var(--mute);text-transform:uppercase;letter-spacing:.4px}
+.cu-addr a{color:var(--navy);font-weight:700;font-size:12.5px}
+.cu-addr-none{color:var(--mute);font-style:italic}
+
+.cu-stats{
+  display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--mute);
+}
+.cu-stats b{color:var(--ink);font-weight:800}
+.cu-wait{
+  font-style:normal;font-size:10.5px;font-weight:800;color:#b26a00;
+  background:#fdf1dc;border-radius:999px;padding:1px 7px;margin-left:3px;
+}
+.cu-since{margin-left:auto}
+
+.cu-more{
+  align-self:flex-start;border:1px solid var(--line);background:#fff;
+  border-radius:8px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:700;
+  color:var(--body);cursor:pointer;
+}
+.cu-more:hover{border-color:var(--red);color:var(--red)}
+
+/* The history, unfolded. Orders as compact rows; requests below. */
+.cu-hist{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:8px}
+.cu-hist h4{font-size:12px;font-weight:800;color:var(--mute);text-transform:uppercase;letter-spacing:.4px;margin:6px 0 2px}
+.cu-ord{border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+.cu-ord-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:12.5px}
+.cu-ord-head > b{color:var(--ink)}
+.cu-ord-when{color:var(--mute);font-size:11.5px}
+.cu-ord-tot{margin-left:auto;color:var(--red)}
+.cu-ord-items{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;color:var(--body);margin-top:5px}
+.cu-ord-items .refused{text-decoration:line-through;color:var(--mute)}
+.cu-ask{
+  display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  font-size:12.5px;color:var(--body);padding:5px 0;border-bottom:1px dashed var(--line);
+}
+.cu-ask:last-child{border-bottom:0}
+.cu-ask small{color:var(--mute)}
+.cu-ask.done{color:var(--mute)}
+.cu-ask-when{font-size:11.5px;color:var(--mute)}
+.cu-ask-when i{font-style:normal;font-weight:800;color:#b26a00}
+
+@media(max-width:620px){
+  .cu-grid{grid-template-columns:1fr}
+  .cu-since{margin-left:0;flex-basis:100%}
+}
+
 /* Tapped: the photo large, with the name under it. */
 .face-box{
   position:relative;z-index:2;max-width:min(92vw,520px);

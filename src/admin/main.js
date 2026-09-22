@@ -21,6 +21,8 @@ import {
 } from "./orders.js";
 import { setRestock, renderRestock, initRestock } from "./restock.js";
 import { initFaces } from "./photos.js";
+import { setCustomers, setCustomerOrders, setCustomerAsks, renderCustomers, initCustomers }
+  from "./customers.js";
 
 let catalog = [];
 let editing = null;            // {catId, index} when editing, null when adding
@@ -56,10 +58,10 @@ async function openPanel(){
   $("#panel").hidden = false;
 
   if (usingSupabase()){
-    const [cat, dl, arc, ann, ord, ordArc, rs, faces] = await Promise.all([
+    const [cat, dl, arc, ann, ord, ordArc, rs, faces, cus, allAsks] = await Promise.all([
       api.fetchCatalog(), api.fetchDeals(), api.fetchArchive(), api.fetchAnnouncement(),
       api.fetchOrders(), api.fetchArchivedOrders(), api.fetchRestock(),
-      api.fetchCustomerPhotos(),
+      api.fetchCustomerPhotos(), api.fetchCustomers(), api.fetchAllRestock(),
     ]);
     notice = ann;
     catalog = cat || store.load();
@@ -69,6 +71,9 @@ async function openPanel(){
     setOrders(ord);
     setArchivedOrders(ordArc);
     setRestock(rs);
+    setCustomers(cus);
+    setCustomerOrders([...(ord || []), ...(ordArc || [])]);
+    setCustomerAsks(allAsks);
   } else {
     catalog = store.load();
     deals   = store.loadDeals(DEFAULT_ANNOUNCEMENTS.items);
@@ -101,22 +106,26 @@ function startOrders(){
 
   initOrders({ toast, ask, refresh: reload });
   initRestock({ toast, ask, refresh: reload });
+  initCustomers();
   if (usingSupabase()) watchOrders({ refresh: reload });
 }
 
 /** Pull fresh data after a write. */
 async function reload(){
   if (!usingSupabase()) return;
-  const [cat, dl, arc, ann, ord, ordArc, rs, faces] = await Promise.all([
+  const [cat, dl, arc, ann, ord, ordArc, rs, faces, cus, allAsks] = await Promise.all([
     api.fetchCatalog(), api.fetchDeals(), api.fetchArchive(), api.fetchAnnouncement(),
     api.fetchOrders(), api.fetchArchivedOrders(), api.fetchRestock(),
-    api.fetchCustomerPhotos(),
+    api.fetchCustomerPhotos(), api.fetchCustomers(), api.fetchAllRestock(),
   ]);
   if (ann) notice = ann;
   if (cat) catalog = cat;
   if (dl)  deals   = dl;
   if (arc) archive = arc;
   if (faces) setCustomerPhotos(faces);
+  if (cus) setCustomers(cus);
+  if (ord || ordArc) setCustomerOrders([...(ord || []), ...(ordArc || [])]);
+  if (allAsks) setCustomerAsks(allAsks);
   if (ord) setOrders(ord);
   if (ordArc) setArchivedOrders(ordArc);
   if (rs) setRestock(rs);
@@ -250,6 +259,7 @@ function renderAll(){
   renderNotice();
   renderOrders();
   renderRestock();
+  renderCustomers();
 }
 
 function renderList(){
