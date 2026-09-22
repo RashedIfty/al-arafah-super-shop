@@ -1066,9 +1066,31 @@ export async function askRestock(productId){
   const { data: { user } } = await c.auth.getUser();
   if (!user) return { error: { message: "Not signed in" } };
 
-  return c.from("restock_requests").upsert(
-    { user_id: user.id, product_id: productId },
-    { onConflict: "user_id,product_id" });
+  /*
+   * done_at cleared, deliberately.
+   *
+   * The row may already exist and be closed: the shop got this in once,
+   * told everybody, and it has since sold out again. Merging without
+   * touching done_at left last week's timestamp in place, so the request
+   * counted as already handled — the button reset itself on the next
+   * refresh and the owner never saw it. Asking again re-opens it.
+   *
+   * created_at is left alone. The database keeps the original, which is
+   * the honest answer to "how long have they been waiting".
+   */
+  const { data, error } = await c.from("restock_requests").upsert(
+    { user_id: user.id, product_id: productId, done_at: null },
+    { onConflict: "user_id,product_id" })
+    .select();
+
+  if (error) return { error };
+
+  /* Nothing came back means row-level security refused it, which is not
+     an error to PostgREST — it matches no row and returns a success. */
+  if (!data?.length)
+    return { error: { message: "That request could not be saved." } };
+
+  return { data: data[0] };
 }
 
 /** Changed their mind. */
