@@ -156,11 +156,17 @@ body{overflow-x:hidden}
 /* The website's own search bar, so the owner searches his shop the same
    way his customers do: one grey trough with a red button on the end,
    turning white under a red edge as soon as it is being used. */
+/* No overflow:hidden, unlike the shop's bar it copies: the dropdown
+   hangs below this box, and a clipped parent swallowed it whole — five
+   rows drawn and none of them visible. The red button keeps the
+   rounded corner by its own radius instead. */
 .ad-find{
   display:flex;margin-bottom:18px;
   border:2px solid var(--line);border-radius:10px;
-  overflow:hidden;background:var(--bg);transition:.2s var(--ease);
+  background:var(--bg);transition:.2s var(--ease);
 }
+.ad-find button[type="submit"]{border-radius:0 8px 8px 0}
+.ad-find input{border-radius:8px 0 0 8px}
 .ad-find input{
   flex:1;min-width:0;border:0;outline:0;background:transparent;
   padding:13px 16px;font-size:16px;color:var(--ink);
@@ -225,7 +231,10 @@ body{overflow-x:hidden}
   display:block;font-size:14px;font-weight:600;color:var(--body);
   line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-.ad-find .sg-name b{color:var(--ink);font-weight:900}
+/* The website's own rule makes every bold in a suggestion a block, so
+   the highlighted letters were landing on a line of their own — "Fresh
+   P / ab / da Fish". Inline here, and the name stays one line. */
+.ad-find .sg-name b{display:inline;color:var(--ink);font-weight:900;font-size:inherit;white-space:inherit}
 .ad-find .sg-w{color:var(--mute);font-weight:600}
 .ad-find .sg-tx small{display:block;font-size:11.5px;color:var(--mute);margin-top:1px}
 
