@@ -57,7 +57,7 @@ export default {
     promo1_k:"毎日新鮮", promo1_h:"肉・魚<br>ご注文でカット",
     promo2_k:"まとめ買い・家族パック", promo2_h:"月間まとめ買い<br>お得な価格",
     promo_btn:"商品を見る",
-    bd_band_h:"<b>本場バングラデシュの味</b>を、<br>すべてのご家庭へ。",
+    bd_band_h:"\u201c<b>本場バングラデシュの味</b>を、<br>すべてのご家庭へ\u201d",
     bd_band_btn:"商品を見る",
     credit_photos:"トップページの写真:",
     about_h:"アル・アラファ スーパーショップへようこそ",

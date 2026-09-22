@@ -57,7 +57,7 @@ export default {
     promo1_k:"FRESH EVERY DAY", promo1_h:"Meat & Fish<br>Cut to Order",
     promo2_k:"BULK & FAMILY PACK", promo2_h:"Monthly Grocery<br>Best Value",
     promo_btn:"View Items",
-    bd_band_h:"Bringing authentic<br><b>Bangladeshi flavours</b><br>to every home.",
+    bd_band_h:"\u201cBringing authentic<br><b>Bangladeshi flavours</b><br>to every home\u201d",
     bd_band_btn:"Explore Products",
     credit_photos:"Home page photographs:",
     about_h:"Welcome to Al-Arafah Super Shop",
