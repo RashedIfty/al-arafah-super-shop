@@ -7,7 +7,7 @@
  */
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL    = "groq/compound-mini";   // 70k tokens/min on the free tier
+const MODEL    = "openai/gpt-oss-20b";   // 30k tokens/min on the free tier
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -75,7 +75,12 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({
         model: MODEL,
         temperature: 0.1,
-        max_completion_tokens: 120,     // only ever a list of numbers
+        /* The answer is only ever a list of numbers, but this model
+           thinks before it speaks and that thinking is counted here. At
+           120 it ran out mid-thought and returned nothing at all, which
+           read as "no results fit" rather than as a failure. */
+        max_completion_tokens: 512,
+        reasoning_effort: "low",
         messages: [
           { role: "system", content: SYSTEM },
           { role: "user", content: `Query: ${query.slice(0, 200)}\n\n${lines}` }

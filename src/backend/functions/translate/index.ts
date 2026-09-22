@@ -10,7 +10,13 @@
  */
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODEL    = "groq/compound-mini";
+
+/* Groq retires models without warning, and a retired one fails as a
+   plain 404 on every request — the owner sees "Could not fill those in"
+   and nothing else. `groq/compound-mini` went that way. If this stops
+   working again, the list of what the key can actually use is at
+   GET https://api.groq.com/openai/v1/models. */
+const MODEL    = "openai/gpt-oss-20b";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -22,6 +28,47 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status, headers: { ...CORS, "Content-Type": "application/json" }
   });
+
+/**
+ * The first balanced {...} in a reply that parses and carries a
+ * translation.
+ *
+ * Braces are counted rather than matched with a regular expression, so
+ * a model that thinks out loud before answering — or fences its answer
+ * in Markdown — still gives up its JSON.
+ */
+function firstObject(text: string): { bn?: unknown; ja?: unknown } | null {
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] !== "{") continue;
+
+    let depth = 0, inStr = false, esc = false;
+    for (let j = i; j < text.length; j++) {
+      const ch = text[j];
+
+      if (inStr) {
+        if (esc) esc = false;
+        else if (ch === "\\") esc = true;
+        else if (ch === '"') inStr = false;
+        continue;
+      }
+
+      if (ch === '"') inStr = true;
+      else if (ch === "{") depth++;
+      else if (ch === "}") {
+        depth--;
+        if (depth === 0) {
+          try {
+            const parsed = JSON.parse(text.slice(i, j + 1));
+            // Their reasoning may be an object too; ours has the words.
+            if (parsed && (parsed.bn || parsed.ja)) return parsed;
+          } catch { /* not this one; keep looking */ }
+          break;
+        }
+      }
+    }
+  }
+  return null;
+}
 
 /**
  * The instructions matter more than the model here.
@@ -71,7 +118,9 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         model: MODEL,
         temperature: 0.2,              // low: a name should not be invented
-        max_completion_tokens: 220,
+        max_completion_tokens: 400,    // room for a model that thinks first
+        response_format: { type: "json_object" },
+        reasoning_effort: "low",
         messages: [
           { role: "system", content: SYSTEM },
           { role: "user", content: text.slice(0, 400) }
@@ -104,18 +153,13 @@ Deno.serve(async (req) => {
     const data  = await res.json();
     const reply = data.choices?.[0]?.message?.content ?? "";
 
-    /* The model is asked for bare JSON but sometimes wraps it in prose or
-       a code fence, so take the first object rather than trusting the
-       whole reply. */
-    const match = reply.match(/\{[\s\S]*\}/);
-    if (!match) return json({ bn: "", ja: "", reason: "unparsable" });
-
-    let out: { bn?: unknown; ja?: unknown };
-    try {
-      out = JSON.parse(match[0]);
-    } catch {
-      return json({ bn: "", ja: "", reason: "unparsable" });
-    }
+    /* The model is asked for bare JSON but sometimes wraps it in prose,
+       a code fence, or its own reasoning — and that reasoning can itself
+       contain braces. So try every object in the reply, longest first,
+       rather than the span from the first brace to the last: that span
+       swallows the whole lot and parses as nothing. */
+    const out = firstObject(reply);
+    if (!out) return json({ bn: "", ja: "", reason: "unparsable" });
 
     const clean = (v: unknown) =>
       typeof v === "string" ? v.trim().slice(0, 400) : "";
