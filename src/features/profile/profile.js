@@ -209,12 +209,14 @@ export async function setDefaultAddress(id){
 /**
  * A new photo.
  *
- * Shrunk in the browser first, the way product photos are, but smaller
- * still — it is drawn at 40px in the header and 96px on the account
- * page. Then uploaded, then written to the profile; and only once all
- * three have landed is the old one taken down. Nothing is said about
- * the shrinking: the customer chose a photo and got a photo, and the
- * pixels thrown away were never going to be seen.
+ * Shrunk in the browser first, to exactly what a product photo gets —
+ * 1000px on the long edge, about 100 KB. It is drawn small in the
+ * header, but the owner taps it and sees it full size, and a smaller
+ * file looked poor there. Plain, without the shop's ribbon: that marks
+ * a photograph of something the shop sells, not a person. Then
+ * uploaded, then written to the profile; and only once all three have
+ * landed is the old one taken down. Nothing is said about the
+ * shrinking: the customer chose a photo and got a photo.
  */
 export async function changeAvatar(file){
   if (!file || !/^image\/(jpeg|png|webp)$/.test(file.type))
@@ -226,7 +228,7 @@ export async function changeAvatar(file){
 
     let small = file;
     try {
-      small = await shrinkImage(file, { plain: true, maxEdge: 320, targetBytes: 40 * 1024 });
+      small = await shrinkImage(file, { plain: true });
     } catch { /* the original will do */ }
 
     const url = await api.uploadPhoto(small);
