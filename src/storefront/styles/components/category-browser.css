@@ -267,21 +267,47 @@
 
 /* The rail holds the arrows against the scroller, and carries the fade
    that says there is more to the right. */
-.cstrip-rail{position:relative;flex:1;min-width:0;display:flex;align-items:center}
+/* The pills belong to the rail and stop at its edge. Without the clip
+   the drifting row passes behind "All categories", which then swallows
+   the first pill's taps. Its own stacking context keeps the arrows and
+   the fade over the row and under nothing else. */
+.cstrip-rail{
+  position:relative;flex:1;min-width:0;display:flex;align-items:center;
+  isolation:isolate;overflow:hidden;
+}
 
 .cstrip-scroll{
   display:flex;align-items:center;gap:9px;
-  flex:1;min-width:0;overflow-x:auto;scroll-behavior:smooth;
+  flex:1;min-width:0;overflow-x:auto;
+  /* Deliberately NOT scroll-behavior:smooth. The row is drifted a
+     fraction of a pixel per frame, and smooth treats every one of those
+     as a new target to ease towards — the easing swallows the step and
+     the row never moves at all. The arrows add it for their own jump. */
+  scroll-behavior:auto;
   /* The bar itself is noise on a strip this short; the fade at the end
      is what says there is more. */
   scrollbar-width:none;-ms-overflow-style:none;
   -webkit-overflow-scrolling:touch;
-  scroll-snap-type:x proximity;
+  /* No scroll snapping. Snap drags the row back to the nearest pill
+     edge after every frame the drift moves it, which pinned it at one
+     position and looked like it had jammed. A row that moves by itself
+     has no resting place to snap to. */
   padding:3px 1px;
 }
 .cstrip-scroll::-webkit-scrollbar{display:none}
-.cstrip-scroll.dragging{scroll-behavior:auto;cursor:grabbing}
+.cstrip-scroll.dragging{cursor:grabbing}
+/* Only while an arrow is doing the moving. */
+.cstrip-scroll.gliding{scroll-behavior:smooth}
 .cstrip-scroll.dragging .cstrip-pill{pointer-events:none}
+
+/* One pass of the shelves, printed twice. Each copy keeps its own row
+   so the two meet with exactly the gap the pills already use, and the
+   wrap from the end of one to the start of the next is invisible.
+   `width:max-content` stops the flex parent squeezing them. */
+.cstrip-run{
+  display:flex;align-items:center;gap:9px;
+  flex:0 0 auto;width:max-content;
+}
 
 /* White cards on the tint, like every other card in the shop. */
 .cstrip-pill{
@@ -290,7 +316,7 @@
   background:#fff;color:var(--ink);
   font-size:12.5px;font-weight:700;white-space:nowrap;
   box-shadow:var(--sh);
-  transition:.16s var(--ease);scroll-snap-align:start;
+  transition:.16s var(--ease);
 }
 .cstrip-pill:hover{
   border-color:var(--red);color:var(--red);

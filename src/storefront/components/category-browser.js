@@ -59,6 +59,21 @@ export function categoryStripHTML(){
       <em>${count}</em>
     </a>`;
 
+  /* One pass of every shelf. Printed twice below, which is what lets
+     the row loop: when the first copy has scrolled by, the position is
+     wound back by exactly its width and the second copy is already
+     sitting where the eye expects it. */
+  const run =
+    cats.map(c =>
+      pill(`${base}#${esc(c.id)}`, c.img || SHOP.placeholder,
+           c[lang] || c.en, c.items.length)).join("") +
+    SHELVES.map(s => `
+      <a class="cstrip-pill shelf" href="${s.href}">
+        <img src="${esc(s.img)}" alt="" loading="lazy"
+             width="26" height="26" ${IMG_FALLBACK}>
+        <span>${esc(s[lang] || s.en)}</span>
+      </a>`).join("");
+
   return `
     <nav class="cstrip" aria-label="${esc(T.cats_side)}">
       <div class="wrap cstrip-in">
@@ -73,15 +88,11 @@ export function categoryStripHTML(){
           </button>
 
           <div class="cstrip-scroll" id="cstripScroll">
-            ${cats.map(c =>
-              pill(`${base}#${esc(c.id)}`, c.img || SHOP.placeholder,
-                   c[lang] || c.en, c.items.length)).join("")}
-            ${SHELVES.map(s => `
-              <a class="cstrip-pill shelf" href="${s.href}">
-                <img src="${esc(s.img)}" alt="" loading="lazy"
-                     width="26" height="26" ${IMG_FALLBACK}>
-                <span>${esc(s[lang] || s.en)}</span>
-              </a>`).join("")}
+            <div class="cstrip-run">${run}</div>
+            <!-- A second copy, so the row can roll from the end of one
+                 into the start of the next with no gap and no jump. It
+                 is the same shelves, so a screen reader hears them once. -->
+            <div class="cstrip-run" aria-hidden="true">${run}</div>
           </div>
 
           <button type="button" class="cstrip-arrow right" data-cstrip="1"
@@ -94,12 +105,24 @@ export function categoryStripHTML(){
 }
 
 /**
- * The arrows, and dragging with a mouse.
+ * The row moves by itself, and stops when somebody takes hold of it.
  *
- * Touch and trackpads already scroll this; a mouse has nothing to
- * throw at it, so the strip can be dragged and the two arrows appear
- * only when there is somewhere to go. Bound once.
+ * Two copies of the shelves sit in the scroller. The position creeps
+ * rightwards a fraction of a pixel per frame, and once the first copy
+ * has gone by, exactly its width is subtracted — the second copy is
+ * already drawn where the eye expects the first, so the wrap is
+ * invisible and the row never reaches an end to be stuck at.
+ *
+ * Driving the scroll position rather than animating a transform keeps
+ * every pill a real link at a real place: it can still be swiped,
+ * dragged, tabbed to and clicked, which a CSS marquee would have cost.
+ *
+ * It pauses whenever a person is involved — pointer over it, a finger
+ * on it, a focused link inside it, the tab in the background — and it
+ * does not start at all for somebody who has asked for less motion.
  */
+const DRIFT = 0.35;        // pixels per frame, about 21 a second
+
 export function initCategoryStrip(){
   const box = document.getElementById("cstripScroll");
   if (!box || box.dataset.bound) return;
@@ -107,28 +130,120 @@ export function initCategoryStrip(){
 
   const strip = box.closest(".cstrip");
   const arrows = strip.querySelectorAll("[data-cstrip]");
+  const calm = matchMedia("(prefers-reduced-motion: reduce)");
 
-  /* Hide an arrow that would do nothing. The 2px allows for the
-     fractional widths a zoomed-out browser reports. */
+  /* The width of one copy of the shelves — the distance to wind back. */
+  const lap = () => box.querySelector(".cstrip-run")?.offsetWidth || 0;
+
+  /* Both arrows, or neither.
+   *
+   * The row loops, so there is always somewhere to go in both
+   * directions — hiding the left one at position zero, the way a
+   * finite list would, was wrong the moment it started wrapping. They
+   * go only when every shelf already fits on screen. */
   const paint = () => {
-    const max = box.scrollWidth - box.clientWidth;
-    arrows.forEach(a => {
-      const back = a.dataset.cstrip === "-1";
-      a.hidden = max < 4 || (back ? box.scrollLeft < 2 : box.scrollLeft > max - 2);
-    });
+    const fits = box.scrollWidth - box.clientWidth < 4;
+    arrows.forEach(a => { a.hidden = fits; });
   };
 
   arrows.forEach(a => a.addEventListener("click", () => {
-    box.scrollBy({ left: Number(a.dataset.cstrip) * box.clientWidth * 0.8,
-                   behavior: "smooth" });
+    nudge(Number(a.dataset.cstrip) * box.clientWidth * 0.8);
   }));
 
-  box.addEventListener("scroll", paint, { passive: true });
   addEventListener("resize", paint, { passive: true });
   paint();
 
-  /* Drag to scroll. `moved` is what stops a drag that happens to end on
-     a pill from also following it. */
+  /* ------------------------------ drifting ------------------------- */
+
+  let held = 0;                       // >0 while a person is involved
+  const hold = () => { held++; };
+  const free = () => { held = Math.max(0, held - 1); };
+
+  /* On the whole strip, not just the scroller: a finger lands on a
+     pill, and a listener bound to the scroller alone never hears the
+     touch at all — the row carried on drifting under the thumb.
+     `pointerenter` and `pointerleave` do not bubble, so they go on the
+     rail, which is the box the pointer actually crosses. */
+  const rail = box.parentElement;
+  rail.addEventListener("pointerenter", hold, { passive: true });
+  rail.addEventListener("pointerleave", free, { passive: true });
+
+  for (const [on, off] of [["focusin", "focusout"],
+                           ["touchstart", "touchend"]]){
+    strip.addEventListener(on, hold, { passive: true });
+    strip.addEventListener(off, free, { passive: true });
+  }
+  strip.addEventListener("touchcancel", free, { passive: true });
+
+  /* Where the row really is.
+   *
+   * scrollLeft is rounded to whole pixels by the browser, so adding a
+   * third of one to it lands on the same integer every frame and the
+   * row never moves at all. The true position is kept here as a number
+   * and only whole pixels are handed over. */
+  let at = 0;
+
+  /* Keep the position inside the first copy, whichever way it moved. */
+  const wrap = () => {
+    const one = lap();
+    if (one < 1) return;
+    if (at >= one) at -= one;
+    else if (at < 0) at += one;
+  };
+
+  /* Somebody scrolled it themselves — a swipe, a wheel, a drag, an
+     arrow. Take their position as the new truth, or the next frame
+     would yank the row back to where the drift had got to. */
+  const follow = () => { at = box.scrollLeft; wrap(); mine = box.scrollLeft; };
+
+  /* An arrow press, jumped rather than drifted, still wrapping. */
+  let glideOff = 0;
+
+  function nudge(by){
+    const one = lap();
+    if (one < 1) return;
+    /* Going back from the very start would hit zero and stop, so the
+       position is first moved a whole copy forward — the same picture,
+       with somewhere to go. */
+    if (by < 0 && box.scrollLeft < Math.abs(by)){ box.scrollLeft += one; at = box.scrollLeft; }
+
+    /* Smooth only for this one move: the drift needs plain jumps, and a
+       scroller set to smooth eases away every fraction of a pixel it is
+       given. Taken off once the glide has had time to finish. */
+    box.classList.add("gliding");
+    box.scrollBy({ left: by, behavior: "smooth" });
+    clearTimeout(glideOff);
+    glideOff = setTimeout(() => box.classList.remove("gliding"), 700);
+  }
+
+  let last = 0;
+  function tick(now){
+    /* Frames are not evenly spaced, and a tab that was in the
+       background hands back one enormous gap; 50ms caps the jump. */
+    const gap = Math.min(now - last, 50);
+    last = now;
+
+    if (!held && !calm.matches && !document.hidden
+        && !box.classList.contains("dragging")
+        && !box.classList.contains("gliding")){
+      at += DRIFT * (gap / 16.7);
+      wrap();
+      box.scrollLeft = at;       // rounded on the way in; `at` keeps the rest
+      mine = box.scrollLeft;     // what the browser settled on
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /* Images decide the row's width, so the first lap is measured once
+     they have loaded rather than from an empty box. */
+  requestAnimationFrame(t => { last = t; tick(t); });
+  addEventListener("load", paint, { once: true });
+
+  /* ---------------------------- dragging --------------------------- */
+
+  /* Touch and trackpads already scroll this; a mouse has nothing to
+     throw at it, so the strip can be dragged. `moved` is what stops a
+     drag that happens to end on a pill from also following it. */
   let down = false, startX = 0, startLeft = 0, moved = false;
 
   box.addEventListener("pointerdown", e => {
@@ -143,12 +258,28 @@ export function initCategoryStrip(){
     const dx = e.clientX - startX;
     if (Math.abs(dx) > 3) moved = true;
     box.scrollLeft = startLeft - dx;
+    follow();
+    mine = box.scrollLeft;
   });
 
   const stop = () => { down = false; box.classList.remove("dragging"); };
   box.addEventListener("pointerup", stop);
   box.addEventListener("pointerleave", stop);
   box.addEventListener("click", e => { if (moved) e.preventDefault(); }, true);
+
+  /* A swipe, a wheel or an arrow can also cross the seam.
+   *
+   * Only a move this code did not make is worth following. The drift
+   * writes scrollLeft every frame and the browser rounds it, so the two
+   * always differ by under a pixel — reading that back as "somebody
+   * moved it" pinned the row to one spot for good. A person's scroll
+   * jumps much further than a frame's third of a pixel, so 6px tells
+   * the two apart. */
+  let mine = 0;                 // the last value this code wrote
+
+  box.addEventListener("scroll", () => {
+    if (Math.abs(box.scrollLeft - mine) > 6) follow();
+  }, { passive: true });
 }
 
 /** Small thumbnail rows down the left. */

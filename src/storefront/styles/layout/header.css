@@ -158,11 +158,43 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
 .hdr-login em, .hdr-acct em, .hdr-cart em,
 .hdr-acct-n, .hdr-cart-n{font-style:normal}
 
-/* Below 1100px the owner's button keeps its word too, so the pair still
-   read as a pair rather than one word and one mystery circle. */
+/* The owner's door is a lock and nothing more, at every width. The
+   words were an invitation to the one person who does not need one,
+   and they took the room the basket and the account need. */
+.hdr-login{padding:5px;gap:0}
+
 @media(max-width:400px){
-  .hdr-login em, .hdr-acct em{display:none}
-  .hdr-login, .hdr-acct{padding:5px}
+  .hdr-acct em{display:none}
+  .hdr-acct{padding:5px}
+}
+
+/* -------------------- the phone header, on one line ------------------
+   Logo, flag, basket, account and the lock all fit across a 390px
+   screen once the brand stops demanding its full width and the pieces
+   stop padding themselves like desktop buttons. Wrapping put the lock
+   alone on a second row, which read as a mistake.
+   -------------------------------------------------------------------- */
+@media(max-width:620px){
+  .header-in{flex-wrap:nowrap;gap:7px}
+
+  /* The brand gives way first: it is the one thing that can be read at
+     any size, and the only one that can afford to be clipped. */
+  .brand{min-width:0;flex:0 1 auto;gap:7px}
+  .brand-tx{min-width:0}
+  .brand-tx b{font-size:14px;letter-spacing:-.3px}
+  .brand-tx span{font-size:7px;letter-spacing:1.2px}
+  .brand-logo{width:40px;height:40px}
+
+  /* Everything after it keeps its size and sits to the right. */
+  .header-in .lang{margin-left:auto}
+  .lang-now{padding:5px 6px;gap:2px}
+  .lang-flag{font-size:16px}
+
+  .hdr-cart, .hdr-acct, .hdr-login{padding:4px;min-height:32px}
+  .hdr-cart em, .hdr-acct em{display:none}
+  .hdr-login > span, .hdr-acct-ic, .hdr-cart-ic{width:24px;height:24px}
+  .hdr-out{padding:4px;min-height:32px}
+  .hdr-out em{display:none}
 }
 
 /* Very small phones: shrink the brand and language buttons so the row

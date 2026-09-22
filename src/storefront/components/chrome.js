@@ -134,10 +134,15 @@ export function headerHTML(){
       ${cartHTML()}
       ${accountHTML()}
 
+      <!-- The owner's way in, at every width: a lock, and nothing else.
+           The words took the room the basket and the account need, and
+           they were an invitation to the one person on earth who does
+           not need inviting. The title says what it is for anybody who
+           hovers or listens. -->
       ${isSignedIn() ? "" : `
-        <a href="admin.html" class="hdr-login" title="${esc(T.owner_login)}">
+        <a href="admin.html" class="hdr-login" title="${esc(T.owner_login)}"
+           aria-label="${esc(T.owner_login)}">
           <span>${icon("lock",{size:15})}</span>
-          <em>${esc(T.owner_login)}</em>
         </a>`}
     </div>`;
 }
