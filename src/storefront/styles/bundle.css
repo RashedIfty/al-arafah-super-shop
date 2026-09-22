@@ -3069,8 +3069,10 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   gap:20px;text-align:center;padding:52px 16px;
 }
 .bd-band-in h2{
-  max-width:17ch;
-  font-size:clamp(26px,4.4vw,52px);line-height:1.12;
+  /* The line breaks are written into the string, so the country's name
+     keeps its own line at every width rather than wrapping wherever it
+     happens to fall. No max-width: that would break it again. */
+  font-size:clamp(23px,4.2vw,52px);line-height:1.12;
   font-weight:900;letter-spacing:-.8px;color:#fff;
   text-transform:uppercase;
   text-shadow:0 2px 24px rgba(0,0,0,.5);
@@ -3082,7 +3084,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 @media(max-width:620px){
   .bd-band{min-height:230px;margin:18px 0 4px}
   .bd-band-in{padding:34px 14px;gap:15px}
-  .bd-band-in h2{max-width:15ch;letter-spacing:-.4px}
+  .bd-band-in h2{letter-spacing:-.4px}
   .bd-band-in .btn{padding:11px 20px;font-size:13px}
 }
 
