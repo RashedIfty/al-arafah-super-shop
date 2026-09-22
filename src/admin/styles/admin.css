@@ -153,12 +153,27 @@ body{overflow-x:hidden}
 .ad-save .btn{margin-left:auto;padding:12px 22px;font-size:14.5px}
 
 /* ================================ FIND ================================ */
-.ad-find{margin-bottom:18px}
-.ad-find input{
-  width:100%;border:2px solid var(--line);border-radius:12px;
-  padding:15px 18px;font-size:16px;outline:0;background:#fff;
+/* The website's own search bar, so the owner searches his shop the same
+   way his customers do: one grey trough with a red button on the end,
+   turning white under a red edge as soon as it is being used. */
+.ad-find{
+  display:flex;margin-bottom:18px;
+  border:2px solid var(--line);border-radius:10px;
+  overflow:hidden;background:var(--bg);transition:.2s var(--ease);
 }
-.ad-find input:focus{border-color:var(--red)}
+.ad-find input{
+  flex:1;min-width:0;border:0;outline:0;background:transparent;
+  padding:13px 16px;font-size:16px;color:var(--ink);
+}
+.ad-find input::placeholder{color:var(--mute)}
+/* The browser's own clear cross, which would sit on the red button. */
+.ad-find input::-webkit-search-cancel-button{margin-right:4px}
+.ad-find button{
+  border:0;background:var(--red);color:#fff;padding:0 20px;
+  cursor:pointer;display:grid;place-items:center;transition:.2s var(--ease);
+}
+.ad-find button:hover{background:var(--red-d)}
+.ad-find:focus-within{border-color:var(--red);background:#fff}
 
 /* ============================== PRODUCTS ============================== */
 .cat-block{margin-bottom:24px}

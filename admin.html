@@ -100,9 +100,11 @@
         </div>
       </div>
 
-      <div class="ad-find">
-        <input type="search" id="filter" placeholder="Type a product name to find it…">
-      </div>
+      <form class="ad-find" onsubmit="return false;" role="search">
+        <input type="search" id="filter" placeholder="Type a product name to find it…"
+               aria-label="Find a product" autocomplete="off">
+        <button type="submit" aria-label="Find a product"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9"/></svg></button>
+      </form>
 
       <div id="list"></div>
 
@@ -235,9 +237,11 @@
         </div>
       </div>
 
-      <div class="ad-find">
-        <input type="search" id="cuSearch" placeholder="Find a customer by name, phone, email or address…">
-      </div>
+      <form class="ad-find" onsubmit="return false;" role="search">
+        <input type="search" id="cuSearch" placeholder="Find a customer by name, phone, email or address…"
+               aria-label="Find a customer" autocomplete="off">
+        <button type="submit" aria-label="Find a customer"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9"/></svg></button>
+      </form>
 
       <div id="cuList"></div>
     </section>
