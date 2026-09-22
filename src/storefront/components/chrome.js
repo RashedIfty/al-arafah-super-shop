@@ -312,10 +312,10 @@ export function footerHTML(){
              target="_blank" rel="noopener">Kingshukdeb6</a>,
           <a href="https://commons.wikimedia.org/wiki/File:Bengali_Platter.jpg"
              target="_blank" rel="noopener">JyotiPN</a>,
-          <a href="https://commons.wikimedia.org/wiki/File:Kacchi_Biryani.jpg"
-             target="_blank" rel="noopener">ANKAN</a>,
           <a href="https://commons.wikimedia.org/wiki/File:Panta_Ilish_-_a_traditional_platter_in_Pohela_Boishakh_2016_(01).jpg"
-             target="_blank" rel="noopener">Moheen Reeyad</a>
+             target="_blank" rel="noopener">Moheen Reeyad</a>,
+          <a href="https://commons.wikimedia.org/wiki/File:Kacchi_Biryani.jpg"
+             target="_blank" rel="noopener">ANKAN</a>
           ·
           <a href="https://creativecommons.org/licenses/by-sa/4.0/"
              target="_blank" rel="noopener">CC BY-SA</a>
