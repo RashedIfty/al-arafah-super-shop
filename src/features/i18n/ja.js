@@ -1,6 +1,6 @@
 /* Japanese UI strings — 日本語 */
 export default {
-  fl_category:"カテゴリ",  fl_all:"全カテゴリ",  fl_upto:"上限",  fl_sale:"セール中",  fl_stock:"在庫あり",  fl_clear:"クリア",
+  fl_category:"カテゴリ",  fl_all:"全カテゴリ",  fl_upto:"上限",  fl_sale:"セール中",  fl_stock:"在庫あり",  fl_clear:"クリア",  fl_search:"検索",
   item_one:"点",
   ann_prev:"前へ",  ann_next:"次へ",
   sg_didyoumean:"もしかして",  sg_see_all:"すべての商品を見る…",

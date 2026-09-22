@@ -6,52 +6,46 @@ import { $, $$, on } from "../../shared/lib/dom.js";
 import { t, getLang, itemCount } from "../../features/i18n/lang.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
 import { search as rank } from "../../features/search/engine.js";
+import { applyFilters } from "./filters.js";
 
-/** Filter cards; hides a whole section when nothing in it matches. */
+/**
+ * Filter cards; hides a whole section when nothing in it matches.
+ *
+ * The search only records its verdict on each card. Where the filter
+ * panel exists it then makes the one pass that decides what shows, so
+ * a price cap or "In stock" is never undone by the next keystroke and
+ * the count under the panel is right. Without the panel, the pass is
+ * made here.
+ */
 export function filter(query){
   const q = query.trim();
-
-  if (!q){
-    // Empty query: show everything again.
-    $$(".card").forEach(card => {
-      delete card.dataset.searchHidden;
-      card.hidden = false;
-    });
-    $$(".sec").forEach(sec => sec.hidden = false);
-    $("#empty")?.toggleAttribute("hidden", true);
-    const res0 = $("#res");
-    if (res0) res0.textContent = "";
-    return $$(".card").length;
-  }
 
   // Use the same ranked engine as the header dropdown, so "biriyani"
   // finds "Shan Biryani Masala" here too. A plain substring test did not.
   const products = CATALOG.flatMap(c =>
     c.items.map(p => ({ ...p, _cat: c[getLang()] || c.en })));
 
-  const matched = new Set(
-    rank(q, products, getLang()).map(r => r.product.en.toLowerCase()));
+  const matched = q
+    ? new Set(rank(q, products, getLang()).map(r => r.product.en.toLowerCase()))
+    : null;                                   // empty query: everything matches
+
+  $$(".card").forEach(card => {
+    // data-key is the English name, which does not change with
+    // the interface language; data-name would.
+    const hit = !matched || matched.has(card.dataset.key || "");
+    if (hit) delete card.dataset.searchHidden;
+    else card.dataset.searchHidden = "1";
+  });
+
+  if ($("#filters")) return applyFilters();
 
   let shown = 0;
-
   $$(".sec").forEach(sec => {
     let visible = 0;
-
     $$(".card", sec).forEach(card => {
-      // data-key is the English name, which does not change with
-      // the interface language; data-name would.
-      const name = card.dataset.key || "";
-      const hit = matched.has(name);
-
-      // Record the verdict so the filters combine with search instead
-      // of the two fighting over `hidden`.
-      if (hit) delete card.dataset.searchHidden;
-      else card.dataset.searchHidden = "1";
-
-      card.hidden = !hit;
-      if (hit) visible++;
+      card.hidden = Boolean(card.dataset.searchHidden);
+      if (!card.hidden) visible++;
     });
-
     sec.hidden = visible === 0;
     shown += visible;
   });
@@ -60,7 +54,7 @@ export function filter(query){
   if (empty) empty.hidden = shown > 0;
 
   const res = $("#res");
-  if (res) res.textContent = itemCount(shown);
+  if (res) res.textContent = q ? itemCount(shown) : "";
 
   return shown;
 }
@@ -100,7 +94,14 @@ export function initScrollSpy(){
 
 /** Wire the search box and sort dropdown. */
 export function initSearch(){
-  on("#search", "input", e => filter(e.target.value));
+  // The header's box and the filter panel's both narrow the cards.
+  // Bound once each: this runs on every render, and the markup stays.
+  for (const sel of ["#search", "#search2"]){
+    const el = $(sel);
+    if (!el || el.dataset.flBound) continue;
+    el.dataset.flBound = "1";
+    el.addEventListener("input", e => filter(e.target.value));
+  }
   on("#sort", "change", e => sortBy(e.target.value));
 }
 

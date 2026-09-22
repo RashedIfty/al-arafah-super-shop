@@ -1,6 +1,6 @@
 /* Bangla UI strings — বাংলা */
 export default {
-  fl_category:"ক্যাটাগরি",  fl_all:"সব ক্যাটাগরি",  fl_upto:"সর্বোচ্চ",  fl_sale:"অফারে",  fl_stock:"স্টকে আছে",  fl_clear:"মুছুন",
+  fl_category:"ক্যাটাগরি",  fl_all:"সব ক্যাটাগরি",  fl_upto:"সর্বোচ্চ",  fl_sale:"অফারে",  fl_stock:"স্টকে আছে",  fl_clear:"মুছুন",  fl_search:"খুঁজুন",
   item_one:"টি পণ্য",
   ann_prev:"আগের",  ann_next:"পরের",
   sg_didyoumean:"আপনি কি খুঁজছেন",  sg_see_all:"সব পণ্য দেখুন…",

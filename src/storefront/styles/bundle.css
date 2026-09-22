@@ -2923,9 +2923,13 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   15%,70%{box-shadow:0 0 0 3px var(--red),var(--sh-lg)}
 }
 
+/* Phones: the width of the box it hangs from, which is the width of the
+   screen there. Absolute, never fixed — a fixed box takes its place from
+   where the form sits in the page, so the filter panel's dropdown ended
+   up two screens down the viewport where no thumb could reach it. */
 @media(max-width:620px){
   .sg-box{
-    position:fixed;top:auto;left:8px;right:8px;width:auto;
+    left:0;right:0;width:auto;
     max-height:70vh;
   }
   .sg-img{width:38px;height:38px}
@@ -2963,6 +2967,15 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 
 .fl-row{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
+
+/* The panel's own search box: the header's box again (same .search),
+   with its own dropdown, standing first in the row of controls. */
+.fl-find{flex:1 1 260px;min-width:220px}
+.fl-find .search{width:100%}
+/* A row of labels, a taller field: the panel's box matches the selects
+   beside it rather than the header's roomier one. */
+.fl-find .search input{padding:8px 12px;font-size:14.5px}
+.fl-find .search button{padding:0 14px}
 
 .fl-field{display:flex;flex-direction:column;gap:6px;min-width:0}
 .fl-field > span{

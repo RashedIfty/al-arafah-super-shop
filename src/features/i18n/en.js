@@ -1,6 +1,6 @@
 /* English UI strings */
 export default {
-  fl_category:"Category",  fl_all:"All categories",  fl_upto:"Up to",  fl_sale:"On sale",  fl_stock:"In stock",  fl_clear:"Clear",
+  fl_category:"Category",  fl_all:"All categories",  fl_upto:"Up to",  fl_sale:"On sale",  fl_stock:"In stock",  fl_clear:"Clear",  fl_search:"Search",
   item_one:"item",
   ann_prev:"Previous",  ann_next:"Next",
   sg_didyoumean:"Did you mean",  sg_see_all:"See all products…",

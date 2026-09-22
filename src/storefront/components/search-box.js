@@ -4,9 +4,13 @@
  * Suggestions appear as the customer types, each with a thumbnail, name
  * and price. Arrow keys move through them, Enter opens the highlighted
  * one, Escape closes. Ranking comes from features/search/engine.js.
+ *
+ * There can be more than one search box on a page — the header's and
+ * the filter panel's — so everything that belongs to one box lives in
+ * its own `ctx`. What is typed in one is mirrored into the others, so
+ * they never disagree about what the cards below are filtered to.
  */
-import { $, $$, esc, on, IMG_FALLBACK } from "../../shared/lib/dom.js";
-import { icon } from "../../shared/ui/icons.js";
+import { $, $$, esc, IMG_FALLBACK } from "../../shared/lib/dom.js";
 import { yen, discount } from "../../shared/lib/format.js";
 import { t, getLang, itemCount } from "../../features/i18n/lang.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
@@ -16,9 +20,10 @@ import { filter } from "./search.js";
 
 const MAX = 8;              // product suggestions shown at once
 const MAX_CATS = 3;         // category suggestions shown at once
-let active = -1;            // keyboard cursor, across every row shown
-let results = [];           // ranked products, before the MAX cut
-let cats = [];              // matching categories
+
+/** Every box on the page: [input, box] pairs. */
+const PAIRS = [["#search", "#sgBox"], ["#search2", "#sgBox2"]];
+const boxes = new Set();    // live ctx objects
 
 /** Flatten the catalogue once per keystroke, carrying the category name. */
 const allProducts = () =>
@@ -98,39 +103,36 @@ function rowHTML(product, i, q = ""){
     </li>`;
 }
 
-/** Rising counter so a slow AI reply cannot overwrite a newer search. */
-let seq = 0;
+/* ------------------------------ one box ------------------------------- */
 
-function render(query){
-  const box = $("#sgBox");
-  if (!box) return;
-
-  if (!query.trim()){ close(); return; }
+function render(ctx, query){
+  if (!query.trim()){ close(ctx); return; }
 
   const products = allProducts();
   const local = search(query, products, getLang());
 
-  results = local;
-  cats = matchCats(query);
-  active = -1;
-  paint(query, box);
+  ctx.results = local;
+  ctx.cats = matchCats(query);
+  ctx.active = -1;
+  paint(ctx, query);
 
   // Local results are already on screen; the model only reorders them.
   if (worthAsking(query)){
-    const mine = ++seq;
-    box.classList.add("thinking");
+    const mine = ++ctx.seq;                  // a slow reply cannot overwrite a newer search
+    ctx.box.classList.add("thinking");
 
     rerank(query, local).then(better => {
-      if (mine !== seq) return;              // a newer query has started
-      box.classList.remove("thinking");
+      if (mine !== ctx.seq) return;          // a newer query has started
+      ctx.box.classList.remove("thinking");
       if (better === local) return;          // nothing changed
-      results = better;
-      paint(query, box);
+      ctx.results = better;
+      paint(ctx, query);
     });
   }
 }
 
-function paint(query, box){
+function paint(ctx, query){
+  const { box, results, cats } = ctx;
   const products = allProducts();
   const T = t();
 
@@ -161,26 +163,33 @@ function paint(query, box){
   }
 
   box.hidden = false;
-  $("#search")?.setAttribute("aria-expanded", "true");
+  ctx.input.setAttribute("aria-expanded", "true");
 }
 
-function close(){
-  const box = $("#sgBox");
-  if (box){ box.hidden = true; box.innerHTML = ""; }
-  $("#search")?.setAttribute("aria-expanded", "false");
-  active = -1;
-  results = [];
-  cats = [];
+function close(ctx){
+  ctx.box.hidden = true;
+  ctx.box.innerHTML = "";
+  ctx.input.setAttribute("aria-expanded", "false");
+  ctx.active = -1;
+  ctx.results = [];
+  ctx.cats = [];
+}
+
+const closeAll = () => boxes.forEach(close);
+
+/** The same words in every box, so none of them lies about the cards. */
+function setAll(value){
+  boxes.forEach(c => { if (c.input.value !== value) c.input.value = value; });
 }
 
 /** Move the highlight down the rows, categories first, and keep it in view. */
-function move(step){
-  const rows = $$(".sg-row");
+function move(ctx, step){
+  const rows = $$(".sg-row", ctx.box);
   if (!rows.length) return;
-  active = (active + step + rows.length) % rows.length;
+  ctx.active = (ctx.active + step + rows.length) % rows.length;
 
   rows.forEach((el, i) => {
-    const on = i === active;
+    const on = i === ctx.active;
     el.classList.toggle("on", on);
     el.setAttribute("aria-selected", on);
     if (on) el.scrollIntoView({ block: "nearest" });
@@ -191,8 +200,8 @@ const onProductsPage = () => document.body.dataset.page === "products";
 
 /** Open a category: scroll to its shelf here, or go to it on the products page. */
 function goCat(id){
-  close();
-  $("#search").value = "";
+  closeAll();
+  setAll("");
 
   if (onProductsPage()){
     filter("");
@@ -203,16 +212,16 @@ function goCat(id){
 }
 
 /** Jump to a product on the products page and flash it. */
-function go(i){
-  const hit = results[i];
+function go(ctx, i){
+  const hit = ctx.results[i];
   if (!hit) return;
 
   const id = hit.product._catId;
   const onProducts = onProductsPage();
   const url = `${onProducts ? "" : "products.html"}#${id}`;
 
-  close();
-  $("#search").value = "";
+  closeAll();
+  setAll("");
 
   if (onProducts){
     filter("");
@@ -231,7 +240,7 @@ function go(i){
  * any other page it carries the words over to the products page.
  */
 function goAll(query){
-  close();
+  closeAll();
   if (onProductsPage()){
     filter(query);
     $(".sec:not([hidden])")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -242,9 +251,9 @@ function goAll(query){
 }
 
 /** Enter or a click on any row. */
-function pick(el){
+function pick(ctx, el){
   if (el.dataset.cat) goCat(el.dataset.cat);
-  else if (el.dataset.i != null) go(+el.dataset.i);
+  else if (el.dataset.i != null) go(ctx, +el.dataset.i);
 }
 
 /** Briefly outline the card the customer picked. */
@@ -261,15 +270,15 @@ function highlight(product){
 
 /* ------------------------------- wiring ------------------------------- */
 
-export function initSearchBox(){
-  const input = $("#search");
-  if (!input) return;
+function attach(input, box){
+  const ctx = { input, box, active: -1, results: [], cats: [], seq: 0 };
+  boxes.add(ctx);
 
-  // render() runs on every change of state and keeps the header when its
-  // markup has not changed, so this is called many times for one input.
-  // Bound twice, an arrow key moved two rows and a click picked twice.
-  if (input.dataset.sgBound) return;
-  input.dataset.sgBound = "1";
+  // A box that was just re-rendered starts with the words the others hold.
+  if (!input.value){
+    const other = [...boxes].find(c => c !== ctx && c.input.value);
+    if (other) input.value = other.input.value;
+  }
 
   input.setAttribute("role", "combobox");
   input.setAttribute("aria-autocomplete", "list");
@@ -279,44 +288,65 @@ export function initSearchBox(){
   input.addEventListener("input", e => {
     clearTimeout(timer);
     const v = e.target.value;
-    timer = setTimeout(() => render(v), 90);   // settle between keystrokes
+    setAll(v);
+    timer = setTimeout(() => render(ctx, v), 90);   // settle between keystrokes
   });
 
   input.addEventListener("keydown", e => {
     switch (e.key){
-      case "ArrowDown": e.preventDefault(); move(1);  break;
-      case "ArrowUp":   e.preventDefault(); move(-1); break;
+      case "ArrowDown": e.preventDefault(); move(ctx, 1);  break;
+      case "ArrowUp":   e.preventDefault(); move(ctx, -1); break;
       case "Enter": {
         e.preventDefault();
-        const row = active >= 0 ? $$(".sg-row")[active] : null;
-        if (row) pick(row);
-        else if (input.value.trim() && results.length) goAll(input.value);
+        const row = ctx.active >= 0 ? $$(".sg-row", box)[ctx.active] : null;
+        if (row) pick(ctx, row);
+        else if (input.value.trim() && ctx.results.length) goAll(input.value);
         break;
       }
-      case "Escape":    close(); input.blur();        break;
+      case "Escape":    close(ctx); input.blur();          break;
     }
   });
 
   input.addEventListener("focus", () => {
-    if (input.value.trim()) render(input.value);
+    if (input.value.trim()) render(ctx, input.value);
   });
 
-  // Click a suggestion, or the "did you mean" button.
-  $("#sgBox")?.addEventListener("mousedown", e => {
+  // Click a suggestion, the foot, or the "did you mean" button.
+  box.addEventListener("mousedown", e => {
     const alt = e.target.closest("[data-alt]");
     if (alt){
       e.preventDefault();
       input.value = alt.dataset.alt;
-      render(input.value);
+      setAll(input.value);
+      render(ctx, input.value);
       return;
     }
     if (e.target.closest("[data-all]")){ e.preventDefault(); goAll(input.value); return; }
     const row = e.target.closest(".sg-row");
-    if (row){ e.preventDefault(); pick(row); }
+    if (row){ e.preventDefault(); pick(ctx, row); }
   });
+}
+
+let pageBound = false;
+
+export function initSearchBox(){
+  // render() runs on every change of state and keeps markup that has not
+  // changed, so this is called many times for one input. Bound twice, an
+  // arrow key moved two rows and a click picked twice.
+  for (const [inSel, boxSel] of PAIRS){
+    const input = $(inSel), box = $(boxSel);
+    if (!input || !box || input.dataset.sgBound) continue;
+    input.dataset.sgBound = "1";
+    attach(input, box);
+  }
+  // Boxes whose markup was replaced are gone; forget them.
+  boxes.forEach(c => { if (!c.input.isConnected) boxes.delete(c); });
+
+  if (pageBound || !boxes.size) return;
+  pageBound = true;
 
   document.addEventListener("click", e => {
-    if (!e.target.closest(".search") && !e.target.closest("#sgBox")) close();
+    if (!e.target.closest(".search")) closeAll();
   });
 
   // Arriving from another page with a product in mind.
@@ -331,7 +361,7 @@ export function initSearchBox(){
   const words = sessionStorage.getItem("aa-q");
   if (words && onProductsPage()){
     sessionStorage.removeItem("aa-q");
-    input.value = words;
+    setAll(words);
     setTimeout(() => {
       filter(words);
       $(".sec:not([hidden])")?.scrollIntoView({ block: "start" });

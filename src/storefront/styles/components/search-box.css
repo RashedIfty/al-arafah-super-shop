@@ -95,9 +95,13 @@
   15%,70%{box-shadow:0 0 0 3px var(--red),var(--sh-lg)}
 }
 
+/* Phones: the width of the box it hangs from, which is the width of the
+   screen there. Absolute, never fixed — a fixed box takes its place from
+   where the form sits in the page, so the filter panel's dropdown ended
+   up two screens down the viewport where no thumb could reach it. */
 @media(max-width:620px){
   .sg-box{
-    position:fixed;top:auto;left:8px;right:8px;width:auto;
+    left:0;right:0;width:auto;
     max-height:70vh;
   }
   .sg-img{width:38px;height:38px}

@@ -28,6 +28,16 @@ export function filtersHTML(){
   return `
     <div class="filters" id="filters">
       <div class="fl-row">
+        <div class="fl-field fl-find">
+          <span>${esc(T.fl_search)}</span>
+          <form class="search" onsubmit="return false;" role="search">
+            <input type="search" id="search2" placeholder="${esc(T.search)}"
+                   aria-label="${esc(T.search)}" autocomplete="off">
+            <button type="submit" aria-label="${esc(T.search)}">${icon("search")}</button>
+            <div class="sg-box" id="sgBox2" hidden></div>
+          </form>
+        </div>
+
         <label class="fl-field">
           <span>${esc(T.fl_category)}</span>
           <select id="flCat">
@@ -73,7 +83,16 @@ export function filtersHTML(){
     </div>`;
 }
 
-/** Show or hide each card, then hide any category left empty. */
+/**
+ * Show or hide each card, then hide any category left empty. The one
+ * place that decides what is visible: the search box marks the cards it
+ * rules out and then calls this, so the count under the panel is right
+ * whichever control was touched last.
+ */
+export function applyFilters(){
+  return apply();
+}
+
 function apply(){
   const max = state.max || Infinity;
   let shown = 0;
@@ -109,6 +128,7 @@ function apply(){
 
   const active = state.cat || state.max < ceiling() || state.sale || state.stock;
   $("#flClear")?.toggleAttribute("hidden", !active);
+  return shown;
 }
 
 export function initFilters(){
