@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40" role="img" aria-label="Merpay / d払い">
+  <rect width="120" height="40" rx="9" fill="#FF0211"/>
+  <text x="60" y="19" text-anchor="middle" fill="#fff"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="13.5" font-weight="700" letter-spacing="-0.2">merpay</text>
+  <text x="60" y="33" text-anchor="middle" fill="#fff"
+        font-family="Hiragino Sans, Hiragino Kaku Gothic ProN, Noto Sans JP, sans-serif"
+        font-size="12" font-weight="700">d払い</text>
+</svg>

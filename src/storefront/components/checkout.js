@@ -210,18 +210,22 @@ function stepperHTML(at, T){
 /* -------------------------- screen 2: how ----------------------------- */
 
 /**
- * The mark on each button.
+ * The mark on each button: the brand the customer is looking for, in
+ * its own colour, so the row is found by eye before it is read.
  *
- * The two app payments show "QR", because scanning a code is the thing
- * the customer is about to do and it is the same act in both. The
- * shop's PayPay logo file is the 証券 lockup, which belongs to a
- * different product and would be wrong on a payment button.
+ * Drawn as wordmarks rather than taken from the brands' own artwork.
+ * The one PayPay file the shop had is the 証券 lockup, a different
+ * product entirely, and the others were never here.
  */
-function methodMark(id){
-  if (id === "paypay" || id === "merpay") return `<b class="chk-mqr">QR</b>`;
-  if (id === "bank") return icon("cash", { size: 22 });
-  return icon("box", { size: 22 });
-}
+const MARKS = {
+  paypay: "/images/payment/paypay-mark.svg",
+  merpay: "/images/payment/merpay-mark.svg",
+  bank:   "/images/payment/bank-mark.svg",
+  cod:    "/images/payment/sagawa-mark.svg",
+};
+
+const methodMark = id => `
+  <img src="${esc(MARKS[id])}" alt="" loading="lazy" width="120" height="40">`;
 
 function methodsHTML(T){
   return `

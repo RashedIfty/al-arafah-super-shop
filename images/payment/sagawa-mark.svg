@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40" role="img" aria-label="Cash on delivery, Sagawa Express">
+  <rect width="120" height="40" rx="9" fill="#005BAC"/>
+  <text x="60" y="18" text-anchor="middle" fill="#fff"
+        font-family="Hiragino Sans, Hiragino Kaku Gothic ProN, Noto Sans JP, sans-serif"
+        font-size="13" font-weight="700" letter-spacing="0.5">代金引換</text>
+  <text x="60" y="31" text-anchor="middle" fill="#B9D8F2"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="9.5" font-weight="700" letter-spacing="0.6">SAGAWA</text>
+</svg>

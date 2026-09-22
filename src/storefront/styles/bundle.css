@@ -2345,15 +2345,13 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 .chk-method:hover{border-color:var(--red);background:var(--red-l)}
 .chk-method:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+/* The brand plate. Each mark is drawn to the same 3:1 box, so the four
+   buttons line up whatever is on them. */
 .chk-mbadge{
-  flex-shrink:0;display:grid;place-items:center;width:46px;height:46px;
-  border-radius:11px;background:var(--bg);color:var(--navy);
+  flex-shrink:0;display:grid;place-items:center;
+  width:66px;height:22px;
 }
-.chk-mqr{font-size:13px;font-weight:900;letter-spacing:.5px;color:var(--red)}
-.chk-method.paypay .chk-mbadge,
-.chk-method.merpay .chk-mbadge{background:#fdecec}
-.chk-method.bank .chk-mbadge{background:#e3f4ed;color:#12805c}
-.chk-method.cod .chk-mbadge{background:#fff3e0;color:#b4531d}
+.chk-mbadge img{width:66px;height:22px;display:block;border-radius:5px}
 .chk-mtx{flex:1;min-width:0}
 .chk-mtx b{display:block;font-size:15px;color:var(--ink);margin-bottom:2px}
 .chk-mtx small{display:block;font-size:12px;color:var(--mute);line-height:1.4}
