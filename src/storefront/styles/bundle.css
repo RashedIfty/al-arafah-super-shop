@@ -1,6 +1,6 @@
 /* Built by build.js — do not edit.
    Change the files under src/storefront/styles/ and run: node build.js
-   27 files, in import order. */
+   28 files, in import order. */
 
 /* ===== base/tokens.css ===== */
 /* Design tokens — brand palette, radii, shadows */
@@ -1932,6 +1932,141 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   margin:0 auto 14px;border-radius:50%;background:#e8f6ef;color:#0d6b4d;
 }
 .acct-centre h2{margin-bottom:16px;font-size:17px;line-height:1.45}
+
+/* ===== components/profile.css ===== */
+/* The customer's account page — photo, details, address book — and the
+   address picker on the checkout. */
+
+.prof-page{max-width:640px;margin:0 auto;padding:6px 0 40px;display:grid;gap:16px}
+
+/* Each section is the sign-in card, at full width. */
+.prof-sec{
+  background:#fff;border:1px solid var(--line);border-radius:16px;
+  padding:22px 22px 20px;box-shadow:var(--sh);
+}
+.prof-sec h2{font-size:17px;color:var(--ink);margin-bottom:12px}
+.prof-sec-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-bottom:12px;flex-wrap:wrap;
+}
+.prof-sec-head h2{margin:0}
+.prof-sec-head a{font-size:12.5px;font-weight:700;color:var(--red)}
+
+/* Fields, as on the sign-in card. */
+.prof-sec label{display:block;margin-bottom:13px}
+.prof-sec label > span{
+  display:block;font-size:12px;font-weight:700;color:var(--body);margin-bottom:5px;
+}
+.prof-sec label > span em{font-style:normal;font-weight:600;color:var(--mute)}
+.prof-sec input, .prof-sec textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:10px;
+  padding:11px 13px;font-size:15px;outline:0;background:#fff;color:var(--ink);
+  transition:.15s var(--ease);
+}
+.prof-sec input:focus, .prof-sec textarea:focus{
+  border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.11);
+}
+/* The email: shown, not editable. Greyed so nobody tries. */
+.prof-sec input[readonly]{background:var(--bg);color:var(--mute)}
+.prof-note{display:block;font-size:11.5px;color:var(--mute);margin-top:5px;line-height:1.4}
+.prof-sec .acct-err{margin-top:2px}
+.btn-sm{padding:7px 12px !important;font-size:12.5px !important}
+
+/* ------------------------------ the photo ----------------------------- */
+.prof-top{display:flex;gap:18px;align-items:center}
+.prof-avatar{
+  flex:0 0 auto;width:96px;height:96px;border-radius:50%;overflow:hidden;
+  display:grid;place-items:center;
+  background:var(--red-l);color:var(--red);font-size:36px;font-weight:900;
+  border:3px solid #fff;box-shadow:var(--sh-md);
+}
+.prof-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+/* Dimmed while the new one is on its way. The only sign given. */
+.prof-avatar.is-busy{animation:profPulse 1s ease-in-out infinite}
+@keyframes profPulse{50%{opacity:.4}}
+
+.prof-top-tx{min-width:0;flex:1}
+.prof-top-tx b{display:block;font-size:18px;color:var(--ink)}
+.prof-top-tx > span{display:block;font-size:13px;color:var(--mute);overflow-wrap:anywhere}
+.prof-photo-acts{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:10px}
+
+/* Quiet text buttons: remove photo, sign out, delete an address. Not
+   things a customer should be nudged towards. */
+.prof-link{
+  border:0;background:transparent;cursor:pointer;padding:6px 4px;
+  font:inherit;font-size:12.5px;font-weight:700;color:var(--mute);
+}
+.prof-link:hover{color:var(--red);text-decoration:underline}
+
+/* ---------------------------- address book ---------------------------- */
+.addr-card{
+  border:1px solid var(--line);border-radius:12px;padding:14px 15px;
+  margin-bottom:10px;background:#fff;
+}
+.addr-card.is-default{border-color:rgba(200,16,46,.35);background:#fffafb}
+.addr-head{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.addr-head b{font-size:14.5px;color:var(--ink)}
+.addr-body{
+  font-size:13.5px;color:var(--body);line-height:1.5;
+  overflow-wrap:anywhere;margin-bottom:10px;
+}
+.addr-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* The form, opened in place of a card or above the list. */
+.addr-form{
+  border:1.5px solid var(--red);border-radius:12px;padding:16px 15px 12px;
+  margin-bottom:12px;background:#fff;
+}
+.addr-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.addr-chips button{
+  border:1px solid var(--line);background:#fff;border-radius:999px;
+  padding:4px 11px;font:inherit;font-size:12px;font-weight:700;
+  color:var(--body);cursor:pointer;
+}
+.addr-chips button:hover{border-color:var(--red);color:var(--red)}
+.prof-none{font-size:13.5px;color:var(--mute);line-height:1.5}
+
+.prof-links{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;
+}
+.prof-favs .grid{margin-top:4px}
+
+/* ----------------------- the checkbox rows ---------------------------
+   Here and on the checkout. The card's own label and input rules would
+   stretch the box to full width and stack the words under it. */
+.chk-check{
+  display:flex !important;align-items:center;gap:9px;
+  font-size:13px;color:var(--body);font-weight:600;cursor:pointer;
+  margin-bottom:10px;
+}
+.chk-check input{
+  width:18px !important;height:18px;margin:0;padding:0 !important;
+  accent-color:var(--red);flex:0 0 auto;
+}
+.chk-save{margin:-4px 0 14px}
+.chk-save #chkLabelWrap{margin-top:8px;margin-bottom:0}
+
+/* The address picker on the checkout takes the field's look. */
+.chk-box select{
+  width:100%;border:1.5px solid var(--line);border-radius:10px;
+  padding:11px 13px;font-size:15px;background:#fff;color:var(--ink);
+  outline:0;transition:.15s var(--ease);
+}
+.chk-box select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.11)}
+
+/* The photo in the header, where the initial used to be. */
+.hdr-acct-ic img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+
+/* ------------------------------ on a phone ---------------------------- */
+@media(max-width:620px){
+  .prof-sec{padding:18px 16px 16px}
+  .prof-top{flex-direction:column;align-items:flex-start}
+  .addr-acts .btn{flex:1 1 auto;justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){
+  .prof-avatar.is-busy{animation:none;opacity:.6}
+}
 
 /* ===== components/cart.css ===== */
 /* The basket — buy buttons, the header badge, the cart page */

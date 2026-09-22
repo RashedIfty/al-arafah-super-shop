@@ -621,6 +621,9 @@ async function deleteFromR2(url){
   }
 }
 
+/** A customer taking down their own photo. Same best-effort promise. */
+export const deletePhoto = url => deleteFromR2(url);
+
 /* ----------------------------- favourites ---------------------------- */
 
 /**
@@ -674,7 +677,8 @@ export async function removeFavourite(productId){
 /* ------------------------------ profiles ----------------------------- */
 
 /**
- * The delivery details this customer has given, or null.
+ * Who this customer is — name, main phone, photo — or null before they
+ * have told the shop anything. Where they live is in addresses, below.
  *
  * Row-level security scopes it to whoever is signed in, so there is no
  * user_id filter here — the same reason fetchFavourites has none.
@@ -684,35 +688,119 @@ export async function fetchProfile(){
   if (!c) return null;
 
   const { data, error } = await c.from("profiles")
-    .select("full_name, phone, postal, address").maybeSingle();
+    .select("full_name, phone, avatar_url").maybeSingle();
 
   if (error){ console.warn("fetchProfile:", error.message); return null; }
   return data ?? null;
 }
 
 /**
- * Save the delivery details.
+ * Save some of the profile: only the fields given are written.
  *
  * upsert because a customer filling the form for the second time is
- * editing, not erroring. The phone and postal shapes are checked again
- * by the database, so a malformed value cannot get in by another route.
+ * editing, not erroring, and because the first thing they save may be a
+ * photo, with no row yet to update. Partial, so the checkout can set a
+ * name without knowing the phone and the account page can change the
+ * photo without knowing the name. The phone shape is checked again by
+ * the database, so a malformed value cannot get in by another route.
+ *
+ * .select() so a refusal is visible: a write that row-level security
+ * blocks is not an error to PostgREST — it matches nothing and says so
+ * with a 200.
  */
-export async function saveProfile(p){
+export async function saveProfile(fields){
   const c = await db();
-  const { data } = await c.auth.getUser();
-  const uid = data?.user?.id;
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data: u } = await c.auth.getUser();
+  const uid = u?.user?.id;
   if (!uid) return { error: { message: "Not signed in" } };
 
-  return c.from("profiles")
-    .upsert({
-      user_id: uid,
-      full_name: p.full_name,
-      phone: p.phone,
-      postal: p.postal,
-      address: p.address,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: "user_id" });
+  const { data, error } = await c.from("profiles")
+    .upsert({ user_id: uid, ...fields, updated_at: new Date().toISOString() },
+            { onConflict: "user_id" })
+    .select("full_name, phone, avatar_url")
+    .single();
+
+  if (error) return { error };
+  return { data };
 }
+
+/* ------------------------------ addresses ---------------------------- */
+
+/**
+ * The customer's address book, default first. Empty on any error: a
+ * page that cannot read the list shows a blank form, which is what a
+ * new customer sees anyway.
+ */
+export async function fetchAddresses(){
+  const c = await db();
+  if (!c) return [];
+
+  const { data, error } = await c.from("addresses")
+    .select("*")
+    .order("is_default", { ascending: false })
+    .order("created_at");
+
+  if (error){ console.warn("fetchAddresses:", error.message); return []; }
+  return data ?? [];
+}
+
+/** A new address. The database makes a customer's first one the default. */
+export async function insertAddress(a){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data: u } = await c.auth.getUser();
+  const uid = u?.user?.id;
+  if (!uid) return { error: { message: "Not signed in" } };
+
+  const { data, error } = await c.from("addresses")
+    .insert({ user_id: uid, ...a })
+    .select()
+    .single();
+
+  if (error) return { error };
+  return { data };
+}
+
+/**
+ * Change one. .single() turns "no such row" — which is what row-level
+ * security says about somebody else's address — into an error rather
+ * than a quiet success.
+ */
+export async function updateAddress(id, a){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data, error } = await c.from("addresses")
+    .update({ ...a, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error)
+    return { error: error.code === "PGRST116"
+      ? { message: "That address could not be changed." } : error };
+  return { data };
+}
+
+/** Take one out. Nothing returned means the policy refused it. */
+export async function deleteAddress(id){
+  const c = await db();
+  if (!c) return { error: { message: "Not configured" } };
+
+  const { data, error } = await c.from("addresses")
+    .delete().eq("id", id).select("id");
+
+  if (error) return { error };
+  if (!data?.length)
+    return { error: { message: "That address could not be removed." } };
+  return { data: data[0] };
+}
+
+/** Make one the default. The table clears the others itself. */
+export const setDefaultAddress = id => updateAddress(id, { is_default: true });
 
 /* ------------------------------- orders ------------------------------ */
 
@@ -751,7 +839,7 @@ function orderCode(){
  * `lines` is [{ product, qty }] where product is a catalogue item.
  * Returns { data: order } or { error }.
  */
-export async function placeOrder({ profile, lines, note = "" }){
+export async function placeOrder({ ship, lines, note = "" }){
   const c = await db();
   if (!c) return { error: { message: "Not configured" } };
 
@@ -772,13 +860,16 @@ export async function placeOrder({ profile, lines, note = "" }){
 
   const total = items.reduce((s, i) => s + i.line_total, 0);
 
+  /* `ship` is where this one order goes, as the checkout form had it
+     at the moment of pressing — copied in, not joined to the address
+     book, so an address edited next month does not move this box. */
   const order = await c.from("orders").insert({
     code: orderCode(),
     user_id: uid,
-    name: profile.full_name,
-    phone: profile.phone,
-    postal: profile.postal,
-    address: profile.address,
+    name: ship.full_name,
+    phone: ship.phone,
+    postal: ship.postal,
+    address: ship.address,
     total,
     note: note.trim() || null,
   }).select().single();

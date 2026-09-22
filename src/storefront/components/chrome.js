@@ -7,6 +7,7 @@ import { icon } from "../../shared/ui/icons.js";
 import { t, getLang, LANGS } from "../../features/i18n/lang.js";
 import { isSignedIn, savedCount, userName }
   from "../../features/account/account.js";
+import { avatarUrl } from "../../features/profile/profile.js";
 import { cartCount } from "../../features/cart/cart.js";
 import { UI } from "../../features/i18n/index.js";
 import { SHOP } from "../../shared/shop.js";
@@ -102,10 +103,16 @@ function accountHTML(){
      leave is worse than a button nobody presses. */
   const n = savedCount();
 
+  /* Their photo when they have put one up, their initial when not. The
+     link goes to the account page now; favourites live inside it. */
+  const pic = avatarUrl();
+
   return `
-    <a href="favourites.html" class="hdr-acct is-in" title="${esc(T.fav_title)}">
-      <span class="hdr-acct-ic">${esc((userName()[0] || "?").toUpperCase())}</span>
-      <em>${esc(T.fav_nav)}</em>
+    <a href="account.html" class="hdr-acct is-in" title="${esc(T.prof_nav)}">
+      <span class="hdr-acct-ic">${pic
+        ? `<img src="${esc(pic)}" alt="" width="26" height="26">`
+        : esc((userName()[0] || "?").toUpperCase())}</span>
+      <em>${esc(T.prof_nav)}</em>
       ${n ? `<i class="hdr-acct-n">${n}</i>` : ""}
     </a>
     <button type="button" class="hdr-out" data-signout
@@ -148,10 +155,13 @@ export function navHTML(){
 
   /* Only once signed in, and only then because the header button that
      leads here is hidden on a narrow screen — without this a customer on
-     a phone would have nothing to tap. */
+     a phone would have nothing to tap. The account page holds the
+     favourites, so it takes their place rather than joining them: on a
+     phone the nav already wraps to two rows, and an eighth link would
+     make three. */
   if (isSignedIn()){
-    items.push({ href:"favourites.html", label:T.fav_nav, page:"favourites" });
-    items.push({ href:"orders.html",     label:T.ord_nav, page:"orders" });
+    items.push({ href:"account.html", label:T.prof_nav, page:"account" });
+    items.push({ href:"orders.html",  label:T.ord_nav,  page:"orders" });
   }
 
   return `<div class="nav-scroll"><div class="wrap nav-in">${

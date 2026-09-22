@@ -107,13 +107,13 @@ function savedProducts(){
   return wanted.map(id => byId.get(id)).filter(Boolean);
 }
 
-export function favouritesHTML(){
+/**
+ * The saved products themselves, or the note that there are none.
+ * Shared by the favourites page and the account page, so the two can
+ * never disagree about what a customer has kept.
+ */
+export function favouritesGridHTML(){
   const T = t();
-
-  if (!isSignedIn())
-    return empty(T.acct_signin, T.acct_why,
-      `<button class="btn btn-red" data-signin>${esc(T.acct_signin)}</button>`);
-
   const items = savedProducts();
 
   if (!items.length)
@@ -121,10 +121,21 @@ export function favouritesHTML(){
       `<a class="btn btn-red" href="products.html">${esc(T.nav_products)}</a>`);
 
   return `
-    <p class="fav-hi">${esc((T.fav_hi || "").replace("{n}", userName()))}</p>
     <div class="grid">
       ${items.map(x => cardHTML(x.p, x.cat, x.ci, x.pi)).join("")}
-    </div>
+    </div>`;
+}
+
+export function favouritesHTML(){
+  const T = t();
+
+  if (!isSignedIn())
+    return empty(T.acct_signin, T.acct_why,
+      `<button class="btn btn-red" data-signin>${esc(T.acct_signin)}</button>`);
+
+  return `
+    <p class="fav-hi">${esc((T.fav_hi || "").replace("{n}", userName()))}</p>
+    ${favouritesGridHTML()}
     <p class="fav-out">
       <button type="button" data-signout>${esc(T.acct_signout)}</button>
     </p>`;
@@ -138,6 +149,8 @@ const empty = (title, line, action) => `
     <p>${esc(line)}</p>
     ${action}
   </div>`;
+
+export { empty as emptyCardHTML };
 
 const heart = () =>
   `<svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path d="M12 21s-7.5-4.7-9.6-9A5.4 5.4 0 0 1 12 6.2 5.4 5.4 0 0 1 21.6 12c-2.1 4.3-9.6 9-9.6 9z"/></svg>`;

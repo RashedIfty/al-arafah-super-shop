@@ -44,6 +44,13 @@ export const savedIds = () => [...saved];
 /** What to call them: the part of their email before the @. */
 export const userName = () => (user?.email || "").split("@")[0];
 
+/** Who they are to the database, or null. Changes only on sign-in and
+    sign-out, which is what the profile module keys its reloads on. */
+export const userId = () => user?.id ?? null;
+
+/** Shown on the account page, and never editable there. */
+export const userEmail = () => user?.email ?? "";
+
 /* ------------------------------- loading ------------------------------ */
 
 /** Who is signed in, and what have they saved. */

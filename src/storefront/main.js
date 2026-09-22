@@ -22,11 +22,14 @@ import { countriesHTML, initCountries } from "./components/countries.js";
 import { shelfHTML } from "./components/shelf.js";
 import { accountFormHTML, favouritesHTML, goToSignIn, initAccount }
   from "./components/account.js";
-import { refreshAccount, onAccountChange, toggleFavourite, signOut }
+import { refreshAccount, onAccountChange, toggleFavourite, signOut, userId }
   from "../features/account/account.js";
 import { onCartChange, addToCart, setQty, qtyOf, removeFromCart, dropMissing }
   from "../features/cart/cart.js";
 import { onRestockChange, refreshRestock } from "../features/restock/restock.js";
+import { refreshProfile, onProfileChange } from "../features/profile/profile.js";
+import { profileHTML, profFavHTML, initProfile, setProfileRepaint }
+  from "./components/profile.js";
 import { cartPageHTML } from "./components/cart-page.js";
 import { checkoutHTML, initCheckout, setCheckoutRepaint }
   from "./components/checkout.js";
@@ -133,6 +136,8 @@ function render(){
   if ($("#ordersMount")) put("#ordersMount", ordersPageHTML());
   if ($("#deliveryMount")) put("#deliveryMount", deliveryHTML());
   if ($("#resetMount")) put("#resetMount", resetHTML());
+  if ($("#profileMount")) put("#profileMount", profileHTML());
+  if ($("#profFavMount")) put("#profFavMount", profFavHTML());
 
   applyTranslations();
   renderStats();
@@ -159,6 +164,7 @@ function bindDynamic(){
   initAccount();
   initCheckout();
   initReset();
+  initProfile();
 
   // Keep the chosen sort order after a re-render.
   const sort = $("#sort");
@@ -350,8 +356,27 @@ onAccountChange(render);
 onCartChange(render);
 onRestockChange(render);
 onOrdersChange(render);
+onProfileChange(render);
 setCheckoutRepaint(render);
 setResetRepaint(render);
+setProfileRepaint(render);
+
+/* The profile follows the session, and only the session. Every heart
+   clicked on a card also announces an account change, and that is no
+   reason to ask the database for the name and photo again — so this
+   fetches only when who is signed in has changed, sign-in and sign-out
+   included. It covers the first load too: the account announces once
+   it knows, signed in or not. The address book is fetched only on the
+   two pages that draw it. */
+let profileFor;
+onAccountChange(() => {
+  const uid = userId();
+  if (uid === profileFor) return;
+  profileFor = uid;
+  refreshProfile({
+    addresses: ["checkout", "account"].includes(document.body.dataset.page),
+  });
+});
 
 /**
  * A password-reset link that landed on the wrong page.
