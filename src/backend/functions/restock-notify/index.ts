@@ -65,34 +65,98 @@ async function db(path: string, init: RequestInit = {}){
  * would have been one more field on a form nobody wants to fill in. All
  * three in one short email is the honest answer.
  */
-function body(name: string, product: string){
-  const greet = name ? `${name},` : "Hello,";
+/* The shop, as the invoice prints it — the same band the owner's notes
+   to customers carry, so every letter from the shop looks like the
+   same shop. Tables, not flexbox: a mail client honours little else. */
+const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans','Noto Sans JP','Noto Sans Bengali',Arial,sans-serif";
+const ADDRESS_EN = "3-chome-4-8 Amakubo, Tsukuba, Ibaraki 305-0005, Japan";
+const ADDRESS_JA = "〒305-0005 茨城県つくば市天久保3丁目4-8";
+const TEL = "080-5401-8124";
+const HOURS = "10:00 – 21:00";
 
+const esc = (s: string) =>
+  s.replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+
+function band(){
   return `
-<div style="font:15px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans','Noto Sans JP','Noto Sans Bengali',sans-serif;color:#1f2328;max-width:520px;margin:0 auto;padding:24px">
-  <div style="background:linear-gradient(115deg,#b8380f,#e2621d);color:#fff;border-radius:12px;padding:20px 22px;margin-bottom:20px">
-    <b style="font-size:19px;letter-spacing:-.3px">AL-ARAFAH<span style="display:block;font-size:10px;letter-spacing:3px;font-weight:700;opacity:.9">SUPER SHOP</span></b>
-  </div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+       style="border-collapse:separate;border-radius:14px 14px 0 0;overflow:hidden;background:#b8380f;background-image:linear-gradient(115deg,#b8380f 0%,#d9531e 55%,#ef7a2a 100%)">
+  <tr>
+    <td style="padding:22px 24px 18px">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td valign="top" style="padding-right:16px">
+            <img src="${SHOP}/images/logo.jpeg" width="66" height="66" alt="Al-Arafah Super Shop"
+                 style="display:block;width:66px;height:66px;border-radius:9px;background:#ffffff;padding:4px;box-sizing:border-box">
+          </td>
+          <td valign="top" style="font-family:${FONT};color:#ffffff">
+            <div style="font-size:23px;font-weight:800;letter-spacing:-.4px;line-height:1.05">AL-ARAFAH</div>
+            <div style="font-size:10.5px;font-weight:700;letter-spacing:3.4px;margin-top:3px;color:rgba(255,255,255,.88)">SUPER SHOP</div>
+            <div style="font-size:11px;line-height:1.65;margin-top:8px;color:rgba(255,255,255,.92)">
+              ${ADDRESS_EN}<br>
+              ${ADDRESS_JA}<br>
+              Tel ${TEL} &middot; Open ${HOURS}
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td height="3" style="height:3px;line-height:3px;font-size:0;background:#d9a441;background-image:linear-gradient(90deg,#d9a441,#ffd166 45%,#d9a441)">&nbsp;</td>
+  </tr>
+</table>`;
+}
 
-  <p>${greet}</p>
-  <p><b>${product}</b> is back on the shelf. You asked us to let you know.</p>
-  <p style="color:#6b7280;font-size:13.5px">
-    <b>${product}</b> が再入荷しました。お知らせのご依頼をいただいておりました。<br>
-    <b>${product}</b> আবার স্টকে এসেছে। আপনি জানাতে বলেছিলেন।
+function foot(){
+  return `
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr>
+    <td style="padding:16px 24px 22px;border-top:1px solid #eee3d9;font-family:${FONT};font-size:12px;line-height:1.7;color:#6b7280">
+      <b style="color:#b8380f">AL-ARAFAH SUPER SHOP</b> &middot; Halal grocery in Tsukuba<br>
+      ${ADDRESS_EN}<br>
+      Tel <a href="tel:+81${TEL.replace(/-/g, "").slice(1)}" style="color:#6b7280;text-decoration:none">${TEL}</a>
+      &middot; <a href="${SHOP}" style="color:#d9531e;text-decoration:none;font-weight:700">alarafahsupershop.com</a>
+    </td>
+  </tr>
+</table>`;
+}
+
+function sheet(inner: string){
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
+<body style="margin:0;padding:0;background:#f4f1ec">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f1ec">
+  <tr><td align="center" style="padding:24px 12px">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+           style="max-width:560px;background:#ffffff;border-radius:14px;box-shadow:0 6px 24px rgba(20,30,50,.10)">
+      <tr><td>${band()}</td></tr>
+      <tr><td style="padding:24px 24px 8px;font-family:${FONT};font-size:15px;line-height:1.65;color:#1f2328">${inner}</td></tr>
+      <tr><td>${foot()}</td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
+}
+
+function body(name: string, product: string){
+  const greet = name ? `${esc(name)},` : "Hello,";
+  const p = esc(product);
+
+  return sheet(`
+  <p style="margin:0 0 14px">${greet}</p>
+  <p style="margin:0 0 14px"><b>${p}</b> is back on the shelf. You asked us to let you know.</p>
+  <p style="margin:0 0 14px;color:#6b7280;font-size:13.5px">
+    <b>${p}</b> が再入荷しました。お知らせのご依頼をいただいておりました。<br>
+    <b>${p}</b> আবার স্টকে এসেছে। আপনি জানাতে বলেছিলেন।
   </p>
-
-  <p style="margin:22px 0">
+  <p style="margin:22px 0 16px">
     <a href="${SHOP}/products.html"
-       style="background:#c8102e;color:#fff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:9px;display:inline-block">
+       style="background:#c8102e;color:#ffffff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:9px;display:inline-block">
       See it in the shop
     </a>
-  </p>
-
-  <p style="color:#6b7280;font-size:12.5px;border-top:1px solid #e8eaed;padding-top:14px;margin-top:24px">
-    Al-Arafah Super Shop · 3-chome-4-8 Amakubo, Tsukuba, Ibaraki 305-0005<br>
-    Tel 080-5401-8124 · <a href="${SHOP}" style="color:#e2621d">alarafahsupershop.com</a>
-  </p>
-</div>`;
+  </p>`);
 }
 
 /* ----------------------------- sending ------------------------------- */
