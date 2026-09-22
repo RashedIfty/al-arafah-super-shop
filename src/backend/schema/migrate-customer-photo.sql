@@ -32,7 +32,13 @@ revoke all on customer_photos from public, anon;
 grant select on customer_photos to authenticated;
 
 -- The restock board carries the photo along with the name.
-create or replace view restock_board
+--
+-- Dropped and made again rather than replaced. "create or replace" may
+-- add a column at the end of a view but not in the middle, and putting
+-- the photo beside the phone — where it reads — is in the middle. The
+-- grants are restated below, so nothing is lost by dropping it.
+drop view if exists restock_board;
+create view restock_board
 with (security_invoker = false) as
   select r.user_id,
          r.product_id,
