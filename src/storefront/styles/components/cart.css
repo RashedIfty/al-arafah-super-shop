@@ -340,8 +340,9 @@
 }
 .dlv > *{break-inside:avoid}
 
-/* The two free-delivery cards, first and largest: it is the first thing
-   anybody wants to know. */
+/* The two cards at the head of the page, largest: what it costs is the
+   first thing anybody wants to know. Only the local one is a free-
+   delivery promise; the nationwide one states the carrier rates. */
 [data-page="delivery"] .dlv-free{display:grid;gap:13px;margin-bottom:28px}
 @media(min-width:620px){ .dlv-free{grid-template-columns:1fr 1fr} }
 
@@ -368,6 +369,14 @@
   display:block;font-size:11px;color:var(--mute);
   text-transform:uppercase;letter-spacing:.6px;margin-top:3px;
 }
+
+/* The nationwide card promises nothing free, so it does not wear the
+   red the free one does. Navy, and its figure set smaller: "Carrier
+   rates" is a phrase, not a number to read across a room. */
+[data-page="delivery"] .dlv-free-rates{border-color:var(--line)}
+.dlv-free-rates .dlv-free-ic{background:var(--navy-l);color:var(--navy)}
+.dlv-free-rates b{color:var(--navy)}
+[data-page="delivery"] .dlv-free-rates strong{font-size:22px;letter-spacing:-.4px}
 
 /* ------------------------------ sections ------------------------------ */
 .dlv-block{

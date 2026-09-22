@@ -1429,13 +1429,13 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 /* ===== components/delivery.css ===== */
 /* ==========================================================================
    Delivery — two plain cards, local and nationwide.
-   The threshold is the thing a customer is actually looking for, so it is
-   set large at the foot of each card rather than buried in the sentence.
+   Near the shop there is a free threshold, and it is the thing a customer
+   is looking for, so it is set large at the foot of the card. Further away
+   there is no threshold: that card carries a link to the rates instead.
    ========================================================================== */
 
-/* Two offers, shown as a pair at every width. Stacked, the second one —
-   free delivery anywhere in Japan — fell below the fold on a phone and
-   most people never saw it. */
+/* Both cards, shown as a pair at every width. Stacked, the second one
+   fell below the fold on a phone and most people never saw it. */
 .dlv{
   display:grid;gap:11px;grid-template-columns:1fr 1fr;
 }
@@ -1481,6 +1481,16 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   font-size:11.5px;font-weight:700;color:var(--mute);letter-spacing:.3px;
 }
 
+/* The nationwide card has no number to show, so its foot is a way to
+   the rate table instead. A quiet link rather than the 20px navy of the
+   amount beside it: there is nothing here to read across a room. */
+.dlv-amt-ask{
+  font-size:13px;font-weight:800;color:var(--red);letter-spacing:0;
+  text-decoration:none;
+}
+.dlv-amt-ask::after{content:" \203A";font-weight:900}
+.dlv-amt-ask:hover{color:var(--red-d);text-decoration:underline;text-underline-offset:3px}
+
 .dlv-ask{
   text-align:center;margin-top:11px;font-size:12.5px;
 }
@@ -1491,16 +1501,19 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .dlv-ask a:hover{color:var(--red)}
 .dlv-ask .icon{color:var(--red)}
 
-/* On a phone each card gets about 175px. The sentence is what will not
-   fit, and it only repeats what the amount underneath already says, so
-   it goes and the number stays. */
+/* On a phone each card gets about 175px. On the local card the sentence
+   only repeats the amount underneath, so it goes and the number stays.
+   The nationwide card has no number, so its sentence is the message and
+   it stays, set small. */
 @media(max-width:620px){
   .dlv{gap:9px}
   .dlv-card{padding:12px 11px 14px}
-  .dlv-card p{display:none}
+  .dlv-card:first-child p{display:none}
+  .dlv-card p{font-size:11px;margin-bottom:7px}
   .dlv-card h3{font-size:12.5px;line-height:1.3}
   .dlv-amt{font-size:17px}
   .dlv-amt span{font-size:9px}
+  .dlv-amt-ask{font-size:12.5px}
 }
 
 /* ----------------------------- breakpoints ---------------------------- */
@@ -2428,8 +2441,9 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 .dlv > *{break-inside:avoid}
 
-/* The two free-delivery cards, first and largest: it is the first thing
-   anybody wants to know. */
+/* The two cards at the head of the page, largest: what it costs is the
+   first thing anybody wants to know. Only the local one is a free-
+   delivery promise; the nationwide one states the carrier rates. */
 [data-page="delivery"] .dlv-free{display:grid;gap:13px;margin-bottom:28px}
 @media(min-width:620px){ .dlv-free{grid-template-columns:1fr 1fr} }
 
@@ -2456,6 +2470,14 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   display:block;font-size:11px;color:var(--mute);
   text-transform:uppercase;letter-spacing:.6px;margin-top:3px;
 }
+
+/* The nationwide card promises nothing free, so it does not wear the
+   red the free one does. Navy, and its figure set smaller: "Carrier
+   rates" is a phrase, not a number to read across a room. */
+[data-page="delivery"] .dlv-free-rates{border-color:var(--line)}
+.dlv-free-rates .dlv-free-ic{background:var(--navy-l);color:var(--navy)}
+.dlv-free-rates b{color:var(--navy)}
+[data-page="delivery"] .dlv-free-rates strong{font-size:22px;letter-spacing:-.4px}
 
 /* ------------------------------ sections ------------------------------ */
 .dlv-block{

@@ -15,11 +15,17 @@
  * a phone, read aloud by a screen reader, and translated.
  */
 
-/** Free delivery, and the two ways to get it. */
+/**
+ * Free delivery, and the one way to get it.
+ *
+ * Only near the shop, where the shop drives the order round itself.
+ * Everywhere else goes by carrier and is charged from the table below,
+ * agreed with the customer by phone — there is no national free
+ * threshold, and the site must not imply one.
+ */
 export const FREE = {
   localKm: 10,
   localFrom: 8000,      // ¥8,000 within 10 km of the shop
-  nationalFrom: 10000,  // ¥10,000 anywhere in Japan
 };
 
 /**

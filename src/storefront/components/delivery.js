@@ -39,12 +39,15 @@ export function deliveryHTML(){
           <span class="dlv-free-min">${esc(T.dlv_min)}</span>
         </div>
 
-        <div class="dlv-free-card">
+        <!-- Everywhere else there is no free threshold: the carrier
+             charges by box and distance, and the shop agrees the figure
+             on the phone. The card says so rather than promising. -->
+        <div class="dlv-free-card dlv-free-rates">
           <span class="dlv-free-ic">${icon("box", { size: 22 })}</span>
-          <b>${esc(T.dlv_free)}</b>
-          <span class="dlv-free-where">${esc(T.dlv_japan_where)}</span>
-          <strong>${yen(FREE.nationalFrom)}</strong>
-          <span class="dlv-free-min">${esc(T.dlv_min)}</span>
+          <b>${esc(T.dlv_japan_where)}</b>
+          <span class="dlv-free-where">${esc(T.dlv_japan_rate_where)}</span>
+          <strong>${esc(T.dlv_japan_rate)}</strong>
+          <span class="dlv-free-min">${esc(T.dlv_japan_rate_s)}</span>
         </div>
       </div>
 
@@ -85,7 +88,7 @@ export function deliveryHTML(){
       <!-- Everywhere else, by carrier. -->
       <section class="dlv-block">
         <h2>${icon("box", { size: 18 })} ${esc(T.dlv_ship_h)}</h2>
-        <p>${esc(T.dlv_ship_1).replace("{amt}", yen(FREE.nationalFrom))}</p>
+        <p>${esc(T.dlv_ship_1)}</p>
 
         <div class="dlv-warn">
           ${icon("warn", { size: 16 })}
