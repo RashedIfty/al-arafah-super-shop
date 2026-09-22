@@ -275,9 +275,22 @@ export function initAccount(){
       return;
     }
 
-    // Signing up may need the email confirming first.
+    /* Signing up may need the email confirming first.
+     *
+     * Written as markup rather than text so "spam" can be picked out:
+     * the confirmation lands there often enough that a customer who
+     * does not think to look assumes the shop never wrote. Both halves
+     * are escaped; only the tags around the word are ours. */
     if (creating && r.signedIn === false){
-      err.textContent = T.acct_check_email;
+      const lead = T.acct_check_spam_1 ? `${esc(T.acct_check_spam_1)} ` : "";
+      const tail = T.acct_check_spam_3;
+      /* Japanese does not put a space between a word and what follows
+         it, so the join is per-language rather than hard-coded. */
+      const gap = document.documentElement.lang === "ja" ? "" : " ";
+      err.innerHTML =
+        `${esc(T.acct_check_email)}` +
+        `<span class="acct-spam">${lead}` +
+        `<b>${esc(T.acct_check_spam_2)}</b>${gap}${esc(tail)}</span>`;
       err.className = "acct-err ok";
       err.hidden = false;
       return;

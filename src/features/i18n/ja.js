@@ -102,6 +102,7 @@ export default {
     acct_bad:"メールアドレスと6文字以上のパスワードを入力してください。",
     acct_working:"お待ちください\u2026",
     acct_check_email:"あと少しです — メールを確認してアカウントを有効にしてください。",
+    acct_check_spam_1:"", acct_check_spam_2:"迷惑メール", acct_check_spam_3:"フォルダもご確認ください。",
     cart_add:"カートに入れる", cart_add_long:"カートに入れる",
     rs_ask:"再入荷をリクエスト", rs_ask_short:"再入荷",
     rs_asked:"リクエスト済み", rs_asked_short:"リクエスト済み",

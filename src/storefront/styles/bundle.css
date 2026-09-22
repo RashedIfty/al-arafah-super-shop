@@ -1899,6 +1899,12 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 /* The same box, for the one message that is good news. */
 .acct-err.ok{color:#12805c;background:#e3f4ed}
 
+/* Where the confirmation often actually lands. On its own line, and the
+   word itself in red, because somebody who does not think to look there
+   concludes the shop never wrote to them. */
+.acct-spam{display:block;margin-top:6px}
+.acct-spam b{color:var(--red);font-weight:900}
+
 .acct-go{width:100%;justify-content:center;padding:12px}
 .acct-go:disabled{opacity:.6;cursor:default}
 

@@ -102,6 +102,7 @@ export default {
     acct_bad:"Please enter your email and a password of at least 6 characters.",
     acct_working:"Please wait\u2026",
     acct_check_email:"Almost there \u2014 check your email to confirm the account.",
+    acct_check_spam_1:"Please check your", acct_check_spam_2:"spam", acct_check_spam_3:"folder too.",
     cart_add:"Add", cart_add_long:"Add to cart",
     rs_ask:"Request restock", rs_ask_short:"Restock",
     rs_asked:"You have asked for this", rs_asked_short:"Requested",

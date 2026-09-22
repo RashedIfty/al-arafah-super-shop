@@ -102,6 +102,7 @@ export default {
     acct_bad:"ইমেইল এবং অন্তত ৬ অক্ষরের পাসওয়ার্ড দিন।",
     acct_working:"একটু অপেক্ষা করুন\u2026",
     acct_check_email:"প্রায় হয়ে গেছে — অ্যাকাউন্ট নিশ্চিত করতে ইমেইল দেখুন।",
+    acct_check_spam_1:"আপনার", acct_check_spam_2:"স্প্যাম", acct_check_spam_3:"ফোল্ডারটিও দেখুন।",
     cart_add:"যোগ করুন", cart_add_long:"কার্টে যোগ করুন",
     rs_ask:"রিস্টক চান", rs_ask_short:"রিস্টক",
     rs_asked:"আপনি চেয়েছেন", rs_asked_short:"চাওয়া হয়েছে",
