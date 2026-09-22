@@ -167,13 +167,23 @@ export default {
 
       const key = newName(file.type, who.owner ? "" : avatarPrefix(who.uid));
 
+      /* How long the edge may keep it. Names are unique, so a photo
+         never changes under its URL and a product picture can be held
+         for a year. A customer's photo is different in one way: they
+         replace it, and the old one is deleted — but a deleted object
+         stays reachable at the edge for as long as this says. An hour,
+         then, for faces: long enough that the header and the owner's
+         lists never wait on R2, short enough that a replaced photo is
+         actually gone the same afternoon. The Worker cannot purge the
+         edge itself; that needs an API token it deliberately does not
+         hold. */
+      const cacheControl = who.owner
+        ? "public, max-age=31536000, immutable"
+        : "public, max-age=3600";
+
       try {
         await env.BUCKET.put(key, file.stream(), {
-          httpMetadata: {
-            contentType: file.type,
-            // Names are unique, so a photo never changes under its URL.
-            cacheControl: "public, max-age=31536000, immutable",
-          },
+          httpMetadata: { contentType: file.type, cacheControl },
         });
       } catch (e){
         return json(request, env, { error: "Upload failed: " + e.message }, 502);
