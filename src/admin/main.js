@@ -21,6 +21,7 @@ import {
 } from "./orders.js";
 import { setRestock, renderRestock, initRestock } from "./restock.js";
 import { initFaces } from "./photos.js";
+import { setFindCatalog, setFindRepaint, initFind } from "./find.js";
 import { setCustomers, setCustomerOrders, setCustomerAsks, renderCustomers, initCustomers }
   from "./customers.js";
 
@@ -250,7 +251,10 @@ function renderAll(){
   showCountryFlag();
 
   setPhotos(catalog);        // invoices print the product photographs
+  setFindCatalog(catalog);   // and the search dropdown looks through it
+  setFindRepaint(renderList);
   initFaces();               // a customer's photo, tapped, shown large
+  initFind();                // type a letter, the matches fall out
 
   renderList();
   renderDeals();
@@ -277,7 +281,7 @@ function renderList(){
       ].join("");
 
       return `
-        <div class="prod">
+        <div class="prod" data-row="${esc(cat.id)}:${i}">
           <img class="prod-img" src="${esc(p.img || "/images/placeholder.svg")}"
                alt="" loading="lazy" ${IMG_FALLBACK}>
           <div class="prod-tx">

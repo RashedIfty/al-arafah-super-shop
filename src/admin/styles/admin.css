@@ -175,6 +175,84 @@ body{overflow-x:hidden}
 .ad-find button:hover{background:var(--red-d)}
 .ad-find:focus-within{border-color:var(--red);background:#fff}
 
+/* The clear cross, inside the trough rather than on the red button.
+   The browser draws its own on a search input; that one is hidden so
+   there are not two. */
+.ad-find input::-webkit-search-cancel-button{display:none}
+.ad-find-x{
+  background:transparent !important;color:var(--mute) !important;
+  padding:0 12px !important;
+}
+.ad-find-x:hover{color:var(--red) !important}
+.ad-find-x[hidden]{display:none}
+
+/* ------------------------- the suggestions ---------------------------
+   The website's dropdown, over the panel's list. The rows are the shop's
+   own .sg-* markup so the two cannot drift apart; only what the panel
+   adds is here. */
+.ad-find{position:relative}
+.ad-find .sg-box{
+  position:absolute;top:calc(100% + 6px);left:-2px;right:-2px;z-index:90;
+  background:#fff;border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 14px 40px rgba(10,22,44,.18);overflow:hidden;
+  text-align:left;
+}
+.ad-find .sg-box[hidden]{display:none}
+.ad-find .sg-list{max-height:min(62vh,440px);overflow-y:auto}
+
+/* "PRODUCTS", over the group. */
+.ad-find .sg-head{
+  padding:11px 14px 6px;font-size:11px;font-weight:800;
+  letter-spacing:1.1px;text-transform:uppercase;color:var(--mute);
+  border-bottom:1px solid var(--line);margin-bottom:2px;
+}
+
+.ad-find .sg-row{
+  display:flex;align-items:center;gap:12px;padding:9px 14px;cursor:pointer;
+  border-bottom:1px solid var(--line);
+}
+.ad-find .sg-row:last-child{border-bottom:0}
+.ad-find .sg-row:hover,.ad-find .sg-row.on{background:var(--red-l)}
+
+.ad-find .sg-img{
+  width:38px;height:38px;border-radius:8px;object-fit:contain;flex-shrink:0;
+  border:1px solid var(--line);background:var(--bg);
+}
+.ad-find .sg-tx{flex:1;min-width:0}
+/* The name in grey; only the part that was typed goes dark and bold, so
+   the eye lands on why the row is there. */
+.ad-find .sg-name{
+  display:block;font-size:14px;font-weight:600;color:var(--body);
+  line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ad-find .sg-name b{color:var(--ink);font-weight:900}
+.ad-find .sg-w{color:var(--mute);font-weight:600}
+.ad-find .sg-tx small{display:block;font-size:11.5px;color:var(--mute);margin-top:1px}
+
+.ad-find .sg-price{text-align:right;flex-shrink:0;line-height:1.3}
+.ad-find .sg-price b{display:block;font-size:14px;font-weight:900;color:var(--red)}
+.ad-find .sg-price s{font-size:11px;color:var(--mute)}
+.ad-find .sg-out{
+  display:block;font-style:normal;font-size:9.5px;font-weight:800;
+  color:var(--red);letter-spacing:.3px;
+}
+
+.ad-find .sg-foot{
+  padding:8px 14px;font-size:11.5px;color:var(--mute);
+  background:var(--bg);border-top:1px solid var(--line);text-align:center;
+}
+.ad-find .sg-none{padding:22px 18px;text-align:center}
+.ad-find .sg-none b{display:block;font-size:14.5px;color:var(--ink);margin-bottom:4px}
+.ad-find .sg-none span{font-size:13px;color:var(--mute)}
+
+/* The row the owner picked, outlined for a moment. */
+.prod.found{animation:adFound 2.4s var(--ease)}
+@keyframes adFound{
+  0%,100%{box-shadow:var(--sh)}
+  15%,70%{box-shadow:0 0 0 3px var(--red),var(--sh-lg)}
+}
+@media(prefers-reduced-motion:reduce){ .prod.found{animation:none} }
+
 /* ============================== PRODUCTS ============================== */
 .cat-block{margin-bottom:24px}
 .cat-head{
