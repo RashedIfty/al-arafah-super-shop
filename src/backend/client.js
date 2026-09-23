@@ -131,52 +131,90 @@ function startIdleWatch(){
  * auth and realtime, where it earns its size.
  */
 /*
- * How long a tab may reuse the shop it last read.
+ * Reading the shop without asking the database every time.
  *
- * Every page used to fetch the whole catalogue afresh, and some fetched
- * it twice — the catalogue and the deals strip each asked — so a
- * customer clicking through five pages downloaded it ten times. Egress
- * is what the database's plan meters. Within five minutes the tab now
- * reuses what it has, so an owner's change reaches a browsing customer
- * within five minutes, and a visit costs one download instead of ten.
+ * The database keeps one stamp, shop_version.at, that moves whenever a
+ * product, category or deal changes (migrate-version.sql). A page reads
+ * only that — a few hundred bytes — and keeps using the rows it already
+ * holds while the stamp is the same. When the stamp has moved it fetches
+ * again, through Vercel's cache at an address carrying the stamp, so the
+ * first customer after a change fetches the new rows and everyone after
+ * gets that copy. A price the owner changes is on the next page anyone
+ * opens, and on pages already open within a minute (watchShop), without
+ * a live connection per visitor — that is what filled the database's
+ * memory once already.
+ *
+ * Without the stamp (the SQL not run, or the read failing) a tab falls
+ * back to reusing its rows for five minutes.
  *
  * The owner's panel never reuses: it must show what it has just saved.
- * The head snippet in every page reads the same timestamp, and skips
- * its early fetch while the tab's copy is fresh.
  */
 const FRESH_MS = 5 * 60 * 1000;
 const reusable = () => document.body?.dataset.page !== "admin";
 
-function keptRows(name){
+let stamp = null;         // the stamp this page's rows belong to
+let stampAsk = null;      // the read of it, shared by every caller
+
+async function askStamp(){
   try {
-    const at = +sessionStorage.getItem(`aa-rows-at:${name}`);
-    if (!at || Date.now() - at > FRESH_MS) return null;
-    const raw = sessionStorage.getItem(`aa-rows:${name}`);
-    return raw ? JSON.parse(raw) : null;
+    const res = await fetch(`${SUPABASE.URL}/rest/v1/shop_version?select=at&id=eq.1`, {
+      headers: { apikey: SUPABASE.KEY, Authorization: `Bearer ${SUPABASE.KEY}` },
+    });
+    if (!res.ok) return null;
+    const [row] = await res.json();
+    return row?.at || null;
   } catch { return null; }
 }
 
-function keepRows(name, data){
+/** This page's stamp: the head snippet's read if it made one, else one read. */
+function shopStamp(){
+  stampAsk ||= (globalThis.__preload?.version || askStamp())
+    .then(v => (stamp = v || null))
+    .catch(() => (stamp = null));
+  return stampAsk;
+}
+
+function keptRows(name, v){
+  try {
+    const raw = sessionStorage.getItem(`aa-rows:${name}`);
+    if (!raw) return null;
+    if (v){
+      if (sessionStorage.getItem(`aa-rows-v:${name}`) !== v) return null;
+    } else {
+      const at = +sessionStorage.getItem(`aa-rows-at:${name}`);
+      if (!at || Date.now() - at > FRESH_MS) return null;
+    }
+    return JSON.parse(raw);
+  } catch { return null; }
+}
+
+function keepRows(name, data, v){
   try {
     sessionStorage.setItem(`aa-rows:${name}`, JSON.stringify(data));
     sessionStorage.setItem(`aa-rows-at:${name}`, String(Date.now()));
+    if (v) sessionStorage.setItem(`aa-rows-v:${name}`, v);
+    else   sessionStorage.removeItem(`aa-rows-v:${name}`);
   } catch { /* private mode, or too large — the next page simply asks again */ }
 }
 
-/* One request per table at a time, however many callers ask at once. */
+/* One request per table and stamp at a time, however many callers ask. */
 const inFlight = new Map();
 
 async function readOne(name){
+  const v = reusable() ? await shopStamp() : null;
+
   if (reusable()){
-    const kept = keptRows(name);
+    const kept = keptRows(name, v);
     if (kept) return kept;
   }
-  if (inFlight.has(name)) return inFlight.get(name);
+
+  const key = `${name}|${v}`;
+  if (inFlight.has(key)) return inFlight.get(key);
 
   const run = (async () => {
     // A snippet in the page head started these before this module had
-    // finished downloading. Take the answer if it is already on its
-    // way; ask again only if it is not, or if it failed.
+    // finished downloading, for this same stamp. Take the answer if it
+    // is on its way; ask again only if it is not, or if it failed.
     const early = globalThis.__preload?.[name];
     if (early){
       // Used once: a later refresh must see current rows, not these.
@@ -185,14 +223,13 @@ async function readOne(name){
       if (data) return data;
     }
 
-    /* The shop reads through Vercel's cache (api/shop.js), so however
-       many people are shopping the database is asked about once every
-       five minutes. Straight to the database if that fails — and when
-       there is no /api at all, as on a local server. The owner's panel
-       always goes straight there, to see what it has just saved. */
+    /* The shop reads through Vercel's cache (api/shop.js). Straight to
+       the database if that fails — and when there is no /api at all, as
+       on a local server. The owner's panel always goes straight there. */
     if (reusable()){
       try {
-        const cached = await fetch(`/api/shop?t=${name}`);
+        const cached = await fetch(`/api/shop?t=${name}`
+          + (v ? `&v=${encodeURIComponent(v)}` : ""));
         if (cached.ok) return cached.json();
       } catch { /* fall through to the database */ }
     }
@@ -211,14 +248,44 @@ async function readOne(name){
     return res.json();
   })();
 
-  inFlight.set(name, run);
+  inFlight.set(key, run);
   try {
     const data = await run;
-    if (reusable()) keepRows(name, data);
+    if (reusable()) keepRows(name, data, v);
     return data;
   } finally {
-    inFlight.delete(name);
+    inFlight.delete(key);
   }
+}
+
+/**
+ * Call `onChange` when the shop changes under an open page.
+ *
+ * Looks at the stamp once a minute while the page is on screen, and at
+ * once when it comes back into view — not while it sits in a background
+ * tab, where nobody is reading the prices. A moved stamp clears whatever
+ * the head snippet fetched early, so the refresh cannot pick up rows
+ * from before the change.
+ */
+let watchingShop = false;
+
+export function watchShop(onChange){
+  if (watchingShop || !reusable() || !isConfigured()) return;
+  watchingShop = true;
+
+  const check = async () => {
+    if (document.hidden) return;
+    const was = await shopStamp();
+    const now = await askStamp();
+    if (!now || now === was) return;
+    stamp = now;
+    stampAsk = Promise.resolve(now);
+    globalThis.__preload = null;
+    onChange();
+  };
+
+  setInterval(check, 60_000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) check(); });
 }
 
 async function readTables(names){

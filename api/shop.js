@@ -27,7 +27,13 @@ export const config = { runtime: "edge" };
 const TABLES = new Set(["products", "categories", "deals"]);
 
 export default async function handler(request){
-  const t = new URL(request.url).searchParams.get("t");
+  const q = new URL(request.url).searchParams;
+  const t = q.get("t");
+  /* The shop's change stamp (shop_version.at), when the page knows it.
+     It makes the address unique to one state of the catalogue, so that
+     copy can be kept for a day: any change the owner makes moves the
+     stamp, and pages ask for the new address instead. */
+  const versioned = Boolean(q.get("v"));
   if (!TABLES.has(t))
     return new Response(JSON.stringify({ error: "unknown table" }),
       { status: 400, headers: { "Content-Type": "application/json" } });
@@ -46,9 +52,9 @@ export default async function handler(request){
          failure must not be served to everyone for five minutes. The
          browser itself does not keep it (max-age=0); the page's own
          five-minute copy in sessionStorage does that job. */
-      "Cache-Control": res.ok
-        ? "public, max-age=0, s-maxage=300, stale-while-revalidate=600"
-        : "no-store",
+      "Cache-Control": !res.ok ? "no-store"
+        : versioned ? "public, max-age=0, s-maxage=86400"
+        : "public, max-age=0, s-maxage=300, stale-while-revalidate=600",
     },
   });
 }

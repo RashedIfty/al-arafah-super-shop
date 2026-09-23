@@ -23,40 +23,48 @@
 <meta name="twitter:card" content="summary_large_image">
 
 <script>
-/* Ask the database for the shop before the JavaScript that needs it has
-   even downloaded. Both requests are in flight while the modules load,
-   so the page is not waiting on a round trip it could have started
-   half a second earlier. main.js picks these up. */
+/* Ask for the shop before the JavaScript that needs it has even
+   downloaded, so the page is not waiting on a round trip it could have
+   started half a second earlier. main.js picks these up.
+
+   First the shop's change stamp, a few hundred bytes. A list this tab
+   already holds for the same stamp is not fetched at all; anything else
+   comes through Vercel's cache at an address carrying the stamp, or
+   straight from the database if that fails. */
 (function(){
   var U = "https://fkftvudfngcmrtylevnl.supabase.co";
   var K = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrZnR2dWRmbmdjbXJ0eWxldm5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NTU5MzYsImV4cCI6MjEwMzMzMTkzNn0.nNmgcDiSIYDkfn4bVoR9CdsojlFxPIunIdG68PAOysI";
   var h = { apikey: K, Authorization: "Bearer " + K };
-  /* Nothing to fetch while this tab's copy is under five minutes old:
-     client.js reuses it. Moving between pages used to download the
-     whole shop again on every click. */
-  try {
-    var fresh = ["categories", "products", "deals"].every(function(t){
-      var at = +sessionStorage.getItem("aa-rows-at:" + t);
-      return at && Date.now() - at < 300000;
-    });
-    if (fresh) return;
-  } catch (e) {}
-  /* Through Vercel's cache first (api/shop.js), so the database is not
-     asked once per visitor; straight to the database if that fails. */
   function direct(t){
     return fetch(U + "/rest/v1/" + t + "?select=*&archived_at=is.null&order=sort",
                  { headers: h }).then(function(r){ return r.ok ? r.json() : null; })
                                 .catch(function(){ return null; });
   }
-  function grab(t){
-    return fetch("/api/shop?t=" + t)
+  function grab(t, v){
+    return fetch("/api/shop?t=" + t + (v ? "&v=" + encodeURIComponent(v) : ""))
       .then(function(r){ return r.ok ? r.json() : direct(t); })
       .catch(function(){ return direct(t); });
   }
+  function kept(t, v){
+    try {
+      if (!sessionStorage.getItem("aa-rows:" + t)) return false;
+      if (v) return sessionStorage.getItem("aa-rows-v:" + t) === v;
+      var at = +sessionStorage.getItem("aa-rows-at:" + t);
+      return at && Date.now() - at < 300000;
+    } catch (e) { return false; }
+  }
+  var ver = fetch(U + "/rest/v1/shop_version?select=at&id=eq.1", { headers: h })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(j){ return j && j[0] ? j[0].at : null; })
+    .catch(function(){ return null; });
+  function early(t){
+    return ver.then(function(v){ return kept(t, v) ? null : grab(t, v); });
+  }
   window.__preload = {
-    categories: grab("categories"),
-    products:   grab("products"),
-    deals:      grab("deals")
+    version:    ver,
+    categories: early("categories"),
+    products:   early("products"),
+    deals:      early("deals")
   };
 })();
 </script>
