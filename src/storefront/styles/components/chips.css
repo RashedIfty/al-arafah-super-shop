@@ -15,7 +15,7 @@
 .chip span{font-size:10.5px;color:var(--mute)}
 
 
-.sec{padding:26px 16px 6px;scroll-margin-top:calc(var(--nav-h) + 6px)}
+.sec{padding:26px 16px 6px;scroll-margin-top:calc(var(--stick-h) + 6px)}
 .sec-head{
   display:flex;align-items:center;gap:11px;padding-bottom:12px;
   margin-bottom:17px;border-bottom:2px solid var(--line);

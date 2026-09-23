@@ -1,7 +1,7 @@
 /* Sticky navigation */
 
 .nav{
-  background:var(--red);position:sticky;top:0;z-index:50;
+  background:var(--red);position:sticky;top:var(--hdr-h);z-index:50;
   box-shadow:0 2px 8px rgba(0,0,0,.10);
 }
 .nav-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}

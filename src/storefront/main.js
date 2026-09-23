@@ -7,7 +7,8 @@
 import { $, $$, put, esc, on, scrollToId } from "../shared/lib/dom.js";
 import { t, setLang, onLangChange, initLang } from "../features/i18n/lang.js";
 import { todayIndex } from "../shared/lib/format.js";
-import { topbarHTML, headerHTML, navHTML, footerHTML, initLangMenu } from "./components/chrome.js";
+import { topbarHTML, headerHTML, navHTML, footerHTML, initLangMenu, initStickyHeader }
+  from "./components/chrome.js";
 import { tickerHTML } from "./components/ticker.js";
 import { announceBarHTML, initAnnounceBar, initDealsCarousel } from "./components/deals-bar.js";
 import { announcementHTML, setAnnouncement } from "./components/announcement.js";
@@ -154,6 +155,7 @@ function render(){
 /** Listeners on markup that render() replaces. */
 function bindDynamic(){
   initLangMenu();
+  initStickyHeader();
 
   initAnnounceBar();
   initDealsCarousel();

@@ -36,6 +36,11 @@
   --sh-lg:0 14px 34px rgba(20,30,50,.14);
   --wrap:1280px;
   --nav-h:50px;
+  /* The pinned header's height, and header plus nav together. Close
+     guesses for the first paint; initStickyHeader() replaces both with
+     measured values straight after. */
+  --hdr-h:79px;
+  --stick-h:129px;
   --ease:cubic-bezier(.4,0,.2,1);
   --ff:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans JP",sans-serif;
 }

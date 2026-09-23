@@ -55,6 +55,42 @@ export function initLangMenu(){
   document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
 }
 
+/**
+ * Keep the pinned nav just under the pinned header.
+ *
+ * The header's height is not a constant: it changes with the screen
+ * width, with the language (Bangla sets taller than English), and when
+ * someone signs in and the account button appears. Measured rather than
+ * written down, and measured again whenever it changes, so the nav
+ * never overlaps the header or leaves a gap above itself. --stick-h is
+ * both together: how far a category jump must stop short of the top so
+ * its heading is not hidden behind them.
+ *
+ * #header and #nav are never replaced, only their contents, so one
+ * observer on each lasts the life of the page.
+ */
+let stickyBound = false;
+
+export function initStickyHeader(){
+  if (stickyBound) return;
+  const header = document.getElementById("header");
+  const nav    = document.getElementById("nav");
+  if (!header || !nav || typeof ResizeObserver === "undefined") return;
+  stickyBound = true;
+
+  const root = document.documentElement.style;
+  const measure = () => {
+    const h = header.offsetHeight;
+    root.setProperty("--hdr-h",   h + "px");
+    root.setProperty("--stick-h", h + nav.offsetHeight + "px");
+  };
+
+  const watch = new ResizeObserver(measure);
+  watch.observe(header);
+  watch.observe(nav);
+  measure();
+}
+
 /* The flag for each language the shop speaks.
  *
  * Emoji rather than image files: they come with the system, cost

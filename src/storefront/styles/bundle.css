@@ -41,6 +41,11 @@
   --sh-lg:0 14px 34px rgba(20,30,50,.14);
   --wrap:1280px;
   --nav-h:50px;
+  /* The pinned header's height, and header plus nav together. Close
+     guesses for the first paint; initStickyHeader() replaces both with
+     measured values straight after. */
+  --hdr-h:79px;
+  --stick-h:129px;
   --ease:cubic-bezier(.4,0,.2,1);
   --ff:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans JP",sans-serif;
 }
@@ -100,6 +105,14 @@ h1,h2,h3,h4,h5{color:var(--ink);line-height:1.22;font-weight:800;letter-spacing:
    stacking context of its own the header paints beneath, and the
    suggestions were drawn in full and hidden in full behind the red bar. */
 .header{padding:13px 0;background:#fff;border-bottom:1px solid var(--line);position:relative;z-index:60}
+
+/* Pinned, with the nav pinned beneath it. The basket and the account
+   used to scroll away with the logo, so a customer who added something
+   halfway down a long shelf had to climb all the way back to reach the
+   basket. The nav's offset is the header's real height, measured by
+   initStickyHeader(): it changes with the width, the language and
+   whether someone is signed in, so no number written here would hold. */
+.header{position:sticky;top:0}
 .header-in{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 
 /* On the narrowest phones the brand and the controls stop fitting on one
@@ -334,7 +347,7 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
 /* Sticky navigation */
 
 .nav{
-  background:var(--red);position:sticky;top:0;z-index:50;
+  background:var(--red);position:sticky;top:var(--hdr-h);z-index:50;
   box-shadow:0 2px 8px rgba(0,0,0,.10);
 }
 .nav-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
@@ -1167,7 +1180,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .chip span{font-size:10.5px;color:var(--mute)}
 
 
-.sec{padding:26px 16px 6px;scroll-margin-top:calc(var(--nav-h) + 6px)}
+.sec{padding:26px 16px 6px;scroll-margin-top:calc(var(--stick-h) + 6px)}
 .sec-head{
   display:flex;align-items:center;gap:11px;padding-bottom:12px;
   margin-bottom:17px;border-bottom:2px solid var(--line);

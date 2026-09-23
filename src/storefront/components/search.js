@@ -87,7 +87,12 @@ export function initScrollSpy(){
       $$(".chip").forEach(chip =>
         chip.classList.toggle("on", chip.getAttribute("href").endsWith("#" + entry.target.id)));
     });
-  }, { rootMargin: "-56px 0px -72% 0px" });
+  }, {
+    /* Ignore whatever is behind the pinned header and nav: a category
+       under them is not the one being read. */
+    rootMargin: `-${parseInt(getComputedStyle(document.documentElement)
+      .getPropertyValue("--stick-h")) || 56}px 0px -72% 0px`,
+  });
 
   sections.forEach(sec => observer.observe(sec));
 }

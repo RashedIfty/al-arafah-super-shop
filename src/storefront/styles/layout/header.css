@@ -15,6 +15,14 @@
    stacking context of its own the header paints beneath, and the
    suggestions were drawn in full and hidden in full behind the red bar. */
 .header{padding:13px 0;background:#fff;border-bottom:1px solid var(--line);position:relative;z-index:60}
+
+/* Pinned, with the nav pinned beneath it. The basket and the account
+   used to scroll away with the logo, so a customer who added something
+   halfway down a long shelf had to climb all the way back to reach the
+   basket. The nav's offset is the header's real height, measured by
+   initStickyHeader(): it changes with the width, the language and
+   whether someone is signed in, so no number written here would hold. */
+.header{position:sticky;top:0}
 .header-in{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 
 /* On the narrowest phones the brand and the controls stop fitting on one
