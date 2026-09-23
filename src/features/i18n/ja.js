@@ -235,6 +235,14 @@ export default {
     st_dispatched:"配達中", st_delivered:"配達完了",
     st_rejected:"ご用意できませんでした", st_cancelled:"キャンセル",
     st_why:"理由",
+    /* Special offers: the strip label, its count, and the shelf page. */
+    ann_offer:"特別セール",
+    ann_offer_n:"件の特別セール",
+    shelf_offer:"特別セール",
+    shelf_offer_title:"特別セール",
+    shelf_offer_sub:"今だけのお得な価格です（期間限定）",
+    shelf_offer_none:"現在、特別セールはありません",
+    shelf_offer_none_s:"新しいセールが始まると、ここに表示されます。",
     /* The how-to-order guide behind the ? button. */
     tut_open:"ご注文の方法",
     tut_h:"ご注文の方法",

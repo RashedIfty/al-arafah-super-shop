@@ -19,7 +19,8 @@
 import { countriesInUse } from "./countries.js";
 
 /**
- * The three shelves, in the order they appear.
+ * The four shelves, in the order they appear. Special Offers leads:
+ * it is the one the shop wants noticed.
  *
  * `count` answers "how many things are on this shelf" for the tile, and
  * `has` answers "is there anything here at all" — an empty shelf is
@@ -30,6 +31,17 @@ import { countriesInUse } from "./countries.js";
  * they have no photo to upload and no name to edit.
  */
 export const SHELVES = [
+  {
+    id: "offer",
+    href: "offers.html",
+    /* Animated — it bounces and flashes, to be noticed. `still` is one
+       frame of it for anyone whose device asks for less motion. */
+    img: "/images/shelves/offers.webp",
+    still: "/images/shelves/offers.jpg",
+    en: "Special Offers", bn: "বিশেষ অফার", ja: "特別セール",
+    count: catalog => onShelf(catalog, "offer").length,
+    label: "items",
+  },
   {
     id: "countrywise",
     href: "countries.html",
@@ -63,12 +75,12 @@ export const shelfById = id => SHELVES.find(s => s.id === id) || null;
 /**
  * Which products carry a shelf flag.
  *
- * Kept as two booleans on the product rather than a join table: a product
- * is on a shelf or it is not, there are two of them, and the owner sets
+ * Kept as booleans on the product rather than a join table: a product
+ * is on a shelf or it is not, there are three of them, and the owner sets
  * them with a tick box. A table would buy flexibility nobody has asked
  * for at the cost of a query on every page.
  */
-export const SHELF_FLAG = { new: "isNew", popular: "isPopular" };
+export const SHELF_FLAG = { offer: "isOffer", new: "isNew", popular: "isPopular" };
 
 /**
  * Every product on a shelf, across all categories.

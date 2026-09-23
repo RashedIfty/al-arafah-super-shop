@@ -276,6 +276,7 @@ function renderList(){
       // Where else this product shows up, so the owner can see at a
       // glance what is on the New and Popular pages without opening each.
       const shelves = [
+        p.isOffer   ? `<span class="on-shelf offer">OFFER</span>` : "",
         p.isNew     ? `<span class="on-shelf new">NEW</span>`     : "",
         p.isPopular ? `<span class="on-shelf pop">POPULAR</span>` : ""
       ].join("");
@@ -365,6 +366,7 @@ function openForm(catId, index){
   $$("input[name=fStock]").forEach(r => r.checked = r.value === stock);
   $("#fCountry").value = p?.country || "";
   showCountryFlag();
+  $("#fOffer").checked   = Boolean(p?.isOffer);
   $("#fNew").checked     = Boolean(p?.isNew);
   $("#fPopular").checked = Boolean(p?.isPopular);
   $("#fFile").value = "";
@@ -597,6 +599,7 @@ on("#form", "submit", async e => {
      not merely be left off the update. */
   product.tag = $$("input[name=fStock]").find(r => r.checked)?.value || null;
   product.country   = $("#fCountry").value || null;
+  product.isOffer   = $("#fOffer").checked;
   product.isNew     = $("#fNew").checked;
   product.isPopular = $("#fPopular").checked;
 

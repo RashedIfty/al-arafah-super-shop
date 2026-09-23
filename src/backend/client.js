@@ -197,7 +197,8 @@ export async function fetchCatalog(){
         img: p.img, ...(p.tag ? { tag: p.tag } : {}),
         ...(p.country ? { country: p.country } : {}),
         // The shelves a product sits on, beside the category it lives in.
-        isNew: Boolean(p.is_new), isPopular: Boolean(p.is_popular)
+        isNew: Boolean(p.is_new), isPopular: Boolean(p.is_popular),
+        isOffer: Boolean(p.is_offer)
       }))
   }));
 }
@@ -242,7 +243,8 @@ export async function insertProduct(categoryId, p){
     category_id: categoryId, en: p.en, bn: p.bn, ja: p.ja,
     w: p.w, p: p.p, was: p.was || 0, img: p.img || "",
     tag: p.tag || null, country: p.country || null, sort: 0,
-    is_new: Boolean(p.isNew), is_popular: Boolean(p.isPopular)
+    is_new: Boolean(p.isNew), is_popular: Boolean(p.isPopular),
+    is_offer: Boolean(p.isOffer)
   }).select().single();
   if (res.error) return res;
 
@@ -265,7 +267,8 @@ export async function updateProduct(id, categoryId, p){
     w: p.w, p: p.p, was: p.was || 0, img: p.img || "",
     tag: p.tag || null, country: p.country || null,
     // Always sent, even when false: unticking a shelf has to reach the row.
-    is_new: Boolean(p.isNew), is_popular: Boolean(p.isPopular)
+    is_new: Boolean(p.isNew), is_popular: Boolean(p.isPopular),
+    is_offer: Boolean(p.isOffer)
   }).eq("id", id);
 
   if (!res.error) await dropReplaced(c, was?.img, p.img);

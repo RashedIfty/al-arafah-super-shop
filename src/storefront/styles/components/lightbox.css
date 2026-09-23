@@ -72,6 +72,7 @@
 }
 .lb-tag.new{background:#12805c;color:#fff}
 .lb-tag.deal{background:var(--gold);color:#3a2a00}
+.lb-tag.offer{background:var(--red);color:#fff}
 .lb-tag.cat{background:var(--navy-l);color:var(--navy)}
 
 .lb-info h3{font-size:21px;line-height:1.25;margin-bottom:5px}

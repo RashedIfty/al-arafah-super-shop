@@ -946,6 +946,12 @@ body{overflow-x:hidden}
 }
 .on-shelf.new{background:#12805c}
 .on-shelf.pop{background:#e0641e}
+.on-shelf.offer{background:#d7141f}
+/* The offer box is the one that changes the homepage, so it is marked
+   in the shop's red rather than the shelves' orange. */
+.shelf-opt.offer{border-color:#f3c2c7;background:#fff7f8}
+.shelf-opt.offer input:checked + .shelf-box{background:#d7141f;border-color:#d7141f}
+.shelf-opt.offer input:checked ~ .shelf-tx b{color:#d7141f}
 
 /* Says what the automatic translation is doing, then gets out of the way. */
 .trans-note{

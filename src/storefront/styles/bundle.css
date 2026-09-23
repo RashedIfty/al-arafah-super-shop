@@ -1105,6 +1105,13 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 .ann-tag.new{background:#12805c;color:#fff}
 .ann-tag.deal{background:var(--gold);color:#3a2a00}
+/* A special offer blinks between red and gold, and its card carries a
+   red frame, so it is the first thing in the strip the eye finds. Well
+   under three flashes a second, and still for reduced motion. */
+.ann-tag.offer{background:var(--red);color:#fff;animation:annBlink 1.2s steps(1) infinite}
+@keyframes annBlink{50%{background:var(--gold);color:#3a2a00}}
+.ann-item.offer{box-shadow:0 0 0 2px var(--red)}
+@media(prefers-reduced-motion:reduce){ .ann-tag.offer{animation:none} }
 .ann-off{
   position:absolute;top:32px;right:8px;z-index:2;
   background:var(--red);color:#fff;font-size:10px;font-weight:900;
@@ -1389,9 +1396,9 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
   --gap:14px;
   /* The same minimum width the categories use, so a shelf tile always
      matches them however many columns the row happens to take. Capped at
-     three tracks, since there are only ever three shelves. */
+     four tracks, one for each shelf. */
   gap:var(--gap);
-  grid-template-columns:repeat(3,minmax(0,140px));
+  grid-template-columns:repeat(4,minmax(0,140px));
   justify-content:center;
 }
 
@@ -1410,7 +1417,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
      line of its own, which read as an afterthought rather than the third
      of three. Narrower tiles are the price and they carry it: these are
      pictures with a word under them. */
-  .shelf-tiles{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+  .shelf-tiles{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
   .shelf-tiles .cat-tile-img{aspect-ratio:1/1}
   .shelf-tiles .cat-tile b{font-size:10px;line-height:1.2}
   .shelf-tiles .cat-tile small{font-size:9px}
@@ -1595,6 +1602,28 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 
 @media print{ .cstrip{display:none} }
+
+/* ------------------------- the special offer ------------------------- 
+   Its picture already bounces and flashes; the tile's frame pulses red
+   and gold in time, and its name is red, so the eye lands here first.
+   Slow enough to stay well under three flashes a second. Everything
+   stops for anyone who has asked their device for less motion. */
+.cat-tile.is-offer .cat-tile-img{
+  border-color:var(--red);
+  animation:offerGlow 1.6s ease-in-out infinite;
+}
+.cat-tile.is-offer b{color:var(--red)}
+@keyframes offerGlow{
+  0%,100%{box-shadow:0 0 0 0 rgba(215,20,38,.0),0 0 14px rgba(215,20,38,.35);border-color:var(--red)}
+  50%    {box-shadow:0 0 0 4px rgba(245,180,0,.35),0 0 22px rgba(245,180,0,.55);border-color:var(--gold)}
+}
+.cstrip-pill.is-offer{
+  border-color:var(--red);color:var(--red);font-weight:900;
+  animation:offerGlow 1.6s ease-in-out infinite;
+}
+@media(prefers-reduced-motion:reduce){
+  .cat-tile.is-offer .cat-tile-img,.cstrip-pill.is-offer{animation:none}
+}
 
 /* ===== components/countries.css ===== */
 /* ==========================================================================
@@ -3236,6 +3265,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 .lb-tag.new{background:#12805c;color:#fff}
 .lb-tag.deal{background:var(--gold);color:#3a2a00}
+.lb-tag.offer{background:var(--red);color:#fff}
 .lb-tag.cat{background:var(--navy-l);color:var(--navy)}
 
 .lb-info h3{font-size:21px;line-height:1.25;margin-bottom:5px}

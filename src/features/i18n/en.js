@@ -235,6 +235,14 @@ export default {
     st_dispatched:"On its way", st_delivered:"Delivered",
     st_rejected:"Could not be fulfilled", st_cancelled:"Cancelled",
     st_why:"Reason",
+    /* Special offers: the strip label, its count, and the shelf page. */
+    ann_offer:"SPECIAL OFFER",
+    ann_offer_n:"special offers",
+    shelf_offer:"Special Offers",
+    shelf_offer_title:"Special Offers",
+    shelf_offer_sub:"Our best prices right now, for a limited time",
+    shelf_offer_none:"No special offers right now",
+    shelf_offer_none_s:"Check back soon: new offers appear here as soon as the shop adds them.",
     /* The how-to-order guide behind the ? button. */
     tut_open:"How to order",
     tut_h:"How to order",

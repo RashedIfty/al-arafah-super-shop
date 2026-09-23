@@ -107,6 +107,27 @@ function onlyStillSold(items, catalog){
   return items.filter(d => shelf.has(shelfKey(d.en, d.w)));
 }
 
+/*
+ * Products the owner has ticked as a special offer, as strip items.
+ *
+ * Built from the tick every time rather than copied into the deals
+ * table, so the strip can never disagree with it: tick the box and the
+ * product is at the front of the strip on the next visit, untick it and
+ * it is gone, with nothing left behind to delete. Each keeps its
+ * product id, so the popup opened from the strip can put it in the
+ * basket. Sold out is left off, for the reason onlyStillSold gives.
+ */
+function offersFrom(catalog){
+  const out = [];
+  for (const cat of catalog ?? [])
+    for (const p of cat.items)
+      if (p.isOffer && p.tag !== "out")
+        out.push({ _id: p._id, type: "offer",
+                   en: p.en, bn: p.bn, ja: p.ja,
+                   w: p.w, p: p.p, was: p.was, img: p.img });
+  return out;
+}
+
 export async function refreshDeals(){
   try {
     const { fetchDeals, fetchCatalog } = await import("../../backend/client.js");
@@ -117,7 +138,14 @@ export async function refreshDeals(){
     const [live, shelf] = await Promise.all([fetchDeals(), fetchCatalog()]);
 
     if (live){
-      const items = shelf ? onlyStillSold(live, shelf) : live;
+      const deals = shelf ? onlyStillSold(live, shelf) : live;
+
+      /* Offers first: they are what the shop has chosen to push. A deal
+         the owner also made by hand for the same product is dropped
+         rather than shown twice. */
+      const offers = offersFrom(shelf);
+      const offered = new Set(offers.map(o => shelfKey(o.en, o.w)));
+      const items = [...offers, ...deals.filter(d => !offered.has(shelfKey(d.en, d.w)))];
       ANNOUNCEMENTS = { ...DEFAULT_ANNOUNCEMENTS, items };
 
       /* Cached even when empty: an owner who has removed every deal must

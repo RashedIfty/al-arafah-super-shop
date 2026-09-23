@@ -92,7 +92,9 @@ export function openLightbox(item, opts = {}){
     .filter(Boolean)
     .join(" · ");
 
-  const badge = item.type === "deal" ? `<span class="lb-tag deal">${esc(T.ann_deal)}</span>`
+  const badge = item.type === "offer" || item.isOffer
+              ? `<span class="lb-tag offer">${esc(T.ann_offer)}</span>`
+              : item.type === "deal" ? `<span class="lb-tag deal">${esc(T.ann_deal)}</span>`
               : item.type === "new"  ? `<span class="lb-tag new">${esc(T.ann_new)}</span>`
               : opts.category        ? `<span class="lb-tag cat">${esc(opts.category)}</span>`
               : "";

@@ -235,6 +235,14 @@ export default {
     st_dispatched:"পথে আছে", st_delivered:"পৌঁছে গেছে",
     st_rejected:"দেওয়া সম্ভব হয়নি", st_cancelled:"বাতিল",
     st_why:"কারণ",
+    /* Special offers: the strip label, its count, and the shelf page. */
+    ann_offer:"বিশেষ অফার",
+    ann_offer_n:"টি বিশেষ অফার",
+    shelf_offer:"বিশেষ অফার",
+    shelf_offer_title:"বিশেষ অফার",
+    shelf_offer_sub:"এখনকার সেরা দাম, সীমিত সময়ের জন্য",
+    shelf_offer_none:"এই মুহূর্তে কোনো বিশেষ অফার নেই",
+    shelf_offer_none_s:"শীঘ্রই আবার দেখুন: দোকান নতুন অফার দিলেই এখানে দেখা যাবে।",
     /* The how-to-order guide behind the ? button. */
     tut_open:"কীভাবে অর্ডার করবেন",
     tut_h:"কীভাবে অর্ডার করবেন",

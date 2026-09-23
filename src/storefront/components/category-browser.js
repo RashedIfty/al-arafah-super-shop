@@ -68,7 +68,7 @@ export function categoryStripHTML(){
       pill(`${base}#${esc(c.id)}`, c.img || SHOP.placeholder,
            c[lang] || c.en, c.items.length)).join("") +
     SHELVES.map(s => `
-      <a class="cstrip-pill shelf" href="${s.href}">
+      <a class="cstrip-pill shelf is-${s.id}" href="${s.href}">
         <img src="${esc(s.img)}" alt="" loading="lazy"
              width="26" height="26" ${IMG_FALLBACK}>
         <span>${esc(s[lang] || s.en)}</span>
@@ -347,12 +347,17 @@ export function columnsFor(count, max = 7){
 }
 
 /** One large photo tile. */
-function tileHTML(href, img, name, count, extra = ""){
+function tileHTML(href, img, name, count, extra = "", still = ""){
+  /* An animated picture carries a still frame too, shown instead to
+     anyone whose device is set to reduce motion. */
+  const pic = `<img src="${esc(img)}" alt="${esc(name)}"
+             loading="lazy" width="400" height="400" ${IMG_FALLBACK}>`;
   return `
     <a href="${href}" class="cat-tile${extra}">
       <div class="cat-tile-img">
-        <img src="${esc(img)}" alt="${esc(name)}"
-             loading="lazy" width="400" height="400" ${IMG_FALLBACK}>
+        ${still ? `<picture>
+          <source srcset="${esc(still)}" media="(prefers-reduced-motion: reduce)">
+          ${pic}</picture>` : pic}
       </div>
       <b>${esc(name)}</b>
       <span>${esc(count)}</span>
@@ -391,7 +396,8 @@ export function categoryTilesHTML(max){
     <div class="cat-tiles shelf-tiles"
          style="--cols:${shelves.length};--catcols:${catCols}">
       ${shelves.map(s => tileHTML(
-        s.href, s.img, s[lang] || s.en, shelfCount(s), " is-shelf")).join("")}
+        s.href, s.img, s[lang] || s.en, shelfCount(s),
+        ` is-shelf is-${s.id}`, s.still)).join("")}
     </div>`;
 
   /* One column, whatever is in it. The browser is a two-column grid at

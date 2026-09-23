@@ -138,6 +138,13 @@
 }
 .ann-tag.new{background:#12805c;color:#fff}
 .ann-tag.deal{background:var(--gold);color:#3a2a00}
+/* A special offer blinks between red and gold, and its card carries a
+   red frame, so it is the first thing in the strip the eye finds. Well
+   under three flashes a second, and still for reduced motion. */
+.ann-tag.offer{background:var(--red);color:#fff;animation:annBlink 1.2s steps(1) infinite}
+@keyframes annBlink{50%{background:var(--gold);color:#3a2a00}}
+.ann-item.offer{box-shadow:0 0 0 2px var(--red)}
+@media(prefers-reduced-motion:reduce){ .ann-tag.offer{animation:none} }
 .ann-off{
   position:absolute;top:32px;right:8px;z-index:2;
   background:var(--red);color:#fff;font-size:10px;font-weight:900;

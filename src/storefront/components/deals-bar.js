@@ -18,7 +18,9 @@ function itemHTML(item, index){
   const T = t(), lang = getLang();
   const off = discount(item.was, item.p);
 
-  const label = item.type === "deal"
+  const label = item.type === "offer"
+    ? `<span class="ann-tag offer">${esc(T.ann_offer)}</span>`
+    : item.type === "deal"
     ? `<span class="ann-tag deal">${esc(T.ann_deal)}</span>`
     : `<span class="ann-tag new">${esc(T.ann_new)}</span>`;
 
@@ -52,11 +54,13 @@ export function announceBarHTML(){
   const T = t(), lang = getLang();
   const { items, updated } = ANNOUNCEMENTS;
 
-  const deals = items.filter(i => i.type === "deal").length;
-  const news  = items.filter(i => i.type === "new").length;
+  const offers = items.filter(i => i.type === "offer").length;
+  const deals  = items.filter(i => i.type === "deal").length;
+  const news   = items.filter(i => i.type === "new").length;
 
-  /* Summary line: "3 new arrivals · 2 today's deals" */
+  /* Summary line: "2 special offers · 3 new arrivals · 2 today's deals" */
   const summary = [
+    offers ? `${offers} ${esc(T.ann_offer_n)}` : "",
     news  ? `${news} ${esc(T.ann_new_n)}`   : "",
     deals ? `${deals} ${esc(T.ann_deal_n)}` : ""
   ].filter(Boolean).join(" · ");
