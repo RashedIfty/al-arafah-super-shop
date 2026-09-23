@@ -185,6 +185,18 @@ async function readOne(name){
       if (data) return data;
     }
 
+    /* The shop reads through Vercel's cache (api/shop.js), so however
+       many people are shopping the database is asked about once every
+       five minutes. Straight to the database if that fails — and when
+       there is no /api at all, as on a local server. The owner's panel
+       always goes straight there, to see what it has just saved. */
+    if (reusable()){
+      try {
+        const cached = await fetch(`/api/shop?t=${name}`);
+        if (cached.ok) return cached.json();
+      } catch { /* fall through to the database */ }
+    }
+
     const url = `${SUPABASE.URL}/rest/v1/${name}`
       + `?select=*&archived_at=is.null&order=sort`;
 

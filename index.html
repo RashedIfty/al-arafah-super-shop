@@ -41,10 +41,17 @@
     });
     if (fresh) return;
   } catch (e) {}
-  function grab(t){
+  /* Through Vercel's cache first (api/shop.js), so the database is not
+     asked once per visitor; straight to the database if that fails. */
+  function direct(t){
     return fetch(U + "/rest/v1/" + t + "?select=*&archived_at=is.null&order=sort",
                  { headers: h }).then(function(r){ return r.ok ? r.json() : null; })
                                 .catch(function(){ return null; });
+  }
+  function grab(t){
+    return fetch("/api/shop?t=" + t)
+      .then(function(r){ return r.ok ? r.json() : direct(t); })
+      .catch(function(){ return direct(t); });
   }
   window.__preload = {
     categories: grab("categories"),
