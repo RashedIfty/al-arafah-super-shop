@@ -253,14 +253,18 @@ initLang();
     reveal();
   }
 
-  /* Realtime keeps it current from here on. */
-  try {
-    const { subscribe } = await import("../backend/client.js");
-    await subscribe(async () => {
-      await Promise.all([refreshCatalog(), refreshDeals(), loadAnnouncement()]);
-      render();
-    });
-  } catch { /* offline or not configured — what we painted stands */ }
+  /* The shop used to hold a realtime connection open here, so that an
+     edit on the owner's phone appeared on a customer's screen without a
+     refresh. It was dropped: the connection stayed open for as long as
+     the tab did, once per visitor, and every change woke all of them at
+     once to refetch the whole catalogue. On a small instance that is
+     what put the database into swap.
+
+     What a customer loses is a price changing under them mid-browse,
+     which nobody was asking for; they see current prices the moment they
+     move to another page, since each arrival refetches above. The
+     owner's panel keeps its own watch, where hearing about an order the
+     moment it lands is the point. */
 })();
 
 /* A script error must never leave the shop hidden behind the splash. */

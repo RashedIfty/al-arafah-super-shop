@@ -72,6 +72,12 @@ alter table login_attempts enable row level security;
 
 -- Old rows are of no use once the window has passed. Kept for a day so
 -- the table can also answer "was this address a nuisance yesterday".
+--
+-- Kept for hand use — `select prune_login_attempts();` in the SQL editor
+-- clears the table out in one go. The routine tidying does NOT go
+-- through here: nothing ever called this, the table grew for months, and
+-- pg_cron is not enabled on this project, so the login Edge Function now
+-- deletes old rows itself as it writes new ones.
 create or replace function prune_login_attempts() returns void
 language sql security definer as $$
   delete from login_attempts where at < now() - interval '1 day';

@@ -64,6 +64,28 @@ async function admin(path: string, init: RequestInit = {}) {
   });
 }
 
+/**
+ * Throw away attempts older than a day.
+ *
+ * The table is only ever read through a 15-minute window, so a row from
+ * yesterday can never change an answer — it is dead weight that every
+ * count has to read past. Nothing was deleting it: a
+ * `prune_login_attempts()` was written for this and never called, and
+ * pg_cron is not enabled on this project, so the tidying happens here
+ * instead, where the writes are.
+ *
+ * Not awaited, and failures are swallowed: this is housekeeping, and a
+ * customer signing in should never wait on it or be turned away by it.
+ * Roughly one sign-in in twenty does the work, which on any real traffic
+ * is often enough to keep the table small.
+ */
+function pruneSometimes() {
+  if (Math.random() > 0.05) return;
+  const cutoff = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+  admin(`login_attempts?at=lt.${cutoff}`, { method: "DELETE" })
+    .catch((e) => console.error("prune:", e));
+}
+
 /** How many failures in the window, for one address or one email. */
 async function countRecent(column: "ip" | "email", value: string) {
   const since = new Date(Date.now() - WINDOW_MIN * 60_000).toISOString();
@@ -124,6 +146,8 @@ Deno.serve(async (req) => {
         body: JSON.stringify({ ip, email: who }),
       });
 
+      pruneSometimes();
+
       /* Deliberately the same message whether the email is unknown or
          the password is wrong: saying which would tell a stranger
          whether an address has an account here. */
@@ -137,6 +161,7 @@ Deno.serve(async (req) => {
        twice and then succeeds should start again from zero. */
     await admin(`login_attempts?ip=eq.${encodeURIComponent(ip)}`, { method: "DELETE" });
 
+    pruneSometimes();
     return json(body);
 
   } catch (e) {

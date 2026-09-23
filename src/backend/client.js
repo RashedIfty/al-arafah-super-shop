@@ -1478,22 +1478,13 @@ export async function currentUser(){
 
 /* ------------------------------ realtime ----------------------------- */
 
-/**
- * Call `onChange` whenever products, categories or deals change —
- * this is what makes an edit on the owner's phone appear on a
- * customer's screen without a refresh.
- */
-export async function subscribe(onChange){
-  const c = await db();
-  if (!c) return null;
-
-  return c.channel("shop-changes")
-    .on("postgres_changes", { event: "*", schema: "public", table: "products"   }, onChange)
-    .on("postgres_changes", { event: "*", schema: "public", table: "categories" }, onChange)
-    .on("postgres_changes", { event: "*", schema: "public", table: "deals"      }, onChange)
-    .on("postgres_changes", { event: "*", schema: "public", table: "announcement" }, onChange)
-    .subscribe();
-}
+/* A `subscribe()` used to live here, watching products, categories,
+   deals and announcements on behalf of every customer with the shop
+   open. It is gone rather than merely unused: one held-open connection
+   per visitor, each change waking all of them to refetch the whole
+   catalogue, was what drove a small instance into swap. Anything that
+   wants this back should watch one table and refetch only that.
+   The owner's panel keeps its own watches, below. */
 
 /**
  * Tell the owner's panel about orders as they happen.
