@@ -27,6 +27,16 @@
   var U = "https://fkftvudfngcmrtylevnl.supabase.co";
   var K = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZrZnR2dWRmbmdjbXJ0eWxldm5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc3NTU5MzYsImV4cCI6MjEwMzMzMTkzNn0.nNmgcDiSIYDkfn4bVoR9CdsojlFxPIunIdG68PAOysI";
   var h = { apikey: K, Authorization: "Bearer " + K };
+  /* Nothing to fetch while this tab's copy is under five minutes old:
+     client.js reuses it. Moving between pages used to download the
+     whole shop again on every click. */
+  try {
+    var fresh = ["categories", "products", "deals"].every(function(t){
+      var at = +sessionStorage.getItem("aa-rows-at:" + t);
+      return at && Date.now() - at < 300000;
+    });
+    if (fresh) return;
+  } catch (e) {}
   function grab(t){
     return fetch(U + "/rest/v1/" + t + "?select=*&archived_at=is.null&order=sort",
                  { headers: h }).then(function(r){ return r.ok ? r.json() : null; })

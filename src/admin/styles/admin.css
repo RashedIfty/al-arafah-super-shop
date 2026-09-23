@@ -1462,3 +1462,19 @@ body{overflow-x:hidden}
   .rs-go{margin-left:0;width:100%;justify-content:center}
   .rs-head b{width:100%}
 }
+
+/* Photos saved inside the database, and the button that moves them.
+   Loud on purpose: every one of them slows every page of the shop. */
+.photo-fix{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  margin:0 0 14px;padding:14px 16px;border-radius:12px;
+  background:#fff4e5;border:1.5px solid #f0b35a;
+}
+.photo-fix > div{flex:1 1 260px;min-width:0}
+.photo-fix b{display:block;font-size:14.5px;color:#7a3e00;margin-bottom:3px}
+.photo-fix span{display:block;font-size:12.5px;line-height:1.45;color:#6b5a45}
+.photo-fix button{
+  flex-shrink:0;border:0;border-radius:9px;cursor:pointer;
+  background:#d7141f;color:#fff;font:800 13.5px/1 inherit;padding:12px 16px;
+}
+.photo-fix button:disabled{opacity:.7;cursor:progress}

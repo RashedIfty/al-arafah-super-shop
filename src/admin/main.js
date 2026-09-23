@@ -267,6 +267,7 @@ function renderAll(){
 }
 
 function renderList(){
+  renderPhotoFix();
   const q = $("#filter").value.trim().toLowerCase();
 
   const html = catalog.map(cat => {
@@ -480,6 +481,96 @@ async function handleImage(file, apply){
   }
 }
 
+/** A photo held as text inside the page rather than as a hosted file. */
+const embedded = src => String(src || "").trim().startsWith("data:");
+
+/** The text form of a photo back into a file that can be uploaded. */
+const toBlob = async src => (await fetch(src)).blob();
+
+/**
+ * Make sure the photo about to be saved is a hosted file, not text.
+ *
+ * The preview is the whole picture written out as text. Saved in its
+ * place — when the upload failed, or Save was pressed before it
+ * finished — that text went into the row itself, and every visitor
+ * downloaded every such photo on every page: 60 of them made each page
+ * view 3 MB and spent the database's monthly allowance in a day. So it
+ * is uploaded here, at the last moment, and the save refused only if
+ * that fails. Without a database the page is all there is, so nothing
+ * to do.
+ */
+async function hostedPhoto(sel, apply){
+  const src = $(sel).value;
+  if (!usingSupabase() || !embedded(src)) return true;
+  toast("Uploading photo…");
+  try {
+    apply(await api.uploadPhoto(await toBlob(src)));
+    return true;
+  } catch (err){
+    toast("The photo could not be uploaded (" + (err.message || "try again") +
+          "). Choose the photo again, then save.", true);
+    return false;
+  }
+}
+
+/* ---------------- moving photos out of the database ----------------
+   Clears up after the problem above: every product and deal whose photo
+   was saved as text gets it uploaded and its row pointed at the file.
+   Only the photo is written, nothing else about the product. Shown only
+   while there is something to move. */
+function stuckPhotos(){
+  const out = [];
+  for (const cat of catalog) for (const p of cat.items)
+    if (p._id && embedded(p.img)) out.push({ table: "products", id: p._id, img: p.img, name: p.en });
+  for (const d of deals)
+    if (d._id && embedded(d.img)) out.push({ table: "deals", id: d._id, img: d.img, name: d.en });
+  return out;
+}
+
+let movingPhotos = false;
+
+function renderPhotoFix(){
+  const box = $("#photoFix");
+  if (!box || movingPhotos) return;
+  const n = usingSupabase() ? stuckPhotos().length : 0;
+  box.innerHTML = n ? `
+    <div class="photo-fix">
+      <div>
+        <b>${n} photo${n === 1 ? " is" : "s are"} saved inside the database</b>
+        <span>That makes every page of your shop slow to load and uses up the
+          database's monthly allowance. Moving them to photo storage fixes it.
+          Nothing else about the products changes.</span>
+      </div>
+      <button type="button" class="btn-red" id="photoFixGo">Move ${n} photo${n === 1 ? "" : "s"}</button>
+    </div>` : "";
+}
+
+document.addEventListener("click", async e => {
+  if (!e.target.closest("#photoFixGo") || movingPhotos) return;
+  const list = stuckPhotos();
+  const btn = $("#photoFixGo");
+  movingPhotos = true;
+  btn.disabled = true;
+  let done = 0, failed = [];
+  for (const x of list){
+    btn.textContent = `Moving ${done + failed.length + 1} of ${list.length}…`;
+    try {
+      const url = await api.uploadPhoto(await toBlob(x.img));
+      const { error } = await api.setPhoto(x.table, x.id, url);
+      if (error) throw error;
+      done++;
+    } catch (err){
+      failed.push(x.name);
+      console.warn("move photo:", x.name, err);
+    }
+  }
+  movingPhotos = false;
+  toast(failed.length
+    ? `Moved ${done}. ${failed.length} could not be moved: ${failed.slice(0, 3).join(", ")}${failed.length > 3 ? "…" : ""}. Press the button again to retry.`
+    : `All ${done} photos moved. Your shop pages are now much lighter.`, Boolean(failed.length));
+  await reload();
+});
+
 /** Which photo box is currently on screen. */
 function activePicker(){
   if (!$("#modal").hidden)    return { box: $("#photoPick"),  apply: setPhoto };
@@ -584,6 +675,8 @@ on("#form", "submit", async e => {
     savingProduct = false;
     if (saveBtn) saveBtn.disabled = false;
   };
+
+  if (!(await hostedPhoto("#fImg", setPhoto))){ releaseProduct(); return; }
 
   const product = {
     en: $("#fEn").value.trim(),
@@ -698,6 +791,8 @@ on("#catForm", "submit", async e => {
     savingCat = false;
     if (catBtn) catBtn.disabled = false;
   };
+
+  if (!(await hostedPhoto("#cImg", setCatPhoto))){ releaseCat(); return; }
 
   try {
     const en = $("#cEn").value.trim();

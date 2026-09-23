@@ -130,35 +130,91 @@ function startIdleWatch(){
  * the same endpoint needs none of it. The SDK still handles writing,
  * auth and realtime, where it earns its size.
  */
+/*
+ * How long a tab may reuse the shop it last read.
+ *
+ * Every page used to fetch the whole catalogue afresh, and some fetched
+ * it twice — the catalogue and the deals strip each asked — so a
+ * customer clicking through five pages downloaded it ten times. Egress
+ * is what the database's plan meters. Within five minutes the tab now
+ * reuses what it has, so an owner's change reaches a browsing customer
+ * within five minutes, and a visit costs one download instead of ten.
+ *
+ * The owner's panel never reuses: it must show what it has just saved.
+ * The head snippet in every page reads the same timestamp, and skips
+ * its early fetch while the tab's copy is fresh.
+ */
+const FRESH_MS = 5 * 60 * 1000;
+const reusable = () => document.body?.dataset.page !== "admin";
+
+function keptRows(name){
+  try {
+    const at = +sessionStorage.getItem(`aa-rows-at:${name}`);
+    if (!at || Date.now() - at > FRESH_MS) return null;
+    const raw = sessionStorage.getItem(`aa-rows:${name}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function keepRows(name, data){
+  try {
+    sessionStorage.setItem(`aa-rows:${name}`, JSON.stringify(data));
+    sessionStorage.setItem(`aa-rows-at:${name}`, String(Date.now()));
+  } catch { /* private mode, or too large — the next page simply asks again */ }
+}
+
+/* One request per table at a time, however many callers ask at once. */
+const inFlight = new Map();
+
+async function readOne(name){
+  if (reusable()){
+    const kept = keptRows(name);
+    if (kept) return kept;
+  }
+  if (inFlight.has(name)) return inFlight.get(name);
+
+  const run = (async () => {
+    // A snippet in the page head started these before this module had
+    // finished downloading. Take the answer if it is already on its
+    // way; ask again only if it is not, or if it failed.
+    const early = globalThis.__preload?.[name];
+    if (early){
+      // Used once: a later refresh must see current rows, not these.
+      globalThis.__preload[name] = null;
+      const data = await early;
+      if (data) return data;
+    }
+
+    const url = `${SUPABASE.URL}/rest/v1/${name}`
+      + `?select=*&archived_at=is.null&order=sort`;
+
+    const res = await fetch(url, {
+      headers: {
+        apikey: SUPABASE.KEY,
+        Authorization: `Bearer ${SUPABASE.KEY}`,
+      },
+    });
+
+    if (!res.ok) throw new Error(`${name}: ${res.status}`);
+    return res.json();
+  })();
+
+  inFlight.set(name, run);
+  try {
+    const data = await run;
+    if (reusable()) keepRows(name, data);
+    return data;
+  } finally {
+    inFlight.delete(name);
+  }
+}
+
 async function readTables(names){
   if (!isConfigured()) return null;
 
   try {
-    const results = await Promise.all(names.map(async name => {
-      // A snippet in the page head started these before this module had
-      // finished downloading. Take the answer if it is already on its
-      // way; ask again only if it is not, or if it failed.
-      const early = globalThis.__preload?.[name];
-      if (early){
-        const data = await early;
-        // Used once: a later refresh must see current rows, not these.
-        globalThis.__preload[name] = null;
-        if (data) return { data };
-      }
-
-      const url = `${SUPABASE.URL}/rest/v1/${name}`
-        + `?select=*&archived_at=is.null&order=sort`;
-
-      const res = await fetch(url, {
-        headers: {
-          apikey: SUPABASE.KEY,
-          Authorization: `Bearer ${SUPABASE.KEY}`,
-        },
-      });
-
-      if (!res.ok) throw new Error(`${name}: ${res.status}`);
-      return { data: await res.json() };
-    }));
+    const results = await Promise.all(names.map(async name =>
+      ({ data: await readOne(name) })));
 
     return results;
   } catch (e){
@@ -253,6 +309,19 @@ export async function insertProduct(categoryId, p){
     c.from("products").update({ sort: i + 1 }).eq("id", row.id)));
 
   return res;
+}
+
+/**
+ * Replace only the photo on a product or a deal, and nothing else.
+ *
+ * For moving a photo that was saved inside the row out to R2: every
+ * other field is left as the database has it, so a stale copy of the
+ * product in the panel cannot overwrite a price or a tick on the way.
+ */
+export async function setPhoto(table, id, url){
+  if (!["products", "deals"].includes(table)) throw new Error("Unknown table");
+  const c = await db();
+  return c.from(table).update({ img: url }).eq("id", id);
 }
 
 export async function updateProduct(id, categoryId, p){
