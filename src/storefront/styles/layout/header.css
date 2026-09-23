@@ -203,6 +203,17 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
   .hdr-login > span, .hdr-acct-ic, .hdr-cart-ic{width:24px;height:24px}
   .hdr-out{padding:4px;min-height:32px}
   .hdr-out em{display:none}
+
+  /* The products page carries a search box in the header as well. On
+     the one line it was squeezed to 71px: the text box went to nothing
+     and only its red button was left, a red block beside the flag. It
+     gets a row of its own under the logo line instead, the width of
+     the screen, and pinned with the rest. The brand takes whatever the
+     first row has left (basis 0), so that row can never be the one to
+     wrap. */
+  .header-in:has(> .search){flex-wrap:wrap;row-gap:9px}
+  .header-in:has(> .search) .brand{flex:1 1 0}
+  .header-in > .search{order:10;flex:1 1 100%}
 }
 
 /* Very small phones: shrink the brand and language buttons so the row
@@ -251,4 +262,10 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
 @media(max-width:400px){
   .hdr-out em{display:none}
   .hdr-out{padding:5px}
+}
+
+/* Below 340px the words no longer fit beside the controls and ran under
+   the flag. The round logo carries the shop's name on its own. */
+@media(max-width:340px){
+  .brand-tx{display:none}
 }
