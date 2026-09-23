@@ -10,6 +10,7 @@ import { t, getLang } from "../../features/i18n/lang.js";
 import { yen, discount } from "../../shared/lib/format.js";
 import { SHOP } from "../../shared/shop.js";
 import { qtyOf } from "../../features/cart/cart.js";
+import { isWaiting, onRestockChange } from "../../features/restock/restock.js";
 
 let opener = null;   // element to refocus on close
 
@@ -21,12 +22,22 @@ let opener = null;   // element to refocus on close
  * and a quantity changed here shows on the card behind, because both
  * read the one basket.
  *
- * Only for a real catalogue product that is in stock. A deal strip item
- * carries no id to put in a basket, and a sold-out one shows its mark
- * and nothing to press.
+ * Only for a real catalogue product. A deal strip item carries no id to
+ * put in a basket. A sold-out one gets what its card offers: a button
+ * asking to be told when it is back. It used to get nothing here, so
+ * the same product offered that on the shelf and not in its own popup.
  */
 function buyHTML(item, T){
-  if (!item._id || item.tag === "out") return "";
+  if (!item._id) return "";
+
+  if (item.tag === "out"){
+    const asked = isWaiting(item._id);
+    return `
+    <button type="button" class="btn btn-gold lb-buy lb-restock${asked ? " asked" : ""}"
+            data-restock="${esc(item._id)}" title="${esc(asked ? T.rs_asked : T.rs_ask)}">
+      ${icon(asked ? "check" : "bulb", { size: 16 })} ${esc(asked ? T.rs_asked_short : T.rs_ask)}
+    </button>`;
+  }
 
   const n = qtyOf(item._id);
 
@@ -116,6 +127,8 @@ export function openLightbox(item, opts = {}){
     import("../../features/cart/cart.js")
       .then(({ onCartChange }) => onCartChange(refreshBuy))
       .catch(() => {});
+    // And asking for a sold-out one back must show as asked.
+    onRestockChange(refreshBuy);
     return true;
   })();
 

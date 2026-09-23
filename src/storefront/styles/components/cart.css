@@ -631,9 +631,12 @@
    buttons are given a real height rather than 100% of a flex parent
    that had none to give — they were coming out 22px, half of what a
    thumb needs. */
-.buy-qty.lb-buy{margin-top:0;align-items:stretch}
-.buy-qty.lb-buy .qty-b{width:56px;min-height:50px;font-size:22px}
-.buy-qty.lb-buy .qty-n{font-size:17px;display:grid;place-items:center;min-height:50px}
+/* Exactly the size of the Add to cart button it replaces: the pair's
+   padding above was being applied to the stepper too, and inflated it
+   into a padded box with smaller boxes floating inside. */
+.buy-qty.lb-buy{margin-top:0;align-items:stretch;padding:0;height:52px;min-height:0}
+.buy-qty.lb-buy .qty-b{width:64px;height:auto;min-height:0;font-size:22px}
+.buy-qty.lb-buy .qty-n{font-size:18px;display:grid;place-items:center}
 
 /* ------------------- waiting for something to return ------------------ */
 /* Where the buy button would be on a sold-out card. Outlined rather than
