@@ -1,0 +1,82 @@
+/* ------------------------ how to order: the ? ------------------------
+   Bottom left, because bottom right is back-to-top. Gold rather than
+   red so the two round buttons read as different things, and a size a
+   thumb finds without looking.
+   -------------------------------------------------------------------- */
+.tut-fab{
+  position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  z-index:80;width:46px;height:46px;border-radius:50%;
+  display:grid;place-items:center;cursor:pointer;
+  border:3px solid #fff;background:var(--gold);color:#3a2a00;
+  font:900 22px/1 inherit;
+  box-shadow:0 6px 18px rgba(10,22,44,.26);
+  transition:transform .16s var(--ease), background .16s var(--ease);
+}
+.tut-fab:hover{transform:translateY(-2px);background:var(--gold-d);color:#fff}
+.tut-fab:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+
+/* ------------------------------ the guide --------------------------- */
+html.tut-lock{overflow:hidden}
+
+.tut-wrap{
+  position:fixed;inset:0;z-index:300;
+  display:grid;place-items:center;padding:12px;
+  background:rgba(10,15,25,.62);
+  animation:tutFade .16s var(--ease);
+}
+.tut-wrap[hidden]{display:none}
+@keyframes tutFade{from{opacity:0}to{opacity:1}}
+
+.tut-card{
+  width:min(420px,100%);max-height:calc(100dvh - 24px);overflow-y:auto;
+  background:#fff;border-radius:18px;
+  box-shadow:0 24px 60px rgba(0,0,0,.35);
+  display:flex;flex-direction:column;
+  animation:tutUp .2s var(--ease);
+}
+@keyframes tutUp{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+
+.tut-top{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 12px 10px 16px;border-bottom:1px solid var(--line);
+}
+.tut-top b{font-size:15px;font-weight:900;color:var(--ink)}
+.tut-count{margin-left:auto;font-size:12px;font-weight:700;color:var(--mute)}
+.tut-x{
+  width:34px;height:34px;border-radius:50%;border:0;cursor:pointer;
+  display:grid;place-items:center;background:var(--bg);color:var(--ink);
+}
+.tut-x:hover{background:var(--red-l);color:var(--red)}
+
+/* The picture keeps its shape and gives way on a short screen, so the
+   words and the buttons under it are always on screen too. */
+.tut-shot{margin:0;background:#111;display:flex;justify-content:center}
+.tut-shot img{
+  display:block;width:100%;height:auto;
+  max-height:min(56dvh,500px);object-fit:contain;
+}
+
+.tut-text{padding:14px 18px 4px}
+.tut-text h3{
+  display:flex;align-items:center;gap:9px;margin:0 0 6px;
+  font-size:17px;font-weight:900;color:var(--ink);line-height:1.25;
+}
+.tut-n{
+  flex-shrink:0;width:26px;height:26px;border-radius:50%;
+  display:grid;place-items:center;
+  background:var(--red);color:#fff;font-size:13px;font-weight:900;
+}
+.tut-text p{margin:0;font-size:14.5px;line-height:1.55;color:var(--body)}
+
+.tut-dots{display:flex;justify-content:center;gap:6px;padding:12px 0 4px}
+.tut-dots i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:.2s var(--ease)}
+.tut-dots i.on{width:20px;border-radius:4px;background:var(--red)}
+
+.tut-acts{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;padding:10px 16px 16px}
+.tut-acts .btn{justify-content:center;min-height:46px}
+.tut-acts .btn[disabled]{opacity:.4;cursor:default}
+
+@media (prefers-reduced-motion:reduce){
+  .tut-wrap,.tut-card{animation:none}
+  .tut-fab{transition:none}
+}

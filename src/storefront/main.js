@@ -10,6 +10,7 @@ import { todayIndex } from "../shared/lib/format.js";
 import { topbarHTML, headerHTML, navHTML, footerHTML, initLangMenu, initStickyHeader }
   from "./components/chrome.js";
 import { tickerHTML } from "./components/ticker.js";
+import { initTutorial } from "./components/tutorial.js";
 import { announceBarHTML, initAnnounceBar, initDealsCarousel } from "./components/deals-bar.js";
 import { announcementHTML, setAnnouncement } from "./components/announcement.js";
 import { lightboxHTML, initLightbox, lightboxOpen } from "./components/lightbox.js";
@@ -156,6 +157,7 @@ function render(){
 function bindDynamic(){
   initLangMenu();
   initStickyHeader();
+  initTutorial();
 
   initAnnounceBar();
   initDealsCarousel();
