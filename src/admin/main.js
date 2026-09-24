@@ -282,21 +282,33 @@ function renderList(){
         p.isPopular ? `<span class="on-shelf pop">POPULAR</span>` : ""
       ].join("");
 
+      /* Laid out like the card a customer sees in the shop, so the owner
+         is arranging what the shop will look like: photo, category,
+         names, size and stock, price. Edit and Remove stand where the
+         customer's Add button is. */
+      const off = p.was > p.p ? Math.round((1 - p.p / p.was) * 100) : 0;
       return `
-        <div class="prod" data-row="${esc(cat.id)}:${i}">
-          <img class="prod-img" src="${esc(p.img || "/images/placeholder.svg")}"
-               alt="" loading="lazy" ${IMG_FALLBACK}>
-          <div class="prod-tx">
-            <b>${esc(p.en)}</b>
-            <small>${esc(p.bn)}</small>
-            <span class="prod-w">${esc(p.w)}</span>
+        <div class="prod" data-row="${esc(cat.id)}:${i}" data-id="${esc(p._id || "")}">
+          <div class="prod-pic">
+            <img class="prod-img" src="${esc(p.img || "/images/placeholder.svg")}"
+                 alt="" loading="lazy" ${IMG_FALLBACK}>
             ${shelves ? `<span class="shelf-marks">${shelves}</span>` : ""}
+          </div>
+          <div class="prod-tx">
+            <span class="prod-cat">${esc(cat.en)}</span>
+            <b>${esc(p.en)}</b>
+            <small>${esc([p.bn, p.ja].filter(Boolean).join(" · "))}</small>
+            <span class="prod-meta">
+              <span class="prod-w">${esc(p.w)}</span>
+              ${p.tag === "in"  ? `<span class="tag in">IN STOCK</span>` : ""}
+              ${p.tag === "out" ? `<span class="tag out">STOCK OUT</span>` : ""}
+              ${off ? `<span class="tag off">-${off}% OFF</span>` : ""}
+            </span>
           </div>
           <div class="prod-price">
             <b>${yen(p.p)}</b>
             ${p.was ? `<s>${yen(p.was)}</s>` : ""}
-            ${p.tag === "in"  ? `<span class="tag in">IN STOCK</span>` : ""}
-            ${p.tag === "out" ? `<span class="tag out">STOCK OUT</span>` : ""}
+            <small>(With Tax)</small>
           </div>
           <div class="prod-act">
             <button class="act edit" data-edit="${esc(cat.id)}:${i}">${icon("edit",{size:14})} Edit</button>
@@ -311,7 +323,7 @@ function renderList(){
 
     /* Cards side by side rather than one long row each: at a thousand
        products the rows ran to screens and screens of scrolling. */
-    const body = rows ? `<div class="prod-grid">${rows}</div>` : `
+    const body = rows ? `<div class="prod-grid" data-cat="${esc(cat.id)}">${rows}</div>` : `
       <div class="cat-empty">
         <span>No products in this category yet.</span>
         <button class="act edit" data-addto="${esc(cat.id)}">${icon("plus",{size:14})} Add a product here</button>
@@ -330,11 +342,86 @@ function renderList(){
       </section>`;
   }).join("");
 
-  $("#list").innerHTML = html || `
+  const hint = html && !q ? `
+    <p class="drag-hint">${icon("grid", { size: 16 })}
+      <span><b>Drag a card</b> to change where it shows in your shop — on a
+      phone, press and hold it first. New products go to the front of their
+      category, and sold-out ones always sit at the end.</span></p>` : "";
+
+  $("#list").innerHTML = hint + (html || `
     <div class="none">
       <b>Nothing found</b>
       <span>${q ? "Try a different word." : "Add your first product above."}</span>
-    </div>`;
+    </div>`);
+
+  initProductDrag(Boolean(q));
+}
+
+/* ------------------------ reordering the products ----------------------
+   Drag a card and drop it where it should go; the shop shows products in
+   the same order. SortableJS rather than the hand-rolled drag the deals
+   list uses: a grid of hundreds of cards wants the neighbours to slide
+   aside as you move, the page to scroll when you reach its edge, and a
+   press-and-hold on a phone so that an ordinary swipe still scrolls.
+   Not while searching: with only some of a category showing, "before
+   this one" would not mean anything. */
+const SORTABLE = "https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/modular/sortable.esm.js";
+let Sortable = null;
+let sortables = [];
+let dragRun = 0;
+
+async function initProductDrag(searching){
+  const run = ++dragRun;
+  sortables.forEach(x => x.destroy());
+  sortables = [];
+  if (searching) return;
+
+  if (!Sortable){
+    try { ({ Sortable } = await import(SORTABLE)); }
+    catch { return; }                          // the list still works, just not by dragging
+  }
+  if (run !== dragRun) return;                 // redrawn while it loaded
+
+  $$("#list .prod-grid").forEach(grid => sortables.push(Sortable.create(grid, {
+    draggable: ".prod",
+    filter: ".act",                            // Edit and Remove stay buttons
+    preventOnFilter: false,
+    animation: 160,
+    delay: 220, delayOnTouchOnly: true, touchStartThreshold: 6,
+    ghostClass: "drag-ghost", chosenClass: "drag-chosen",
+    scroll: true, scrollSensitivity: 90, bubbleScroll: true,
+    onEnd: e => {
+      if (e.oldIndex !== e.newIndex) moveProduct(grid, e.oldIndex, e.newIndex);
+    },
+  })));
+}
+
+async function moveProduct(grid, from, to){
+  const cat = catalog.find(c => c.id === grid.dataset.cat);
+  if (!cat) return;
+
+  const [p] = cat.items.splice(from, 1);
+  cat.items.splice(to, 0, p);
+  /* The shop always puts sold-out products last in a category, whatever
+     their place; show that here too rather than an order it will not use. */
+  cat.items.sort((a, b) => (a.tag === "out") - (b.tag === "out"));
+
+  if (!usingSupabase()){
+    store.save(catalog);
+    renderList();
+    toast("New order saved.");
+    return;
+  }
+
+  grid.classList.add("saving");
+  const { error } = await api.reorderProducts(cat.items.map(x => x._id).filter(Boolean));
+  if (error){
+    toast("Could not save the new order (" + (error.message || "try again") + ").", true);
+    await reload();
+    return;
+  }
+  renderList();
+  toast("New order saved — your shop shows it now.");
 }
 
 on("#filter", "input", renderList);

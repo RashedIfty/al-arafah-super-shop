@@ -383,11 +383,27 @@ export async function insertProduct(categoryId, p){
   }).select().single();
   if (res.error) return res;
 
-  // Renumber the rest behind it.
-  await Promise.all((existing ?? []).map((row, i) =>
+  // Renumber the rest behind it: in one request when the database has
+  // reorder_products (migrate-reorder.sql), one per product otherwise.
+  const { error } = await reorderProducts([res.data.id, ...(existing ?? []).map(r => r.id)]);
+  if (error) await Promise.all((existing ?? []).map((row, i) =>
     c.from("products").update({ sort: i + 1 }).eq("id", row.id)));
 
   return res;
+}
+
+/**
+ * Put one category's products in this order: ids, first to last.
+ *
+ * Each product's sort becomes its place in the list, which is the order
+ * the shop shows them in. One request however long the category — the
+ * panel calls this when the owner drags a card, and a per-product update
+ * would be hundreds of requests for one drag. Runs with the owner's own
+ * rights (security invoker), so nobody else's call changes anything.
+ */
+export async function reorderProducts(ids){
+  const c = await db();
+  return c.rpc("reorder_products", { ids });
 }
 
 /**
