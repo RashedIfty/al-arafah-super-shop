@@ -52,6 +52,8 @@ export function cardHTML(product, category, ci = 0, pi = 0){
   const off = discount(product.was, product.p);
   const img = product.img || SHOP.placeholder;
 
+  /* On the line with the size and stock, not over the photograph: a
+     discount is a fact about the price, read with the other facts. */
   const badges = off ? `<span class="badge badge-off">-${off}% ${esc(T.off)}</span>` : "";
 
   /* Top-left, opposite the discount badge. Shown to everyone: a customer
@@ -110,7 +112,6 @@ export function cardHTML(product, category, ci = 0, pi = 0){
            data-key="${esc(product.en.toLowerCase())}">
     <div class="card-img">
       ${fav}
-      <div class="badges">${badges}</div>
       <img src="${esc(img)}" alt="${esc(product[lang])}"
            loading="lazy" width="600" height="600" ${IMG_FALLBACK}>
     </div>
@@ -121,6 +122,7 @@ export function cardHTML(product, category, ci = 0, pi = 0){
       <div class="card-meta">
         <span class="card-w">${esc(product.w)}</span>
         ${stock}
+        ${badges}
       </div>
       <div class="price">
         <span class="now">${yen(product.p)}</span>
