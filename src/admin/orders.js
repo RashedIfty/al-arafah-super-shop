@@ -733,23 +733,29 @@ export function initOrders({ toast, ask, refresh }){
     // Rejecting or cancelling is the one thing here the customer cannot
     // undo, so it asks first — and the reason is shown to them.
     if (to === "rejected" || to === "cancelled"){
+      /* Asked why inside the dialog: a customer told only "rejected",
+         with no word about why, is being treated poorly. */
       ask(to === "rejected" ? "Reject this order?" : "Cancel this order?",
           `Order ${order.code} for ${order.name}. They will see this on their orders page. ` +
           `Please ring them as well — a message on a screen is not the same as being told.`,
-          () => run(order, to, promptReason()));
+          reason => run(order, to, reason),
+          { yes: to === "rejected" ? "Yes, reject order" : "Yes, cancel order",
+            reasons: ORDER_REASONS });
       return;
     }
 
     run(order, to, "");
   });
 
-  /**
-   * The reason, asked for in the plainest way available. The panel's
-   * own dialog takes a yes or no and nothing else, and a customer told
-   * only "rejected" with no word about why is being treated poorly.
-   */
-  const promptReason = () =>
-    (window.prompt("Why? The customer will see this.", "") || "").trim();
+  /* The reasons that come up most, one tap each; anything else is typed. */
+  const ORDER_REASONS = [
+    "Out of stock", "Outside our delivery area", "Customer asked to cancel",
+    "Could not reach the customer", "Payment not received",
+  ];
+  const ITEM_REASONS = [
+    "Out of stock", "Sold out today", "Not fresh enough to send",
+    "Arriving later this week",
+  ];
 
   /* ---------------------- one line at a time ------------------------ */
 
@@ -777,7 +783,8 @@ export function initOrders({ toast, ask, refresh }){
         `${item.name_en} ${item.w} × ${item.qty} — ${yen(item.line_total)}. ` +
         `The rest of order ${order.code} goes ahead and the total drops. ` +
         `Please ring ${order.name} as well.`,
-        () => runItem(order, item, promptReason(), false));
+        reason => runItem(order, item, reason, false),
+        { yes: "Yes, not supplied", reasons: ITEM_REASONS });
   });
 
   async function runItem(order, item, note, undo){

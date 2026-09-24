@@ -519,6 +519,14 @@
       <div class="warn"><svg class="icon" width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M1 21h22L12 2zm12-3h-2v-2h2zm0-4h-2v-4h2z"/></svg></div>
       <h2 id="confTitle">Are you sure?</h2>
       <p id="confText"></p>
+      <!-- Only when the customer will be told why: rejecting or cancelling
+           an order, or refusing one item. -->
+      <div class="conf-why" id="confWhy" hidden>
+        <label for="confReason">Reason <small>— the customer will see this</small></label>
+        <div class="conf-chips" id="confChips"></div>
+        <textarea id="confReason" rows="2" maxlength="200"
+                  placeholder="Tap one above, or write your own"></textarea>
+      </div>
     </div>
     <div class="ad-modal-foot">
       <button type="button" class="btn btn-out" data-nx>No, keep it</button>

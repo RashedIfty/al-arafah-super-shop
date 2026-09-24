@@ -44,13 +44,41 @@ function toast(msg, bad = false){
   toast._t = setTimeout(() => { el.hidden = true; }, 3000);
 }
 
-/** Ask before deleting. */
-function ask(title, text, onYes){
+/**
+ * Ask before doing something that cannot simply be taken back.
+ *
+ * opts.yes     — the confirm button's words (default "Yes, delete")
+ * opts.reasons — ask why, inside this dialog: a list of common reasons
+ *                shown as buttons that fill the box, and the box itself
+ *                for anything else. The reason typed is handed to onYes.
+ *                It used to come from the browser's own prompt(), a bare
+ *                grey box outside the shop's look.
+ */
+function ask(title, text, onYes, opts = {}){
   $("#confTitle").textContent = title;
   $("#confText").textContent  = text;
-  confirmAction = onYes;
+  $("#confYes").textContent   = opts.yes || "Yes, delete";
+
+  const why = $("#confWhy"), box = $("#confReason");
+  why.hidden = !opts.reasons;
+  box.value = "";
+  $("#confChips").innerHTML = (opts.reasons || []).map(r =>
+    `<button type="button" class="conf-chip" data-reason="${esc(r)}">${esc(r)}</button>`).join("");
+
+  confirmAction = () => onYes(box.value.trim());
   $("#confirm").hidden = false;
+  if (opts.reasons) setTimeout(() => box.focus(), 50);
 }
+
+/* A common reason, one tap: into the box, where it can still be edited. */
+document.addEventListener("click", e => {
+  const chip = e.target.closest("[data-reason]");
+  if (!chip) return;
+  const box = $("#confReason");
+  box.value = chip.dataset.reason;
+  $$("#confChips .conf-chip").forEach(c => c.classList.toggle("on", c === chip));
+  box.focus();
+});
 
 /* -------------------------------- login ------------------------------- */
 

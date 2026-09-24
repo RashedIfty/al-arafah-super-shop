@@ -1623,3 +1623,25 @@ body{overflow-x:hidden}
   .cat-jump-b{font-size:12px;padding:4px 10px 4px 4px;gap:6px}
   .cat-jump-b img{width:26px;height:26px}
 }
+
+/* ---------------- why, asked inside the confirm dialog -----------------
+   Common reasons as buttons that fill the box, and the box for anything
+   else. Left-aligned inside the centred dialog: it is a form, not a
+   headline. */
+.conf-why{text-align:left;margin-top:16px}
+.conf-why > label{display:block;font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px}
+.conf-why > label small{font-weight:600;color:var(--mute)}
+.conf-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}
+.conf-chip{
+  border:1px solid var(--line);background:#fff;border-radius:20px;cursor:pointer;
+  padding:6px 12px;font:inherit;font-size:12.5px;font-weight:700;color:var(--body);
+  transition:.14s var(--ease);
+}
+.conf-chip:hover{border-color:var(--red);color:var(--red)}
+.conf-chip.on{background:var(--red-l);border-color:var(--red);color:var(--red)}
+.conf-why textarea{
+  width:100%;box-sizing:border-box;resize:vertical;min-height:62px;
+  padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;
+  font:inherit;font-size:14px;color:var(--ink);background:var(--bg);
+}
+.conf-why textarea:focus{outline:0;border-color:var(--red);background:#fff}
