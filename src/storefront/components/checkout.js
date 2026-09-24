@@ -466,11 +466,12 @@ export function orderCardHTML(o, T, lang, canRemove = false, n = 0){
           <div class="ord-item${i.rejected ? " refused" : ""}">
             <span>
               ${esc(nameOf(i))} <small>${esc(i.w)} × ${i.qty}</small>
-              ${i.rejected ? `
-                <em class="ord-item-why">${esc(
-                  i.reject_note || T.ord_unavailable)}</em>` : ""}
             </span>
             <b>${yen(i.line_total)}</b>
+            ${i.rejected ? `
+              <div class="ord-item-why">${icon("warn", { size: 14 })}
+                <span><b>${esc(T.ord_unavailable)}</b>${i.reject_note
+                  ? `<i>·</i>${esc(i.reject_note)}` : ""}</span></div>` : ""}
           </div>`).join("")}
         <div class="ord-item ord-tot">
           <span>${esc(T.ord_total)}</span><b>${yen(o.total)}</b>

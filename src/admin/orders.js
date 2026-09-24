@@ -270,8 +270,6 @@ function lineRow(i, o, working){
     <div class="ord-line${off ? " refused" : ""}">
       <span>
         ${esc(i.name_en)} <small>${esc(i.w)} × ${i.qty}</small>
-        ${off && i.reject_note
-          ? `<em class="ord-line-why">${esc(i.reject_note)}</em>` : ""}
       </span>
       <b>${yen(i.line_total)}</b>
       ${open ? `
@@ -281,6 +279,10 @@ function lineRow(i, o, working){
                 ${working ? "disabled" : ""}>
           ${icon(off ? "restore" : "close", { size: 13 })}
         </button>` : ""}
+      ${off ? `
+        <div class="ord-line-why">${icon("warn", { size: 14 })}
+          <span><b>Not supplied</b>${i.reject_note
+            ? `<i>·</i>${esc(i.reject_note)}` : ""}</span></div>` : ""}
     </div>`;
 }
 

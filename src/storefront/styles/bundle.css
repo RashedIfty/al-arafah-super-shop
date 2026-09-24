@@ -2786,14 +2786,22 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .ord-item.refused > b{
   text-decoration:line-through;color:var(--mute);opacity:.75;
 }
-/* Inline-block, not block: a strike-through drawn on the parent paints
-   across its children whatever they set, and only a new decoration
-   context lifts it. The reason must stay readable. */
-.ord-item.refused > span .ord-item-why{
-  display:inline-block;font-style:normal;text-decoration:none;
-  font-size:11px;color:var(--red);font-weight:700;margin-top:2px;
-  opacity:1;
+/* Why it was not supplied: a box of its own on a full-width row under
+   the struck line — outside the struck text, so the line-through cannot
+   reach it — with a warning mark, the label in bold and the reason. */
+.ord-item.refused{flex-wrap:wrap}
+.ord-item-why{
+  flex:1 0 100%;display:flex;align-items:flex-start;gap:7px;
+  margin:6px 0 2px;padding:8px 11px;border-radius:9px;
+  border-left:3px solid var(--red);background:#fdeef0;color:#8c1024;
+  font-size:12.5px;line-height:1.45;font-weight:500;
 }
+.ord-item-why .icon{flex-shrink:0;margin-top:1px;color:var(--red)}
+/* Reset what the line's price style would otherwise give the label. */
+.ord-item-why b{display:inline;font-size:inherit;font-weight:800;color:var(--red);
+  margin:0;min-width:0;text-align:left;letter-spacing:0}
+.ord-item-why > span{flex:1;min-width:0}
+.ord-item-why i{font-style:normal;color:#d4a0a8;margin:0 7px}
 .ord-item.ord-tot{
   border-top:1px solid var(--line);margin-top:5px;padding-top:8px;font-weight:800;
 }
