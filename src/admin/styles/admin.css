@@ -1562,3 +1562,20 @@ body{overflow-x:hidden}
   background:#d7141f;color:#fff;font:800 13.5px/1 inherit;padding:12px 16px;
 }
 .photo-fix button:disabled{opacity:.7;cursor:progress}
+
+/* Deals as cards: the strip's label on the photo's top-left, as on the
+   homepage, and the discount on its top-right. */
+.deal-grid .dtype{
+  position:absolute;top:7px;left:7px;margin:0;z-index:1;
+  font-size:8.5px;padding:3px 7px;border-radius:5px;
+}
+.deal-grid .deal-off{
+  position:absolute;top:7px;right:7px;z-index:1;
+  background:var(--red);color:#fff;font-size:10px;font-weight:900;
+  padding:2px 7px;border-radius:5px;
+}
+.deal-grid .prod-tx{padding-top:10px}
+
+/* The search box above the deal form's product picker. */
+.d-find{margin-bottom:8px}
+#dPick[size]:not([size="1"]){padding:4px;height:auto}

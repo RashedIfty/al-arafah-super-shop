@@ -367,22 +367,25 @@ function renderList(){
    this one" would not mean anything. */
 const SORTABLE = "https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/modular/sortable.esm.js";
 let Sortable = null;
-let sortables = [];
-let dragRun = 0;
 
-async function initProductDrag(searching){
-  const run = ++dragRun;
-  sortables.forEach(x => x.destroy());
-  sortables = [];
-  if (searching) return;
+/* One set of draggable grids per list ("products", "deals"), each torn
+   down and rebuilt whenever its list is redrawn. */
+const sortables = {};
+const dragRuns = {};
+
+async function makeSortable(list, grids, onMove){
+  const run = dragRuns[list] = (dragRuns[list] || 0) + 1;
+  (sortables[list] || []).forEach(x => x.destroy());
+  sortables[list] = [];
+  if (!grids.length) return;
 
   if (!Sortable){
     try { ({ Sortable } = await import(SORTABLE)); }
     catch { return; }                          // the list still works, just not by dragging
   }
-  if (run !== dragRun) return;                 // redrawn while it loaded
+  if (run !== dragRuns[list]) return;          // redrawn while it loaded
 
-  $$("#list .prod-grid").forEach(grid => sortables.push(Sortable.create(grid, {
+  sortables[list] = grids.map(grid => Sortable.create(grid, {
     draggable: ".prod",
     filter: ".act",                            // Edit and Remove stay buttons
     preventOnFilter: false,
@@ -391,9 +394,13 @@ async function initProductDrag(searching){
     ghostClass: "drag-ghost", chosenClass: "drag-chosen",
     scroll: true, scrollSensitivity: 90, bubbleScroll: true,
     onEnd: e => {
-      if (e.oldIndex !== e.newIndex) moveProduct(grid, e.oldIndex, e.newIndex);
+      if (e.oldIndex !== e.newIndex) onMove(grid, e.oldIndex, e.newIndex);
     },
-  })));
+  }));
+}
+
+function initProductDrag(searching){
+  makeSortable("products", searching ? [] : $$("#list .prod-grid"), moveProduct);
 }
 
 async function moveProduct(grid, from, to){
@@ -1038,16 +1045,37 @@ document.addEventListener("keydown", e => {
 const allProducts = () =>
   catalog.flatMap(c => c.items.map(p => ({ ...p, _cat: c.en })));
 
-function renderDealPicker(){
-  $("#dPick").innerHTML =
-    `<option value="">— Choose a product —</option>` +
-    catalog.map(c => `
-      <optgroup label="${esc(c.en)}">
-        ${c.items.map((p, i) =>
-          `<option value="${esc(c.id)}:${i}">${esc(p.en)} · ${esc(p.w)} · ${yen(p.p)}</option>`
-        ).join("")}
-      </optgroup>`).join("");
+/**
+ * Fill the product picker, narrowed to what has been typed in the box
+ * above it (any of the three names). With a thousand products a plain
+ * dropdown was a long scroll; while something is typed the picker opens
+ * as a short list of matches to tap. Option values keep each product's
+ * place in its category, so the rest of the form is unchanged.
+ */
+function renderDealPicker(query = $("#dFind")?.value || ""){
+  const pick = $("#dPick");
+  const was = pick.value;
+  const q = query.trim().toLowerCase();
+  const hit = p => !q || [p.en, p.bn, p.ja].join(" ").toLowerCase().includes(q);
+
+  let found = 0;
+  const groups = catalog.map(c => {
+    const opts = c.items.map((p, i) => {
+      if (!hit(p)) return "";
+      found++;
+      return `<option value="${esc(c.id)}:${i}">${esc(p.en)} · ${esc(p.w)} · ${yen(p.p)}</option>`;
+    }).join("");
+    return opts ? `<optgroup label="${esc(c.en)}">${opts}</optgroup>` : "";
+  }).join("");
+
+  const head = !q ? "— Choose a product —"
+             : found ? `— ${found} found — tap one —` : "Nothing matches — try another word";
+  pick.innerHTML = `<option value="">${head}</option>` + groups;
+  pick.size = q && found ? Math.min(8, found + 1) : 1;
+  if (was && pick.querySelector(`option[value="${CSS.escape(was)}"]`)) pick.value = was;
 }
+
+on("#dFind", "input", e => renderDealPicker(e.target.value));
 
 function renderDeals(){
   if (!deals.length){
@@ -1059,36 +1087,46 @@ function renderDeals(){
     return;
   }
 
-  $("#dealList").innerHTML = deals.map((d, i) => {
+  /* Cards like the ones in the homepage strip, side by side, dragged
+     to set the strip's order. Special-offer products are not here: they
+     come from the tick on each product and lead the strip on their own. */
+  $("#dealList").innerHTML = `
+    <p class="drag-hint">${icon("grid", { size: 16 })}
+      <span><b>Drag a card</b> to change its place in Today's Deal &amp; New
+      Arrival — on a phone, press and hold it first. Products ticked as a
+      Special Offer always come first, ahead of these.</span></p>
+    <div class="prod-grid deal-grid">${deals.map((d, i) => {
     const off = d.was && d.was > d.p ? Math.round((d.was - d.p) / d.was * 100) : 0;
     const isDeal = d.type === "deal";
 
     return `
-      <div class="deal-row ${isDeal ? "is-deal" : "is-new"}" draggable="true" data-i="${i}">
-        <span class="drag" title="Hold and drag to reorder" aria-hidden="true">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>
-        </span>
-        <img class="prod-img" src="${esc(d.img || "/images/placeholder.svg")}" alt="" loading="lazy" ${IMG_FALLBACK}>
-        <div class="prod-tx">
+      <div class="prod ${isDeal ? "is-deal" : "is-new"}" data-i="${i}">
+        <div class="prod-pic">
+          <img class="prod-img" src="${esc(d.img || "/images/placeholder.svg")}" alt="" loading="lazy" ${IMG_FALLBACK}>
           <span class="dtype ${isDeal ? "deal" : "new"}">
-            ${isDeal ? icon("fire",{size:12}) + " TODAY'S DEAL"
-                      : icon("star",{size:12}) + " NEW ARRIVAL"}
+            ${isDeal ? icon("fire",{size:11}) + " TODAY'S DEAL"
+                      : icon("star",{size:11}) + " NEW ARRIVAL"}
           </span>
+          ${off ? `<span class="deal-off">-${off}%</span>` : ""}
+        </div>
+        <div class="prod-tx">
           <b>${esc(d.en)}</b>
-          <small>${esc(d.bn)}</small>
-          <span class="prod-w">${esc(d.w)}</span>
+          <small>${esc([d.bn, d.ja].filter(Boolean).join(" · "))}</small>
+          <span class="prod-meta"><span class="prod-w">${esc(d.w)}</span></span>
         </div>
         <div class="prod-price">
           <b>${yen(d.p)}</b>
           ${d.was ? `<s>${yen(d.was)}</s>` : ""}
-          ${off ? `<span class="tag off">-${off}%</span>` : ""}
+          <small>(With Tax)</small>
         </div>
         <div class="prod-act">
           <button class="act edit" data-dedit="${i}">${icon("edit",{size:14})} Edit</button>
           <button class="act del"  data-ddel="${i}">${icon("archive",{size:14})} Remove</button>
         </div>
       </div>`;
-  }).join("");
+  }).join("")}</div>`;
+
+  makeSortable("deals", $$("#dealList .prod-grid"), (grid, from, to) => moveDeal(from, to));
 }
 
 /* --------------------------- deal form ------------------------------- */
@@ -1100,6 +1138,8 @@ function openDealForm(index){
   $("#dealTitle").textContent = d ? "Edit This Deal" : "Add to Today's Deals";
   $("#dealSave").textContent  = d ? "Save Changes"   : "Add to Deals";
 
+  if ($("#dFind")){ $("#dFind").value = ""; $("#dFind").disabled = !!d; }
+  renderDealPicker("");
   $("#dPick").value = "";
   $("#dPicked").hidden = true;
   $("#dP").value   = d?.p   ?? "";
@@ -1494,8 +1534,6 @@ on("#anDelete", "click", () => {
  * Both pointer and touch are handled. A phone has no drag-and-drop of
  * its own, and the owner is as likely to be on one as at a desk.
  */
-let dragFrom = null;
-
 /** Move a deal from one place to another and save the new order. */
 function moveDeal(from, to){
   if (from === to || from == null || to == null) return;
@@ -1508,74 +1546,8 @@ function moveDeal(from, to){
   else { store.saveDeals(deals); renderAll(); }
 }
 
-/** The row under a point on the screen, and its index. */
-function rowAt(x, y){
-  const el = document.elementFromPoint(x, y)?.closest(".deal-row");
-  return el ? { el, i: +el.dataset.i } : null;
-}
-
-/* ---- mouse and trackpad ---- */
-
-on("#dealList", "dragstart", e => {
-  const row = e.target.closest(".deal-row");
-  if (!row) return;
-  dragFrom = +row.dataset.i;
-  row.classList.add("dragging");
-  e.dataTransfer.effectAllowed = "move";
-  // Firefox will not start a drag without something on the transfer.
-  e.dataTransfer.setData("text/plain", String(dragFrom));
-});
-
-on("#dealList", "dragover", e => {
-  e.preventDefault();                      // without this, no drop lands
-  const over = e.target.closest(".deal-row");
-  $$(".deal-row").forEach(r => r.classList.toggle("over", r === over));
-});
-
-on("#dealList", "drop", e => {
-  e.preventDefault();
-  const over = e.target.closest(".deal-row");
-  $$(".deal-row").forEach(r => r.classList.remove("over", "dragging"));
-  if (over) moveDeal(dragFrom, +over.dataset.i);
-  dragFrom = null;
-});
-
-on("#dealList", "dragend", () => {
-  $$(".deal-row").forEach(r => r.classList.remove("over", "dragging"));
-  dragFrom = null;
-});
-
-/* ---- touch ---- */
-
-let touchRow = null;
-
-on("#dealList", "touchstart", e => {
-  const handle = e.target.closest(".drag");
-  if (!handle) return;                     // only the handle starts a drag,
-  const row = handle.closest(".deal-row"); // so the list still scrolls
-  if (!row) return;
-  touchRow = row;
-  dragFrom = +row.dataset.i;
-  row.classList.add("dragging");
-}, { passive: true });
-
-on("#dealList", "touchmove", e => {
-  if (!touchRow) return;
-  e.preventDefault();                      // hold the page still while dragging
-  const t = e.touches[0];
-  const over = rowAt(t.clientX, t.clientY);
-  $$(".deal-row").forEach(r => r.classList.toggle("over", r === over?.el && r !== touchRow));
-}, { passive: false });
-
-on("#dealList", "touchend", e => {
-  if (!touchRow) return;
-  const t = e.changedTouches[0];
-  const over = rowAt(t.clientX, t.clientY);
-  $$(".deal-row").forEach(r => r.classList.remove("over", "dragging"));
-  if (over && over.el !== touchRow) moveDeal(dragFrom, over.i);
-  touchRow = null;
-  dragFrom = null;
-});
+/* The dragging itself is SortableJS, set up in renderDeals() through
+   the same makeSortable() the product cards use. */
 
 /* ---------------------------- the halal seal --------------------------- */
 
