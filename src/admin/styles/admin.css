@@ -1576,6 +1576,8 @@ body{overflow-x:hidden}
 }
 .deal-grid .prod-tx{padding-top:10px}
 
-/* The search box above the deal form's product picker. */
-.d-find{margin-bottom:8px}
-#dPick[size]:not([size="1"]){padding:4px;height:auto}
+/* The deal form's product search: the same box and dropdown as the one
+   above My Products (find.js), inside the form. */
+.d-find-label{margin-bottom:6px}
+.d-find{margin:0 0 10px}
+.d-find > button:not(.ad-find-x){border-radius:0 8px 8px 0}

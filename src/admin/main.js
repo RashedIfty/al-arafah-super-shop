@@ -21,7 +21,7 @@ import {
 } from "./orders.js";
 import { setRestock, renderRestock, initRestock } from "./restock.js";
 import { initFaces } from "./photos.js";
-import { setFindCatalog, setFindRepaint, initFind } from "./find.js";
+import { setFindCatalog, setFindRepaint, initFind, initDealFind } from "./find.js";
 import { setCustomers, setCustomerOrders, setCustomerAsks, renderCustomers, initCustomers }
   from "./customers.js";
 
@@ -1054,36 +1054,32 @@ const allProducts = () =>
   catalog.flatMap(c => c.items.map(p => ({ ...p, _cat: c.en })));
 
 /**
- * Fill the product picker, narrowed to what has been typed in the box
- * above it (any of the three names). With a thousand products a plain
- * dropdown was a long scroll; while something is typed the picker opens
- * as a short list of matches to tap. Option values keep each product's
- * place in its category, so the rest of the form is unchanged.
+ * The hidden picker behind the deal form's search. The search (find.js,
+ * initDealFind) chooses a product by setting this and firing "change",
+ * so the rest of the form reads the choice exactly as it always has.
  */
-function renderDealPicker(query = $("#dFind")?.value || ""){
-  const pick = $("#dPick");
-  const was = pick.value;
-  const q = query.trim().toLowerCase();
-  const hit = p => !q || [p.en, p.bn, p.ja].join(" ").toLowerCase().includes(q);
-
-  let found = 0;
-  const groups = catalog.map(c => {
-    const opts = c.items.map((p, i) => {
-      if (!hit(p)) return "";
-      found++;
-      return `<option value="${esc(c.id)}:${i}">${esc(p.en)} · ${esc(p.w)} · ${yen(p.p)}</option>`;
-    }).join("");
-    return opts ? `<optgroup label="${esc(c.en)}">${opts}</optgroup>` : "";
-  }).join("");
-
-  const head = !q ? "— Choose a product —"
-             : found ? `— ${found} found — tap one —` : "Nothing matches — try another word";
-  pick.innerHTML = `<option value="">${head}</option>` + groups;
-  pick.size = q && found ? Math.min(8, found + 1) : 1;
-  if (was && pick.querySelector(`option[value="${CSS.escape(was)}"]`)) pick.value = was;
+function renderDealPicker(){
+  $("#dPick").innerHTML = `<option value=""></option>` +
+    catalog.map(c => c.items.map((p, i) =>
+      `<option value="${esc(c.id)}:${i}">${esc(p.en)}</option>`).join("")).join("");
 }
 
-on("#dFind", "input", e => renderDealPicker(e.target.value));
+initDealFind(v => {
+  const pick = $("#dPick");
+  pick.value = v;
+  pick.dispatchEvent(new Event("change", { bubbles: true }));
+}, p => {
+  const note = $("#dPicked");
+  note.textContent = `${p.en} is sold out, so it can't be added to Today's Deals. ` +
+                     `Mark it in stock first, then add it.`;
+  note.classList.remove("good");
+  note.classList.add("bad");
+  note.hidden = false;
+  // Nothing is chosen, so no price from an earlier pick may stand.
+  $("#dP").value = "";
+  $("#dWas").value = "";
+  updateDealHint?.();
+});
 
 function renderDeals(){
   if (!deals.length){
@@ -1146,8 +1142,12 @@ function openDealForm(index){
   $("#dealTitle").textContent = d ? "Edit This Deal" : "Add to Today's Deals";
   $("#dealSave").textContent  = d ? "Save Changes"   : "Add to Deals";
 
-  if ($("#dFind")){ $("#dFind").value = ""; $("#dFind").disabled = !!d; }
-  renderDealPicker("");
+  if ($("#dFind")){
+    $("#dFind").value = d ? `${d.en}${d.w ? ` (${d.w})` : ""}` : "";
+    $("#dFind").disabled = !!d;
+    $("#dFindClear").hidden = true;
+  }
+  renderDealPicker();
   $("#dPick").value = "";
   $("#dPicked").hidden = true;
   $("#dP").value   = d?.p   ?? "";
@@ -1180,6 +1180,7 @@ on("#dPick", "change", e => {
 
   $("#dP").value   = p.p;
   $("#dWas").value = p.was || "";
+  $("#dPicked").classList.replace("bad", "good");
   $("#dPicked").textContent = `${p.en} — normally ${yen(p.p)}`;
   $("#dPicked").hidden = false;
   updateDealHint();
