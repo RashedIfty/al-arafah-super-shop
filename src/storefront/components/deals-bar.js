@@ -107,9 +107,27 @@ export function initAnnounceBar(){
  * edges. Advances on its own, pausing while the customer is interacting
  * so it never slides out from under a tap.
  */
+/* The carousel that is running, as a way to stop it. */
+let stopCarousel = null;
+
 export function initDealsCarousel(){
+  /* render() calls this again whenever it redraws — the catalogue
+     arriving, the language, the basket — and each call used to start a
+     second carousel without stopping the first. The old one kept its own
+     timer and listeners and a list of copies that had since been taken
+     out of the page; steering by those, it dragged the strip back across
+     every card towards the start, which is what the owner saw instead of
+     a loop. Now the previous one is stopped completely before anything
+     is set up. */
+  stopCarousel?.();
+  stopCarousel = null;
+
   const rail = document.getElementById("annScroll");
   if (!rail) return;
+
+  const ac = new AbortController();
+  const on = (el, ev, fn, opts = {}) =>
+    el?.addEventListener(ev, fn, { ...opts, signal: ac.signal });
 
   /* render() runs again whenever the language, basket or session
      changes, and this used to clone the cards on top of the clones it
@@ -163,39 +181,122 @@ export function initDealsCarousel(){
   let held = false;        // true while hovering, focused or touching
   let jumping = false;     // suppress the scroll handler during a silent jump
 
-  /* Scroll so that `slide` sits in the middle of the rail. */
-  function centre(slide, smooth){
+  /* Room at both ends of the row, half the rail wide, so that every
+     slide — the copies at the ends included — can be brought to the
+     middle. Without it the rail ran out of scroll before the copies
+     after the last card could be centred: the strip stopped on the last
+     card and then went back to the first, which is exactly what the loop
+     exists to avoid. */
+  const pad = () => {
+    const half = Math.ceil(rail.clientWidth / 2) + "px";
+    row.style.paddingLeft = row.style.paddingRight = half;
+  };
+  pad();
+
+  /* Where the rail must be for `slide` to sit in its middle. Measured
+     against the rail itself: offsetLeft counts from the carousel around
+     it, arrows and all, which put every card a little off centre. */
+  const leftOf = slide => {
     const el = slides[slide];
-    if (!el) return;
-    rail.scrollTo({
-      left: el.offsetLeft - (rail.clientWidth - el.offsetWidth) / 2,
-      behavior: smooth ? "smooth" : "auto"
-    });
-  }
+    if (!el) return null;
+    const r = rail.getBoundingClientRect(), e = el.getBoundingClientRect();
+    return rail.scrollLeft + (e.left - r.left) - (rail.clientWidth - e.width) / 2;
+  };
 
   /**
-   * Show real card `i`. Values outside 0..real-1 scroll onto a clone
-   * first, then snap back to the equivalent real card once the animation
-   * has finished, so the wrap is never visible.
+   * Scroll so that `slide` sits in the middle of the rail.
+   *
+   * The glide is animated here rather than left to the browser's smooth
+   * scroll. How long that takes varies by phone, and the loop has to
+   * know when the glide has finished to swap a copy for the real card:
+   * guessing wrong is what made the strip slide back across every card
+   * to the first instead of carrying on round. Snapping is switched off
+   * for the moment the strip is being moved by code, or it pulls each
+   * frame back to the nearest card; it is back on for swipes.
    */
-  function goTo(i, smooth = true){
-    const wrapped = (i + real) % real;
+  let glide = 0;
+  function centre(slide, smooth){
+    const to = leftOf(slide);
+    if (to === null) return;
+    const run = ++glide;
+    rail.style.scrollSnapType = "none";
 
-    if (smooth && (i < 0 || i >= real)){
-      centre(slideOf(i), true);            // glide onto the clone
-      index = wrapped;
-      paint();
+    const done = () => {
+      if (run !== glide) return;
+      rail.style.scrollSnapType = "";
+      gliding = false;
+      settle();
+    };
 
-      jumping = true;
-      setTimeout(() => {
-        centre(slideOf(wrapped), false);   // silent jump to the real one
-        jumping = false;
-      }, 480);                             // just after the smooth scroll
+    if (!smooth || calm.matches){
+      rail.scrollLeft = to;
+      requestAnimationFrame(done);
       return;
     }
 
-    index = wrapped;
-    centre(slideOf(index), smooth);
+    gliding = true;
+    const from = rail.scrollLeft, t0 = performance.now(), DUR = 460;
+    const step = now => {
+      if (run !== glide) return;           // a newer move took over
+      const k = Math.min(1, (now - t0) / DUR);
+      const e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      rail.scrollLeft = from + (to - from) * e;
+      if (k < 1) requestAnimationFrame(step); else done();
+    };
+    requestAnimationFrame(step);
+  }
+  let gliding = false;
+  const calm = matchMedia("(prefers-reduced-motion: reduce)");
+
+  /**
+   * Show real card `i`. Past either end it glides onto the copy of the
+   * card it wraps to, and settle() swaps the copy for the real card once
+   * the strip has stopped moving — so the loop runs on round, never
+   * sliding back across every card to the start.
+   *
+   * The swap used to fire on a fixed 480ms timer. A phone's smooth
+   * scroll can take longer than that, so the jump landed mid-glide and
+   * was lost, and the next step slid the whole way back from the end.
+   */
+  function goTo(i, smooth = true){
+    index = (i + real) % real;
+    centre(smooth && (i < 0 || i >= real) ? slideOf(i) : slideOf(index), smooth);
+    paint();
+  }
+
+  /** The slide nearest the middle of the strip. */
+  function centredSlide(){
+    const r = rail.getBoundingClientRect();
+    const mid = r.left + rail.clientWidth / 2;
+    let closest = 0, best = Infinity;
+    slides.forEach((el, n) => {
+      const e = el.getBoundingClientRect();
+      const d = Math.abs(e.left + e.width / 2 - mid);
+      if (d < best){ best = d; closest = n; }
+    });
+    return closest;
+  }
+
+  /**
+   * Once the strip has come to rest: if a copy is in the middle, put the
+   * real card there instead, in one unseen jump (the two look the same).
+   * Covers the automatic steps, the arrows and a swipe alike, so the
+   * strip can be turned round and round in either direction.
+   */
+  function settle(){
+    if (jumping || gliding) return;
+    const n = centredSlide();
+    const asReal = ((n - copy) % real + real) % real;
+    if (slides[n]?.dataset.clone){
+      jumping = true;
+      rail.style.scrollSnapType = "none";
+      rail.scrollLeft = leftOf(slideOf(asReal));
+      requestAnimationFrame(() => {
+        rail.style.scrollSnapType = "";
+        requestAnimationFrame(() => { jumping = false; });
+      });
+    }
+    index = asReal;
     paint();
   }
 
@@ -231,58 +332,69 @@ export function initDealsCarousel(){
   const release = () => { held = false; };
 
   ["mouseenter", "focusin", "touchstart"].forEach(ev =>
-    rail.addEventListener(ev, hold, { passive: true }));
+    on(rail, ev, hold, { passive: true }));
   ["mouseleave", "focusout", "touchend", "touchcancel"].forEach(ev =>
-    rail.addEventListener(ev, release, { passive: true }));
+    on(rail, ev, release, { passive: true }));
 
   // Stop entirely when the section is off screen or the tab is hidden.
+  let seen = null;
   if ("IntersectionObserver" in window){
-    new IntersectionObserver(([e]) => e.isIntersecting ? start() : stop(),
-      { threshold: 0.25 }).observe(rail);
+    seen = new IntersectionObserver(([e]) => e.isIntersecting ? start() : stop(),
+      { threshold: 0.25 });
+    seen.observe(rail);
   } else {
     start();
   }
-  document.addEventListener("visibilitychange", () =>
+  on(document, "visibilitychange", () =>
     document.hidden ? stop() : start());
 
   /* ---------------------------- controls -------------------------- */
 
-  prev?.addEventListener("click", () => { goTo(index - 1); start(); });
-  next?.addEventListener("click", () => { goTo(index + 1); start(); });
+  on(prev, "click", () => { goTo(index - 1); start(); });
+  on(next, "click", () => { goTo(index + 1); start(); });
 
-  dots?.addEventListener("click", e => {
+  on(dots, "click", e => {
     const d = e.target.closest("[data-go]");
     if (d){ goTo(+d.dataset.go); start(); }
   });
 
-  rail.addEventListener("keydown", e => {
+  on(rail, "keydown", e => {
     if (e.key === "ArrowRight"){ e.preventDefault(); goTo(index + 1); start(); }
     if (e.key === "ArrowLeft"){  e.preventDefault(); goTo(index - 1); start(); }
   });
 
-  /* A manual swipe should update which card counts as centred. */
-  let raf;
-  rail.addEventListener("scroll", () => {
+  /* While it moves, keep the dot on the card in the middle; once it has
+     stopped — scrollend where the browser has it, a short quiet spell
+     where it does not — settle(). */
+  let raf, quiet;
+  on(rail, "scroll", () => {
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(() => {
-      if (jumping) return;                 // our own repositioning
-      const mid = rail.scrollLeft + rail.clientWidth / 2;
-      let closest = 0, best = Infinity;
-      slides.forEach((el, n) => {
-        const d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - mid);
-        if (d < best){ best = d; closest = n; }
-      });
-      const asReal = ((closest - copy) % real + real) % real;
+      if (jumping || gliding) return;      // our own repositioning
+      const asReal = ((centredSlide() - copy) % real + real) % real;
       if (asReal !== index){ index = asReal; paint(); }
     });
+    if (gliding || jumping) return;        // centre() settles when it is done
+    clearTimeout(quiet);
+    quiet = setTimeout(settle, 160);
   }, { passive: true });
+  on(rail, "scrollend", () => { clearTimeout(quiet); settle(); });
 
   let resizeTimer;
-  addEventListener("resize", () => {
+  on(window, "resize", () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => goTo(index, false), 120);
+    resizeTimer = setTimeout(() => { pad(); goTo(index, false); }, 120);
   });
 
   // Start centred rather than flush left.
-  requestAnimationFrame(() => goTo(0, false));
+  requestAnimationFrame(() => { if (!ac.signal.aborted) goTo(0, false); });
+
+  stopCarousel = () => {
+    ac.abort();                  // every listener above
+    stop();                      // the timer
+    seen?.disconnect();
+    glide++;                     // any glide in flight stops at its next frame
+    clearTimeout(quiet); clearTimeout(resizeTimer);
+    cancelAnimationFrame(raf);
+  };
 }

@@ -240,6 +240,10 @@ export function initCategoryStrip(){
 
   let last = 0;
   function tick(now){
+    /* A redraw replaces the strip, and a new one starts its own drift.
+       This one's box is then out of the page: stop, rather than go on
+       running a frame loop for nothing for as long as the tab is open. */
+    if (!box.isConnected) return;
     /* Frames are not evenly spaced, and a tab that was in the
        background hands back one enormous gap; 50ms caps the jump. */
     const gap = Math.min(now - last, 50);
