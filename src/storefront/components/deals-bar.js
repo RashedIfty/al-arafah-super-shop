@@ -107,8 +107,9 @@ export function initAnnounceBar(){
  * edges. Advances on its own, pausing while the customer is interacting
  * so it never slides out from under a tap.
  */
-/* The carousel that is running, as a way to stop it. */
+/* The carousel that is running, as a way to stop it, and its rail. */
 let stopCarousel = null;
+let carouselRail = null;
 
 export function initDealsCarousel(){
   /* render() calls this again whenever it redraws — the catalogue
@@ -119,10 +120,19 @@ export function initDealsCarousel(){
      every card towards the start, which is what the owner saw instead of
      a loop. Now the previous one is stopped completely before anything
      is set up. */
+  const rail = document.getElementById("annScroll");
+
+  /* But only when the strip itself was redrawn. render() leaves markup
+     that has not changed exactly as it was, so the same rail still in
+     the page means the same cards: the carousel already on it carries
+     on. Restarting it anyway snapped it back to the first card on every
+     redraw — a basket change, the price check — which looked like the
+     loop jumping left in a flash. */
+  if (rail && rail === carouselRail && rail.isConnected) return;
+
   stopCarousel?.();
   stopCarousel = null;
-
-  const rail = document.getElementById("annScroll");
+  carouselRail = null;
   if (!rail) return;
 
   const ac = new AbortController();
@@ -389,6 +399,7 @@ export function initDealsCarousel(){
   // Start centred rather than flush left.
   requestAnimationFrame(() => { if (!ac.signal.aborted) goTo(0, false); });
 
+  carouselRail = rail;
   stopCarousel = () => {
     ac.abort();                  // every listener above
     stop();                      // the timer
