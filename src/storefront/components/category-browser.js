@@ -132,8 +132,15 @@ export function initCategoryStrip(){
   const arrows = strip.querySelectorAll("[data-cstrip]");
   const calm = matchMedia("(prefers-reduced-motion: reduce)");
 
-  /* The width of one copy of the shelves — the distance to wind back. */
-  const lap = () => box.querySelector(".cstrip-run")?.offsetWidth || 0;
+  /* The distance to wind back: from the start of one copy to the start
+     of the next, which is a copy's width plus the gap between the two.
+     The width alone left every lap nine pixels short, so the row jumped
+     at the join. */
+  const lap = () => {
+    const runs = box.querySelectorAll(".cstrip-run");
+    return runs.length > 1 ? runs[1].offsetLeft - runs[0].offsetLeft
+                           : runs[0]?.offsetWidth || 0;
+  };
 
   /* Both arrows, or neither.
    *
@@ -183,37 +190,52 @@ export function initCategoryStrip(){
    * and only whole pixels are handed over. */
   let at = 0;
 
-  /* Keep the position inside the first copy, whichever way it moved. */
+  /* Keep the position inside the first copy, whichever way it moved.
+     At the very start it counts as the end of the first copy — the same
+     picture — so there is always room to go left as well as right. */
   const wrap = () => {
     const one = lap();
     if (one < 1) return;
-    if (at >= one) at -= one;
-    else if (at < 0) at += one;
+    while (at >= one) at -= one;
+    while (at < 1) at += one;
   };
 
-  /* Somebody scrolled it themselves — a swipe, a wheel, a drag, an
-     arrow. Take their position as the new truth, or the next frame
-     would yank the row back to where the drift had got to. */
-  const follow = () => { at = box.scrollLeft; wrap(); mine = box.scrollLeft; };
+  /* Somebody scrolled it themselves — a swipe, a wheel, a drag. Take
+     their position as the new truth, and if it has reached a join, move
+     it back across to the same picture in the other copy. Only noting
+     the position, as this once did, let a swipe run to the end of the
+     second copy and stop dead: that was the row "going back to the
+     first" instead of carrying on round. Returns how far it moved. */
+  const follow = () => {
+    at = box.scrollLeft;
+    const was = at;
+    wrap();
+    if (Math.abs(at - was) > 0.5) box.scrollLeft = at;
+    mine = box.scrollLeft;
+    return at - was;
+  };
 
-  /* An arrow press, jumped rather than drifted, still wrapping. */
-  let glideOff = 0;
+  /* An arrow press: a quick glide of most of a screen, animated here
+     rather than by the browser's smooth scroll, so that it wraps at the
+     join like everything else. The browser's glide ran into the end of
+     the second copy and stopped, so pressing on went nowhere. */
+  let gliding = 0;
 
   function nudge(by){
-    const one = lap();
-    if (one < 1) return;
-    /* Going back from the very start would hit zero and stop, so the
-       position is first moved a whole copy forward — the same picture,
-       with somewhere to go. */
-    if (by < 0 && box.scrollLeft < Math.abs(by)){ box.scrollLeft += one; at = box.scrollLeft; }
-
-    /* Smooth only for this one move: the drift needs plain jumps, and a
-       scroller set to smooth eases away every fraction of a pixel it is
-       given. Taken off once the glide has had time to finish. */
-    box.classList.add("gliding");
-    box.scrollBy({ left: by, behavior: "smooth" });
-    clearTimeout(glideOff);
-    glideOff = setTimeout(() => box.classList.remove("gliding"), 700);
+    if (lap() < 1) return;
+    const from = at, t0 = performance.now(), run = ++gliding;
+    const dur = calm.matches ? 0 : 420;
+    const step = now => {
+      if (run !== gliding) return;               // a newer press took over
+      const k = dur ? Math.min(1, (now - t0) / dur) : 1;
+      at = from + by * (1 - Math.pow(1 - k, 3)); // ease out
+      wrap();
+      box.scrollLeft = at;
+      mine = box.scrollLeft;
+      if (k < 1) requestAnimationFrame(step);
+      else gliding = 0;
+    };
+    requestAnimationFrame(step);
   }
 
   let last = 0;
@@ -225,7 +247,7 @@ export function initCategoryStrip(){
 
     if (!held && !calm.matches && !document.hidden
         && !box.classList.contains("dragging")
-        && !box.classList.contains("gliding")){
+        && !gliding){
       at += DRIFT * (gap / 16.7);
       wrap();
       box.scrollLeft = at;       // rounded on the way in; `at` keeps the rest
@@ -258,8 +280,8 @@ export function initCategoryStrip(){
     const dx = e.clientX - startX;
     if (Math.abs(dx) > 3) moved = true;
     box.scrollLeft = startLeft - dx;
-    follow();
-    mine = box.scrollLeft;
+    // Crossing a join moves the row a copy; move the drag's anchor with it.
+    startLeft += follow();
   });
 
   const stop = () => { down = false; box.classList.remove("dragging"); };
