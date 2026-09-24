@@ -1645,3 +1645,18 @@ body{overflow-x:hidden}
   font:inherit;font-size:14px;color:var(--ink);background:var(--bg);
 }
 .conf-why textarea:focus{outline:0;border-color:var(--red);background:#fff}
+
+/* Back to the top: the shop's red round button, bottom right. Hidden
+   until the page has been scrolled a screen or so. */
+.ad-top-btn{
+  position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:60;
+  width:48px;height:48px;border-radius:50%;border:0;cursor:pointer;
+  display:grid;place-items:center;background:var(--red);color:#fff;
+  box-shadow:0 8px 22px rgba(10,22,44,.25);
+  opacity:0;visibility:hidden;transform:translateY(10px);
+  transition:.22s var(--ease);
+}
+.ad-top-btn.show{opacity:1;visibility:visible;transform:none}
+.ad-top-btn:hover{background:var(--red-d)}
+.ad-top-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){ .ad-top-btn{transition:none} }

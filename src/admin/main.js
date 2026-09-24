@@ -80,6 +80,18 @@ document.addEventListener("click", e => {
   box.focus();
 });
 
+/* ----------------------------- back to top -----------------------------
+   With a thousand products the list runs to many screens. The button
+   shows once the page is scrolled past the first one, like the shop's. */
+{
+  const btn = $("#adTopBtn");
+  const paint = () => btn?.classList.toggle("show", scrollY > 600);
+  addEventListener("scroll", paint, { passive: true });
+  btn?.addEventListener("click", () =>
+    scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }));
+  paint();
+}
+
 /* -------------------------------- login ------------------------------- */
 
 async function openPanel(){
