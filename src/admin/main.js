@@ -789,6 +789,14 @@ on("#form", "submit", async e => {
   product.tag = $$("input[name=fStock]").find(r => r.checked)?.value || null;
   product.country   = $("#fCountry").value || null;
   product.isOffer   = $("#fOffer").checked;
+  /* Sold out comes off the offers and the deals (migrate-soldout.sql does
+     it in the database whichever way the stock changes); say so here
+     rather than let the tick quietly vanish. */
+  if (product.tag === "out" && product.isOffer){
+    product.isOffer = false;
+    toast("Sold-out products can't be a Special Offer, so that tick was cleared. " +
+          "Tick it again when it's back in stock.");
+  }
   product.isNew     = $("#fNew").checked;
   product.isPopular = $("#fPopular").checked;
 
