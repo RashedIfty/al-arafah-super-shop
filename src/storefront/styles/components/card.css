@@ -31,6 +31,8 @@
   position:absolute;top:8px;right:8px;z-index:2;
   display:flex;flex-direction:column;gap:5px;align-items:flex-end;
 }
+/* With a heart in the same corner, the discount sits just under it. */
+.fav ~ .badges{top:42px}
 .badge{
   font-size:10px;font-weight:900;padding:3.5px 8px;border-radius:5px;
   color:#fff;letter-spacing:.3px;line-height:1.3;

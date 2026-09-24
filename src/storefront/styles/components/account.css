@@ -1,10 +1,13 @@
 /* Customer accounts — the heart, the header button, the sign-in page */
 
 /* ------------------------- the heart on a card ------------------------ */
-/* Opposite the discount badge, so the two never meet. Outlined until it
-   is saved, then filled: the difference has to read at a glance. */
+/* Top right. It used to sit top left, and the halal seal is stamped into
+   the top-left of the photograph itself, so on every halal product the
+   heart covered the seal. The discount badge shares this corner and
+   steps down beneath it (card.css). Outlined until it is saved, then
+   filled: the difference has to read at a glance. */
 .fav{
-  position:absolute;top:7px;left:7px;z-index:3;
+  position:absolute;top:7px;right:7px;z-index:3;
   width:29px;height:29px;border-radius:50%;
   display:grid;place-items:center;cursor:pointer;
   border:1px solid rgba(0,0,0,.09);
