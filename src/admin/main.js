@@ -309,7 +309,9 @@ function renderList(){
     // the category — an empty one still needs to be editable and fillable.
     if (q && !rows) return "";
 
-    const body = rows || `
+    /* Cards side by side rather than one long row each: at a thousand
+       products the rows ran to screens and screens of scrolling. */
+    const body = rows ? `<div class="prod-grid">${rows}</div>` : `
       <div class="cat-empty">
         <span>No products in this category yet.</span>
         <button class="act edit" data-addto="${esc(cat.id)}">${icon("plus",{size:14})} Add a product here</button>
