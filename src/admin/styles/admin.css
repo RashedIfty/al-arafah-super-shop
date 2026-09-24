@@ -1581,3 +1581,35 @@ body{overflow-x:hidden}
 .d-find-label{margin-bottom:6px}
 .d-find{margin:0 0 10px}
 .d-find > button:not(.ad-find-x){border-radius:0 8px 8px 0}
+
+/* ------------------- the categories, under the search ------------------
+   One button per category, centred and wrapping: its picture, its name
+   and how many products it holds. A press jumps to it. Room is left
+   above a category it jumps to, for the pinned header and tabs. */
+.cat-jump{
+  display:flex;flex-wrap:wrap;justify-content:center;gap:8px;
+  margin:0 0 14px;
+}
+.cat-jump-b{
+  display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  padding:5px 12px 5px 5px;border-radius:24px;
+  border:1px solid var(--line);background:#fff;
+  font:inherit;font-size:13px;font-weight:700;color:var(--ink);
+  transition:.15s var(--ease);
+}
+.cat-jump-b:hover{border-color:var(--red);color:var(--red);box-shadow:var(--sh)}
+.cat-jump-b img{
+  width:30px;height:30px;border-radius:50%;object-fit:cover;
+  background:#fff;border:1px solid var(--line);flex-shrink:0;
+}
+.cat-jump-b em{
+  font-style:normal;font-size:11px;font-weight:800;color:var(--mute);
+  background:var(--bg);border-radius:12px;padding:1px 8px;
+}
+.cat-jump-b:hover em{color:var(--red);background:var(--red-l)}
+.cat-block{scroll-margin-top:150px}
+@media(max-width:460px){
+  .cat-jump{gap:6px}
+  .cat-jump-b{font-size:12px;padding:4px 10px 4px 4px;gap:6px}
+  .cat-jump-b img{width:26px;height:26px}
+}

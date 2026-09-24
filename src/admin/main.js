@@ -330,7 +330,7 @@ function renderList(){
       </div>`;
 
     return `
-      <section class="cat-block">
+      <section class="cat-block" id="adcat-${esc(cat.id)}">
         <div class="cat-head">
           <img src="${esc(cat.img || "/images/placeholder.svg")}" alt="" class="cat-thumb" ${IMG_FALLBACK}>
           <b>${esc(cat.en)}</b>
@@ -348,7 +348,21 @@ function renderList(){
       phone, press and hold it first. New products go to the front of their
       category, and sold-out ones always sit at the end.</span></p>` : "";
 
-  $("#list").innerHTML = hint + (html || `
+  /* Every category as a button, centred under the search: picture, name
+     and how many products, and a press jumps to it. Built from the
+     categories themselves, so a new one appears here the moment it is
+     added. Always the full counts, whatever is being searched. */
+  const jump = catalog.length ? `
+    <nav class="cat-jump" aria-label="Go to a category">
+      ${catalog.map(c => `
+        <button type="button" class="cat-jump-b" data-jump="${esc(c.id)}">
+          <img src="${esc(c.img || "/images/placeholder.svg")}" alt="" loading="lazy" ${IMG_FALLBACK}>
+          <span>${esc(c.en)}</span>
+          <em>${c.items.length}</em>
+        </button>`).join("")}
+    </nav>` : "";
+
+  $("#list").innerHTML = jump + hint + (html || `
     <div class="none">
       <b>Nothing found</b>
       <span>${q ? "Try a different word." : "Add your first product above."}</span>
@@ -432,6 +446,21 @@ async function moveProduct(grid, from, to){
 }
 
 on("#filter", "input", renderList);
+
+/* A category button: go to that category. While a search is hiding it,
+   the search is cleared first so there is something to go to. */
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-jump]");
+  if (!b) return;
+  const go = () => document.getElementById(`adcat-${b.dataset.jump}`)
+    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (!document.getElementById(`adcat-${b.dataset.jump}`)){
+    $("#filter").value = "";
+    $("#adFindClear")?.setAttribute("hidden", "");
+    renderList();
+    requestAnimationFrame(go);
+  } else go();
+});
 
 /* ---------------------------- product form ---------------------------- */
 
