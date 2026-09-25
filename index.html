@@ -80,6 +80,15 @@ try {
   if (sessionStorage.getItem("aa-splashed") === "1")
     document.documentElement.className += " no-splash";
 } catch (e) {}
+
+/* On a phone the home page always opens at the top, on Today's Deal,
+   the way the owner wants it seen. Browsers otherwise put a reload, or
+   a tab the phone brings back from the background, where it was left.
+   Not when a link points into the page (#category). */
+if (!location.hash && matchMedia("(max-width:620px)").matches){
+  try { history.scrollRestoration = "manual"; } catch (e) {}
+  addEventListener("pageshow", function(e){ if (e.persisted) scrollTo(0, 0); });
+}
 </script>
 
 <div class="splash" id="splash">
