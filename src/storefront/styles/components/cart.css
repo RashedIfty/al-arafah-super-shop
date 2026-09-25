@@ -272,6 +272,22 @@
 }
 .chk-qr-id{display:block;font-size:11.5px;color:var(--mute);margin-top:8px}
 .chk-qr-id b{color:var(--ink);letter-spacing:.3px}
+/* The same code as a link: tapped on the phone that has PayPay, it
+   opens the app on the shop's payment screen, with nothing to scan. */
+.chk-pp-open{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;max-width:320px;margin:14px auto 0;min-height:48px;
+  background:#fff;color:#FF0033;border:2px solid #FF0033;border-radius:12px;
+  font-size:15px;font-weight:800;text-decoration:none;
+}
+.chk-pp-open:hover{background:#fff0f3}
+.chk-qr .chk-pp-open img{height:18px;width:auto;display:block;margin:0;padding:0;border:0;border-radius:0;background:none}
+.chk-pp-open-s{display:block;font-size:11.5px;color:var(--mute);margin:6px auto 0;max-width:320px;line-height:1.45}
+/* A phone only: on a laptop there is no PayPay app to open, and the code
+   is scanned from the screen with the phone instead. */
+@media(min-width:621px){
+  .chk-pp-open,.chk-pp-open-s{display:none}
+}
 .chk-qr p{font-size:12.5px;color:var(--body);line-height:1.5;margin-top:10px}
 
 /* The amount to pay and the reference, both big enough to read across

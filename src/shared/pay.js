@@ -22,6 +22,12 @@ export const PAY = {
     qr:  "/images/payment/paypay-qr.svg",
     id:  "05-AreSr2qvBDepK4bp",              // printed under the code, as on the sign
     url: "https://qr.paypay.ne.jp/28180105AreSr2qvBDepK4bp",
+    /* The same code as a link that opens the app on the shop's payment
+       screen. The url above, tapped, stops at a PayPay web page, which
+       then sends the phone to this address itself; iPhone opens an app
+       only for a link the customer tapped, so that ended in the App
+       Store. Tapped from here, it opens PayPay directly. */
+    app: "https://www.paypay.ne.jp/app/cashier?code=https%3A%2F%2Fqr.paypay.ne.jp%2F28180105AreSr2qvBDepK4bp&pid=QRCode&af_force_deeplink=true",
   },
 
   /* One code serves both apps: the sign is a JPQR merchant code that

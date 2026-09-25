@@ -294,7 +294,12 @@ function payHTML(T){
       <div class="chk-qr">
         <img src="${esc(PAY[m].qr)}" alt="${esc(payLabel(m, T))} QR" width="220" height="220">
         ${m === "paypay" ? `
-          <small class="chk-qr-id">${esc(T.chk_qr_id)} <b>${esc(PAY.paypay.id)}</b></small>` : ""}
+          <small class="chk-qr-id">${esc(T.chk_qr_id)} <b>${esc(PAY.paypay.id)}</b></small>
+          <a class="btn chk-pp-open" href="${esc(PAY.paypay.app)}">
+            <img src="/images/payment/paypay-logo.svg" alt="" width="70" height="18">
+            ${esc(T.chk_pp_open)}
+          </a>
+          <small class="chk-pp-open-s">${esc(T.chk_pp_open_s)}</small>` : ""}
         <div class="chk-due"><span>${esc(T.chk_amt_due)}</span><b>${yen(total)}</b></div>
         <div class="chk-refline"><span>${esc(T.chk_ref)}</span><b>${esc(draft.code)}</b></div>
         <p>${esc(T.chk_qr_how)}</p>
