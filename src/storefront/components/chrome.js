@@ -145,8 +145,8 @@ export function headerHTML(){
         </span>
       </a>
 
-      ${currentPage() === "products" ? `
-      <form class="search" onsubmit="return false;" role="search">
+      ${currentPage() === "products" || currentPage() === "home" ? `
+      <form class="search${currentPage() === "home" ? " search-home" : ""}" onsubmit="return false;" role="search">
         <input type="search" id="search" placeholder="${esc(T.search)}"
                aria-label="${esc(T.search)}" autocomplete="off">
         <button type="submit" aria-label="${esc(T.search)}">${icon("search")}</button>

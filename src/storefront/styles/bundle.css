@@ -301,9 +301,13 @@ body:not([data-page="products"]) .header-in .lang{margin-left:auto}
      the screen, and pinned with the rest. The brand takes whatever the
      first row has left (basis 0), so that row can never be the one to
      wrap. */
-  .header-in:has(> .search){flex-wrap:wrap;row-gap:9px}
-  .header-in:has(> .search) .brand{flex:1 1 0}
+  .header-in:has(> .search:not(.search-home)){flex-wrap:wrap;row-gap:9px}
+  .header-in:has(> .search:not(.search-home)) .brand{flex:1 1 0}
   .header-in > .search{order:10;flex:1 1 100%}
+
+  /* The home page's header search is for a laptop only: on a phone the
+     home page opens on the deals and categories, as the owner asked. */
+  .header-in > .search-home{display:none}
 }
 
 /* Very small phones: shrink the brand and language buttons so the row
