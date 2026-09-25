@@ -292,7 +292,11 @@ function payHTML(T){
   if (m === "paypay" || m === "merpay"){
     how = `
       <div class="chk-qr">
-        <img src="${esc(PAY[m].qr)}" alt="${esc(payLabel(m, T))} QR" width="220" height="220">
+        ${m === "paypay"
+          ? `<a class="chk-qr-link" href="${esc(PAY.paypay.app)}" title="${esc(T.chk_pp_open)}">
+               <img src="${esc(PAY[m].qr)}" alt="${esc(payLabel(m, T))} QR" width="220" height="220">
+             </a>`
+          : `<img src="${esc(PAY[m].qr)}" alt="${esc(payLabel(m, T))} QR" width="220" height="220">`}
         ${m === "paypay" ? `
           <small class="chk-qr-id">${esc(T.chk_qr_id)} <b>${esc(PAY.paypay.id)}</b></small>
           <a class="btn chk-pp-open" href="${esc(PAY.paypay.app)}">

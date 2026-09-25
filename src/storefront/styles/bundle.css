@@ -2662,6 +2662,13 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 .chk-qr-id{display:block;font-size:11.5px;color:var(--mute);margin-top:8px}
 .chk-qr-id b{color:var(--ink);letter-spacing:.3px}
+/* PayPay's code is a link as well: tapped or clicked, it opens the app
+   on the shop's payment screen, the same as the button under it. */
+.chk-qr-link{display:block;width:max-content;max-width:100%;margin:0 auto;border-radius:12px}
+.chk-qr-link img{transition:transform .15s var(--ease),box-shadow .15s var(--ease)}
+.chk-qr-link:hover img{transform:scale(1.02);box-shadow:var(--sh)}
+.chk-qr-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
 /* The same code as a link: tapped on the phone that has PayPay, it
    opens the app on the shop's payment screen, with nothing to scan. */
 .chk-pp-open{
