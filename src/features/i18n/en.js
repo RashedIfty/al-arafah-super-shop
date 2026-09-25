@@ -156,7 +156,7 @@ export default {
     chk_paid_ref:"Transaction number", chk_paid_ref_h:"From the app's payment history",
     chk_bank_h:"Transfer to", chk_bank_bank:"Bank", chk_bank_code:"Bank code",
     chk_bank_branch:"Branch code", chk_bank_type:"Account type", chk_bank_number:"Account number",
-    chk_bank_was:"Formerly Japan Net Bank", chk_bank_branch_s:"Online branch for business accounts",
+    chk_bank_was:"Formerly Japan Net Bank", chk_bank_branch_s:"Online branch for business accounts", chk_bank_biz:"Business account",
     chk_bank_holder:"Account name",
     chk_bank_note:"Please put your order reference in the transfer name if your bank lets you.",
     chk_bank_ref:"Transfer receipt number", chk_bank_ref_h:"From your banking app",

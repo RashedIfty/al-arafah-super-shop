@@ -156,7 +156,7 @@ export default {
     chk_paid_ref:"ট্রানজ্যাকশন নম্বর", chk_paid_ref_h:"অ্যাপের পেমেন্ট হিস্টরি থেকে",
     chk_bank_h:"যেখানে পাঠাবেন", chk_bank_bank:"ব্যাংক", chk_bank_code:"ব্যাংক কোড",
     chk_bank_branch:"শাখা কোড", chk_bank_type:"অ্যাকাউন্টের ধরন", chk_bank_number:"অ্যাকাউন্ট নম্বর",
-    chk_bank_was:"আগের নাম Japan Net Bank (ジャパンネット銀行)", chk_bank_branch_s:"ব্যবসায়িক অ্যাকাউন্টের অনলাইন শাখা",
+    chk_bank_was:"আগের নাম Japan Net Bank (ジャパンネット銀行)", chk_bank_branch_s:"ব্যবসায়িক অ্যাকাউন্টের অনলাইন শাখা", chk_bank_biz:"ব্যবসায়িক অ্যাকাউন্ট (Business account)",
     chk_bank_holder:"অ্যাকাউন্টের নাম",
     chk_bank_note:"ব্যাংক অ্যাপে সুযোগ থাকলে ট্রান্সফারের নামে আপনার অর্ডার রেফারেন্সটা লিখে দিন।",
     chk_bank_ref:"ট্রান্সফার রসিদ নম্বর", chk_bank_ref_h:"আপনার ব্যাংকিং অ্যাপ থেকে",

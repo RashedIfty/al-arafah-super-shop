@@ -42,7 +42,7 @@ export const PAY = {
     code:       "0033",                       // 銀行コード
     branch:     "ビジネス営業部",            // a virtual branch: no counter, only this number
     branchCode: "005",                        // 支店コード
-    type:       "普通",
+    type:       "普通",                       // a business account (ビジネス用口座), but 普通 is what a transfer asks for
     typeEn:     "Ordinary",
     number:     "4703412",
     holder:     "アルアラファスーパーショップ",

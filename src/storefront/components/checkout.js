@@ -320,7 +320,7 @@ function payHTML(T){
         ${bankRow(T.chk_bank_bank,   B.bank, lang === "ja" ? T.chk_bank_was : `${B.bankEn} · ${T.chk_bank_was}`)}
         ${bankRow(T.chk_bank_code,   B.code)}
         ${bankRow(T.chk_bank_branch, B.branchCode, `${B.branch} · ${T.chk_bank_branch_s}`)}
-        ${bankRow(T.chk_bank_type,   lang === "ja" ? B.type : `${B.type} (${B.typeEn})`)}
+        ${bankRow(T.chk_bank_type,   B.type, lang === "ja" ? T.chk_bank_biz : `${B.typeEn} · ${T.chk_bank_biz}`)}
         ${bankRow(T.chk_bank_number, B.number)}
         ${bankRow(T.chk_bank_holder, B.holder)}
         <div class="chk-due"><span>${esc(T.chk_amt_due)}</span><b>${yen(total)}</b></div>
