@@ -1,6 +1,6 @@
 /* Built by build.js — do not edit.
    Change the files under src/storefront/styles/ and run: node build.js
-   29 files, in import order. */
+   30 files, in import order. */
 
 /* ===== base/tokens.css ===== */
 /* Design tokens — brand palette, radii, shadows */
@@ -3666,6 +3666,42 @@ html.tut-lock{overflow:hidden}
 @media (prefers-reduced-motion:reduce){
   .tut-wrap,.tut-card{animation:none}
   .tut-fab{transition:none}
+}
+
+/* ===== components/home-order.css ===== */
+/* The home page on a phone: shopping first, the shop second.
+
+   The owner asked that a phone open onto what is on sale — Today's Deal
+   & New Arrival, then the categories, then the products — with the shop
+   itself (the photo and figures, what it promises, chat, delivery, the
+   Bangladesh band, the map, the hours) further down. A laptop keeps the
+   page as it is.
+
+   Done by order alone, so the markup, and with it the laptop layout and
+   what a screen reader hears, stays one page. <main> steps aside
+   (display:contents) so the sections inside it and those around it can
+   be placed in one column. The strips at the top — ticker, address bar,
+   header, menu, notice — keep order 0 and stay where they are. */
+
+@media(max-width:620px){
+  body[data-page=home] .page-hide{display:flex;flex-direction:column}
+  body[data-page=home] #main{display:contents}
+
+  body[data-page=home] #announce     {order:1}
+  body[data-page=home] #cstripMount  {order:2}
+  body[data-page=home] .cat-band     {order:3}
+  body[data-page=home] .home-all     {order:4}
+  body[data-page=home] #catalog,
+  body[data-page=home] #empty        {order:5}
+  body[data-page=home] .hero-band    {order:6;margin-top:28px}
+  body[data-page=home] .feats        {order:7}
+  body[data-page=home] .chat-band    {order:8}
+  body[data-page=home] #delivery     {order:9}
+  body[data-page=home] .bd-band      {order:10}
+  body[data-page=home] .home-map     {order:11}
+  body[data-page=home] .band         {order:12}
+  body[data-page=home] #footer       {order:13}
+  body[data-page=home] #topBtn       {order:14}
 }
 
 /* ===== base/responsive.css ===== */

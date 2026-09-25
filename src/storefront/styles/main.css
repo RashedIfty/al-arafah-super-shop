@@ -44,6 +44,7 @@
 @import url("components/search-box.css");
 @import url("components/filters.css");
 @import url("components/tutorial.css");
+@import url("components/home-order.css");
 
 /* breakpoints last so they override */
 @import url("base/responsive.css");
