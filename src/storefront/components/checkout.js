@@ -211,21 +211,21 @@ function stepperHTML(at, T){
 
 /**
  * The mark on each button: the brand the customer is looking for, in
- * its own colour, so the row is found by eye before it is read.
+ * its own artwork, so the row is found by eye before it is read.
  *
- * Drawn as wordmarks rather than taken from the brands' own artwork.
- * The one PayPay file the shop had is the 証券 lockup, a different
- * product entirely, and the others were never here.
+ * The brands' own logos: PayPay, PayPay Bank and Sagawa from Wikimedia
+ * Commons, merpay and d払い from their own sites. Merpay and d払い share
+ * a button (both apps read the same code), so it carries both.
  */
 const MARKS = {
-  paypay: "/images/payment/paypay-mark.svg",
-  merpay: "/images/payment/merpay-mark.svg",
-  bank:   "/images/payment/bank-mark.svg",
-  cod:    "/images/payment/sagawa-mark.svg",
+  paypay: ["/images/payment/paypay-logo.svg"],
+  merpay: ["/images/payment/merpay-logo.svg", "/images/payment/dbarai-logo.svg"],
+  bank:   ["/images/payment/paypay-bank-logo.svg"],
+  cod:    ["/images/payment/sagawa-logo.svg"],
 };
 
-const methodMark = id => `
-  <img src="${esc(MARKS[id])}" alt="" loading="lazy" width="120" height="40">`;
+const methodMark = id => MARKS[id].map(src => `
+  <img src="${esc(src)}" alt="" loading="lazy">`).join("");
 
 function methodsHTML(T){
   return `

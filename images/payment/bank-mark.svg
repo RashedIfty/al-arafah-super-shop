@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40" role="img" aria-label="PayPay Bank">
-  <rect width="120" height="40" rx="9" fill="#0B3C7B"/>
-  <text x="60" y="18" text-anchor="middle" fill="#fff"
-        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
-        font-size="13" font-weight="700" letter-spacing="-0.3">PayPay</text>
-  <text x="60" y="31" text-anchor="middle" fill="#9FC2EA"
-        font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
-        font-size="10.5" font-weight="700" letter-spacing="1.4">BANK</text>
-</svg>

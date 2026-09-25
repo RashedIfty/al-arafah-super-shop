@@ -91,7 +91,7 @@
 .pay-list img[alt="Mastercard"]{height:26px}
 .pay-list img[alt="JCB"]{height:26px}
 .pay-list img[alt="Visa"]{height:16px}
-.pay-list img[alt="PayPay"]{height:15px}
+.pay-list img[alt="PayPay"]{height:20px}
 .pay-cash{
   gap:7px;font-size:13px;font-weight:700;color:var(--ink);
 }

@@ -324,7 +324,7 @@ export function footerHTML(){
       <div class="wrap pay-in">
         <span class="pay-label">${esc(T.pay_label)}</span>
         <ul class="pay-list">
-          <li><img src="/images/payment/paypay.svg" alt="PayPay" loading="lazy"></li>
+          <li><img src="/images/payment/paypay-logo.svg" alt="PayPay" loading="lazy"></li>
           <li><img src="/images/payment/visa.svg" alt="Visa" loading="lazy"></li>
           <li><img src="/images/payment/mastercard.svg" alt="Mastercard" loading="lazy"></li>
           <li><img src="/images/payment/amex.svg" alt="American Express" loading="lazy"></li>
