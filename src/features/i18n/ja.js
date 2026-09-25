@@ -151,7 +151,7 @@ export default {
     chk_qr_how:"アプリを開いてこのコードを読み取り、上の金額をお支払いください。",
     chk_qr_id:"PayPay ID",
     chk_pp_open:"PayPayを開いて支払う",
-    chk_pp_open_s:"このスマホでお支払いの場合は、タップするとPayPayで当店の支払い画面が直接開きます（読み取り不要）。",
+    chk_pp_open_s:"この端末でお支払いの場合は、タップするとPayPayで当店の支払い画面が直接開きます（読み取り不要）。",
     chk_paid_h:"お支払い後", chk_paid_amt:"送金した金額",
     chk_paid_ref:"取引番号", chk_paid_ref_h:"アプリの支払い履歴に記載",
     chk_bank_h:"お振込先", chk_bank_bank:"銀行", chk_bank_code:"銀行コード",

@@ -151,7 +151,7 @@ export default {
     chk_qr_how:"Open the app, scan this code and pay the amount above.",
     chk_qr_id:"PayPay ID",
     chk_pp_open:"Open PayPay and pay",
-    chk_pp_open_s:"On this phone? Tap to go straight to the shop in PayPay, no scanning.",
+    chk_pp_open_s:"Paying on this device? Tap to go straight to the shop in PayPay, no scanning.",
     chk_paid_h:"After you have paid", chk_paid_amt:"Amount you sent",
     chk_paid_ref:"Transaction number", chk_paid_ref_h:"From the app's payment history",
     chk_bank_h:"Transfer to", chk_bank_bank:"Bank", chk_bank_code:"Bank code",
