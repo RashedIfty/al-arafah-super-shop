@@ -260,10 +260,12 @@ function methodsHTML(T){
 /* -------------------------- screen 3: paying -------------------------- */
 
 /** A row of the bank table, with the figure copyable in one tap. */
-const bankRow = (label, value) => `
+/* One line of the account. Copy takes the value alone, which is what a
+   banking app's box wants; the note under it is for reading only. */
+const bankRow = (label, value, note = "") => `
   <div class="chk-bank-row">
     <span>${esc(label)}</span>
-    <b>${esc(value)}</b>
+    <b>${esc(value)}${note ? `<small>${esc(note)}</small>` : ""}</b>
     <button type="button" class="chk-copy" data-copy="${esc(value)}">${esc(t().chk_copy)}</button>
   </div>`;
 
@@ -315,9 +317,9 @@ function payHTML(T){
     how = `
       <div class="chk-bank">
         <h3>${esc(T.chk_bank_h)}</h3>
-        ${bankRow(T.chk_bank_bank,   lang === "ja" ? B.bank : `${B.bank} (${B.bankEn})`)}
+        ${bankRow(T.chk_bank_bank,   B.bank, lang === "ja" ? T.chk_bank_was : `${B.bankEn} · ${T.chk_bank_was}`)}
         ${bankRow(T.chk_bank_code,   B.code)}
-        ${bankRow(T.chk_bank_branch, `${B.branch} (${B.branchCode})`)}
+        ${bankRow(T.chk_bank_branch, B.branchCode, `${B.branch} · ${T.chk_bank_branch_s}`)}
         ${bankRow(T.chk_bank_type,   lang === "ja" ? B.type : `${B.type} (${B.typeEn})`)}
         ${bankRow(T.chk_bank_number, B.number)}
         ${bankRow(T.chk_bank_holder, B.holder)}

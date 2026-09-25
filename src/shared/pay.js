@@ -40,7 +40,7 @@ export const PAY = {
     bank:       "PayPay銀行",                 // was ジャパンネット銀行; the card still says so
     bankEn:     "PayPay Bank",
     code:       "0033",                       // 銀行コード
-    branch:     "ビジネス営業部",
+    branch:     "ビジネス営業部",            // a virtual branch: no counter, only this number
     branchCode: "005",                        // 支店コード
     type:       "普通",
     typeEn:     "Ordinary",
