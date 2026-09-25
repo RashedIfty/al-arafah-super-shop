@@ -1979,10 +1979,10 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 /* ===== components/card.css ===== */
 /* Product grid & card */
 
-/* Three across, even on a phone. Two made each card 173px, which is a
-   lot of screen for one packet of rice and meant scrolling past six to
-   see twelve. */
-.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+/* Four across on a phone, as the owner asked: more of the shelf on one
+   screen. Two made each card 173px and three still meant a long scroll
+   past a category of seventy. Six across on a laptop. */
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 
 .card{
   border:1px solid var(--line);border-radius:var(--radius);background:#fff;
@@ -2061,30 +2061,44 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .empty{text-align:center;padding:50px 16px;color:var(--body)}
 .empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:5px}
 
-/* ---------------------------- three to a row -------------------------- */
-/* At three across a card is about 114px on a phone and 91px on the
-   narrowest, and the body was keeping 12px of padding on each side —
-   which left 65px for a product name. Everything comes in a step, and
-   the name is allowed the two lines it needs rather than being cut. */
+/* ---------------------------- four to a row --------------------------- */
+/* At four across a card is about 85px on a phone and 72px on the
+   narrowest. Everything comes in a step: the category line goes (the
+   shelf heading above already says it), the second-language name goes,
+   and the name keeps the two lines it needs rather than being cut. */
 @media(max-width:620px){
-  .card-b{padding:8px 7px 10px}
-  .card-cat{font-size:8.5px;letter-spacing:.4px;margin-bottom:3px}
-  .card h3{font-size:11.5px;line-height:1.25}
-  .card-w{font-size:9.5px}
-  .price{font-size:13px}
-  .tax{font-size:8.5px}
-  .buy{font-size:11px;padding:7px 4px;margin-top:7px;gap:4px}
-  .buy .icon{width:13px;height:13px}
-  .qty-b{width:26px;height:28px;font-size:14px}
-  .qty-n{font-size:12px}
+  .card-b{padding:6px 5px 8px}
+  .card-cat,.card-jp{display:none}
+  .card h3{font-size:10.5px;line-height:1.25;margin-bottom:4px;
+           display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .card-meta{gap:3px 5px;margin-bottom:6px}
+  .card-w{font-size:8.5px;padding:2px 5px}
+  .card-stock{font-size:8px;letter-spacing:.2px;gap:3px}
+  .card-stock::before{width:5px;height:5px}
+  .card-meta .badge{font-size:8px;padding:2px 4px}
+  .price{gap:3px}
+  .price .now{font-size:14px;letter-spacing:-.3px}
+  .price .was{font-size:9.5px}
+  .tax{font-size:7.5px}
+  .buy{font-size:10px;padding:6px 2px;margin-top:6px;gap:3px}
+  .buy .icon{width:12px;height:12px}
+  .qty-b{width:22px;height:26px;font-size:13px}
+  .qty-n{font-size:11px}
+  .badges{top:4px;right:4px}
+  /* The heart shrinks with the card: at full size it covered a third
+     of an 85px photo. */
+  .card .fav{width:22px;height:22px;top:4px;right:4px}
+  .card .fav svg{width:12px;height:12px}
+  .badge{font-size:8.5px;padding:2px 5px}
 }
 
 @media(max-width:380px){
-  .grid{gap:6px}
-  .card-b{padding:7px 5px 9px}
-  .card h3{font-size:10.5px}
-  .price{font-size:12px}
-  .buy{font-size:10px;padding:6px 3px}
+  .grid{gap:4px}
+  .card-b{padding:5px 4px 7px}
+  .card h3{font-size:9.5px}
+  .price .now{font-size:12.5px}
+  .buy{font-size:9px;padding:5px 1px}
+  .buy .icon{display:none}
 }
 
 /* ===== components/account.css ===== */
@@ -3745,7 +3759,7 @@ html.tut-lock{overflow:hidden}
   .hero p{font-size:16px}
   .feats-in{grid-template-columns:repeat(4,1fr)}
   .chips-in{grid-template-columns:repeat(4,1fr)}
-  .grid{grid-template-columns:repeat(3,1fr);gap:16px}
+  .grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
   .sec-head h2{font-size:19px}
   .sec-title h2{font-size:21px}
   .promos{grid-template-columns:1fr 1fr}
@@ -3763,7 +3777,7 @@ html.tut-lock{overflow:hidden}
   .hero{padding:28px 28px 30px}
   .hero h1{font-size:30px}
   .chips-in{grid-template-columns:repeat(6,1fr)}
-  .grid{grid-template-columns:repeat(5,1fr);gap:18px}
+  .grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:16px}
   .sec{padding-top:24px}
   .promo h3{font-size:24px}
   .foot-g{grid-template-columns:1.9fr 1fr 1fr 1fr}
