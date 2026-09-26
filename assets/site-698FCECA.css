@@ -1538,6 +1538,8 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .cstrip-run{
   display:flex;align-items:center;gap:9px;
   flex:0 0 auto;width:max-content;
+  /* The part of a pixel scrollLeft cannot hold; set by the drift. */
+  transform:translateX(var(--sub,0px));
 }
 
 /* White cards on the tint, like every other card in the shop. */

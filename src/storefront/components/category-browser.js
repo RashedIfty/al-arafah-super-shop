@@ -117,11 +117,12 @@ export function categoryStripHTML(){
  * every pill a real link at a real place: it can still be swiped,
  * dragged, tabbed to and clicked, which a CSS marquee would have cost.
  *
- * It pauses whenever a person is involved — pointer over it, a finger
- * on it, a focused link inside it, the tab in the background — and it
- * does not start at all for somebody who has asked for less motion.
+ * It pauses while a person is moving it — a finger on it, a drag, an
+ * arrow's glide — and for a keyboard walking its links or a tab in the
+ * background, then carries on by itself. It does not start at all for
+ * somebody who has asked for less motion.
  */
-const DRIFT = 0.35;        // pixels per frame, about 21 a second
+const DRIFT = 32;          // pixels per second
 
 export function initCategoryStrip(){
   const box = document.getElementById("cstripScroll");
@@ -162,33 +163,43 @@ export function initCategoryStrip(){
 
   /* ------------------------------ drifting ------------------------- */
 
-  let held = 0;                       // >0 while a person is involved
-  const hold = () => { held++; };
-  const free = () => { held = Math.max(0, held - 1); };
+  /* It stops only while somebody is actually moving it — a finger on
+     it, a mouse dragging it, an arrow gliding — and starts again by
+     itself a moment after they let go. Pausing on hover and on focus,
+     as it once did, left it standing still for good: a tapped pill or
+     a clicked arrow keeps focus until something else is clicked, and a
+     mouse resting over the row is only reading it. A keyboard walking
+     the links still stops it, since the focused pill must stay put. */
+  let pressed = false;                // a finger on the row
+  let quietUntil = 0;                 // no drift before this moment
+  const rest = (ms = 1200) => { quietUntil = performance.now() + ms; };
 
   /* On the whole strip, not just the scroller: a finger lands on a
-     pill, and a listener bound to the scroller alone never hears the
-     touch at all — the row carried on drifting under the thumb.
-     `pointerenter` and `pointerleave` do not bubble, so they go on the
-     rail, which is the box the pointer actually crosses. */
-  const rail = box.parentElement;
-  rail.addEventListener("pointerenter", hold, { passive: true });
-  rail.addEventListener("pointerleave", free, { passive: true });
+     pill, and a listener bound to the scroller alone never hears it. */
+  strip.addEventListener("touchstart", () => { pressed = true; }, { passive: true });
+  for (const end of ["touchend", "touchcancel"])
+    strip.addEventListener(end, () => { pressed = false; rest(); }, { passive: true });
 
-  for (const [on, off] of [["focusin", "focusout"],
-                           ["touchstart", "touchend"]]){
-    strip.addEventListener(on, hold, { passive: true });
-    strip.addEventListener(off, free, { passive: true });
-  }
-  strip.addEventListener("touchcancel", free, { passive: true });
+  const keyboardInside = () => {
+    const f = document.activeElement;
+    if (!f || f === document.body || !strip.contains(f)) return false;
+    try { return f.matches(":focus-visible"); } catch { return false; }
+  };
 
   /* Where the row really is.
    *
-   * scrollLeft is rounded to whole pixels by the browser, so adding a
-   * third of one to it lands on the same integer every frame and the
-   * row never moves at all. The true position is kept here as a number
-   * and only whole pixels are handed over. */
+   * scrollLeft is rounded to whole pixels by the browser, so the row
+   * could only move a pixel every few frames — a visible stutter. The
+   * true position is kept here as a number; scrollLeft takes the whole
+   * pixels and the pills are shifted by the fraction left over, so the
+   * glide is as smooth as the screen can draw it. */
   let at = 0;
+  const put = () => {
+    box.scrollLeft = at;             // rounded on the way in
+    mine = box.scrollLeft;           // what the browser settled on
+    const sub = mine - at;           // under a pixel, either way
+    box.style.setProperty("--sub", Math.abs(sub) < 0.01 ? "0px" : `${sub.toFixed(2)}px`);
+  };
 
   /* Keep the position inside the first copy, whichever way it moved.
      At the very start it counts as the end of the first copy — the same
@@ -212,6 +223,8 @@ export function initCategoryStrip(){
     wrap();
     if (Math.abs(at - was) > 0.5) box.scrollLeft = at;
     mine = box.scrollLeft;
+    box.style.setProperty("--sub", "0px");
+    rest();                          // let a swipe's momentum run out first
     return at - was;
   };
 
@@ -230,10 +243,9 @@ export function initCategoryStrip(){
       const k = dur ? Math.min(1, (now - t0) / dur) : 1;
       at = from + by * (1 - Math.pow(1 - k, 3)); // ease out
       wrap();
-      box.scrollLeft = at;
-      mine = box.scrollLeft;
+      put();
       if (k < 1) requestAnimationFrame(step);
-      else gliding = 0;
+      else { gliding = 0; rest(1500); }          // a moment to read it
     };
     requestAnimationFrame(step);
   }
@@ -249,13 +261,13 @@ export function initCategoryStrip(){
     const gap = Math.min(now - last, 50);
     last = now;
 
-    if (!held && !calm.matches && !document.hidden
+    if (!pressed && !gliding && now >= quietUntil
+        && !calm.matches && !document.hidden
         && !box.classList.contains("dragging")
-        && !gliding){
-      at += DRIFT * (gap / 16.7);
+        && !keyboardInside()){
+      at += DRIFT * gap / 1000;
       wrap();
-      box.scrollLeft = at;       // rounded on the way in; `at` keeps the rest
-      mine = box.scrollLeft;     // what the browser settled on
+      put();
     }
     requestAnimationFrame(tick);
   }
@@ -288,7 +300,10 @@ export function initCategoryStrip(){
     startLeft += follow();
   });
 
-  const stop = () => { down = false; box.classList.remove("dragging"); };
+  const stop = () => {
+    if (down) rest();
+    down = false; box.classList.remove("dragging");
+  };
   box.addEventListener("pointerup", stop);
   box.addEventListener("pointerleave", stop);
   box.addEventListener("click", e => { if (moved) e.preventDefault(); }, true);
