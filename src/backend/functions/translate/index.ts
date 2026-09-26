@@ -7,6 +7,10 @@
  *
  * A product name is perhaps thirty tokens, so this costs almost nothing
  * against the 70,000-per-minute free tier the search already shares.
+ *
+ * Only the signed-in owner may use it. The Groq key behind it is the
+ * shop's, and a function anyone could call with the public key would be
+ * a free translation service for the whole internet, billed to the shop.
  */
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
@@ -28,6 +32,47 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status, headers: { ...CORS, "Content-Type": "application/json" }
   });
+
+const URL_ = Deno.env.get("SUPABASE_URL")!;
+const ANON = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+/**
+ * Is the caller the shop's owner?
+ *
+ * Supabase is the authority, so we ask it rather than verifying the
+ * token here: is_owner() run with the caller's own token reads the same
+ * settings row the database uses everywhere else, so there is no second
+ * idea in this file of who the owner is. The photo worker does the same.
+ *
+ * Returns null when they are, or the reply to send when they are not:
+ * 401 for no token or one Supabase will not accept (signed out, or
+ * expired), 403 for a valid token that is not the owner's — including the
+ * public key itself, which is valid but belongs to nobody.
+ */
+async function refuseUnlessOwner(req: Request): Promise<Response | null> {
+  const auth = req.headers.get("Authorization") || "";
+  const token = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "";
+  if (!token) return json({ error: "Please sign in." }, 401);
+
+  try {
+    const res = await fetch(`${URL_}/rest/v1/rpc/is_owner`, {
+      method: "POST",
+      headers: {
+        apikey: ANON,
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: "{}",
+    });
+    if (res.status === 401) return json({ error: "Please sign in again." }, 401);
+    if (res.ok && (await res.json()) === true) return null;
+    return json({ error: "Only the shop's owner can do this." }, 403);
+  } catch (e) {
+    // Network trouble: refuse rather than guess.
+    console.error("translate: owner check", e);
+    return json({ error: "Could not check who is asking." }, 503);
+  }
+}
 
 /**
  * The first balanced {...} in a reply that parses and carries a
@@ -99,6 +144,11 @@ Reply with ONLY this JSON and nothing else:
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+
+  // Before anything else, so a stranger cannot even spend a request's
+  // worth of the shop's Groq allowance.
+  const refused = await refuseUnlessOwner(req);
+  if (refused) return refused;
 
   try {
     const { text } = await req.json();

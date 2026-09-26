@@ -25,15 +25,12 @@ const START_QUALITY = 0.82;
 const QUALITY_STEP = 0.1;
 
 /**
- * True when the file is something we should not touch.
- *
- * SVG is already tiny and would be rasterised — turning a sharp logo
- * into a blurry bitmap. GIF may be animated, and drawing it to a canvas
- * keeps only the first frame.
+ * The photo server accepts only JPEG, PNG and WebP, checked by the file's
+ * own bytes: an SVG can carry script, and a GIF was never needed. Anything
+ * else is drawn to a canvas here and sent as a JPEG — an SVG becomes a
+ * bitmap, a GIF keeps its first frame — rather than refused on upload.
  */
-function leaveAlone(file){
-  return file.type === "image/svg+xml" || file.type === "image/gif";
-}
+const SERVER_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 /** Scaled size that fits inside `edge`, keeping the shape. */
 function fitted(w, h, edge = MAX_EDGE){
@@ -80,7 +77,7 @@ function toBlob(canvas, type, quality){
  */
 export async function shrinkImage(file, opts = {}){
   if (!file || !file.type?.startsWith("image/")) return file;
-  if (leaveAlone(file)) return file;
+  const mustConvert = !SERVER_TYPES.has(file.type);
 
   /* Products keep the defaults. A customer's own photo asks for less:
      it is drawn at 40px in the header and 96px on the account page, and
@@ -144,7 +141,9 @@ export async function shrinkImage(file, opts = {}){
   source.close?.();                     // release the bitmap where supported
 
   // Nothing gained: a small picture re-encoded can come out larger.
-  if (!out || out.size >= file.size) return file;
+  if (!out) return file;
+  // A smaller original is kept — unless the server would refuse its type.
+  if (out.size >= file.size && !mustConvert) return file;
 
   const base = (file.name || "photo").replace(/\.[^.]+$/, "");
   return new File([out], `${base}.jpg`, {

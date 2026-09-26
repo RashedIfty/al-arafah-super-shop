@@ -42,7 +42,7 @@ export function accountFormHTML(){
 
         <label><span>${esc(T.acct_pass)}</span>
           <input id="acctPass" type="password" autocomplete="current-password"
-                 minlength="6" required></label>
+                 required></label>
 
         <p class="acct-err" id="acctErr" hidden></p>
 
@@ -160,6 +160,9 @@ const heart = () =>
 /** Signing in, or creating an account. */
 let creating = false;
 
+/** The shortest password a new account may have. Reset uses the same. */
+const MIN_PASSWORD = 8;
+
 /**
  * Where to send someone who needs to sign in.
  *
@@ -182,6 +185,10 @@ function setMode(create){
   $("#acctSwapTx").textContent = create ? T.acct_have     : T.acct_no_account;
   $("#acctSwap").textContent   = create ? T.acct_signin   : T.acct_create;
   $("#acctPass").autocomplete  = create ? "new-password"  : "current-password";
+  /* Only a new password has to meet the minimum. Customers who signed
+     up when six was enough must still be able to sign in with theirs. */
+  if (create) $("#acctPass").minLength = MIN_PASSWORD;
+  else $("#acctPass").removeAttribute("minlength");
   $("#acctErr").hidden = true;
 }
 
@@ -251,7 +258,8 @@ export function initAccount(){
     const err   = $("#acctErr");
     const go    = $("#acctGo");
 
-    if (!email || pass.length < 6){
+    // The length is checked only when creating: see setMode().
+    if (!email || !pass || (creating && pass.length < MIN_PASSWORD)){
       err.textContent = T.acct_bad;
       err.hidden = false;
       return;

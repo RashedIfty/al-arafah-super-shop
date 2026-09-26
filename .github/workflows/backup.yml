@@ -11,7 +11,9 @@
 # How to restore one is in README.md.
 #
 # Secrets (GitHub → Settings → Secrets and variables → Actions):
-#   DB_PASSWORD   the database password (Supabase → Project Settings → Database)
+#   BACKUP_DB_PASSWORD  password of backup_ro, a read-only database role made
+#                 for this job: it can read every table and change nothing,
+#                 so the master password is not stored in GitHub
 #   BACKUP_TOKEN  the Worker's upload password (also set on the Worker)
 #   BACKUP_PASS   the encryption passphrase — keep a copy somewhere safe:
 #                 without it no backup can be opened.
@@ -49,9 +51,9 @@ jobs:
           PGHOST: aws-0-ap-southeast-2.pooler.supabase.com
           PGPORT: "5432"
           PGDATABASE: postgres
-          PGUSER: postgres.fkftvudfngcmrtylevnl
+          PGUSER: backup_ro.fkftvudfngcmrtylevnl
           PGSSLMODE: require
-          PGPASSWORD: ${{ secrets.DB_PASSWORD }}
+          PGPASSWORD: ${{ secrets.BACKUP_DB_PASSWORD }}
           BACKUP_PASS: ${{ secrets.BACKUP_PASS }}
           BACKUP_TOKEN: ${{ secrets.BACKUP_TOKEN }}
         run: |

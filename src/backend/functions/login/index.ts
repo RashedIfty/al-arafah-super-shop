@@ -6,21 +6,37 @@
  * where the count is kept server-side and the caller's address is read
  * from the request rather than taken on trust.
  *
- * Two counters, because they catch different attacks:
+ * Three counters, because they catch different attacks:
  *
+ *   by address and email — one machine guessing at one account. This is
+ *                the tight one, and it only ever locks out the pair, so
+ *                a stranger failing on purpose against the owner's email
+ *                locks out the stranger, not the owner;
  *   by address — one machine working through a password list, whatever
  *                account it aims at;
  *   by email   — a slow guess at one account spread across many
- *                addresses, which the first counter would never see.
+ *                addresses, which the first two would never see. It
+ *                counts over a longer hour and trips far later, because
+ *                it is the one counter a stranger could use to shut the
+ *                real owner out: at twenty it slows a botnet down without
+ *                handing any one person a lock on someone else's account.
  *
  * A failure is recorded; a success clears that address's record, so an
  * owner who mistypes twice and then gets it right is not left counting
  * against themselves for the next quarter of an hour.
+ *
+ * The storefront and the admin both sign in through here and read the
+ * same replies: 400 for a missing field, 429 with retryAfterMinutes when
+ * limited, 401 with a message for a wrong pair, 500 when something broke,
+ * and Supabase's own session body on success.
  */
 
-const WINDOW_MIN   = 15;   // how far back the count looks
-const MAX_PER_IP    = 8;   // failures from one address in that window
-const MAX_PER_EMAIL = 5;   // failures against one account in that window
+const WINDOW_MIN     = 15;   // how far back the pair and address counts look
+const MAX_PER_PAIR   = 5;    // failures from one address against one email
+const MAX_PER_IP     = 8;    // failures from one address, any email
+
+const EMAIL_WINDOW_MIN = 60; // how far back the email-only count looks
+const MAX_PER_EMAIL    = 20; // failures against one email, from anywhere
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -86,11 +102,16 @@ function pruneSometimes() {
     .catch((e) => console.error("prune:", e));
 }
 
-/** How many failures in the window, for one address or one email. */
-async function countRecent(column: "ip" | "email", value: string) {
-  const since = new Date(Date.now() - WINDOW_MIN * 60_000).toISOString();
+/**
+ * How many failures match `filter` in the last `minutes`.
+ *
+ * `filter` is a PostgREST query fragment such as `ip=eq.1.2.3.4`; the
+ * callers below encode the values themselves.
+ */
+async function countRecent(filter: string, minutes: number) {
+  const since = new Date(Date.now() - minutes * 60_000).toISOString();
   const res = await admin(
-    `login_attempts?select=id&${column}=eq.${encodeURIComponent(value)}&at=gte.${since}`,
+    `login_attempts?select=id&${filter}&at=gte.${since}`,
     { headers: { Prefer: "count=exact", Range: "0-0" } },
   );
   // content-range comes back as "0-0/12"; the total is what matters.
@@ -113,16 +134,25 @@ Deno.serve(async (req) => {
 
     /* Checked before the password is looked at, so that a locked-out
        caller learns nothing from how long the reply takes. */
-    const [byIp, byEmail] = await Promise.all([
-      countRecent("ip", ip),
-      countRecent("email", who),
+    const ipEq    = `ip=eq.${encodeURIComponent(ip)}`;
+    const emailEq = `email=eq.${encodeURIComponent(who)}`;
+
+    const [byPair, byIp, byEmail] = await Promise.all([
+      countRecent(`${ipEq}&${emailEq}`, WINDOW_MIN),
+      countRecent(ipEq, WINDOW_MIN),
+      countRecent(emailEq, EMAIL_WINDOW_MIN),
     ]);
 
-    if (byIp >= MAX_PER_IP || byEmail >= MAX_PER_EMAIL)
+    /* The email-only limit looks back an hour, so a caller stopped by
+       it is told to wait the hour; the other two clear in fifteen. */
+    const emailLimited = byEmail >= MAX_PER_EMAIL;
+    if (emailLimited || byPair >= MAX_PER_PAIR || byIp >= MAX_PER_IP) {
+      const wait = emailLimited ? EMAIL_WINDOW_MIN : WINDOW_MIN;
       return json({
-        error: `Too many attempts. Please wait ${WINDOW_MIN} minutes and try again.`,
-        retryAfterMinutes: WINDOW_MIN,
+        error: `Too many attempts. Please wait ${wait} minutes and try again.`,
+        retryAfterMinutes: wait,
       }, 429);
+    }
 
     /* The actual sign-in, against Supabase Auth with the public key —
        this function never sees a stored password, only whether the pair
@@ -153,13 +183,21 @@ Deno.serve(async (req) => {
          whether an address has an account here. */
       return json({
         error: "That email or password is not right.",
-        remaining: Math.max(0, MAX_PER_IP - byIp - 1),
+        // Whichever limit this caller will reach first.
+        remaining: Math.max(0, Math.min(
+          MAX_PER_PAIR - byPair - 1,
+          MAX_PER_IP - byIp - 1,
+          MAX_PER_EMAIL - byEmail - 1,
+        )),
       }, 401);
     }
 
-    /* Signed in: clear this address's failures. Someone who mistypes
-       twice and then succeeds should start again from zero. */
-    await admin(`login_attempts?ip=eq.${encodeURIComponent(ip)}`, { method: "DELETE" });
+    /* Signed in: clear this address's failures, which takes this
+       address-and-email pair's with them. Someone who mistypes twice and
+       then succeeds should start again from zero. Failures against the
+       same email from other addresses are left alone: whoever made them
+       has not proved anything by this success. */
+    await admin(`login_attempts?${ipEq}`, { method: "DELETE" });
 
     pruneSometimes();
     return json(body);

@@ -36,28 +36,21 @@ export async function isLoggedIn(){
 export async function login(email = "", pass = ""){
   if (usingSupabase()){
     try {
-      /* The address first, before the password is even tried. A
-         customer at the wrong door should be told it is the wrong door,
-         whatever they typed underneath — and the shop's password is
-         never put to the test by somebody who could not have it. */
-      const { isOwnerEmail, signIn } = await import("../backend/client.js");
-      if (!(await isOwnerEmail(email))){
-        return {
-          ok: false,
-          notOwner: true,
-          message: "This is not the owner's account. Sign in with the owner email.",
-        };
-      }
-
+      /* Password first, through the same rate-limited door the shop's
+         customers use, and only then the question of whose account it
+         is. Asking "is this the owner's address?" before signing in
+         told anybody who typed an address whether they had found the
+         owner's — the one account worth guessing a password for. */
+      const { signIn, amOwner, signOut } = await import("../backend/client.js");
       const { data, error } = await signIn(email.trim(), pass);
 
       if (error) return { ok: false, message: friendly(error.message) };
       if (!data?.user) return { ok: false, message: "That email or password is not right." };
 
-      /* Belt and braces. The address was checked above, but the panel
-         should never open on anything but the owner's session — and this
-         is the check the database itself uses. */
-      const { amOwner, signOut } = await import("../backend/client.js");
+      /* Signed in is not the same as being the owner: every customer
+         account can get this far. The database decides, with the same
+         check every write policy uses, and anyone else is signed
+         straight back out. */
       if (!(await amOwner())){
         await signOut();
         return {
@@ -103,5 +96,6 @@ function friendly(msg = ""){
   if (m.includes("invalid login")) return "That email or password is not right.";
   if (m.includes("email not confirmed")) return "Please confirm your email address first.";
   if (m.includes("rate limit")) return "Too many attempts. Please wait a moment.";
+  if (m.includes("too many attempts")) return msg;   // the login function's own words, with the wait
   return msg || "Could not sign in.";
 }

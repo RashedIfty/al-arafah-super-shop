@@ -38,11 +38,11 @@ export function resetHTML(){
 
         <label><span>${esc(T.pw_new)}</span>
           <input id="pwNew" type="password" autocomplete="new-password"
-                 minlength="6" required></label>
+                 minlength="8" required></label>
 
         <label><span>${esc(T.pw_again)}</span>
           <input id="pwAgain" type="password" autocomplete="new-password"
-                 minlength="6" required></label>
+                 minlength="8" required></label>
 
         <p class="acct-err" id="pwErr" hidden></p>
 
@@ -73,7 +73,7 @@ export function initReset(){
     const err = $("#pwErr"), go = $("#pwGo");
     const a = $("#pwNew").value, b = $("#pwAgain").value;
 
-    const fail = a.length < 6      ? [T.pw_short,   "#pwNew"]
+    const fail = a.length < 8      ? [T.pw_short,   "#pwNew"]
                : a !== b           ? [T.pw_nomatch, "#pwAgain"]
                : null;
 

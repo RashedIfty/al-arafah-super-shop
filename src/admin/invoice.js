@@ -330,8 +330,8 @@ export function invoiceHTML(o, method = "cod"){
 <body>
 
 <div class="bar">
-  <button class="go" onclick="window.print()">Print / Save as PDF</button>
-  <button onclick="window.close()">Close</button>
+  <button class="go" id="invPrint" type="button">Print / Save as PDF</button>
+  <button id="invClose" type="button">Close</button>
 </div>
 
 <div class="sheet">
@@ -481,5 +481,11 @@ export function openInvoice(o, method = o.pay_method || "cod"){
   if (!w) return false;          // a pop-up blocker got in the way
   w.document.write(invoiceHTML(o, method));
   w.document.close();
+
+  /* The blank window shares the panel's Content-Security-Policy, which
+     allows no inline script, so onclick="..." in the markup would be
+     refused. The two buttons are wired from here instead. */
+  w.document.getElementById("invPrint")?.addEventListener("click", () => w.print());
+  w.document.getElementById("invClose")?.addEventListener("click", () => w.close());
   return true;
 }

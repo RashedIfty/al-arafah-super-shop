@@ -11,6 +11,7 @@
  *   - anything that goes wrong leaves all three fields as they were
  */
 import { SUPABASE, isConfigured } from "../backend/config.js";
+import { db } from "../backend/client.js";
 
 const ENDPOINT = () => `${SUPABASE.URL}/functions/v1/translate`;
 
@@ -22,6 +23,23 @@ const cache = new Map();
 const CACHE_MAX = 60;
 
 /**
+ * The signed-in owner's access token, or null.
+ *
+ * The function only answers the owner, so it is sent the owner's own
+ * session rather than the public key. The client refreshes the token
+ * itself, so reading it fresh on each call is enough.
+ */
+async function ownerToken(){
+  try {
+    const c = await db();
+    const { data } = await c.auth.getSession();
+    return data.session?.access_token || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Ask for a translation. Returns empty strings on any failure, which the
  * caller reads as "leave the fields alone".
  */
@@ -31,6 +49,10 @@ export async function translate(text){
 
   if (cache.has(key)) return cache.get(key);
 
+  // Signed out, or the session has lapsed: nothing to ask with.
+  const token = await ownerToken();
+  if (!token) return { bn: "", ja: "" };
+
   const stop = new AbortController();
   const timer = setTimeout(() => stop.abort(), TIMEOUT);
 
@@ -39,7 +61,8 @@ export async function translate(text){
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${SUPABASE.KEY}`,
+        apikey: SUPABASE.KEY,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ text: text.trim() }),
       signal: stop.signal,

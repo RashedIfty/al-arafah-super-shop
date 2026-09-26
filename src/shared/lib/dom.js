@@ -62,15 +62,13 @@ export function on(sel, event, handler, opts){
  *
  * An empty `img` is already handled where the markup is built, but a
  * photo that has been deleted from storage, or fails on a bad
- * connection, leaves a broken-image icon on the shelf. Attribute form,
- * so it survives innerHTML — the pages are rebuilt that way on every
- * language change.
- *
- * Guarded against looping if the placeholder itself ever goes missing.
+ * connection, leaves a broken-image icon on the shelf. A marker, not an
+ * onerror attribute: the site's Content-Security-Policy refuses inline
+ * handlers, so one listener (chrome.js on the shop, a script in
+ * admin.html) swaps in the placeholder for any img[data-fallback] that
+ * fails, once, so a missing placeholder cannot loop.
  */
-export const IMG_FALLBACK =
-  `onerror="if(!this.dataset.fb){this.dataset.fb=1;` +
-  `this.src='/images/placeholder.svg'}"`;
+export const IMG_FALLBACK = 'data-fallback';
 
 /** Smooth-scroll to an element id, accounting for the sticky nav. */
 export function scrollToId(id, delay = 0){

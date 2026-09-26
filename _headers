@@ -1,3 +1,29 @@
+# Headers Cloudflare adds to the site's files. A file can match more than
+# one rule below; Cloudflare then sends the headers of every rule it
+# matches, so the files under /assets/ get both the security headers and
+# their own Cache-Control. (This applies to the static files only; the
+# Worker's /api/* answers set their own headers.)
+
+# Security, for every page and file.
+#   HSTS          always HTTPS, for a year, subdomains too (not preloaded).
+#   nosniff       a file is only ever what its Content-Type says.
+#   Referrer      other sites see only the domain we came from.
+#   Frame / CSP frame-ancestors: no other site may show the shop in a frame.
+#   Permissions   the shop never needs the camera, microphone, location
+#                 or the browser's payment sheet.
+#   CSP           which hosts pages may load from or talk to. It is
+#                 written by build.js (the host list is kept there), which
+#                 also adds the hash of every inline <script>.
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  # >>> Content-Security-Policy: written by build.js, do not edit here
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-Gk4yns00rE6SGeYqKOjXmLgm2/ns0TSQs20JSo1mMok=' 'sha256-PUpgS2U2Wi2ovAMBoQLcbYwXoW+cunVv4ZSkqQm6yzk=' 'sha256-ozeDA7EiOPJ1ug5rXm079AE8CaA3aQdQFcw9mw9b56I=' 'sha256-txVfxZcs7Y1MVPOAUEGf6IcdynyJQReub5suu/wmzXM=' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://img.alarafahsupershop.com https://fkftvudfngcmrtylevnl.supabase.co; font-src 'self'; connect-src 'self' data: https://fkftvudfngcmrtylevnl.supabase.co wss://fkftvudfngcmrtylevnl.supabase.co https://alarafah-photos.alarafah.workers.dev https://cloudflareinsights.com; frame-src https://www.google.com https://maps.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
+  # <<< end of build.js section
+
 # How long browsers keep files. assets/ is fingerprinted by build.js,
 # so a change is a new name; the pages themselves are checked on every
 # visit (Cloudflare's default).

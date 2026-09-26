@@ -13,6 +13,36 @@ import { UI } from "../../features/i18n/index.js";
 import { SHOP } from "../../shared/shop.js";
 import { CATALOG } from "../../features/catalog/catalog.js";
 
+/*
+ * Two page-wide behaviours that used to be written as inline attributes
+ * (onsubmit="return false;" on the search forms, onerror="..." on product
+ * photos). The site's Content-Security-Policy (see _headers) refuses
+ * inline script, attributes included, so they live here instead. This
+ * module is loaded on every shop page, and both listeners sit on the
+ * document, so they cover markup that render() replaces later too.
+ */
+
+// A search form only feeds the suggestions under it; pressing Enter or
+// the search button must not reload the page with ?q= in the address.
+document.addEventListener("submit", e => {
+  if (e.target.matches?.('form[role="search"]')) e.preventDefault();
+});
+
+// A product photo that will not load (deleted from storage, or a bad
+// connection) shows the shop placeholder instead of a broken-image icon.
+// Load errors do not bubble, so this listens on the way down (capture).
+// The dataset flag stops a loop if the placeholder itself goes missing.
+// data-fallback is the new marker; the old onerror attribute is matched
+// too until every photo is written with the marker.
+document.addEventListener("error", e => {
+  const img = e.target;
+  if (!(img instanceof HTMLImageElement)) return;
+  if (!img.matches('img[data-fallback], img[onerror*="placeholder.svg"]')) return;
+  if (img.dataset.fb) return;
+  img.dataset.fb = "1";
+  img.src = "/images/placeholder.svg";
+}, true);
+
 /** Which nav item is highlighted — read from <body data-page>. */
 const currentPage = () => document.body.dataset.page || "home";
 
@@ -146,7 +176,7 @@ export function headerHTML(){
       </a>
 
       ${currentPage() === "products" || currentPage() === "home" ? `
-      <form class="search${currentPage() === "home" ? " search-home" : ""}" onsubmit="return false;" role="search">
+      <form class="search${currentPage() === "home" ? " search-home" : ""}" role="search">
         <input type="search" id="search" placeholder="${esc(T.search)}"
                aria-label="${esc(T.search)}" autocomplete="off">
         <button type="submit" aria-label="${esc(T.search)}">${icon("search")}</button>

@@ -8,6 +8,10 @@ node_modules
 .git
 .github
 
+# Source maps: build.js still writes them into assets/ so errors can be
+# traced here, but the site does not publish them.
+*.map
+
 # Source: the pages load only the built files in assets/.
 src
 worker

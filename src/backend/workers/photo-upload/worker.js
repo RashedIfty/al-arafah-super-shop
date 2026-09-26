@@ -17,15 +17,16 @@
  * split, any customer could delete the pictures of the rice.
  */
 
-/** Photos the shop will accept. Anything else is refused. */
-const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/svg+xml"]);
+/* Photos the shop will accept. Anything else is refused. No SVG, even
+   from the owner: an SVG is a document that can carry a script, and it
+   would be served from the shop's own photo address. */
+const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 /** Generous next to the ~100 KB the admin panel actually sends. */
 const MAX_BYTES = 8 * 1024 * 1024;
 
-/* A customer's own photo. Smaller, and no SVG: the page shrinks it to
-   about 40 KB before sending, so anything near the cap is not a photo,
-   and a vector file is a document that can carry a script. */
+/* A customer's own photo. Smaller: the page shrinks it to about 40 KB
+   before sending, so anything near the cap is not a photo. */
 const AVATAR_ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
 const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 
@@ -36,8 +37,44 @@ const EXT = {
   "image/jpeg": "jpg",
   "image/png": "png",
   "image/webp": "webp",
-  "image/svg+xml": "svg",
 };
+
+/**
+ * What the file really is, from its first bytes, or null.
+ *
+ * The type a browser sends is only the uploader's claim; anyone calling
+ * this endpoint directly can label an HTML page image/png. The bytes
+ * cannot lie the same way, so the photo is stored under the type they
+ * show, and anything that is not one of the three is refused.
+ */
+function sniff(bytes){
+  const at = (i, ...b) => b.every((v, k) => bytes[i + k] === v);
+  const ascii = (i, str) => at(i, ...[...str].map(c => c.charCodeAt(0)));
+
+  if (at(0, 0xFF, 0xD8, 0xFF)) return "image/jpeg";
+  if (at(0, 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A)) return "image/png";
+  if (ascii(0, "RIFF") && ascii(8, "WEBP")) return "image/webp";
+  return null;
+}
+
+/**
+ * Keep only a customer's newest photo.
+ *
+ * Every upload has a fresh name, so without this each change of picture
+ * left the old one in the bucket for good. Everything under their prefix
+ * except the file just written is removed. A failure here does not undo
+ * the upload; the leftovers are simply tried again next time.
+ */
+async function dropOlderAvatars(env, uid, keep){
+  const prefix = avatarPrefix(uid);
+  let cursor;
+  do {
+    const page = await env.BUCKET.list({ prefix, cursor });
+    const old = page.objects.map(o => o.key).filter(k => k !== keep);
+    if (old.length) await env.BUCKET.delete(old);
+    cursor = page.truncated ? page.cursor : undefined;
+  } while (cursor);
+}
 
 /**
  * Browsers refuse a cross-origin request without these.
@@ -165,7 +202,18 @@ export default {
       if (file.size > cap)
         return json(request, env, { error: "That photo is too large" }, 413);
 
-      const key = newName(file.type, who.owner ? "" : avatarPrefix(who.uid));
+      /* The file is small (capped just above), so it is read whole and
+         its first bytes checked. What they show is the type it is
+         stored and named under; a label that disagrees is refused. */
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const type = sniff(bytes);
+      if (!type || !allowed.has(type))
+        return json(request, env, { error: "That file is not a JPEG, PNG or WebP photo" }, 415);
+      if (type !== file.type)
+        return json(request, env,
+          { error: `That file is a ${type} but was sent as ${file.type}` }, 415);
+
+      const key = newName(type, who.owner ? "" : avatarPrefix(who.uid));
 
       /* How long the edge may keep it. Names are unique, so a photo
          never changes under its URL and a product picture can be held
@@ -182,11 +230,17 @@ export default {
         : "public, max-age=3600";
 
       try {
-        await env.BUCKET.put(key, file.stream(), {
-          httpMetadata: { contentType: file.type, cacheControl },
+        await env.BUCKET.put(key, bytes, {
+          httpMetadata: { contentType: type, cacheControl },
         });
       } catch (e){
         return json(request, env, { error: "Upload failed: " + e.message }, 502);
+      }
+
+      // A customer holds one photo at most: the new one.
+      if (!who.owner){
+        try { await dropOlderAvatars(env, who.uid, key); }
+        catch { /* the upload stands; see dropOlderAvatars */ }
       }
 
       return json(request, env, { url: `${env.PUBLIC_BASE}/${key}` }, 201);

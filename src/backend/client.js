@@ -1008,13 +1008,18 @@ export function orderCode(){
 /**
  * Place an order.
  *
- * The customer's details and every product's name and price are copied
- * into the order rather than referenced, so the receipt still reads
- * correctly after a price change, a rename, or the product being
+ * The database does it, in one function — place_order(), from
+ * schema/migrate-security.sql. Only product ids and quantities are sent;
+ * every name and price is read from the products table there, so what
+ * the browser believes a thing costs has no say in what the order says
+ * it costs. The customer's details and each product's name and price are
+ * copied into the order rather than referenced, so the receipt still
+ * reads correctly after a price change, a rename, or the product being
  * removed from the shop altogether.
  *
  * `lines` is [{ product, qty }] where product is a catalogue item.
- * Returns { data: order } or { error }.
+ * Returns { data: order } — the order as stored, with its `items` — or
+ * { error }.
  */
 export async function placeOrder({ ship, lines, note = "", code = "", pay = {} }){
   const c = await db();
@@ -1027,59 +1032,61 @@ export async function placeOrder({ ship, lines, note = "", code = "", pay = {} }
   if (!lines?.length) return { error: { message: "The cart is empty" } };
 
   /* How it is being paid. The database refuses anything outside the
-     four, but a clear message here beats a constraint name from there.
-     Amount and reference only mean something for a prepaid method. */
+     four too, but a clear message here saves a round trip. Amount and
+     reference only mean something for a prepaid method. */
   const method = ["paypay", "merpay", "bank", "cod"].includes(pay.method) ? pay.method : null;
   if (!method) return { error: { message: "Choose how you will pay" } };
   const prepaid = method !== "cod";
   const amount  = prepaid ? Math.max(0, Math.round(Number(pay.amount) || 0)) : null;
   const ref     = prepaid ? String(pay.ref || "").trim().slice(0, 80) || null : null;
 
-  const items = lines.map(({ product, qty }) => ({
-    product_id: product._id,
-    name_en: product.en, name_bn: product.bn, name_ja: product.ja,
-    w: product.w || "",
-    unit_price: product.p,
-    qty,
-    line_total: product.p * qty,
-  }));
-
-  const total = items.reduce((s, i) => s + i.line_total, 0);
-
   /* `ship` is where this one order goes, as the checkout form had it
      at the moment of pressing — copied in, not joined to the address
-     book, so an address edited next month does not move this box. */
-  /* The code may arrive from the checkout, which minted it early so the
+     book, so an address edited next month does not move this box.
+
+     The code may arrive from the checkout, which minted it early so the
      customer could write it as the transfer reference before the order
-     existed. Its shape is checked; anything else gets a fresh one. */
-  const order = await c.from("orders").insert({
-    code: /^AA-\d{6}-[A-Z2-9]{4}$/.test(code) ? code : orderCode(),
-    user_id: uid,
-    name: ship.full_name,
-    phone: ship.phone,
-    postal: ship.postal,
-    address: ship.address,
-    total,
-    note: note.trim() || null,
-    pay_method: method,
-    pay_amount: amount,
-    pay_ref: ref,
-  }).select().single();
+     existed. The database keeps it if it is well formed and free, and
+     otherwise gives the order a new one — so the confirmation must show
+     the code that comes back, not the one that was sent. Sending the
+     same code twice returns the first order rather than making a
+     second, which is what makes pressing the button again safe. */
+  const { data, error } = await c.rpc("place_order", {
+    ship: {
+      full_name: ship?.full_name ?? "",
+      phone:     ship?.phone ?? "",
+      postal:    ship?.postal ?? "",
+      address:   ship?.address ?? "",
+    },
+    items: lines.map(({ product, qty }) => ({ product_id: product._id, qty })),
+    note: String(note ?? ""),
+    code: String(code ?? ""),
+    pay: { method, amount, ref },
+  });
 
-  if (order.error) return order;
+  if (error) return { error: { message: orderError(error) } };
+  if (!data?.id) return { error: { message: "Could not place the order. Please try again." } };
 
-  const rows = items.map(i => ({ ...i, order_id: order.data.id }));
-  const { error } = await c.from("order_items").insert(rows);
+  const { items = [], ...order } = data;
+  return { data: { ...order, items } };
+}
 
-  /* An order with no items is worse than no order: the owner would ring
-     a customer about an empty basket. Remove it and report the failure
-     rather than leaving the wreckage. */
-  if (error){
-    await c.from("orders").delete().eq("id", order.data.id);
-    return { error };
+/* What place_order() raised, in words for the customer.
+ *
+ * The function's own refusals (sold out, too many orders in an hour, a
+ * missing field) are already written for them and pass straight
+ * through. Everything else — the function missing because the migration
+ * has not been run, a dropped connection, a permission — is not theirs
+ * to decode. */
+function orderError(error){
+  const msg = String(error?.message || "");
+  if (error?.code === "P0001" && msg) return msg;
+  if (error?.code === "PGRST202" || /place_order/.test(msg)){
+    return "The shop is being updated. Please try again in a minute.";
   }
-
-  return { data: { ...order.data, items } };
+  if (/sign in|jwt|not authenticated/i.test(msg)) return "Please sign in again, then place the order.";
+  if (/failed to fetch|network/i.test(msg)) return "Could not reach the shop. Check your connection and try again.";
+  return "Could not place the order. Please try again.";
 }
 
 /** One customer's own orders, newest first. RLS does the scoping. */
@@ -1568,10 +1575,48 @@ export async function notifyRestocked(productId){
 
 /* -------------------------------- auth ------------------------------- */
 
+/**
+ * Sign in, through the login Edge Function rather than straight to
+ * Supabase Auth — the same door the shop's customers use (see
+ * features/account/account.js). That function is where the limit on
+ * guesses lives; going round it would leave the one account worth
+ * guessing at the only one without it.
+ *
+ * On success the function hands back a session, which is installed here
+ * exactly as a password sign-in would have installed it.
+ * Returns { data: { user, session } } or { error: { message, status } }.
+ */
 export async function signIn(email, password){
   const c = await db();
   if (!c) return { error: { message: "Supabase not configured" } };
-  return c.auth.signInWithPassword({ email, password });
+
+  let res, body;
+  try {
+    res = await fetch(`${SUPABASE.URL}/functions/v1/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE.KEY,
+        Authorization: `Bearer ${SUPABASE.KEY}`,
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    body = await res.json().catch(() => ({}));
+  } catch (e){
+    return { error: { message: "Could not reach the sign-in service. Check your connection." } };
+  }
+
+  if (res.status === 429){
+    return { error: { status: 429, message: body.error || "Too many attempts. Please wait a few minutes and try again." } };
+  }
+  if (!res.ok || !body.access_token){
+    return { error: { status: res.status, message: body.error || "Could not sign in." } };
+  }
+
+  return c.auth.setSession({
+    access_token: body.access_token,
+    refresh_token: body.refresh_token,
+  });
 }
 
 /**
@@ -1625,23 +1670,6 @@ export async function amOwner(){
 
   const { data, error } = await c.rpc("is_owner");
   if (error){ console.warn("is_owner:", error.message); return false; }
-  return data === true;
-}
-
-/**
- * Is this address the shop's owner? Asked before any sign-in.
- *
- * So that a customer trying the owner's door is told which thing is
- * wrong — the address, not the password — whatever they typed in the
- * password field. It answers only about the address already in front of
- * them and cannot be used to discover any other.
- */
-export async function isOwnerEmail(email){
-  const c = await db();
-  if (!c) return false;
-
-  const { data, error } = await c.rpc("is_owner_email", { addr: String(email ?? "") });
-  if (error){ console.warn("is_owner_email:", error.message); return false; }
   return data === true;
 }
 

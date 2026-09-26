@@ -30,7 +30,7 @@ export function filtersHTML(){
       <div class="fl-row">
         <div class="fl-field fl-find">
           <span>${esc(T.fl_search)}</span>
-          <form class="search" onsubmit="return false;" role="search">
+          <form class="search" role="search">
             <input type="search" id="search2" placeholder="${esc(T.search)}"
                    aria-label="${esc(T.search)}" autocomplete="off">
             <button type="submit" aria-label="${esc(T.search)}">${icon("search")}</button>

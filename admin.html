@@ -100,7 +100,7 @@
         </div>
       </div>
 
-      <form class="ad-find" onsubmit="return false;" role="search">
+      <form class="ad-find" role="search">
         <input type="search" id="filter" placeholder="Type a product name to find it…"
                aria-label="Find a product" autocomplete="off">
         <button type="button" class="ad-find-x" id="adFindClear" aria-label="Clear" hidden><svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 6.4 17.6 5 12 10.6 6.4 5 5 6.4l5.6 5.6L5 17.6 6.4 19l5.6-5.6 5.6 5.6 1.4-1.4-5.6-5.6z"/></svg></button>
@@ -240,7 +240,7 @@
         </div>
       </div>
 
-      <form class="ad-find" onsubmit="return false;" role="search">
+      <form class="ad-find" role="search">
         <input type="search" id="cuSearch" placeholder="Find a customer by name, phone, email or address…"
                aria-label="Find a customer" autocomplete="off">
         <button type="submit" aria-label="Find a customer"><svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.5 14h-.8l-.3-.3a6.5 6.5 0 1 0-.7.7l.3.3v.8l5 5 1.5-1.5zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9"/></svg></button>
@@ -548,6 +548,27 @@
   <button type="button" class="ad-x" id="ordAlertX" aria-label="Dismiss"><svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
 </div>
 
-<script type="module" src="/assets/admin-KADNX4GY.js"></script>
+<script>
+/* Two behaviours that used to be inline attributes (onsubmit on the two
+   find boxes, onerror on product photos). The Content-Security-Policy in
+   _headers refuses inline attributes, so they are listened for here, on
+   the document, which also covers lists the panel redraws later. This
+   block is allowed by its hash, which build.js writes into _headers. */
+document.addEventListener("submit", function(e){
+  // The find boxes only filter the list below them; never reload.
+  if (e.target.matches && e.target.matches('form[role="search"]')) e.preventDefault();
+});
+document.addEventListener("error", function(e){
+  // A photo that will not load shows the placeholder, once, not a
+  // broken-image icon. Load errors do not bubble, hence capture (true).
+  var img = e.target;
+  if (!(img instanceof HTMLImageElement)) return;
+  if (!img.matches('img[data-fallback], img[onerror*="placeholder.svg"]')) return;
+  if (img.dataset.fb) return;
+  img.dataset.fb = "1";
+  img.src = "/images/placeholder.svg";
+}, true);
+</script>
+<script type="module" src="/assets/admin-VCX3LY7V.js"></script>
 </body>
 </html>
