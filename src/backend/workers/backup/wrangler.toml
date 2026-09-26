@@ -1,0 +1,21 @@
+                                # The nightly database backup's drop box.
+                                #
+                                # Deploy from this directory:
+                                #   npx wrangler deploy
+                                #   npx wrangler secret put BACKUP_TOKEN
+                                #
+                                # The GitHub Action in .github/workflows/backup.yml
+                                # sends each night's encrypted dump here, and this
+                                # puts it in the private bucket. The bucket is
+                                # reached through a binding, so no R2 keys exist
+                                # anywhere; the Action holds only BACKUP_TOKEN.
+
+name = "alarafah-backup"
+main = "worker.js"
+compatibility_date = "2026-09-25"
+
+# The private bucket, handed to the Worker as env.BACKUPS. It has no
+# public address, and a lifecycle rule deletes copies after 30 days.
+[[r2_buckets]]
+binding     = "BACKUPS"
+bucket_name = "alarafah-backups"

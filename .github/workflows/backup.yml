@@ -1,0 +1,87 @@
+# Nightly database backup.
+#
+# Every night at 03:00 Japan time (after the shop closes at 23:00) this
+# copies the whole shop out of Supabase — products, categories, deals,
+# orders, customers' profiles and addresses, settings, and the login
+# accounts — compresses it, encrypts it, and puts it in the private R2
+# bucket `alarafah-backups` through the alarafah-backup Worker. The
+# bucket keeps 30 days and deletes older copies itself.
+#
+# Supabase's free plan keeps no backups of its own; this is the copy.
+# How to restore one is in README.md.
+#
+# Secrets (GitHub → Settings → Secrets and variables → Actions):
+#   DB_PASSWORD   the database password (Supabase → Project Settings → Database)
+#   BACKUP_TOKEN  the Worker's upload password (also set on the Worker)
+#   BACKUP_PASS   the encryption passphrase — keep a copy somewhere safe:
+#                 without it no backup can be opened.
+#
+# Run it by hand: Actions → Nightly database backup → Run workflow.
+
+name: Nightly database backup
+
+on:
+  schedule:
+    - cron: "0 18 * * *"        # 18:00 UTC = 03:00 in Japan
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # The database is Postgres 17; pg_dump must be at least as new.
+      - name: Install pg_dump 17
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+               https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17 > /dev/null
+
+      - name: Dump, compress, encrypt, upload
+        env:
+          PGHOST: aws-0-ap-southeast-2.pooler.supabase.com
+          PGPORT: "5432"
+          PGDATABASE: postgres
+          PGUSER: postgres.fkftvudfngcmrtylevnl
+          PGSSLMODE: require
+          PGPASSWORD: ${{ secrets.DB_PASSWORD }}
+          BACKUP_PASS: ${{ secrets.BACKUP_PASS }}
+          BACKUP_TOKEN: ${{ secrets.BACKUP_TOKEN }}
+        run: |
+          set -euo pipefail
+          PG_DUMP=/usr/lib/postgresql/17/bin/pg_dump
+          DAY=$(TZ=Asia/Tokyo date +%F)
+
+          # The shop's own tables, whole (structure, rules, triggers and
+          # data), then the login accounts' rows. Supabase's other schemas
+          # are Supabase's and come with any new project.
+          {
+            echo "-- Al-Arafah Super Shop database backup, $DAY (Japan)"
+            "$PG_DUMP" --schema=public --no-owner --no-privileges
+            echo "-- Login accounts (auth.users, auth.identities), data only"
+            "$PG_DUMP" --data-only --no-owner --no-privileges \
+                       --table=auth.users --table=auth.identities
+          } | gzip -9 > backup.sql.gz
+
+          # A backup that is suspiciously small is a failed one: stop, so
+          # the run shows red instead of storing an empty file.
+          SIZE=$(stat -c %s backup.sql.gz)
+          echo "compressed dump: $SIZE bytes"
+          test "$SIZE" -gt 20000
+
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt \
+                  -pass env:BACKUP_PASS -in backup.sql.gz -out backup.sql.gz.enc
+
+          curl -fsS -X PUT \
+               -H "Authorization: Bearer $BACKUP_TOKEN" \
+               --upload-file backup.sql.gz.enc \
+               "https://alarafah-backup.alarafah.workers.dev/$DAY.sql.gz.enc"
+          echo
+          rm -f backup.sql.gz backup.sql.gz.enc
