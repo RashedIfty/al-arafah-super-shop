@@ -19,3 +19,6 @@
 
 # Supabase CLI scratch
 supabase/.temp/
+
+# Build tools, installed by npm
+node_modules/

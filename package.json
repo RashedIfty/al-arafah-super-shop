@@ -1,0 +1,10 @@
+{
+  "name": "al-arafah-shop",
+  "private": true,
+  "description": "Build tools only. The site is static; run `node build.js` and commit what it writes.",
+  "devDependencies": {
+    "@supabase/supabase-js": "2.117.2",
+    "esbuild": "0.28.2",
+    "sortablejs": "1.15.6"
+  }
+}

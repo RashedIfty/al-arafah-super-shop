@@ -1,0 +1,3799 @@
+/* Built by build.js — do not edit.
+   Change the files under src/storefront/styles/ and run: node build.js
+   30 files, in import order. */
+
+/* ===== base/tokens.css ===== */
+/* Design tokens — brand palette, radii, shadows */
+
+:root{
+  /* brand */
+  --red:#c8102e;
+  --red-d:#a30d25;
+  --red-l:#fdeaed;
+
+  /* The deep panels — hero, topbar, footer, the deals strip. Orange
+     leads, with just enough red beneath it to keep white text readable;
+     a flat bright orange would leave the headings floating. Kept under
+     the token names the whole stylesheet already uses, so the change is
+     one edit rather than thirty. */
+  --navy:#e2621d;        /* mid   — the orange    */
+  --navy-d:#b8380f;      /* deep  — burnt anchor  */
+  --navy-l:#fdf1e7;      /* tint  — pale ground   */
+
+  --gold:#f0a500;
+  --gold-d:#c98600;
+
+  /* neutrals — text stays a near-black with a warm cast, so headings
+     read cleanly. Orange text on white would fail contrast badly. */
+  --ink:#2b1a15;
+  --body:#5a6472;
+  --mute:#98a1ad;
+  --line:#e8ebf0;
+  --bg:#f6f7f9;
+  --white:#fff;
+
+  /* system */
+  --ok:#12805c;
+  --radius:14px;
+  --radius-sm:9px;
+  --sh:0 2px 10px rgba(20,30,50,.07);
+  --sh-md:0 6px 18px rgba(20,30,50,.10);
+  --sh-lg:0 14px 34px rgba(20,30,50,.14);
+  --wrap:1280px;
+  --nav-h:50px;
+  /* The pinned header's height, and header plus nav together. Close
+     guesses for the first paint; initStickyHeader() replaces both with
+     measured values straight after. */
+  --hdr-h:79px;
+  --stick-h:129px;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --ff:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans JP",sans-serif;
+}
+
+/* ===== base/reset.css ===== */
+/* Reset & base typography */
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--ff);color:var(--body);background:var(--white);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+img{max-width:100%;display:block}
+button,input,select{font:inherit;color:inherit}
+h1,h2,h3,h4,h5{color:var(--ink);line-height:1.22;font-weight:800;letter-spacing:-.2px}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:4px}
+
+/* ===== base/utilities.css ===== */
+/* Utility classes */
+
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 16px}
+.sr{
+  position:absolute;width:1px;height:1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;
+}
+.skip{
+  position:absolute;left:-9999px;top:0;z-index:200;
+  background:var(--navy-d);color:#fff;padding:11px 20px;border-radius:0 0 8px 0;
+}
+.skip:focus{left:0}
+
+/* Inline SVG icons — inherit colour and align with adjacent text */
+.icon{
+  display:inline-block;vertical-align:-.15em;flex-shrink:0;
+  fill:currentColor;
+}
+
+/* ===== layout/header.css ===== */
+/* Topbar, header, language switcher */
+
+.topbar{
+  background:var(--navy-d);color:rgba(255,255,255,.82);
+  font-size:12.5px;padding:7px 0;
+}
+.topbar-in{display:flex;align-items:center;justify-content:center;gap:18px}
+.topbar b{color:var(--gold)}
+.topbar-links{display:none;gap:16px;margin-left:auto}
+.topbar-links a:hover{color:#fff}
+
+
+/* Above the nav. The nav is sticky at z-index 50 and the search's
+   dropdown hangs off the header into the nav's space; without a
+   stacking context of its own the header paints beneath, and the
+   suggestions were drawn in full and hidden in full behind the red bar. */
+.header{padding:13px 0;background:#fff;border-bottom:1px solid var(--line);position:relative;z-index:60}
+
+/* Pinned, with the nav pinned beneath it. The basket and the account
+   used to scroll away with the logo, so a customer who added something
+   halfway down a long shelf had to climb all the way back to reach the
+   basket. The nav's offset is the header's real height, measured by
+   initStickyHeader(): it changes with the width, the language and
+   whether someone is signed in, so no number written here would hold. */
+.header{position:sticky;top:0}
+.header-in{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* On the narrowest phones the brand and the controls stop fitting on one
+   line, so the controls drop to their own row rather than pushing the
+   basket off the side of the screen. */
+@media(max-width:420px){
+  .header-in{gap:8px}
+  .header-in .lang{margin-left:auto}
+  .brand-logo{width:42px;height:42px}
+  .brand-tx b{font-size:15px}
+}
+
+/* On pages without a search box, push the controls to the right so the
+   header does not look half-empty. */
+body:not([data-page="products"]) .header-in .lang{margin-left:auto}
+
+.brand{display:flex;align-items:center;gap:11px;flex-shrink:0}
+.brand-logo{
+  width:52px;height:52px;border-radius:50%;object-fit:cover;flex-shrink:0;
+  box-shadow:0 0 0 2px var(--line);
+}
+.brand-tx b{
+  display:block;font-size:17px;color:var(--red);font-weight:900;
+  line-height:1.02;letter-spacing:-.4px;
+}
+.brand-tx span{
+  display:block;font-size:8.5px;letter-spacing:2.1px;
+  color:var(--navy);font-weight:800;
+}
+.brand-tx i{display:none;font-style:normal;font-size:9.5px;color:var(--mute);font-weight:600}
+
+/* No overflow:hidden here: the suggestions box hangs off this form and
+   was clipped to nothing by it. The corners are rounded on the two
+   children instead. */
+.search{
+  flex:1;display:flex;border:2px solid var(--line);border-radius:10px;
+  background:var(--bg);min-width:0;transition:.2s var(--ease);
+}
+.search input{
+  flex:1;min-width:0;border:0;outline:0;background:transparent;
+  padding:11px 14px;font-size:16px;color:var(--ink);
+  border-radius:8px 0 0 8px;
+}
+.search input::placeholder{color:var(--mute)}
+.search button{
+  border:0;background:var(--red);color:#fff;padding:0 18px;
+  cursor:pointer;font-size:15px;transition:.2s var(--ease);
+  border-radius:0 8px 8px 0;
+}
+.search button:hover{background:var(--red-d)}
+.search:focus-within{border-color:var(--red);background:#fff}
+
+.tel{display:none;align-items:center;gap:9px;flex-shrink:0}
+.tel-ico{
+  width:38px;height:38px;border-radius:50%;background:var(--red-l);
+  color:var(--red);display:grid;place-items:center;font-size:17px;flex-shrink:0;
+}
+.tel b{display:block;font-size:15px;color:var(--navy);font-weight:800;line-height:1.15}
+.tel small{display:block;font-size:10.5px;color:var(--mute);font-weight:600}
+
+/* ------------------------ language switcher --------------------------
+   One flag, and the rest behind it. Three buttons in a row worked for
+   three languages and would not survive a fourth, and on a phone they
+   ate the width the basket and the account button need.
+   -------------------------------------------------------------------- */
+.lang{position:relative;flex-shrink:0}
+
+.lang-now{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:6px 9px;border:1.5px solid var(--line);border-radius:9px;
+  background:#fff;cursor:pointer;line-height:1;
+  transition:.16s var(--ease);
+}
+.lang-now:hover{border-color:var(--red);background:var(--red-l)}
+.lang-now[aria-expanded="true"]{border-color:var(--red);background:var(--red-l)}
+.lang-caret{color:var(--mute);transition:.16s var(--ease)}
+.lang-now[aria-expanded="true"] .lang-caret{transform:rotate(180deg);color:var(--red)}
+
+/* The flag is the control: big enough to read at a glance, and the
+   emoji font carries it on every phone the shop's customers use. */
+.lang-flag{
+  font-size:19px;line-height:1;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+}
+
+.lang-menu{
+  position:absolute;top:calc(100% + 7px);right:0;z-index:90;
+  min-width:186px;padding:6px;
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 14px 40px rgba(10,22,44,.18);
+  animation:langIn .15s var(--ease);
+}
+.lang-menu[hidden]{display:none}
+@keyframes langIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+.lang-opt{
+  display:flex;align-items:center;gap:11px;width:100%;
+  padding:10px 12px;border:0;border-radius:10px;background:none;
+  cursor:pointer;font-family:inherit;text-align:left;
+  font-size:15px;font-weight:700;color:var(--ink);
+  transition:.14s var(--ease);
+}
+.lang-opt:hover{background:var(--bg)}
+.lang-opt.on{background:var(--red-l);color:var(--red);font-weight:800}
+.lang-opt:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.lang-name{flex:1;min-width:0}
+.lang-tick{color:var(--red);flex-shrink:0}
+
+.hero h1 .gold{color:var(--gold)}
+.chip.on{border-color:var(--red);background:var(--red-l)}
+
+/* ------------------- the two doors, side by side ---------------------
+   Customer sign-in and owner login are the same kind of control and are
+   built the same: one border, one radius, one height, a round icon and a
+   word. Only where they lead differs. Both are on the header at every
+   width — an owner behind the counter uses a phone as often as a
+   customer does.
+   -------------------------------------------------------------------- */
+.hdr-login, .hdr-acct{
+  display:inline-flex;align-items:center;gap:7px;flex-shrink:0;
+  box-sizing:border-box;position:relative;
+  border:1.5px solid var(--line);border-radius:22px;background:#fff;
+  padding:5px 13px 5px 5px;min-height:36px;cursor:pointer;
+  font-size:12.5px;font-weight:700;color:var(--ink);
+  transition:.16s var(--ease);white-space:nowrap;
+}
+.hdr-login:hover, .hdr-acct:hover{
+  border-color:var(--red);color:var(--red);background:var(--red-l);
+}
+
+/* The round badge each one carries: a lock, a cart, or an initial. */
+.hdr-login > span, .hdr-acct-ic{
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  display:grid;place-items:center;
+  background:var(--bg);font-size:11px;font-weight:900;color:var(--body);
+}
+.hdr-acct.is-in .hdr-acct-ic{background:var(--red-l);color:var(--red)}
+
+/* <em> is a tag, not a tone. Everything the header puts in one is a
+   plain label or a count and must never lean. */
+.hdr-login em, .hdr-acct em, .hdr-cart em,
+.hdr-acct-n, .hdr-cart-n{font-style:normal}
+
+/* The owner's door is a lock and nothing more, at every width. The
+   words were an invitation to the one person who does not need one,
+   and they took the room the basket and the account need. */
+.hdr-login{padding:5px;gap:0}
+
+@media(max-width:400px){
+  .hdr-acct em{display:none}
+  .hdr-acct{padding:5px}
+}
+
+/* -------------------- the phone header, on one line ------------------
+   Logo, flag, basket, account and the lock all fit across a 390px
+   screen once the brand stops demanding its full width and the pieces
+   stop padding themselves like desktop buttons. Wrapping put the lock
+   alone on a second row, which read as a mistake.
+   -------------------------------------------------------------------- */
+@media(max-width:620px){
+  .header-in{flex-wrap:nowrap;gap:7px}
+
+  /* The brand gives way first: it is the one thing that can be read at
+     any size, and the only one that can afford to be clipped. */
+  .brand{min-width:0;flex:0 1 auto;gap:7px}
+  .brand-tx{min-width:0}
+  .brand-tx b{font-size:14px;letter-spacing:-.3px}
+  .brand-tx span{font-size:7px;letter-spacing:1.2px}
+  .brand-logo{width:40px;height:40px}
+
+  /* Everything after it keeps its size and sits to the right. */
+  .header-in .lang{margin-left:auto}
+  .lang-now{padding:5px 6px;gap:2px}
+  .lang-flag{font-size:16px}
+
+  .hdr-cart, .hdr-acct, .hdr-login{padding:4px;min-height:32px}
+  .hdr-cart em, .hdr-acct em{display:none}
+  .hdr-login > span, .hdr-acct-ic, .hdr-cart-ic{width:24px;height:24px}
+  .hdr-out{padding:4px;min-height:32px}
+  .hdr-out em{display:none}
+
+  /* The products page carries a search box in the header as well. On
+     the one line it was squeezed to 71px: the text box went to nothing
+     and only its red button was left, a red block beside the flag. It
+     gets a row of its own under the logo line instead, the width of
+     the screen, and pinned with the rest. The brand takes whatever the
+     first row has left (basis 0), so that row can never be the one to
+     wrap. */
+  .header-in:has(> .search:not(.search-home)){flex-wrap:wrap;row-gap:9px}
+  .header-in:has(> .search:not(.search-home)) .brand{flex:1 1 0}
+  .header-in > .search{order:10;flex:1 1 100%}
+
+  /* The home page's header search is for a laptop only: on a phone the
+     home page opens on the deals and categories, as the owner asked. */
+  .header-in > .search-home{display:none}
+}
+
+/* Very small phones: shrink the brand and language buttons so the row
+   never wraps or overflows. */
+@media(max-width:420px){
+  .header{padding:10px 0}
+  .brand-logo{width:44px;height:44px}
+  .brand-tx b{font-size:16px}
+  .brand-tx span{font-size:7.5px;letter-spacing:1.6px}
+  .lang-now{padding:5px 7px}
+  .lang-flag{font-size:17px}
+  /* Both, together. This once named only the owner's button, from when
+     the customer's was hidden on a phone — and left the pair different
+     heights once it came back. */
+  .hdr-login, .hdr-acct{padding:5px}
+}
+
+/* The delivery promise, carried on every page. Gold so it reads as an
+   offer rather than another line of shop detail. */
+.topbar-dlv{
+  display:inline-flex;align-items:center;gap:5px;
+  color:var(--gold);font-weight:800;
+}
+.topbar-dlv:hover{color:#fff}
+
+/* The way out. Same shape as the two doors beside it, quieter in
+   colour — leaving is not the thing anybody came to do. */
+.hdr-out{
+  display:inline-flex;align-items:center;gap:7px;flex-shrink:0;
+  box-sizing:border-box;
+  border:1.5px solid var(--line);border-radius:22px;background:#fff;
+  padding:5px 13px 5px 5px;min-height:36px;cursor:pointer;
+  font-size:12.5px;font-weight:700;color:var(--mute);
+  transition:.16s var(--ease);white-space:nowrap;
+}
+.hdr-out:hover{border-color:var(--red);color:var(--red);background:var(--red-l)}
+.hdr-out em{font-style:normal}
+/* The same 26px circle its neighbours carry, so the three buttons sit
+   on one line rather than two pixels apart. */
+.hdr-out .icon{
+  width:26px;height:26px;padding:5px;box-sizing:border-box;
+  border-radius:50%;background:var(--bg);
+  transform:rotate(180deg);flex-shrink:0;
+}
+
+@media(max-width:400px){
+  .hdr-out em{display:none}
+  .hdr-out{padding:5px}
+}
+
+/* Below 340px the words no longer fit beside the controls and ran under
+   the flag. The round logo carries the shop's name on its own. */
+@media(max-width:340px){
+  .brand-tx{display:none}
+}
+
+/* ===== layout/nav.css ===== */
+/* Sticky navigation */
+
+.nav{
+  background:var(--red);position:sticky;top:var(--hdr-h);z-index:50;
+  box-shadow:0 2px 8px rgba(0,0,0,.10);
+}
+.nav-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.nav-scroll::-webkit-scrollbar{display:none}
+.nav-in{display:flex;gap:0;white-space:nowrap;min-height:var(--nav-h)}
+.nav-in a{
+  display:flex;align-items:center;color:#fff;font-size:13.5px;font-weight:700;
+  padding:0 14px;flex-shrink:0;opacity:.88;
+  border-bottom:3px solid transparent;transition:.2s var(--ease);
+}
+.nav-in a:hover{opacity:1;background:rgba(0,0,0,.09)}
+.nav-in a.on{opacity:1;border-bottom-color:var(--gold)}
+
+/* ------------------------- on a phone --------------------------------
+   Five links came to 446px against a 390px screen, so Contact sat off
+   the edge and had to be scrolled to — and a link you cannot see is a
+   link most people never find.
+
+   Squeezing them onto one line worked at five. Signing in adds
+   Favourites and My Orders, and seven on one line left the words
+   touching each other with My Orders against the right edge. So they
+   wrap onto two rows instead: the type stays readable, every link keeps
+   a tappable width, and the row is as tall as it needs to be rather
+   than as tall as it was drawn for.
+   -------------------------------------------------------------------- */
+@media(max-width:620px){
+  .nav-scroll{overflow-x:hidden}
+  .nav-in{
+    flex-wrap:wrap;justify-content:center;
+    min-height:0;padding:2px 0;
+  }
+  .nav-in a{
+    flex:0 1 auto;min-width:0;justify-content:center;
+    padding:9px 11px;font-size:12.5px;text-align:center;
+    /* The underline marks the page; on a wrapped row it needs to sit
+       under the word rather than under the whole strip. */
+    border-bottom-width:2px;
+  }
+}
+
+@media(max-width:400px){
+  .nav-in a{padding:8px 8px;font-size:11.5px;letter-spacing:-.2px}
+}
+
+/* ===== layout/hero.css ===== */
+/* Hero & feature strip */
+
+/* ==========================================================================
+   The shop leads.
+
+   The photograph used to be wallpaper behind the words, dimmed by a scrim
+   so the copy stayed readable — which meant the thing the owner most
+   wanted seen was the thing least visible. It is now a card of its own
+   beside the copy, shown whole and undimmed, the way a storefront is
+   presented on a modern retail site.
+   ========================================================================== */
+
+/* ------------------------- the list beside the shop -------------------- */
+/* The category list sits next to the shopfront rather than next to the
+   tiles, which is how a grocery site is usually laid out: names down the
+   side at the top, pictures across the width below. It also means the
+   tiles get the whole page rather than three quarters of it.
+   One column on a phone, where the list would leave no room for the
+   photograph — there it drops away and the tiles carry the browsing. */
+.hero-band{background:var(--bg)}
+.hero-band-in{display:grid;gap:0}
+.hero-side{display:none}
+
+@media(min-width:1000px){
+  .hero-band-in{
+    grid-template-columns:250px minmax(0,1fr);
+    gap:18px;padding-top:18px;padding-bottom:18px;
+    /* The row takes its height from the shop, not from the list: fifteen
+       names would otherwise stretch the band far taller than the
+       photograph needs. */
+    grid-auto-rows:minmax(0,auto);align-items:stretch;
+  }
+  /* Taken out of the row's height calculation: the list is absolutely
+     placed inside its own column, so however many names it holds it can
+     never stretch the band. The shop sets the height; the list fills it
+     and scrolls inside itself. */
+  .hero-side{display:block;position:relative}
+  .hero-side .cat-side{position:absolute;inset:0}
+  .hero-main{min-width:0;display:flex}
+  .hero-main .hero{flex:1;border-radius:var(--radius);overflow:hidden}
+}
+
+.hero{
+  background:
+    radial-gradient(1200px 620px at 88% -12%, rgba(247,148,38,.34), transparent 62%),
+    linear-gradient(135deg,#7d2408 0%, var(--navy-d) 34%, var(--navy) 74%, #f0801f 100%);
+  color:#fff;padding:34px 16px 40px;position:relative;overflow:hidden;
+}
+
+/* A faint grid, the way product pages carry texture without noise. */
+.hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(circle at 30% 40%, #000, transparent 72%);
+}
+
+.hero-in{position:relative;z-index:2;display:grid;gap:26px;text-align:center}
+
+/* ------------------------------- the copy ------------------------------ */
+
+.hero .kick{
+  display:inline-flex;align-items:center;gap:6px;background:var(--gold);
+  color:#3a2a00;font-size:11px;font-weight:900;letter-spacing:1.3px;
+  padding:6px 15px;border-radius:20px;
+}
+.hero h1{
+  color:#fff;font-size:29px;margin:15px 0 11px;line-height:1.14;
+  letter-spacing:-.6px;
+}
+.hero h1 span{color:var(--gold)}
+.hero p{color:rgba(255,255,255,.88);font-size:15px;max-width:560px;margin:0 auto 22px}
+.hero-cta{display:flex;gap:11px;justify-content:center;flex-wrap:wrap}
+
+.hero-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  max-width:540px;margin:20px auto 0;
+}
+.hero-stats div{
+  background:rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:12px;padding:13px 8px;
+}
+.hero-stats b{display:block;color:#fff;font-size:20px;line-height:1.08;font-weight:900}
+.hero-stats span{font-size:10px;color:rgba(255,255,255,.76);font-weight:700;letter-spacing:.6px}
+
+/* ------------------------------ the shopfront -------------------------- */
+
+/* Just the photograph. No frame around it — a white border would only
+   draw a box between the customer and the shop. The shadow alone lifts
+   it off the panel. */
+.hero-shot{margin:0}
+.hero-shot img{
+  display:block;width:100%;height:auto;
+  border-radius:16px;
+  box-shadow:0 10px 26px rgba(0,0,0,.26);
+}
+
+/* Capped on a wide screen, where the photograph would otherwise grow
+   with the column and push the deals and categories off the first
+   screen. `contain`, never `cover`: this is the owner's own shopfront and
+   the whole of it has to be visible — cropping cut the flags off the
+   awning and the shop sign off the right-hand side. */
+@media(min-width:900px){
+  .hero-shot img{max-height:290px;object-fit:contain;object-position:center}
+}
+
+/* ------------------------------ breakpoints ---------------------------- */
+
+@media(min-width:900px){
+  /* Tighter than it was. The homepage now has to carry the shop, the
+     day's deals and every category near the top, and the hero was taking
+     a third of that on its own. */
+  .hero{padding:26px 26px 28px}
+
+  /* Copy left, shop right — the storefront layout people expect. */
+  .hero-in{
+    grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);
+    align-items:center;gap:26px;text-align:left;
+  }
+  /* The photo sat 15px further from the right edge than the copy sits
+     from the left, because its column rounds down. Pushed out by that
+     much so both margins measure the same. */
+  .hero-shot{margin-right:0}
+
+  .hero h1{font-size:29px;margin-top:10px}
+  .hero p{margin-left:0;margin-right:0;font-size:16px}
+  .hero-cta{justify-content:flex-start}
+  .hero-stats{margin-left:0;max-width:470px}
+
+  .hero-shot img{border-radius:18px}
+}
+
+@media(min-width:1200px){
+  .hero h1{font-size:33px}
+  .hero-in{gap:32px;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-shot{transform:none}
+}
+
+/* The four promises, on the tint with a hairline top and bottom so the
+   strip is bounded on both sides rather than trailing off into the
+   page. Same treatment as Order on Chat: the ground steps back, the
+   cards come forward. */
+.feats{
+  background:var(--bg);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  padding:18px 0;
+}
+.feats-in{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+
+/* White against the tint. They were four claims floating on grey with
+   nothing to separate one from the next. */
+.feat{
+  display:flex;align-items:center;gap:10px;
+  background:#fff;border:1px solid var(--line);
+  border-radius:var(--radius);padding:12px 14px;
+  box-shadow:var(--sh);
+}
+.feat i{font-style:normal;font-size:22px;flex-shrink:0;color:var(--red)}
+.feat b{display:block;color:var(--ink);font-size:13px;line-height:1.25}
+.feat span{font-size:11.5px;color:var(--mute);line-height:1.35}
+
+/* Two up on a phone, and "Meat, fish & vegetables" wraps while "Fair,
+   honest rates" does not — which left one card in each row taller than
+   the other. Equal height, so the four read as a set. */
+@media(max-width:620px){
+  .feats-in{align-items:stretch}
+  .feat{height:100%}
+}
+
+/* ------------------------------ on a phone ---------------------------- */
+/* The panel had no horizontal padding at all, so the heading, the
+   sentence under it and the three counts each ran from one edge of the
+   orange to the other with nothing to breathe against. The counts
+   themselves were 6px from their own borders on either side. */
+@media(max-width:620px){
+  .hero{padding:26px 16px 32px}
+  .hero-in{gap:18px}
+  .hero h1{font-size:25px;line-height:1.2}
+  /* Side by side they wrapped to two rows of different widths, each
+     centring on its own — which reads as two buttons that will not line
+     up. Stacked and full width, they are plainly a pair. */
+  .hero-cta{flex-direction:column;align-items:stretch;gap:9px}
+  .hero-cta .btn{width:100%;justify-content:center}
+
+  .hero-stats{gap:8px;margin-top:16px}
+  /* The words are short — PRODUCTS, CATEGORIES, HALAL — and the count
+     above them is what carries the weight, so the card can afford real
+     side padding instead of pressing the text against its own border. */
+  .hero-stats div{padding:12px 9px;border-radius:10px}
+  .hero-stats b{font-size:17px}
+  .hero-stats span{font-size:9px;letter-spacing:.3px;line-height:1.25;display:block}
+}
+
+@media(max-width:380px){
+  .hero{padding:22px 13px 28px}
+  .hero h1{font-size:22px}
+  .hero-stats{gap:6px}
+  .hero-stats div{padding:11px 6px}
+  .hero-stats b{font-size:15px}
+  .hero-stats span{font-size:8.5px}
+}
+
+/* ===== layout/footer.css ===== */
+/* Footer & back-to-top */
+
+.footer{background:var(--navy-d);color:rgba(255,255,255,.70);padding:34px 0 0}
+.foot-g{display:grid;gap:26px;padding-bottom:28px}
+.foot-brand{display:flex;align-items:center;gap:11px;margin-bottom:13px}
+.foot-brand img{width:54px;height:54px;border-radius:50%;object-fit:cover}
+.foot-brand b{display:block;color:#fff;font-size:17px;font-weight:900;line-height:1.05}
+.foot-brand span{
+  display:block;font-size:8.5px;letter-spacing:2.1px;
+  color:var(--gold);font-weight:800;
+}
+.tagline{color:var(--gold);font-style:italic;font-weight:600;font-size:13.5px;margin-bottom:10px}
+.foot-col p{font-size:13.5px}
+.foot-col h4{color:#fff;font-size:14.5px;margin-bottom:13px}
+.foot-col li{margin-bottom:8px;font-size:13.5px}
+.foot-col a:hover{color:var(--gold)}
+.fc{display:flex;gap:9px;margin-bottom:10px;font-size:13.5px;line-height:1.5}
+.fc i{font-style:normal;flex-shrink:0}
+.socials{display:flex;gap:9px;margin-top:14px}
+.socials a{
+  width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.10);
+  display:grid;place-items:center;font-size:15px;color:#fff;transition:.2s var(--ease);
+}
+.socials a:hover{background:var(--gold);color:#3a2a00}
+.foot-bot{
+  border-top:1px solid rgba(255,255,255,.13);padding:15px 0;
+  font-size:12.5px;text-align:center;
+}
+.foot-bot b{color:#fff}
+
+
+.top-btn{
+  position:fixed;right:16px;bottom:16px;width:46px;height:46px;border-radius:50%;
+  background:var(--red);color:#fff;border:0;cursor:pointer;font-size:19px;
+  box-shadow:var(--sh-lg);z-index:60;display:grid;place-items:center;
+  opacity:0;visibility:hidden;transform:translateY(10px);
+  transition:.25s var(--ease);
+}
+.top-btn.show{opacity:1;visibility:visible;transform:translateY(0)}
+.top-btn:hover{background:var(--red-d)}
+
+/* Owner login — visible but clearly secondary */
+.foot-bot-in{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;
+}
+.owner-link{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:13px;font-weight:700;color:var(--gold);
+  padding:9px 18px;border:1.5px solid rgba(240,165,0,.55);
+  border-radius:22px;background:rgba(240,165,0,.10);
+  transition:.18s var(--ease);white-space:nowrap;
+}
+.owner-link:hover{
+  color:#3a2a00;background:var(--gold);border-color:var(--gold);
+}
+@media(max-width:600px){
+  .foot-bot-in{justify-content:center;text-align:center}
+  .owner-link{width:100%;justify-content:center}
+}
+
+/* ------------------------- payment methods --------------------------- */
+.pay-strip{
+  background:#fff;border-top:1px solid var(--line);
+  padding:18px 0;
+}
+.pay-in{
+  display:flex;align-items:center;justify-content:center;
+  gap:16px;flex-wrap:wrap;
+}
+.pay-label{
+  font-size:12.5px;font-weight:800;letter-spacing:.6px;
+  text-transform:uppercase;color:var(--mute);
+}
+.pay-list{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  justify-content:center;
+}
+.pay-list li{
+  display:flex;align-items:center;justify-content:center;
+  height:44px;min-width:62px;padding:0 12px;
+  background:#fff;border:1px solid var(--line);border-radius:8px;
+  transition:.18s var(--ease);
+}
+.pay-list li:hover{border-color:#cfd6e0;box-shadow:var(--sh)}
+
+/* Aspect ratios differ hugely (Amex is square, PayPay is 5:1), so size
+   each by height and let the width follow rather than capping width. */
+.pay-list img{width:auto;height:22px;display:block}
+.pay-list img[alt="American Express"]{height:28px}
+.pay-list img[alt="Mastercard"]{height:26px}
+.pay-list img[alt="JCB"]{height:26px}
+.pay-list img[alt="Visa"]{height:16px}
+.pay-list img[alt="PayPay"]{height:20px}
+.pay-cash{
+  gap:7px;font-size:13px;font-weight:700;color:var(--ink);
+}
+
+@media(max-width:600px){
+  .pay-in{gap:11px}
+  .pay-list{gap:7px}
+  .pay-list li{height:38px;min-width:52px;padding:0 9px}
+  .pay-list img{height:18px}
+  .pay-list img[alt="American Express"]{height:24px}
+  .pay-list img[alt="Mastercard"]{height:22px}
+  .pay-list img[alt="JCB"]{height:22px}
+  .pay-list img[alt="Visa"]{height:13px}
+  .pay-list img[alt="PayPay"]{height:12px}
+  .pay-cash{font-size:12px}
+}
+
+/* Who took the photographs on the home page. Creative Commons is free
+   to use, not free of obligation: the names are the price. */
+.foot-credit{font-size:10.5px;opacity:.62;margin-top:4px;line-height:1.6}
+.foot-credit a{text-decoration:underline;text-underline-offset:2px}
+.foot-credit a:hover{color:var(--gold)}
+
+/* ===== layout/pages.css ===== */
+/* Interior page templates */
+
+.page-head{
+  background:linear-gradient(125deg,var(--navy-d),var(--navy) 58%,#f79426);
+  color:#fff;padding:30px 0;text-align:center;
+}
+.page-head h1{color:#fff;font-size:25px}
+.page-head p{color:rgba(255,255,255,.82);margin-top:6px;font-size:14.5px}
+.crumb{font-size:12.5px;color:rgba(255,255,255,.65);margin-bottom:9px}
+.crumb a:hover{color:#fff}
+
+.prose{padding:30px 16px;max-width:820px;margin:0 auto}
+.prose h2{font-size:20px;margin:26px 0 11px}
+.prose h2:first-child{margin-top:0}
+.prose p{margin-bottom:13px;font-size:14.5px}
+.prose ul{margin:0 0 15px 2px}
+.prose ul li{
+  display:flex;gap:9px;margin-bottom:8px;font-size:14.5px;line-height:1.55;
+}
+.prose ul i{font-style:normal;color:var(--red);flex-shrink:0;font-weight:900}
+
+.toolbar{
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  padding:18px 16px 4px;max-width:var(--wrap);margin:0 auto;
+}
+.toolbar select{
+  border:2px solid var(--line);border-radius:var(--radius-sm);
+  padding:9px 12px;font-size:14px;background:#fff;cursor:pointer;
+}
+.toolbar select:focus{outline:0;border-color:var(--red)}
+.toolbar .res{font-size:13px;color:var(--mute);font-weight:700;margin-left:auto}
+
+.contact-grid{display:grid;gap:18px;padding:30px 16px;max-width:var(--wrap);margin:0 auto}
+.cbox{
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:24px;text-align:center;box-shadow:var(--sh);
+}
+.cbox i{font-style:normal;font-size:30px;display:block;margin-bottom:11px}
+.cbox h3{font-size:16px;margin-bottom:6px}
+.cbox p,.cbox a{font-size:14px}
+.cbox a{color:var(--red);font-weight:700}
+
+/* ===== components/splash.css ===== */
+/* ==========================================================================
+   Opening splash.
+   The page is fetched whole and painted once, so the customer never sees
+   it assemble itself. This covers that moment.
+   Written so it works with no JavaScript at all: it is in the markup and
+   styled here, and main.js only takes it away.
+   ========================================================================== */
+
+.splash{
+  position:fixed;inset:0;z-index:99999;
+  display:grid;place-items:center;
+  /* The shop's own colours, stated literally as well as through the
+     tokens: if the stylesheet carrying them has not applied yet, the
+     page underneath must still not show through. */
+  background:#b8380f;
+  background:
+    radial-gradient(900px 520px at 78% -10%, rgba(247,148,38,.42), transparent 62%),
+    linear-gradient(135deg,#7d2408 0%, #b8380f 38%, #e2621d 76%, #f79426 100%);
+  transition:opacity .35s ease;
+}
+.splash.gone{opacity:0;pointer-events:none}
+
+.splash-in{
+  display:flex;flex-direction:column;align-items:center;gap:15px;
+}
+
+/* A spinner, then the shop's name under it — enough to say the page is
+   working and whose page it is, without a logo to wait for. */
+.splash-ring{
+  width:34px;height:34px;border-radius:50%;
+  border:3px solid rgba(255,255,255,.26);
+  border-top-color:#fff;
+  animation:splashSpin .8s linear infinite;
+}
+
+.splash-word{
+  font-size:12.5px;font-weight:800;letter-spacing:2.4px;
+  color:rgba(255,255,255,.92);text-transform:uppercase;
+  animation:splashFade 1.6s ease-in-out infinite;
+}
+
+@keyframes splashSpin{ to{ transform:rotate(360deg) } }
+@keyframes splashFade{ 0%,100%{opacity:.55} 50%{opacity:1} }
+
+/* The page underneath stays out of sight until the data is in.
+   visibility, not opacity: a partly-transparent page showing through the
+   splash was exactly the muddle this is meant to avoid. The transition is
+   only on the visible state, so nothing animates on the way in. */
+body:not(.ready) .page-hide{visibility:hidden;opacity:0}
+body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
+
+/* Already inside the shop: no opening screen at all. Set by a small
+   script in the markup before the browser paints, so there is not even a
+   frame of navy when moving between pages. */
+.no-splash .splash{display:none}
+.no-splash body:not(.ready) .page-hide,
+.no-splash .page-hide{visibility:visible;opacity:1}
+
+/* Someone who prefers less motion gets a still ring rather than a spin. */
+@media(prefers-reduced-motion:reduce){
+  .splash-ring,.splash-word{animation:none}
+  .splash,.page-hide{transition:none}
+}
+
+/* ===== components/ticker.css ===== */
+/* The scrolling strip at the very top of every page */
+
+/* Darker than the topbar beneath it. Both are orange, and at the same
+   weight the two strips read as one confused band; a deeper ground gives
+   the moving text a lane of its own. */
+.tick{
+  position:relative;overflow:hidden;
+  background:linear-gradient(100deg,#7a2408,#9c3410 45%,#7a2408);
+  color:#fff;
+  border-bottom:1px solid rgba(0,0,0,.2);
+}
+
+/* The two copies sit side by side and the pair slides left by exactly
+   half its width — one copy — before snapping back. Because the halves
+   are identical the snap is invisible, and the text appears to run
+   forever. A single copy would drag a gap across the screen each loop. */
+.tick-track{
+  display:flex;width:max-content;
+  animation:tickRun var(--dur,60s) linear infinite;
+}
+.tick-run{display:flex;align-items:center;flex-shrink:0}
+
+@keyframes tickRun{
+  from{transform:translateX(0)}
+  to  {transform:translateX(-50%)}
+}
+
+/* Pause on hover, so a line that catches the eye can actually be read
+   rather than escaping off the edge. */
+.tick:hover .tick-track{animation-play-state:paused}
+
+.tick-item{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 0;white-space:nowrap;
+  font-size:13px;font-weight:600;letter-spacing:.2px;
+}
+
+/* Gold, the shop's third colour, so each line opens with a spot of warmth
+   rather than another white shape. */
+.tick-ico{
+  display:inline-flex;color:var(--gold);
+  /* Nudged up a hair: the icons are optically low against the cap height
+     of the text beside them. */
+  transform:translateY(-.5px);
+}
+
+/* The separator between lines, kept faint — it is punctuation, not
+   content, and should not compete with the words. */
+.tick-dot{
+  padding:0 18px;font-size:8px;color:var(--gold);opacity:.55;
+  transform:translateY(-1px);
+}
+
+@media(min-width:700px){
+  .tick-item{font-size:13.5px;padding:9px 0}
+  .tick-dot{padding:0 22px}
+}
+
+/* Motion off: the strip becomes an ordinary line of text, still readable,
+   with the overflow simply clipped. Someone who has asked their machine
+   to stop animations should not have text crawling across their screen. */
+@media(prefers-reduced-motion:reduce){
+  .tick-track{animation:none}
+}
+
+@media print{ .tick{display:none} }
+
+/* ===== components/announcement.css ===== */
+/* Shop announcement banner */
+
+.notice{
+  position:relative;overflow:hidden;
+  background:linear-gradient(100deg,var(--gold),#ffc746 45%,var(--gold));
+  border-top:1px solid rgba(0,0,0,.06);
+  border-bottom:1px solid rgba(0,0,0,.10);
+}
+
+/* A slow sheen so the eye catches it without the banner shouting. */
+.notice::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);
+  background-size:220% 100%;
+  animation:noticeSheen 5.5s ease-in-out infinite;
+}
+@keyframes noticeSheen{
+  0%,60%{background-position:180% 0}
+  100%  {background-position:-80% 0}
+}
+
+.notice-in{
+  position:relative;z-index:2;
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;
+}
+
+.notice-icon{
+  flex-shrink:0;width:34px;height:34px;border-radius:50%;
+  background:rgba(58,42,0,.14);color:#3a2a00;
+  display:grid;place-items:center;
+}
+
+.notice-text{
+  flex:1;min-width:0;
+  color:#3a2a00;font-size:14.5px;font-weight:700;line-height:1.45;
+}
+
+@media(min-width:700px){
+  .notice-in{padding:15px 16px}
+  .notice-text{font-size:15.5px;text-align:center}
+  .notice-icon{width:36px;height:36px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .notice::after{animation:none;opacity:0}
+}
+
+@media print{ .notice{display:none} }
+
+/* ===== components/deals-bar.css ===== */
+/* Today's Deal & New Arrival — the homepage highlight */
+
+.ann{
+  background:linear-gradient(120deg,var(--navy-d),var(--navy) 55%,#f79426);
+  border-radius:var(--radius);
+  margin:26px 16px 6px;
+  max-width:calc(var(--wrap) - 32px);
+  color:#fff;position:relative;overflow:hidden;
+  box-shadow:var(--sh-md);
+}
+@media(min-width:1312px){ .ann{margin-left:auto;margin-right:auto} }
+
+.ann::after{
+  content:"";position:absolute;right:-80px;top:-80px;width:250px;height:250px;
+  border-radius:50%;background:rgba(240,165,0,.10);pointer-events:none;
+}
+.ann-in{padding:14px 16px 16px;position:relative;z-index:2}
+
+/* ------------------------------- heading ------------------------------ */
+.ann-head{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.ann-star{
+  color:var(--gold);font-size:20px;flex-shrink:0;
+  animation:annPulse 2.4s ease-in-out infinite;
+}
+@keyframes annPulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%    {opacity:.55;transform:scale(.85)}
+}
+.ann-head h2{color:#fff;font-size:19px;line-height:1.2}
+.ann-head p{
+  font-size:12.5px;color:rgba(255,255,255,.74);
+  margin-top:3px;line-height:1.35;
+}
+
+/* ------------------------------- rail --------------------------------- */
+/* ----------------------------- carousel ------------------------------ */
+.ann-carousel{position:relative;display:flex;align-items:center;gap:8px}
+
+.ann-scroll{
+  flex:1;min-width:0;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  scroll-snap-type:x mandatory;
+  padding-bottom:4px;
+}
+.ann-scroll::-webkit-scrollbar{display:none}
+.ann-scroll:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:8px}
+
+/* Half a viewport of padding either side lets the first and last card
+   sit centred, with their neighbours visible at the edges. */
+.ann-row{display:flex;gap:18px;width:max-content;padding:6px 0}
+.ann-item{scroll-snap-align:center}
+
+/* arrows */
+.ann-nav{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:3;
+  width:42px;height:42px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.12);color:#fff;
+  display:grid;place-items:center;cursor:pointer;
+  transition:.18s var(--ease);
+}
+.ann-nav.prev{left:4px}
+.ann-nav.next{right:4px}
+.ann-nav{
+  background:rgba(40,12,3,.55);border-color:rgba(255,255,255,.35);
+  backdrop-filter:blur(6px);
+}
+.ann-nav:hover{background:#fff;color:var(--navy-d)}
+.ann-nav.prev svg{transform:rotate(-90deg)}
+.ann-nav.next svg{transform:rotate(90deg)}
+
+/* dots */
+.ann-dots{
+  display:flex;justify-content:center;gap:6px;margin-top:9px;
+}
+.ann-dots:empty{display:none}
+.ann-dot{
+  width:7px;height:7px;border-radius:50%;padding:0;cursor:pointer;
+  border:0;background:rgba(255,255,255,.32);transition:.2s var(--ease);
+}
+.ann-dot:hover{background:rgba(255,255,255,.6)}
+.ann-dot.on{background:var(--gold);width:22px;border-radius:4px}
+
+/* -------------------------- item = photo card ------------------------- */
+.ann-item{
+  /* Narrower than it was, for the same reason the hero is shorter: the
+     strip shares the first screen with the categories now. */
+  flex-shrink:0;width:190px;
+  background:#fff;border-radius:16px;overflow:hidden;
+  display:flex;flex-direction:column;
+  box-shadow:0 4px 14px rgba(0,0,0,.20);
+
+  /* Off-centre cards recede: smaller, dimmed and softly blurred. */
+  transform:scale(.82);
+  opacity:.45;
+  filter:blur(2px);
+
+  /* Only transform and opacity are transitioned - both run on the
+     compositor. Animating filter repaints the whole card each frame,
+     which with six image cards was enough to lock up the page. */
+  transition:transform .45s var(--ease), opacity .45s var(--ease);
+  will-change:transform;
+}
+
+.ann-item.is-active{
+  transform:scale(1);
+  opacity:1;
+  filter:none;
+  box-shadow:0 16px 40px rgba(0,0,0,.38);
+  will-change:auto;
+}
+.ann-item.is-active:hover{transform:scale(1.02)}
+.ann-item.deal{box-shadow:0 4px 14px rgba(0,0,0,.20),0 0 0 2px var(--gold)}
+.ann-item.deal:hover{box-shadow:0 12px 28px rgba(0,0,0,.32),0 0 0 2px var(--gold)}
+
+/* big image — the highlight */
+/* 5:4 rather than 4:3. Most of these are packets photographed upright,
+   and in a wide box `contain` left a band of white down each side; a
+   squarer box gives the picture more of the card. */
+.ann-img{
+  position:relative;aspect-ratio:5/4;background:#fff;overflow:hidden;
+}
+.ann-img img{
+  width:100%;height:100%;object-fit:contain;display:block;
+  transition:transform .4s var(--ease);
+}
+.ann-item:hover .ann-img img{transform:scale(1.07)}
+
+/* Both badges live on the right, clear of the halal seal stamped into
+   the top-left of the photograph. The discount sits under the label
+   rather than beside it: on a narrow card they would not both fit
+   across, and stacked they never collide however long the label is. */
+.ann-tag{
+  position:absolute;top:8px;right:8px;z-index:2;
+  font-size:9px;font-weight:900;letter-spacing:.6px;
+  padding:3px 8px;border-radius:5px;line-height:1.35;
+}
+.ann-tag.new{background:#12805c;color:#fff}
+.ann-tag.deal{background:var(--gold);color:#3a2a00}
+/* A special offer blinks between red and gold, and its card carries a
+   red frame, so it is the first thing in the strip the eye finds. Well
+   under three flashes a second, and still for reduced motion. */
+.ann-tag.offer{background:var(--red);color:#fff;animation:annBlink 1.2s steps(1) infinite}
+@keyframes annBlink{50%{background:var(--gold);color:#3a2a00}}
+.ann-item.offer{box-shadow:0 0 0 2px var(--red)}
+@media(prefers-reduced-motion:reduce){ .ann-tag.offer{animation:none} }
+.ann-off{
+  position:absolute;top:32px;right:8px;z-index:2;
+  background:var(--red);color:#fff;font-size:10px;font-weight:900;
+  padding:3px 7px;border-radius:5px;line-height:1.35;
+}
+
+/* text below the photo */
+.ann-tx{padding:7px 9px 9px;display:flex;flex-direction:column;flex:1}
+.ann-tx b{
+  display:block;color:var(--ink);font-size:12.5px;font-weight:700;
+  line-height:1.28;margin-bottom:2px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;min-height:0;
+}
+.ann-w{
+  font-size:11px;color:var(--mute);font-weight:600;margin-bottom:5px;
+}
+.ann-price{margin-top:auto;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.ann-price .now{
+  color:var(--red);font-size:16px;font-weight:900;letter-spacing:-.5px;
+}
+.ann-price .was{
+  font-size:13px;color:var(--mute);text-decoration:line-through;
+}
+
+/* ----------------------------- breakpoints ---------------------------- */
+
+/* Small phones: a narrower card, and the arrows would crowd the screen. */
+@media(max-width:520px){
+  .ann-in{padding:16px 14px 18px}
+  .ann-item{width:190px}
+  .ann-row{gap:12px}
+  .ann-nav{display:none}          /* swipe instead */
+  .ann-head h2{font-size:17px}
+  .ann-tx b{font-size:14px}
+  .ann-price .now{font-size:19px}
+}
+
+@media(min-width:600px){
+  .ann-in{padding:16px 18px 18px}
+  .ann-item{width:200px}
+  .ann-head h2{font-size:21px}
+}
+
+@media(min-width:1000px){
+  .ann-head h2{font-size:22px}
+  .ann-item{width:215px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .ann-item{transition:none;filter:none;opacity:1;transform:none}
+  .ann-item.is-active{transform:none}
+}
+
+@media print{ .ann{display:none} }
+
+/* ===== components/button.css ===== */
+/* Buttons */
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 26px;border-radius:var(--radius-sm);font-weight:700;font-size:14px;
+  cursor:pointer;border:2px solid transparent;transition:.2s var(--ease);
+  white-space:nowrap;
+}
+.btn-gold{background:var(--gold);color:#3a2a00;border-color:var(--gold)}
+.btn-gold:hover{background:var(--gold-d);border-color:var(--gold-d);color:#fff}
+.btn-red{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-red:hover{background:var(--red-d);border-color:var(--red-d)}
+.btn-line{border-color:rgba(255,255,255,.55);color:#fff}
+.btn-line:hover{background:#fff;color:var(--navy-d);border-color:#fff}
+.btn-out{border-color:var(--line);color:var(--ink);background:#fff}
+.btn-out:hover{border-color:var(--red);color:var(--red)}
+
+/* ===== components/chips.css ===== */
+/* Category chips & section headings */
+
+.chips{padding:26px 16px 6px}
+.chips-in{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.chip{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:15px 6px;text-align:center;transition:.2s var(--ease);
+}
+.chip:hover{border-color:var(--red);box-shadow:var(--sh-md);transform:translateY(-3px)}
+.chip img{
+  width:56px;height:56px;border-radius:10px;object-fit:contain;background:#fff;
+  margin:0 auto 8px;background:var(--bg);border:1px solid var(--line);
+}
+.chip b{display:block;font-size:12px;color:var(--ink);line-height:1.25;font-weight:700}
+.chip span{font-size:10.5px;color:var(--mute)}
+
+
+.sec{padding:26px 16px 6px;scroll-margin-top:calc(var(--stick-h) + 6px)}
+.sec-head{
+  display:flex;align-items:center;gap:11px;padding-bottom:12px;
+  margin-bottom:17px;border-bottom:2px solid var(--line);
+}
+.sec-no{
+  background:var(--red);color:#fff;width:28px;height:28px;border-radius:50%;
+  display:grid;place-items:center;font-size:12.5px;font-weight:900;flex-shrink:0;
+}
+.sec-head h2{font-size:19px}
+.sec-head .n{
+  margin-left:auto;font-size:11.5px;color:var(--mute);
+  font-weight:700;white-space:nowrap;
+}
+/* Tighter: the homepage carries the shop, the deals and every category
+   near the top, and each heading was taking a band of its own. */
+.sec-title{text-align:center;margin-bottom:13px}
+.sec-title h2{font-size:19px}
+.sec-title p{font-size:12.5px;margin-top:3px}
+
+/* ===== components/category-browser.css ===== */
+/* Category browser — sidebar list + photo tile grid */
+
+.cat-browse{display:grid;gap:18px}
+
+/* ------------------------------ sidebar ------------------------------- */
+/* The list and the tiles beside it end level.
+ *
+ * The list is one row per category and the tiles are six to a row, so
+ * the list ran far the taller of the two and left a tall column of white
+ * beside the grid. It now takes its height from the row and scrolls
+ * inside itself when it has more names than there is room for — the
+ * heading stays put while the names move under it. */
+.cat-side{
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px 0 8px;background:#fff;box-shadow:var(--sh);
+  align-self:stretch;
+  display:flex;flex-direction:column;min-height:0;
+  overflow:hidden;
+}
+.cat-side h3{
+  font-size:13.5px;padding:0 13px 9px;
+  border-bottom:1px solid var(--line);margin-bottom:5px;
+  flex-shrink:0;
+}
+/* Everything below the heading scrolls as one: the categories, the rule,
+   and the three shelves under it. Scrolling only the first list meant the
+   shelves held a fixed strip at the bottom and left room for barely three
+   category names above them. */
+.cat-side{overflow:hidden}
+.cat-side-scroll{overflow-y:auto;min-height:0;flex:1;scrollbar-width:thin}
+.cat-side a{
+  display:flex;align-items:center;gap:9px;padding:5px 13px;
+  transition:.15s var(--ease);
+}
+
+/* Beside the shop the list has only the photograph's height to work
+   with, so its rows are tighter and its thumbnails smaller than on the
+   products page, where it has the whole column. */
+.hero-side .cat-side a{padding:5px 14px;gap:9px}
+.hero-side .cat-side img{width:28px;height:28px;border-radius:6px}
+.hero-side .cat-side h3{font-size:14px;padding:0 14px 8px;margin-bottom:3px}
+.hero-side .cat-side span{font-size:12.5px}
+.hero-side .cat-side-more{margin-top:6px;padding-top:8px;font-size:11px}
+.cat-side a:hover{background:var(--red-l)}
+.cat-side img{
+  width:28px;height:28px;border-radius:6px;object-fit:contain;flex-shrink:0;
+  border:1px solid var(--line);background:var(--bg);
+}
+.cat-side span{
+  flex:1;min-width:0;font-size:12.5px;color:var(--ink);font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.cat-side a:hover span{color:var(--red)}
+.cat-side em{
+  font-style:normal;font-size:11px;color:var(--mute);
+  font-weight:700;flex-shrink:0;
+}
+
+/* ------------------------------- tiles -------------------------------- */
+/* As many tiles as fit at the minimum width, rather than a fixed count
+   per row: the shop should show as much of itself as the screen allows. */
+.cat-tiles{
+  display:grid;gap:14px;
+  grid-template-columns:repeat(2,1fr);
+}
+
+.cat-tile{text-align:center;transition:.2s var(--ease)}
+
+/* Wider than tall, because that is the shape the pictures are.
+ *
+ * These are group shots — a spread of bottles, a pile of spices — and
+ * they come out roughly 3:2. In a square box that left a band of empty
+ * white above and below every one, so the tiles looked mostly blank with
+ * a small picture floating in the middle. Matching the box to the
+ * pictures fills it without cropping anything away.
+ */
+/* The tint, as under the promises above and Order on Chat below. The
+   tiles were already white cards; all they wanted was a ground to sit
+   against instead of white on white. */
+.cat-band{
+  background:var(--bg);
+  border-bottom:1px solid var(--line);
+  padding:24px 0 28px;
+}
+
+.cat-tile-img{
+  border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;background:#fff;margin-bottom:6px;
+  aspect-ratio:4/3;transition:.2s var(--ease);
+}
+/* `contain`, never `cover`: a category picture has its subject arranged
+   across the whole frame, and cropping the edges off cuts the bottles at
+   either end out of the shot. No padding either — the margin is trimmed
+   out of the files themselves, so adding more here would only reintroduce
+   the empty band this is meant to remove. */
+.cat-tile-img img{
+  width:100%;height:100%;object-fit:contain;
+  transition:transform .4s var(--ease);
+}
+
+/* Shorter on a phone. At 4:3 across half a 390px screen each picture ran
+   to 127px tall, so two rows of tiles filled the view and the categories
+   below them were never seen. A wider box shows the same picture in less
+   height. */
+@media(max-width:620px){
+  /* Three across, so a phone shows nine categories in the space that was
+     showing four. The picture goes square to suit the narrower tile. */
+  .cat-tiles{gap:7px;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .cat-tile-img{aspect-ratio:1/1}
+  .cat-tile b{font-size:10px;line-height:1.2}
+  .cat-tile small{font-size:9px}
+}
+.cat-tile:hover .cat-tile-img{border-color:var(--red);box-shadow:var(--sh-lg)}
+.cat-tile:hover .cat-tile-img img{transform:scale(1.07)}
+.cat-tile:hover{transform:translateY(-3px)}
+
+.cat-tile b{
+  display:block;font-size:11.5px;color:var(--ink);
+  font-weight:700;line-height:1.25;
+}
+.cat-tile:hover b{color:var(--red)}
+.cat-tile span{font-size:9.5px;color:var(--mute)}
+
+/* ------------------------------ shelves ------------------------------- */
+/* Countrywise, New and Popular are ways of looking across the shop rather
+   than places a product lives. The rule says so: everything above it is a
+   category, everything below it is another way in. Without the separation
+   Countrywise reads as a tenth category, which is exactly the confusion
+   this arrangement exists to prevent. */
+
+.cat-main{min-width:0}
+
+.shelf-rule{
+  display:flex;align-items:center;gap:12px;
+  margin:18px 0 12px;
+}
+.shelf-rule::before,
+.shelf-rule::after{
+  content:"";height:2px;flex:1;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--navy));
+}
+.shelf-rule::after{background:linear-gradient(90deg,var(--navy),transparent)}
+.shelf-rule span{
+  font-size:11.5px;font-weight:900;letter-spacing:1.1px;
+  text-transform:uppercase;color:var(--navy-d);white-space:nowrap;
+}
+
+/* An orange edge marks a shelf tile as a different kind of thing even
+   once it has scrolled away from the rule. On white like the category
+   pictures, so it is not sitting in a tinted box of its own.
+
+   Square, unlike the categories: a globe and two round badges are as tall
+   as they are wide, and a 4:3 box would leave a margin down each side
+   rather than removing one. */
+.cat-tile.is-shelf .cat-tile-img{
+  border-color:var(--navy);background:#fff;aspect-ratio:1/1;
+}
+.cat-tile.is-shelf b{color:var(--navy-d)}
+.cat-tile.is-shelf:hover .cat-tile-img{border-color:var(--navy-d)}
+
+/* Laid out on the same grid as the categories, so a shelf tile is the
+   size of a category tile rather than merely close to it. Filling the row
+   with three made them half again as large as everything above, which
+   read as a banner rather than as part of the same set.
+
+   Three tracks at the categories' own minimum width, centred in the
+   row. */
+.shelf-tiles{
+  --gap:14px;
+  /* The same minimum width the categories use, so a shelf tile always
+     matches them however many columns the row happens to take. Capped at
+     four tracks, one for each shelf. */
+  gap:var(--gap);
+  grid-template-columns:repeat(4,minmax(0,140px));
+  justify-content:center;
+}
+
+
+/* Below 1000px the categories cap at three columns whatever --catcols
+   says, so the shelves take three too — the row is exactly full, and
+   there is nothing to centre. */
+
+
+/* Two across on a phone, matching the categories, where three would leave
+   the names too narrow to read. --catcols still carries the desktop count,
+   so the track is pinned here rather than inherited. The odd one out takes
+   the full width and centres itself. */
+@media(max-width:599px){
+  /* All three on one row. Two-and-one left the last shelf alone on a
+     line of its own, which read as an afterthought rather than the third
+     of three. Narrower tiles are the price and they carry it: these are
+     pictures with a word under them. */
+  .shelf-tiles{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+  .shelf-tiles .cat-tile-img{aspect-ratio:1/1}
+  .shelf-tiles .cat-tile b{font-size:10px;line-height:1.2}
+  .shelf-tiles .cat-tile small{font-size:9px}
+}
+
+/* The sidebar's own heading for the same group. */
+.cat-side-more{
+  margin-top:9px;padding-top:11px;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  color:var(--navy-d);font-size:12px;letter-spacing:.6px;text-transform:uppercase;
+  /* Stays put while the category names scroll past above it: the three
+     shelves are the fixed part of the list and should not scroll away. */
+  flex-shrink:0;
+}
+
+/* ----------------------------- breakpoints ---------------------------- */
+/* Both grids carry .cat-tiles, so the column rules are scoped away from
+   the shelves, which size their tracks from --catcols instead. */
+@media(min-width:600px){
+  .cat-tiles:not(.shelf-tiles){grid-template-columns:repeat(min(3,var(--cols,3)),1fr)}
+  .cat-tiles{gap:16px}
+  .cat-tile b{font-size:12px}
+  .shelf-tiles{--gap:16px}
+}
+
+@media(min-width:1000px){
+  /* Sidebar on the left, tiles filling the rest — the reference layout */
+  .cat-browse{grid-template-columns:216px 1fr;gap:18px}
+  /* Six to a row, at the tiles' own size rather than stretched to fill
+     the width, and the block centred. Filling the row made each tile half
+     again as large as it needs to be; letting the row run as wide as it
+     likes left the last one adrift. */
+  .cat-tiles:not(.shelf-tiles){
+    grid-template-columns:repeat(6,minmax(0,140px));
+    justify-content:center;
+  }
+  .cat-tiles{gap:9px}
+  .shelf-tiles{--gap:9px}
+}
+
+@media print{ .cat-side{display:none} }
+
+/* ===================== every category, in one row ====================
+   Twenty-odd shelves will not fit across a screen and will not fit down
+   one either without burying the page, so they go sideways: swiped on a
+   phone, dragged or nudged with the arrows on a desktop.
+
+   On the shop's tint rather than white, sitting flush against the deals
+   band below it, so the two read as one block of the page instead of a
+   borrowed bar laid on top.
+   ==================================================================== */
+.cstrip{
+  background:var(--bg);
+  border-top:1px solid var(--line);
+  position:relative;z-index:5;
+}
+.cstrip-in{
+  display:flex;align-items:center;gap:11px;
+  padding-top:11px;padding-bottom:11px;
+}
+
+/* "All categories" stays put while the rest scrolls past it, and wears
+   the shop's red so the row has an anchor. */
+.cstrip-all{
+  flex-shrink:0;display:inline-flex;align-items:center;gap:7px;
+  padding:9px 15px;border-radius:22px;
+  background:var(--red);color:#fff;
+  font-size:12.5px;font-weight:800;white-space:nowrap;
+  box-shadow:0 3px 10px rgba(200,16,46,.22);
+  transition:.16s var(--ease);
+}
+.cstrip-all:hover{background:var(--red-d);transform:translateY(-1px)}
+.cstrip-all .icon{opacity:.9}
+
+/* The rail holds the arrows against the scroller, and carries the fade
+   that says there is more to the right. */
+/* The pills belong to the rail and stop at its edge. Without the clip
+   the drifting row passes behind "All categories", which then swallows
+   the first pill's taps. Its own stacking context keeps the arrows and
+   the fade over the row and under nothing else. */
+.cstrip-rail{
+  position:relative;flex:1;min-width:0;display:flex;align-items:center;
+  isolation:isolate;overflow:hidden;
+}
+
+.cstrip-scroll{
+  display:flex;align-items:center;gap:9px;
+  flex:1;min-width:0;overflow-x:auto;
+  /* Deliberately NOT scroll-behavior:smooth. The row is drifted a
+     fraction of a pixel per frame, and smooth treats every one of those
+     as a new target to ease towards — the easing swallows the step and
+     the row never moves at all. The arrows add it for their own jump. */
+  scroll-behavior:auto;
+  /* The bar itself is noise on a strip this short; the fade at the end
+     is what says there is more. */
+  scrollbar-width:none;-ms-overflow-style:none;
+  -webkit-overflow-scrolling:touch;
+  /* No scroll snapping. Snap drags the row back to the nearest pill
+     edge after every frame the drift moves it, which pinned it at one
+     position and looked like it had jammed. A row that moves by itself
+     has no resting place to snap to. */
+  padding:3px 1px;
+}
+.cstrip-scroll::-webkit-scrollbar{display:none}
+.cstrip-scroll.dragging{cursor:grabbing}
+/* Only while an arrow is doing the moving. */
+.cstrip-scroll.gliding{scroll-behavior:smooth}
+.cstrip-scroll.dragging .cstrip-pill{pointer-events:none}
+
+/* One pass of the shelves, printed twice. Each copy keeps its own row
+   so the two meet with exactly the gap the pills already use, and the
+   wrap from the end of one to the start of the next is invisible.
+   `width:max-content` stops the flex parent squeezing them. */
+.cstrip-run{
+  display:flex;align-items:center;gap:9px;
+  flex:0 0 auto;width:max-content;
+}
+
+/* White cards on the tint, like every other card in the shop. */
+.cstrip-pill{
+  flex-shrink:0;display:inline-flex;align-items:center;gap:8px;
+  padding:6px 13px 6px 6px;border:1px solid var(--line);border-radius:22px;
+  background:#fff;color:var(--ink);
+  font-size:12.5px;font-weight:700;white-space:nowrap;
+  box-shadow:var(--sh);
+  transition:.16s var(--ease);
+}
+.cstrip-pill:hover{
+  border-color:var(--red);color:var(--red);
+  box-shadow:var(--sh-md);transform:translateY(-1px);
+}
+.cstrip-pill:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* The shelf's own photo, the same one the sidebar and the tiles use. */
+.cstrip-pill img{
+  width:26px;height:26px;border-radius:50%;object-fit:cover;flex-shrink:0;
+  background:var(--bg);
+}
+
+/* How many things are on that shelf, quieter than the name. */
+.cstrip-pill em{
+  font-style:normal;font-size:10.5px;font-weight:800;color:var(--mute);
+  background:var(--bg);border-radius:10px;padding:1px 6px;
+}
+.cstrip-pill:hover em{background:var(--red-l);color:var(--red)}
+
+/* Countrywise, New, Popular — ways of looking across the shop rather
+   than places a product lives, so they read a shade apart. */
+.cstrip-pill.shelf{color:var(--navy);background:var(--navy-l);border-color:transparent}
+.cstrip-pill.shelf:hover{color:var(--red);background:#fff;border-color:var(--red)}
+
+/* Only shown when there is somewhere to go, and only useful to a mouse.
+   They float over the ends of the row rather than taking width from it. */
+.cstrip-arrow{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:2;
+  display:grid;place-items:center;width:30px;height:30px;
+  border:1px solid var(--line);border-radius:50%;background:#fff;
+  color:var(--body);cursor:pointer;box-shadow:var(--sh-md);
+  transition:.16s var(--ease);
+}
+.cstrip-arrow:hover{border-color:var(--red);color:var(--red)}
+.cstrip-arrow[hidden]{display:none}
+.cstrip-arrow.left{left:-2px}
+.cstrip-arrow.right{right:-2px}
+.cstrip-arrow.left .icon{transform:rotate(180deg)}
+
+/* A hint that the row keeps going, rather than a hard edge. */
+.cstrip-rail::after{
+  content:"";position:absolute;right:0;top:0;bottom:0;width:38px;
+  background:linear-gradient(90deg,transparent,var(--bg));
+  pointer-events:none;
+}
+
+@media(max-width:620px){
+  .cstrip-in{gap:9px;padding-top:9px;padding-bottom:9px}
+  .cstrip-all{padding:8px 12px;font-size:12px}
+  .cstrip-all span{display:none}          /* the icon carries it */
+  .cstrip-pill{padding:5px 11px 5px 5px;font-size:12px;gap:7px}
+  .cstrip-pill img{width:24px;height:24px}
+  /* A thumb does the scrolling here. */
+  .cstrip-arrow{display:none}
+}
+
+@media print{ .cstrip{display:none} }
+
+/* ------------------------- the special offer ------------------------- 
+   Its picture already bounces and flashes; the tile's frame pulses red
+   and gold in time, and its name is red, so the eye lands here first.
+   Slow enough to stay well under three flashes a second. Everything
+   stops for anyone who has asked their device for less motion. */
+.cat-tile.is-offer .cat-tile-img{
+  border-color:var(--red);
+  animation:offerGlow 1.6s ease-in-out infinite;
+}
+.cat-tile.is-offer b{color:var(--red)}
+@keyframes offerGlow{
+  0%,100%{box-shadow:0 0 0 0 rgba(215,20,38,.0),0 0 14px rgba(215,20,38,.35);border-color:var(--red)}
+  50%    {box-shadow:0 0 0 4px rgba(245,180,0,.35),0 0 22px rgba(245,180,0,.55);border-color:var(--gold)}
+}
+.cstrip-pill.is-offer{
+  border-color:var(--red);color:var(--red);font-weight:900;
+  animation:offerGlow 1.6s ease-in-out infinite;
+}
+@media(prefers-reduced-motion:reduce){
+  .cat-tile.is-offer .cat-tile-img,.cstrip-pill.is-offer{animation:none}
+}
+
+/* ===== components/countries.css ===== */
+/* ==========================================================================
+   Countrywise browsing — a tile per country, then that country's products.
+   Deliberately the same shape as the category tiles, so the two views feel
+   like one shop rather than two.
+   ========================================================================== */
+
+.ctry-grid{
+  display:grid;gap:14px;
+  grid-template-columns:repeat(2,1fr);
+}
+
+.ctry-tile{text-align:center;transition:.2s var(--ease)}
+
+/* Every flag gets the same box and sits inside at its own proportions.
+   Nothing is cropped or stretched: Nepal is a pennant, Sri Lanka is 2:1,
+   and forcing either into a square would misrepresent it. */
+.ctry-tile-img{
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:#fff;margin-bottom:9px;aspect-ratio:1/1;
+  display:grid;place-items:center;padding:18%;
+  transition:.2s var(--ease);
+}
+.ctry-tile-img img{
+  max-width:100%;max-height:100%;width:auto;height:auto;display:block;
+  border:1px solid rgba(0,0,0,.13);border-radius:3px;
+  box-shadow:0 2px 8px rgba(0,0,0,.16);
+  transition:transform .35s var(--ease);
+}
+.ctry-tile:hover .ctry-tile-img{border-color:var(--red);box-shadow:var(--sh-lg)}
+.ctry-tile:hover .ctry-tile-img img{transform:scale(1.08)}
+.ctry-tile:hover{transform:translateY(-3px)}
+
+.ctry-tile b{
+  display:block;font-size:13.5px;color:var(--ink);
+  font-weight:700;line-height:1.3;
+}
+.ctry-tile:hover b{color:var(--red)}
+.ctry-tile span{font-size:11.5px;color:var(--mute)}
+
+/* ------------------------- one country's products ---------------------- */
+
+.ctry-head{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  margin-bottom:18px;
+}
+.ctry-head h2{
+  font-size:21px;color:var(--ink);letter-spacing:-.3px;margin:0;
+}
+.ctry-head .flag{
+  border:1px solid rgba(0,0,0,.14);border-radius:3px;
+  box-shadow:0 1px 5px rgba(0,0,0,.16);
+  max-height:30px;width:auto;
+}
+
+.ctry-back{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13.5px;font-weight:700;color:var(--body);
+  border:1px solid var(--line);border-radius:8px;
+  padding:8px 13px;background:#fff;transition:.18s var(--ease);
+}
+.ctry-back:hover{border-color:var(--red);color:var(--red)}
+/* The icon set has no left arrow, so the up arrow is turned to point back. */
+.ctry-back .icon{transform:rotate(-90deg)}
+
+/* ----------------------------- breakpoints ---------------------------- */
+@media(min-width:600px){
+  .ctry-grid{grid-template-columns:repeat(3,1fr);gap:16px}
+  .ctry-tile b{font-size:14px}
+  .ctry-head h2{font-size:24px}
+}
+
+@media(min-width:1000px){
+  .ctry-grid{grid-template-columns:repeat(5,1fr);gap:18px}
+}
+
+/* ===== components/delivery.css ===== */
+/* ==========================================================================
+   Delivery — two plain cards, local and nationwide.
+   Near the shop there is a free threshold, and it is the thing a customer
+   is looking for, so it is set large at the foot of the card. Further away
+   there is no threshold: that card carries a link to the rates instead.
+   ========================================================================== */
+
+/* Both cards, shown as a pair at every width. Stacked, the second one
+   fell below the fold on a phone and most people never saw it. */
+.dlv{
+  display:grid;gap:11px;grid-template-columns:1fr 1fr;
+}
+
+.dlv-card{
+  position:relative;background:#fff;
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:15px 16px 20px;
+  box-shadow:var(--sh);
+  transition:.2s var(--ease);
+}
+.dlv-card:hover{
+  border-color:#f0c4a8;box-shadow:var(--sh-md);transform:translateY(-2px);
+}
+
+/* The promise, said once, at the top corner. */
+.dlv-tag{
+  position:absolute;top:-9px;left:20px;
+  background:linear-gradient(120deg,var(--red-d),var(--red));
+  color:#fff;font-size:10px;font-weight:900;letter-spacing:.9px;
+  padding:5px 11px;border-radius:20px;
+  box-shadow:0 4px 12px rgba(200,16,46,.30);
+}
+
+.dlv-ic{
+  display:grid;place-items:center;width:36px;height:36px;border-radius:10px;
+  background:var(--navy-l);color:var(--navy);margin-bottom:8px;
+}
+
+.dlv-card h3{
+  font-size:14.5px;color:var(--ink);margin-bottom:5px;letter-spacing:-.2px;
+}
+.dlv-card p{
+  font-size:12px;color:var(--body);line-height:1.45;margin-bottom:9px;
+}
+
+/* The number a customer came to find. */
+.dlv-amt{
+  display:flex;align-items:baseline;gap:8px;
+  font-size:20px;font-weight:900;color:var(--navy);letter-spacing:-.5px;
+}
+.dlv-amt span{
+  font-size:11.5px;font-weight:700;color:var(--mute);letter-spacing:.3px;
+}
+
+/* The nationwide card has no number to show, so its foot is a way to
+   the rate table instead. A quiet link rather than the 20px navy of the
+   amount beside it: there is nothing here to read across a room. */
+.dlv-amt-ask{
+  font-size:13px;font-weight:800;color:var(--red);letter-spacing:0;
+  text-decoration:none;
+}
+.dlv-amt-ask::after{content:" \203A";font-weight:900}
+.dlv-amt-ask:hover{color:var(--red-d);text-decoration:underline;text-underline-offset:3px}
+
+.dlv-ask{
+  text-align:center;margin-top:11px;font-size:12.5px;
+}
+.dlv-ask a{
+  display:inline-flex;align-items:center;gap:7px;
+  color:var(--body);font-weight:700;
+}
+.dlv-ask a:hover{color:var(--red)}
+.dlv-ask .icon{color:var(--red)}
+
+/* On a phone each card gets about 175px. On the local card the sentence
+   only repeats the amount underneath, so it goes and the number stays.
+   The nationwide card has no number, so its sentence is the message and
+   it stays, set small. */
+@media(max-width:620px){
+  .dlv{gap:9px}
+  .dlv-card{padding:12px 11px 14px}
+  .dlv-card:first-child p{display:none}
+  .dlv-card p{font-size:11px;margin-bottom:7px}
+  .dlv-card h3{font-size:12.5px;line-height:1.3}
+  .dlv-amt{font-size:17px}
+  .dlv-amt span{font-size:9px}
+  .dlv-amt-ask{font-size:12.5px}
+}
+
+/* ----------------------------- breakpoints ---------------------------- */
+@media(min-width:760px){
+  .dlv{gap:18px}
+  .dlv-card{padding:16px 18px 15px}
+  .dlv-card h3{font-size:14.5px}
+  .dlv-amt{font-size:22px}
+}
+
+/* ===== components/chat.css ===== */
+/* ==========================================================================
+   Order on chat — WhatsApp, LINE, and the shop's group.
+
+   The link comes first and the QR sits under it: on a phone, which is
+   where most of this shop's customers are, tapping is the whole
+   interaction and a QR code is useless. The code is there for someone
+   reading on a laptop with their phone in hand.
+   ========================================================================== */
+
+/* A tinted strip, the same one the info band downstairs uses. The four
+   marks are the only colour in this stretch of the page and on flat
+   white they floated, with no edge to say where the section began or
+   ended. The ground steps back and the cards come forward. */
+.chat-band{
+  background:var(--bg);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  margin-top:26px;
+  padding:26px 0 30px;
+}
+
+/* Four ways to reach the shop, shown as four rather than as a column
+   four screens tall. On a phone they share the row and the card shrinks
+   to its icon, its name and its button. */
+.chat{
+  display:grid;gap:14px;grid-template-columns:repeat(5,minmax(0,1fr));
+}
+
+/* White against the tint, so each one reads as its own thing. */
+.chat-card{
+  background:#fff;border:1px solid var(--line);
+  border-radius:var(--radius);padding:15px 13px;
+  box-shadow:var(--sh);
+  transition:.18s var(--ease);
+}
+.chat-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px)}
+
+/* Each service keeps its own colour — people recognise them by it. */
+.chat-ic{
+  display:grid;place-items:center;width:40px;height:40px;border-radius:11px;
+  margin-bottom:8px;color:#fff;
+}
+.chat-card.wa   .chat-ic{background:#25d366}
+.chat-card.line .chat-ic{background:#06c755}
+.chat-card.grp  .chat-ic{background:linear-gradient(135deg,#128c7e,#25d366)}
+.chat-card.fb   .chat-ic{background:#1877f2}
+/* Instagram's mark is a gradient, not a flat colour — a solid purple
+   would not be recognised as theirs. */
+.chat-card.ig   .chat-ic{
+  background:radial-gradient(circle at 30% 107%,
+    #fdf497 0%,#fdf497 5%,#fd5949 45%,#d6249f 60%,#285aeb 90%);
+}
+.chat-card.wa:hover  {border-color:#25d366}
+.chat-card.line:hover{border-color:#06c755}
+.chat-card.grp:hover {border-color:#128c7e}
+.chat-card.fb:hover  {border-color:#1877f2}
+.chat-card.ig:hover  {border-color:#d6249f}
+
+.chat-card h3{font-size:14px;color:var(--ink);margin-bottom:2px}
+.chat-card p{font-size:11.5px;color:var(--body);line-height:1.4;margin-bottom:9px}
+
+.chat-go{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:100px;padding:8px 16px;border-radius:9px;
+  background:var(--red);color:#fff;font-size:12.5px;font-weight:800;
+  transition:.18s var(--ease);
+}
+.chat-go:hover{background:var(--red-d);transform:translateY(-1px)}
+
+
+/* The group card has no QR of its own. Rather than letting it float in
+   the middle while the others start at the top, it keeps the same
+   alignment and simply ends earlier. */
+.chat-card{justify-content:flex-start}
+.chat-card.grp .chat-go{margin-top:auto}
+
+/* ----------------------------- breakpoints ---------------------------- */
+/* Three, not two: five cards over two columns leaves Instagram alone on
+   a third row with a hole beside it. Over three they sit 3 + 2, and the
+   short row is centred rather than hanging off the left. */
+@media(min-width:600px){
+  .chat{grid-template-columns:repeat(6,1fr);gap:16px}
+  .chat-card{grid-column:span 2}
+  /* The last two straddle the middle column, so the pair centres under
+     the three above. */
+  .chat-card:nth-child(4){grid-column:2/span 2}
+  .chat-card:nth-child(5){grid-column:4/span 2}
+}
+@media(min-width:900px){
+  /* Five across once there is room: WhatsApp, LINE, the group,
+     Facebook, Instagram. Below this they pair up rather than squeezing
+     to a fifth each — five narrow columns would put every description
+     on three lines. */
+  .chat{grid-template-columns:repeat(5,1fr);gap:14px}
+  /* Undo the 3+2 spans from the band below — here every card is simply
+     one column of five. */
+  .chat-card,
+  .chat-card:nth-child(4),
+  .chat-card:nth-child(5){grid-column:auto}
+  .chat-card{padding:16px 11px}
+  .chat-go{min-width:0;width:100%;padding:8px 10px}
+}
+
+/* ------------------------- on a phone --------------------------------
+   Last in the file on purpose: these override the desktop sizes above,
+   and at equal specificity the later rule is the one that wins.
+
+   Just the logo. Four names and four descriptions and four buttons is a
+   lot of words for four things everyone already recognises by their
+   mark, so the words go and the mark is made big enough to press. The
+   link stretches across the whole card, so the thing you tap is the
+   thing you see.
+   -------------------------------------------------------------------- */
+@media(max-width:620px){
+  .chat-band{margin-top:18px;padding:18px 0 22px}
+  .chat{gap:7px;grid-template-columns:repeat(5,minmax(0,1fr))}
+  /* Five marks in one row; no spans from the wider layouts. */
+  .chat-card,
+  .chat-card:nth-child(4),
+  .chat-card:nth-child(5){grid-column:auto}
+
+  /* Flex, not grid. The card inherited align-items:center from the
+     desktop flex column, and the grid's own place-items was fighting it
+     — the mark ended up flush left and sitting high rather than in the
+     middle of its square. One layout, stated plainly. */
+  .chat-card{
+    position:relative;padding:0;min-width:0;overflow:hidden;
+    aspect-ratio:1/1;
+    display:flex;flex-direction:row;align-items:center;justify-content:center;
+  }
+
+  /* The mark, as large as the card will carry. Percentages resolved
+     against a grid item that had no fixed size, so they collapsed to
+     almost nothing — these are absolute. */
+  /* Measured from the screen, not from the card. A percentage here
+     resolves against a grid item with no definite size and collapses to
+     almost nothing — the mark came out 23px inside an 83px card. Five
+     cards share the width now, so a fifth of the viewport less the
+     gaps is what each one has, and the mark takes seven tenths of that
+     — a larger share than at four, because a fifth is a smaller square
+     to begin with. */
+  .chat-card .chat-ic{
+    width:calc((100vw - 60px) / 5 * 0.7);
+    height:calc((100vw - 60px) / 5 * 0.7);
+    max-width:62px;max-height:62px;
+    flex:0 0 auto;margin:0;border-radius:15px;
+  }
+  .chat-card .chat-ic svg{width:54%;height:54%;max-width:34px;max-height:34px}
+
+  /* Everything that was words. */
+  .chat-card h3,
+  .chat-card p{
+    position:absolute;width:1px;height:1px;overflow:hidden;
+    clip-path:inset(50%);white-space:nowrap;
+  }
+
+  /* The link covers the card. It keeps its text for a screen reader,
+     so the card still announces itself as "Open WhatsApp". */
+  .chat-card .chat-go{
+    position:absolute;top:0;right:0;bottom:0;left:0;
+    width:auto;height:auto;min-width:0;min-height:0;
+    margin:0;padding:0;border:0;background:none;border-radius:inherit;
+    display:block;
+  }
+  .chat-card .chat-go span{
+    position:absolute;width:1px;height:1px;overflow:hidden;
+    clip-path:inset(50%);white-space:nowrap;
+  }
+
+  .chat-card:active{transform:scale(.96)}
+}
+
+/* ===== components/card.css ===== */
+/* Product grid & card */
+
+/* Four across on a phone, as the owner asked: more of the shelf on one
+   screen. Two made each card 173px and three still meant a long scroll
+   past a category of seventy. Six across on a laptop. */
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+
+.card{
+  border:1px solid var(--line);border-radius:var(--radius);background:#fff;
+  display:flex;flex-direction:column;overflow:hidden;
+  transition:.22s var(--ease);position:relative;
+}
+.card:hover{box-shadow:var(--sh-lg);border-color:#d5dbe3;transform:translateY(-4px)}
+
+/* The whole photo, never a crop. The owner shoots packets and bottles in
+   whatever shape they come in; cutting the top off a bottle to fill a
+   square hides the label that tells a customer what it is. White behind,
+   so a tall or wide photo sits on the same ground as the card. */
+.card-img{
+  position:relative;aspect-ratio:1/1;background:#fff;overflow:hidden;
+}
+.card-img img{
+  width:100%;height:100%;object-fit:contain;
+  transition:transform .45s var(--ease);
+}
+.card:hover .card-img img{transform:scale(1.06)}
+
+/* On the right, because the halal seal is stamped into the top-left of
+   the photograph itself and the two would sit on top of each other. */
+.badges{
+  position:absolute;top:8px;right:8px;z-index:2;
+  display:flex;flex-direction:column;gap:5px;align-items:flex-end;
+}
+.badge{
+  font-size:10px;font-weight:900;padding:3.5px 8px;border-radius:5px;
+  color:#fff;letter-spacing:.3px;line-height:1.3;
+}
+/* Only the discount is a corner badge now. New arrivals have a shelf of
+   their own, and stock is stated beside the weight rather than shouted
+   from the picture. */
+.badge-off{background:var(--red)}
+
+.card-b{padding:11px 12px 13px;display:flex;flex-direction:column;flex:1}
+.card-cat{
+  font-size:9.5px;color:var(--mute);font-weight:800;
+  letter-spacing:.9px;margin-bottom:4px;
+}
+.card-b h3{font-size:13.5px;font-weight:700;line-height:1.34;margin-bottom:2px}
+.card-jp{
+  font-size:11px;color:var(--mute);line-height:1.3;margin-bottom:8px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+/* Size and stock on one line: both are plain facts about the product,
+   read together before the price. */
+.card-meta{
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:10px;
+}
+.card-w{
+  display:inline-block;background:var(--navy-l);
+  color:var(--navy);font-size:10.5px;font-weight:800;
+  padding:2.5px 8px;border-radius:5px;
+}
+
+/* Green for on the shelf, red for gone. Word and colour together, never
+   colour alone — a customer who cannot separate the two still reads it. */
+.card-stock{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:900;letter-spacing:.4px;
+}
+.card-stock::before{
+  content:"";width:6px;height:6px;border-radius:50%;background:currentColor;
+}
+.card-stock.in{color:#12805c}
+.card-stock.out{color:var(--red)}
+.card-meta .badge{font-size:9.5px;padding:2.5px 7px}
+.price{margin-top:auto;display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.price .now{font-size:18px;font-weight:900;color:var(--red);letter-spacing:-.4px}
+.price .was{font-size:12px;color:var(--mute);text-decoration:line-through}
+.tax{font-size:9.5px;color:var(--mute);margin-top:2px}
+.card.out{opacity:.62}
+
+.empty{text-align:center;padding:50px 16px;color:var(--body)}
+.empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:5px}
+
+/* ---------------------------- four to a row --------------------------- */
+/* At four across a card is about 85px on a phone and 72px on the
+   narrowest. Everything comes in a step: the category line goes (the
+   shelf heading above already says it), the second-language name goes,
+   and the name keeps the two lines it needs rather than being cut. */
+@media(max-width:620px){
+  .card-b{padding:6px 5px 8px}
+  .card-cat,.card-jp{display:none}
+  .card h3{font-size:10.5px;line-height:1.25;margin-bottom:4px;
+           display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .card-meta{gap:3px 5px;margin-bottom:6px}
+  .card-w{font-size:8.5px;padding:2px 5px}
+  .card-stock{font-size:8px;letter-spacing:.2px;gap:3px}
+  .card-stock::before{width:5px;height:5px}
+  .card-meta .badge{font-size:8px;padding:2px 4px}
+  .price{gap:3px}
+  .price .now{font-size:14px;letter-spacing:-.3px}
+  .price .was{font-size:9.5px}
+  .tax{font-size:7.5px}
+  .buy{font-size:10px;padding:6px 2px;margin-top:6px;gap:3px}
+  .buy .icon{width:12px;height:12px}
+  .qty-b{width:22px;height:26px;font-size:13px}
+  .qty-n{font-size:11px}
+  .badges{top:4px;right:4px}
+  /* The heart shrinks with the card: at full size it covered a third
+     of an 85px photo. */
+  .card .fav{width:22px;height:22px;top:4px;right:4px}
+  .card .fav svg{width:12px;height:12px}
+  .badge{font-size:8.5px;padding:2px 5px}
+}
+
+@media(max-width:380px){
+  .grid{gap:4px}
+  .card-b{padding:5px 4px 7px}
+  .card h3{font-size:9.5px}
+  .price .now{font-size:12.5px}
+  .buy{font-size:9px;padding:5px 1px}
+  .buy .icon{display:none}
+}
+
+/* ===== components/account.css ===== */
+/* Customer accounts — the heart, the header button, the sign-in page */
+
+/* ------------------------- the heart on a card ------------------------ */
+/* Top right. It used to sit top left, and the halal seal is stamped into
+   the top-left of the photograph itself, so on every halal product the
+   heart covered the seal. The discount badge shares this corner and
+   steps down beneath it (card.css). Outlined until it is saved, then
+   filled: the difference has to read at a glance. */
+.fav{
+  position:absolute;top:7px;right:7px;z-index:3;
+  width:29px;height:29px;border-radius:50%;
+  display:grid;place-items:center;cursor:pointer;
+  border:1px solid rgba(0,0,0,.09);
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  color:var(--mute);padding:0;
+  transition:.16s var(--ease);
+}
+.fav svg{fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+.fav:hover{color:var(--red);border-color:var(--red);transform:scale(1.08)}
+.fav.on{color:var(--red);border-color:rgba(200,16,46,.35)}
+.fav.on svg{fill:currentColor;stroke:currentColor}
+.fav:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* A small bounce when it fills, so the tap is acknowledged before the
+   network answers. */
+@keyframes favPop{50%{transform:scale(1.28)}}
+.fav.on svg{animation:favPop .28s var(--ease)}
+
+/* ------------------------ the header account -------------------------
+   Shape, border and sizing live with .hdr-login in layout/header.css so
+   the two buttons cannot drift apart. Only the count badge is its own. */
+
+.hdr-acct-n{
+  font-style:normal;min-width:17px;height:17px;padding:0 5px;
+  border-radius:9px;background:var(--red);color:#fff;
+  font-size:10px;font-weight:900;display:grid;place-items:center;
+}
+
+/* --------------------------- the saved page --------------------------- */
+.fav-hi{
+  font-size:13px;color:var(--mute);font-weight:600;
+  margin:0 0 14px;padding:0 2px;
+}
+
+.fav-empty{
+  text-align:center;max-width:420px;margin:26px auto 40px;
+  padding:30px 22px;
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--sh);
+}
+.fav-empty-ic{
+  display:grid;place-items:center;width:64px;height:64px;
+  margin:0 auto 14px;border-radius:50%;
+  background:var(--red-l);color:var(--red);
+}
+.fav-empty-ic svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.fav-empty b{display:block;font-size:18px;color:var(--ink);margin-bottom:6px}
+.fav-empty p{font-size:13.5px;color:var(--body);line-height:1.55;margin-bottom:18px}
+
+/* --------------------------- the sign-in page ------------------------- */
+/* A card on a page of its own, like the owner's login, rather than a
+   dialog over the shop. */
+.acct-page{display:grid;place-items:start center;padding:6px 0 40px}
+
+.acct-box{
+  width:100%;max-width:370px;
+  background:#fff;border:1px solid var(--line);border-radius:16px;
+  padding:26px 24px 22px;box-shadow:var(--sh-md);
+}
+
+.acct-box h2{font-size:20px;color:var(--ink);margin-bottom:4px}
+.acct-sub{font-size:13px;color:var(--body);line-height:1.5;margin-bottom:18px}
+
+.acct-box label{display:block;margin-bottom:13px}
+.acct-box label span{
+  display:block;font-size:12px;font-weight:700;color:var(--body);
+  margin-bottom:5px;
+}
+.acct-box input{
+  width:100%;border:1.5px solid var(--line);border-radius:10px;
+  padding:11px 13px;font-size:15px;outline:0;background:#fff;color:var(--ink);
+  transition:.15s var(--ease);
+}
+.acct-box input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.11)}
+
+.acct-err{
+  font-size:12.5px;font-weight:600;line-height:1.45;
+  color:var(--red);background:var(--red-l);
+  border-radius:8px;padding:9px 11px;margin-bottom:12px;
+}
+/* The same box, for the one message that is good news. */
+.acct-err.ok{color:#12805c;background:#e3f4ed}
+
+/* Where the confirmation often actually lands. On its own line, and the
+   word itself in red, because somebody who does not think to look there
+   concludes the shop never wrote to them. */
+.acct-spam{display:block;margin-top:6px}
+.acct-spam b{color:var(--red);font-weight:900}
+
+.acct-go{width:100%;justify-content:center;padding:12px}
+.acct-go:disabled{opacity:.6;cursor:default}
+
+.acct-swap{
+  text-align:center;margin-top:14px;
+  font-size:12.5px;color:var(--mute);
+}
+.acct-swap button{
+  border:0;background:transparent;cursor:pointer;padding:0 0 0 4px;
+  font-size:12.5px;font-weight:800;color:var(--red);
+}
+.acct-swap button:hover{text-decoration:underline}
+
+/* Signing out, at the foot of the favourites page. Quiet: it is not
+   something a customer should be nudged towards. */
+.fav-out{
+  text-align:center;margin:26px 0 8px;
+}
+.fav-out button{
+  border:0;background:transparent;cursor:pointer;
+  font-size:12.5px;font-weight:700;color:var(--mute);
+  padding:8px 14px;border-radius:8px;
+}
+.fav-out button:hover{color:var(--red);background:var(--red-l)}
+
+@media(prefers-reduced-motion:reduce){ .fav.on svg{animation:none} }
+@media print{ .fav, .hdr-acct, .acct-page{display:none} }
+
+/* Arrived from the confirmation email. */
+/* display:flex overrides the hidden attribute, so this box was showing
+   as an empty green rectangle before there was anything to say. Hidden
+   wins now, and flex applies only when it is actually shown. */
+.acct-ok[hidden]{display:none}
+.acct-ok{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  max-width:420px;margin:0 auto 14px;padding:11px 14px;
+  background:#e8f6ef;border:1px solid #9fd9c1;border-radius:11px;
+  color:#0d6b4d;font-size:13.5px;font-weight:700;line-height:1.45;
+}
+.acct-ok .icon{flex-shrink:0}
+
+/* ---------------------- forgotten password --------------------------- */
+.acct-forgot{text-align:center;margin-top:10px}
+.acct-forgot button{
+  background:none;border:0;padding:4px;cursor:pointer;font:inherit;
+  font-size:12.5px;font-weight:700;color:var(--mute);text-decoration:underline;
+}
+.acct-forgot button:hover{color:var(--red)}
+
+.acct-centre{text-align:center}
+.pw-done-ic{
+  display:grid;place-items:center;width:62px;height:62px;
+  margin:0 auto 14px;border-radius:50%;background:#e8f6ef;color:#0d6b4d;
+}
+.acct-centre h2{margin-bottom:16px;font-size:17px;line-height:1.45}
+
+/* ===== components/profile.css ===== */
+/* The customer's account page — photo, details, address book — and the
+   address picker on the checkout. */
+
+.prof-page{max-width:640px;margin:0 auto;padding:6px 0 40px;display:grid;gap:16px}
+
+/* Each section is the sign-in card, at full width. */
+.prof-sec{
+  background:#fff;border:1px solid var(--line);border-radius:16px;
+  padding:22px 22px 20px;box-shadow:var(--sh);
+}
+.prof-sec h2{font-size:17px;color:var(--ink);margin-bottom:12px}
+.prof-sec-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-bottom:12px;flex-wrap:wrap;
+}
+.prof-sec-head h2{margin:0}
+.prof-sec-head a{font-size:12.5px;font-weight:700;color:var(--red)}
+
+/* Fields, as on the sign-in card. */
+.prof-sec label{display:block;margin-bottom:13px}
+.prof-sec label > span{
+  display:block;font-size:12px;font-weight:700;color:var(--body);margin-bottom:5px;
+}
+.prof-sec label > span em{font-style:normal;font-weight:600;color:var(--mute)}
+.prof-sec input, .prof-sec textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:10px;
+  padding:11px 13px;font-size:15px;outline:0;background:#fff;color:var(--ink);
+  transition:.15s var(--ease);
+}
+.prof-sec input:focus, .prof-sec textarea:focus{
+  border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.11);
+}
+/* The email: shown, not editable. Greyed so nobody tries. */
+.prof-sec input[readonly]{background:var(--bg);color:var(--mute)}
+.prof-note{display:block;font-size:11.5px;color:var(--mute);margin-top:5px;line-height:1.4}
+.prof-sec .acct-err{margin-top:2px}
+.btn-sm{padding:7px 12px !important;font-size:12.5px !important}
+
+/* ------------------------------ the photo ----------------------------- */
+.prof-top{display:flex;gap:18px;align-items:center}
+.prof-avatar{
+  flex:0 0 auto;width:96px;height:96px;border-radius:50%;overflow:hidden;
+  display:grid;place-items:center;
+  background:var(--red-l);color:var(--red);font-size:36px;font-weight:900;
+  border:3px solid #fff;box-shadow:var(--sh-md);
+}
+.prof-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+/* Dimmed while the new one is on its way. The only sign given. */
+.prof-avatar.is-busy{animation:profPulse 1s ease-in-out infinite}
+@keyframes profPulse{50%{opacity:.4}}
+
+.prof-top-tx{min-width:0;flex:1}
+.prof-top-tx b{display:block;font-size:18px;color:var(--ink)}
+.prof-top-tx > span{display:block;font-size:13px;color:var(--mute);overflow-wrap:anywhere}
+.prof-photo-acts{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:10px}
+
+/* Quiet text buttons: remove photo, sign out, delete an address. Not
+   things a customer should be nudged towards. */
+.prof-link{
+  border:0;background:transparent;cursor:pointer;padding:6px 4px;
+  font:inherit;font-size:12.5px;font-weight:700;color:var(--mute);
+}
+.prof-link:hover{color:var(--red);text-decoration:underline}
+
+/* ---------------------------- address book ---------------------------- */
+.addr-card{
+  border:1px solid var(--line);border-radius:12px;padding:14px 15px;
+  margin-bottom:10px;background:#fff;
+}
+.addr-card.is-default{border-color:rgba(200,16,46,.35);background:#fffafb}
+.addr-head{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.addr-head b{font-size:14.5px;color:var(--ink)}
+.addr-body{
+  font-size:13.5px;color:var(--body);line-height:1.5;
+  overflow-wrap:anywhere;margin-bottom:10px;
+}
+.addr-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+/* The form, opened in place of a card or above the list. */
+.addr-form{
+  border:1.5px solid var(--red);border-radius:12px;padding:16px 15px 12px;
+  margin-bottom:12px;background:#fff;
+}
+.addr-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.addr-chips button{
+  border:1px solid var(--line);background:#fff;border-radius:999px;
+  padding:4px 11px;font:inherit;font-size:12px;font-weight:700;
+  color:var(--body);cursor:pointer;
+}
+.addr-chips button:hover{border-color:var(--red);color:var(--red)}
+.prof-none{font-size:13.5px;color:var(--mute);line-height:1.5}
+
+.prof-links{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;
+}
+.prof-favs .grid{margin-top:4px}
+
+/* ----------------------- the checkbox rows ---------------------------
+   Here and on the checkout. The card's own label and input rules would
+   stretch the box to full width and stack the words under it. */
+.chk-check{
+  display:flex !important;align-items:center;gap:9px;
+  font-size:13px;color:var(--body);font-weight:600;cursor:pointer;
+  margin-bottom:10px;
+}
+.chk-check input{
+  width:18px !important;height:18px;margin:0;padding:0 !important;
+  accent-color:var(--red);flex:0 0 auto;
+}
+.chk-save{margin:-4px 0 14px}
+.chk-save #chkLabelWrap{margin-top:8px;margin-bottom:0}
+
+/* The address picker on the checkout takes the field's look. */
+.chk-box select{
+  width:100%;border:1.5px solid var(--line);border-radius:10px;
+  padding:11px 13px;font-size:15px;background:#fff;color:var(--ink);
+  outline:0;transition:.15s var(--ease);
+}
+.chk-box select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.11)}
+
+/* The photo in the header, where the initial used to be. */
+/* The badge is a grid, and a grid item sized 100% takes the photo's
+   own shape rather than the 26px circle — a portrait came out as a tall
+   oval spilling over the pill. Clip the badge and pin the picture to
+   its box, so any shape of photo becomes the same small circle. */
+.hdr-acct.is-in .hdr-acct-ic{overflow:hidden;padding:0}
+.hdr-acct-ic img{
+  width:26px;height:26px;max-width:none;border-radius:50%;
+  object-fit:cover;display:block;
+}
+
+/* ------------------------------ on a phone ---------------------------- */
+@media(max-width:620px){
+  .prof-sec{padding:18px 16px 16px}
+  .prof-top{flex-direction:column;align-items:flex-start}
+  .addr-acts .btn{flex:1 1 auto;justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){
+  .prof-avatar.is-busy{animation:none;opacity:.6}
+}
+
+/* ===== components/cart.css ===== */
+/* The basket — buy buttons, the header badge, the cart page */
+
+/* ---------------------- the button on a card -------------------------- */
+/* Full width at the foot of the card, under the price. The heart is a
+   quiet mark in the corner; this is the thing the card is for. */
+.buy{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  width:100%;margin-top:9px;padding:8px 10px;
+  border:1px solid var(--red);border-radius:9px;
+  background:#fff;color:var(--red);cursor:pointer;
+  font-size:12.5px;font-weight:800;
+  transition:.16s var(--ease);
+}
+.buy:hover{background:var(--red);color:#fff}
+.buy:active{transform:translateY(1px)}
+.buy:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.buy .icon{flex-shrink:0}
+
+/* Once something is in the basket the button becomes a stepper, so the
+   second one can be added without leaving the shelf. */
+.buy-qty{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;margin-top:9px;
+  border:1px solid var(--red);border-radius:9px;overflow:hidden;
+}
+.qty-b{
+  width:34px;height:32px;flex-shrink:0;
+  border:0;background:var(--red-l);color:var(--red);cursor:pointer;
+  font-size:16px;font-weight:900;line-height:1;
+  transition:.14s var(--ease);
+}
+.qty-b:hover{background:var(--red);color:#fff}
+.qty-b:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.qty-n{
+  flex:1;text-align:center;
+  font-size:13.5px;font-weight:900;color:var(--ink);
+}
+
+/* ------------------------ the header basket --------------------------- */
+.hdr-cart{
+  display:none;align-items:center;gap:7px;
+  border:1px solid var(--red);border-radius:22px;
+  background:var(--red-l);padding:5px 13px 5px 6px;
+  font-size:12.5px;font-weight:700;color:var(--red);
+  transition:.16s var(--ease);
+}
+.hdr-cart:hover{background:var(--red);color:#fff}
+.hdr-cart-ic{
+  width:24px;height:24px;border-radius:50%;flex-shrink:0;
+  display:grid;place-items:center;background:#fff;color:var(--red);
+}
+.hdr-cart-n{
+  font-style:normal;min-width:17px;height:17px;padding:0 5px;
+  border-radius:9px;background:var(--red);color:#fff;
+  font-size:10px;font-weight:900;display:grid;place-items:center;
+}
+.hdr-cart:hover .hdr-cart-n{background:#fff;color:var(--red)}
+
+/* Always, at every width. Hiding the basket on a phone — where most of
+   this shop's customers are — left them no way back to what they were
+   buying. Trimmed to the icon and count on the narrowest screens. */
+.hdr-cart{display:inline-flex}
+
+@media(max-width:400px){
+  .hdr-cart em{display:none}
+  .hdr-cart{padding:5px}
+}
+
+/* --------------------------- the cart page ---------------------------- */
+.cart-page{max-width:760px;margin:0 auto;padding:6px 0 40px}
+
+.cart-line{
+  display:flex;align-items:center;gap:13px;
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:11px 13px;margin-bottom:9px;
+}
+.cart-line img{
+  width:62px;height:62px;flex-shrink:0;border-radius:9px;
+  object-fit:contain;background:#fff;border:1px solid var(--line);
+}
+.cart-tx{flex:1;min-width:0}
+.cart-tx b{
+  display:block;font-size:14px;color:var(--ink);line-height:1.3;
+  margin-bottom:2px;
+}
+.cart-tx small{display:block;font-size:11.5px;color:var(--mute)}
+
+/* The stepper on a cart line is the same control as on a card, only
+   smaller: there is no photograph competing with it here. */
+.cart-line .buy-qty{width:auto;margin:6px 0 0}
+.cart-line .qty-b{width:28px;height:26px;font-size:14px}
+.cart-line .qty-n{min-width:34px;font-size:12.5px}
+
+.cart-money{text-align:right;flex-shrink:0}
+.cart-money b{
+  display:block;font-size:15px;font-weight:900;color:var(--red);
+  letter-spacing:-.3px;
+}
+.cart-money small{display:block;font-size:10.5px;color:var(--mute);margin-top:2px}
+
+.cart-drop{
+  border:0;background:transparent;cursor:pointer;padding:6px;
+  color:var(--mute);border-radius:7px;line-height:0;flex-shrink:0;
+  transition:.15s var(--ease);
+}
+.cart-drop:hover{color:var(--red);background:var(--red-l)}
+
+/* ------------------------------ the sum ------------------------------- */
+.cart-sum{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 18px;margin-top:14px;box-shadow:var(--sh);
+}
+.cart-sum-row{
+  display:flex;align-items:baseline;justify-content:space-between;
+  margin-bottom:14px;
+}
+.cart-sum-row span{font-size:13.5px;font-weight:700;color:var(--body)}
+.cart-sum-row b{font-size:22px;font-weight:900;color:var(--red);letter-spacing:-.5px}
+.cart-sum .btn{width:100%;justify-content:center;padding:12px}
+.cart-sum .tax{
+  text-align:center;font-size:11px;color:var(--mute);margin-top:9px;
+}
+
+/* --------------------------- empty states ----------------------------- */
+/* The same card the favourites page uses when nothing is saved, so the
+   two read as one shop rather than two. */
+.cart-empty{
+  text-align:center;max-width:420px;margin:26px auto 40px;
+  padding:30px 22px;
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--sh);
+}
+.cart-empty-ic{
+  display:grid;place-items:center;width:64px;height:64px;
+  margin:0 auto 14px;border-radius:50%;
+  background:var(--red-l);color:var(--red);
+}
+.cart-empty b{display:block;font-size:18px;color:var(--ink);margin-bottom:6px}
+.cart-empty p{font-size:13.5px;color:var(--body);line-height:1.55;margin-bottom:18px}
+
+@media(max-width:560px){
+  .cart-line{flex-wrap:wrap}
+  .cart-line img{width:52px;height:52px}
+  .cart-money{margin-left:auto}
+}
+
+@media print{ .buy, .buy-qty, .hdr-cart, .cart-drop{display:none} }
+
+/* ========================= checkout and orders ======================== */
+
+.chk-page, .ord-page{max-width:640px;margin:0 auto;padding:6px 0 40px}
+
+.chk-box{
+  background:#fff;border:1px solid var(--line);border-radius:16px;
+  padding:24px 22px 20px;box-shadow:var(--sh-md);
+}
+.chk-box h2{font-size:17px;color:var(--ink);margin-bottom:14px}
+.chk-box h2.chk-h2{margin-top:22px}
+
+.chk-box label{display:block;margin-bottom:13px}
+.chk-box label span{
+  display:block;font-size:12px;font-weight:700;color:var(--body);
+  margin-bottom:5px;
+}
+.chk-box input, .chk-box textarea{
+  width:100%;border:1.5px solid var(--line);border-radius:10px;
+  padding:11px 13px;font-size:15px;outline:0;background:#fff;color:var(--ink);
+  font-family:inherit;transition:.15s var(--ease);
+}
+.chk-box textarea{resize:vertical;min-height:62px;line-height:1.5}
+.chk-box input:focus, .chk-box textarea:focus{
+  border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.11);
+}
+
+.chk-err{
+  font-size:12.5px;font-weight:600;line-height:1.45;
+  color:var(--red);background:var(--red-l);
+  border-radius:8px;padding:9px 11px;margin-bottom:12px;
+}
+
+/* What they are about to buy, restated before the button. Nobody should
+   press Place order without the total in front of them. */
+.chk-review{
+  background:var(--bg);border-radius:11px;padding:13px 15px;margin-bottom:18px;
+}
+.chk-line{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  font-size:13px;color:var(--body);padding:5px 0;
+}
+.chk-line small{color:var(--mute);font-size:11.5px}
+.chk-line b{color:var(--ink);font-weight:700;white-space:nowrap}
+.chk-line.chk-sum{
+  border-top:1px solid var(--line);margin-top:6px;padding-top:10px;
+  font-weight:800;color:var(--ink);
+}
+.chk-line.chk-sum b{font-size:18px;color:var(--red);font-weight:900}
+
+.chk-go{width:100%;justify-content:center;padding:13px;gap:8px}
+.chk-go:disabled{opacity:.6;cursor:default}
+.chk-tax{text-align:center;font-size:11px;color:var(--mute);margin-top:9px}
+
+/* ------------------------- the three screens -------------------------- */
+
+/* Delivery · Payment · Pay. The one they are on is red, the ones behind
+   them carry a tick, the ones ahead are grey. */
+.chk-steps{
+  display:flex;justify-content:center;gap:6px;list-style:none;
+  margin:0 0 14px;padding:0;
+}
+.chk-steps li{
+  display:flex;align-items:center;gap:6px;
+  font-size:12px;font-weight:700;color:var(--mute);
+}
+.chk-steps li span{
+  display:grid;place-items:center;width:22px;height:22px;border-radius:50%;
+  background:var(--bg);border:1.5px solid var(--line);
+  font-size:11px;font-weight:900;color:var(--mute);
+}
+.chk-steps li + li::before{
+  content:"";width:18px;height:1.5px;background:var(--line);margin-right:6px;
+}
+.chk-steps li.on{color:var(--ink)}
+.chk-steps li.on span{background:var(--red);border-color:var(--red);color:#fff}
+.chk-steps li.done{color:var(--body)}
+.chk-steps li.done span{background:#e3f4ed;border-color:#bfe3d4;color:#12805c}
+.chk-steps li.done + li::before{background:#bfe3d4}
+
+/* The way back, under everything: it is the least likely press. */
+.chk-back{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:16px;padding:7px 11px;border:0;background:none;cursor:pointer;
+  font-size:12.5px;font-weight:700;color:var(--mute);font-family:inherit;
+}
+.chk-back .icon{transform:rotate(180deg)}
+.chk-back:hover{color:var(--red)}
+
+/* --- screen 2: four ways to pay, one per row, a tap each ------------- */
+.chk-methods{display:grid;gap:10px;margin-bottom:16px}
+.chk-method{
+  display:flex;align-items:center;gap:13px;width:100%;text-align:left;
+  padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;
+  background:#fff;cursor:pointer;font-family:inherit;
+  transition:.15s var(--ease);
+}
+.chk-method:hover{border-color:var(--red);background:var(--red-l)}
+.chk-method:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+/* The brand plate: a white card of one size on every button, so the
+   four line up whatever is on them. Each logo keeps its own shape inside
+   it; the merpay button's two (merpay and d払い) sit side by side. */
+.chk-mbadge{
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:6px;
+  width:96px;height:38px;padding:5px 8px;
+  background:#fff;border:1px solid var(--line);border-radius:9px;
+}
+.chk-mbadge img{display:block;flex:1 1 0;min-width:0;width:100%;height:100%;object-fit:contain}
+.chk-method.merpay .chk-mbadge img + img{flex:0 0 26px}
+.chk-mtx{flex:1;min-width:0}
+.chk-mtx b{display:block;font-size:15px;color:var(--ink);margin-bottom:2px}
+.chk-mtx small{display:block;font-size:12px;color:var(--mute);line-height:1.4}
+.chk-marrow{flex-shrink:0;color:var(--mute)}
+.chk-method:hover .chk-marrow{color:var(--red)}
+.chk-sum-alone{margin-bottom:0}
+
+/* --- screen 3: the code to scan --------------------------------------- */
+.chk-qr{
+  text-align:center;background:var(--bg);border-radius:14px;
+  padding:18px 16px 14px;margin-bottom:6px;
+}
+.chk-qr img{
+  width:220px;height:220px;max-width:100%;display:block;margin:0 auto;
+  background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;
+}
+.chk-qr-id{display:block;font-size:11.5px;color:var(--mute);margin-top:8px}
+.chk-qr-id b{color:var(--ink);letter-spacing:.3px}
+/* PayPay's code is a link as well: tapped or clicked, it opens the app
+   on the shop's payment screen, the same as the button under it. */
+.chk-qr-link{display:block;width:max-content;max-width:100%;margin:0 auto;border-radius:12px}
+.chk-qr-link img{transition:transform .15s var(--ease),box-shadow .15s var(--ease)}
+.chk-qr-link:hover img{transform:scale(1.02);box-shadow:var(--sh)}
+.chk-qr-link:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+/* The same code as a link: tapped on the phone that has PayPay, it
+   opens the app on the shop's payment screen, with nothing to scan. */
+.chk-pp-open{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;max-width:320px;margin:14px auto 0;min-height:48px;
+  background:#fff;color:#FF0033;border:2px solid #FF0033;border-radius:12px;
+  font-size:15px;font-weight:800;text-decoration:none;
+}
+.chk-pp-open:hover{background:#fff0f3}
+.chk-qr .chk-pp-open img{height:18px;width:auto;display:block;margin:0;padding:0;border:0;border-radius:0;background:none}
+.chk-pp-open-s{display:block;font-size:11.5px;color:var(--mute);margin:6px auto 0;max-width:320px;line-height:1.45}
+.chk-qr p{font-size:12.5px;color:var(--body);line-height:1.5;margin-top:10px}
+
+/* The amount to pay and the reference, both big enough to read across
+   a counter. Shared by the QR and the bank screens. */
+.chk-due, .chk-refline{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  padding:9px 0 0;font-size:12.5px;color:var(--body);
+}
+.chk-due{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+.chk-due b{font-size:24px;font-weight:900;color:var(--red);letter-spacing:-.5px}
+.chk-refline b{font-size:15px;font-weight:900;color:var(--ink);letter-spacing:.6px}
+
+/* --- screen 3: the account to transfer to ----------------------------- */
+.chk-bank{background:var(--bg);border-radius:14px;padding:14px 16px;margin-bottom:6px}
+.chk-bank h3, .chk-cod h3{
+  font-size:13px;font-weight:800;color:var(--ink);margin-bottom:8px;
+  display:flex;align-items:center;gap:7px;
+}
+.chk-bank-row{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;
+}
+.chk-bank-row span{flex:0 0 92px;color:var(--mute);font-size:11.5px;font-weight:700}
+.chk-bank-row b{flex:1;min-width:0;color:var(--ink);font-weight:800;overflow-wrap:anywhere}
+.chk-bank-row b small{display:block;margin-top:2px;font-size:11.5px;font-weight:600;color:var(--mute)}
+.chk-copy{
+  flex-shrink:0;padding:4px 9px;border:1px solid var(--line);border-radius:7px;
+  background:#fff;color:var(--body);cursor:pointer;
+  font-size:11px;font-weight:700;font-family:inherit;transition:.15s var(--ease);
+}
+.chk-copy:hover{border-color:var(--red);color:var(--red)}
+.chk-copy.did{border-color:#bfe3d4;background:#e3f4ed;color:#12805c}
+.chk-bank p{font-size:12.5px;color:var(--body);line-height:1.5;margin-top:10px}
+
+/* --- screen 3: ring first --------------------------------------------- */
+.chk-cod{background:#fff8ef;border:1px solid #f3dcc0;border-radius:14px;padding:14px 16px;margin-bottom:14px}
+.chk-cod h3{color:#b4531d}
+.chk-cod h3 .icon{color:#b4531d}
+.chk-cod p{font-size:13px;color:var(--body);line-height:1.55;margin-bottom:12px}
+.chk-cod .ord-acts{margin-bottom:12px}
+.chk-cod-ok{margin:0 !important;font-size:13.5px !important;color:var(--ink) !important}
+
+/* The payment, on the customer's own copy of an order. */
+.ord-pay{font-size:12.5px;color:var(--body);line-height:1.6;margin-bottom:8px}
+.ord-pay b{color:var(--ink);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+
+@media(max-width:420px){
+  .chk-steps li{font-size:11px}
+  .chk-steps li + li::before{width:10px}
+  .chk-bank-row span{flex-basis:78px}
+}
+
+/* --------------------------- order placed ----------------------------- */
+.ord-done{
+  text-align:center;background:#fff;
+  border:1px solid var(--line);border-radius:16px;
+  padding:30px 22px 24px;margin-bottom:16px;box-shadow:var(--sh-md);
+}
+.ord-done-ic{
+  display:grid;place-items:center;width:64px;height:64px;
+  margin:0 auto 14px;border-radius:50%;
+  background:#e3f4ed;color:#12805c;
+}
+.ord-done b{display:block;font-size:20px;color:var(--ink);margin-bottom:6px}
+.ord-done p{font-size:13.5px;color:var(--body);line-height:1.55;margin-bottom:16px}
+
+/* The reference, big enough to read down a phone line. */
+.ord-code{
+  display:inline-block;font-size:19px;font-weight:900;letter-spacing:1px;
+  color:var(--ink);background:var(--bg);
+  border:1px dashed var(--line);border-radius:10px;
+  padding:9px 18px;margin-bottom:18px;
+}
+
+.ord-acts{display:grid;gap:9px}
+.ord-acts .btn{width:100%;justify-content:center;padding:12px}
+
+@media(min-width:520px){ .ord-acts{grid-template-columns:1fr 1fr} }
+
+.ord-after{
+  text-align:center;margin-top:16px;font-size:12.5px;color:var(--mute);
+}
+.ord-after a{color:var(--red);font-weight:700}
+.ord-after a:hover{text-decoration:underline}
+
+/* ----------------------------- one order ------------------------------ */
+.ord-card{
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:16px 18px;margin-bottom:12px;box-shadow:var(--sh);
+}
+.ord-head{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.ord-head b{font-size:15px;font-weight:900;letter-spacing:.4px;color:var(--ink)}
+
+/* Each status its own colour, and its own word. Colour alone would
+   leave a colour-blind reader guessing. */
+.ord-pill{
+  margin-left:auto;font-size:10px;font-weight:900;letter-spacing:.4px;
+  padding:3px 9px;border-radius:20px;white-space:nowrap;text-transform:uppercase;
+}
+.ord-pill.pending   {background:#fff3e0;color:#b4531d}
+.ord-pill.confirmed {background:#e3f4ed;color:#12805c}
+.ord-pill.dispatched{background:var(--navy-l);color:var(--navy-d)}
+.ord-pill.delivered {background:#e8eaed;color:var(--body)}
+.ord-pill.rejected,
+.ord-pill.cancelled {background:var(--red-l);color:var(--red)}
+
+.ord-when{font-size:11.5px;color:var(--mute);margin-bottom:12px}
+
+.ord-reason{
+  font-size:12.5px;color:var(--red);background:var(--red-l);
+  border-radius:8px;padding:8px 11px;margin-bottom:12px;line-height:1.45;
+}
+
+.ord-items{background:var(--bg);border-radius:10px;padding:11px 13px;margin-bottom:12px}
+.ord-item{
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+  font-size:12.5px;color:var(--body);padding:4px 0;
+}
+.ord-item > span{flex:1 1 auto;min-width:0}
+.ord-item small{color:var(--mute);font-size:11px}
+.ord-item b{
+  color:var(--ink);font-weight:700;white-space:nowrap;
+  flex:0 0 auto;text-align:right;
+}
+
+/* Something the shop could not supply. Struck through and still there,
+   so the customer can see what was dropped and what they were not
+   charged for, rather than wondering whether it was ever ordered. */
+.ord-item.refused > span,
+.ord-item.refused > b{
+  text-decoration:line-through;color:var(--mute);opacity:.75;
+}
+/* Why it was not supplied: a box of its own on a full-width row under
+   the struck line — outside the struck text, so the line-through cannot
+   reach it — with a warning mark, the label in bold and the reason. */
+.ord-item.refused{flex-wrap:wrap}
+.ord-item-why{
+  flex:1 0 100%;display:flex;align-items:flex-start;gap:7px;
+  margin:6px 0 2px;padding:8px 11px;border-radius:9px;
+  border-left:3px solid var(--red);background:#fdeef0;color:#8c1024;
+  font-size:12.5px;line-height:1.45;font-weight:500;
+}
+.ord-item-why .icon{flex-shrink:0;margin-top:1px;color:var(--red)}
+/* Reset what the line's price style would otherwise give the label. */
+.ord-item-why b{display:inline;font-size:inherit;font-weight:800;color:var(--red);
+  margin:0;min-width:0;text-align:left;letter-spacing:0}
+.ord-item-why > span{flex:1;min-width:0}
+.ord-item-why i{font-style:normal;color:#d4a0a8;margin:0 7px}
+.ord-item.ord-tot{
+  border-top:1px solid var(--line);margin-top:5px;padding-top:8px;font-weight:800;
+}
+.ord-item.ord-tot b{color:var(--red);font-size:15px;font-weight:900}
+
+.ord-to{font-size:12.5px;color:var(--body);line-height:1.6}
+.ord-to b{color:var(--ink);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.ord-note{
+  font-size:12.5px;color:var(--body);font-style:italic;
+  margin-top:8px;padding-left:10px;border-left:2px solid var(--line);
+}
+
+.ord-day{
+  font-size:13px;font-weight:800;color:var(--mute);
+  text-transform:uppercase;letter-spacing:.6px;
+  margin:20px 0 10px;padding:0 2px;
+}
+.ord-day:first-child{margin-top:0}
+
+.ord-loading{text-align:center;color:var(--mute);font-size:13px;padding:30px 0}
+
+/* Removing an order from your own history. Quiet by default — it is the
+   least likely thing anybody came to this page to do. */
+.ord-drop{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:14px;padding:7px 12px;
+  border:1px solid var(--line);border-radius:9px;
+  background:#fff;color:var(--mute);cursor:pointer;
+  font-size:12px;font-weight:700;font-family:inherit;
+  transition:.15s var(--ease);
+}
+.ord-drop:hover{border-color:var(--red);color:var(--red);background:var(--red-l)}
+.ord-drop:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* The order's number in the customer's own list. */
+.ord-no{
+  flex-shrink:0;display:grid;place-items:center;
+  min-width:24px;height:24px;padding:0 6px;border-radius:7px;
+  background:var(--bg);color:var(--body);
+  font-size:12px;font-weight:900;
+}
+
+/* ============================== DELIVERY ============================== */
+
+/* One column, read top to bottom. The page is an argument in order —
+   free first, then how, then what it costs — and a masonry layout
+   scatters that into whichever gap each block happens to fit. */
+[data-page="delivery"] .dlv{
+  max-width:820px;margin:0 auto;padding:4px 0 44px;
+  display:block;columns:auto;column-count:1;
+}
+.dlv > *{break-inside:avoid}
+
+/* The two cards at the head of the page, largest: what it costs is the
+   first thing anybody wants to know. Only the local one is a free-
+   delivery promise; the nationwide one states the carrier rates. */
+[data-page="delivery"] .dlv-free{display:grid;gap:13px;margin-bottom:28px}
+@media(min-width:620px){ .dlv-free{grid-template-columns:1fr 1fr} }
+
+[data-page="delivery"] .dlv-free-card{
+  text-align:center;background:#fff;
+  border:2px solid var(--red);border-radius:16px;
+  padding:22px 18px 18px;box-shadow:var(--sh-md);
+}
+.dlv-free-ic{
+  display:grid;place-items:center;width:48px;height:48px;
+  margin:0 auto 11px;border-radius:50%;
+  background:var(--red-l);color:var(--red);
+}
+.dlv-free-card b{
+  display:block;font-size:17px;font-weight:900;color:var(--red);
+  letter-spacing:-.2px;margin-bottom:3px;
+}
+.dlv-free-where{display:block;font-size:13px;color:var(--body);margin-bottom:12px}
+[data-page="delivery"] .dlv-free-card strong{
+  display:block;font-size:30px;font-weight:900;color:var(--ink);
+  letter-spacing:-1px;line-height:1.1;
+}
+.dlv-free-min{
+  display:block;font-size:11px;color:var(--mute);
+  text-transform:uppercase;letter-spacing:.6px;margin-top:3px;
+}
+
+/* The nationwide card promises nothing free, so it does not wear the
+   red the free one does. Navy, and its figure set smaller: "Carrier
+   rates" is a phrase, not a number to read across a room. */
+[data-page="delivery"] .dlv-free-rates{border-color:var(--line)}
+.dlv-free-rates .dlv-free-ic{background:var(--navy-l);color:var(--navy)}
+.dlv-free-rates b{color:var(--navy)}
+[data-page="delivery"] .dlv-free-rates strong{font-size:22px;letter-spacing:-.4px}
+
+/* ------------------------------ sections ------------------------------ */
+.dlv-block{
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:20px 22px;margin-bottom:14px;
+}
+.dlv-block h2{
+  display:flex;align-items:center;gap:9px;
+  font-size:16px;color:var(--ink);margin-bottom:11px;
+}
+.dlv-block h2 .icon{color:var(--red);flex-shrink:0}
+[data-page="delivery"] .dlv-block > p{font-size:14px;color:var(--body);line-height:1.65;margin-bottom:11px}
+[data-page="delivery"] .dlv-block > p:last-child{margin-bottom:0}
+
+[data-page="delivery"] .dlv-list{list-style:none;display:grid;gap:8px}
+[data-page="delivery"] .dlv-list li{
+  position:relative;padding-left:20px;
+  font-size:13.5px;color:var(--body);line-height:1.6;
+}
+.dlv-list li::before{
+  content:"";position:absolute;left:5px;top:9px;
+  width:6px;height:6px;border-radius:50%;background:var(--red);
+}
+
+/* The four steps, numbered, because it is a sequence. */
+.dlv-steps{list-style:none;counter-reset:s;display:grid;gap:14px}
+[data-page="delivery"] .dlv-steps li{
+  counter-increment:s;position:relative;padding-left:42px;
+}
+.dlv-steps li::before{
+  content:counter(s);position:absolute;left:0;top:-2px;
+  width:29px;height:29px;border-radius:50%;
+  display:grid;place-items:center;
+  background:var(--red);color:#fff;font-size:13px;font-weight:900;
+}
+.dlv-steps b{display:block;font-size:14.5px;color:var(--ink);margin-bottom:2px}
+[data-page="delivery"] .dlv-steps span{font-size:13.5px;color:var(--body);line-height:1.6}
+
+/* The honest warning about stale prices. Amber, not red: it is a caution,
+   not a failure. */
+[data-page="delivery"] .dlv-warn{
+  display:flex;gap:10px;align-items:flex-start;
+  background:#fff8e6;border:1px solid #f0c860;border-radius:11px;
+  padding:12px 14px;margin:14px 0;
+  font-size:12.5px;color:#7a5200;line-height:1.6;
+}
+.dlv-warn .icon{flex-shrink:0;margin-top:1px;color:#b4801d}
+
+/* ---------------------------- the rate table -------------------------- */
+[data-page="delivery"] .dlv-rates{margin-top:16px}
+
+[data-page="delivery"] .dlv-rates-note{
+  font-size:12.5px;color:var(--mute);line-height:1.6;margin:14px 0 11px;
+}
+.dlv-rates-foot{
+  font-size:11.5px;color:var(--mute);line-height:1.7;margin-top:12px;
+}
+
+/* A twelve-by-eleven table will not fit a phone, so it scrolls sideways
+   with the region column pinned — otherwise you lose track of which row
+   you are reading. */
+.dlv-scroll{
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  border:1px solid var(--line);border-radius:11px;
+}
+.dlv-table{border-collapse:collapse;width:100%;font-size:12px}
+[data-page="delivery"] .dlv-table th, [data-page="delivery"] .dlv-table td{
+  padding:8px 10px;text-align:right;white-space:nowrap;
+  border-bottom:1px solid var(--line);
+}
+.dlv-table thead th{
+  background:var(--bg);color:var(--ink);font-weight:800;
+  text-align:right;position:sticky;top:0;
+}
+.dlv-table thead th em{
+  display:block;font-style:normal;font-size:9.5px;color:var(--mute);
+  font-weight:600;margin-top:1px;
+}
+.dlv-table tbody th{
+  text-align:left;font-weight:700;color:var(--ink);
+  position:sticky;left:0;background:#fff;
+  border-right:1px solid var(--line);min-width:130px;
+}
+.dlv-table tbody th small{
+  display:block;font-size:10px;color:var(--mute);font-weight:400;
+  white-space:normal;line-height:1.4;margin-top:2px;max-width:190px;
+}
+.dlv-table tbody th i{
+  font-style:normal;font-size:10px;color:var(--red);font-weight:800;
+}
+.dlv-table tbody tr:hover td{background:var(--bg)}
+[data-page="delivery"] .dlv-table tr.here th, [data-page="delivery"] .dlv-table tr.here td{background:var(--red-l)}
+[data-page="delivery"] .dlv-table tr.here:hover td{background:var(--red-l)}
+[data-page="delivery"] .dlv-table tr:last-child th, [data-page="delivery"] .dlv-table tr:last-child td{border-bottom:0}
+
+/* ------------------------------- ask us ------------------------------- */
+[data-page="delivery"] .dlv-ask{background:var(--navy-d);border-color:var(--navy-d);color:#fff}
+[data-page="delivery"] .dlv-ask h2{color:#fff}
+[data-page="delivery"] .dlv-ask h2 .icon{color:var(--gold)}
+[data-page="delivery"] .dlv-ask > p{color:rgba(255,255,255,.8)}
+[data-page="delivery"] .dlv-ask-btns{display:grid;gap:9px;margin-top:14px}
+[data-page="delivery"] .dlv-ask-btns .btn{width:100%;justify-content:center;padding:12px}
+[data-page="delivery"] .dlv-ask .btn-out{
+  background:transparent;border:1.5px solid rgba(255,255,255,.5);color:#fff;
+}
+.dlv-ask .btn-out:hover{background:#fff;color:var(--navy-d);border-color:#fff}
+[data-page="delivery"] .dlv-ask .btn-red{background:var(--red);border-color:var(--red);color:#fff}
+[data-page="delivery"] .dlv-ask .btn-red:hover{background:#fff;color:var(--red)}
+@media(min-width:520px){ .dlv-ask-btns{grid-template-columns:1fr 1fr} }
+
+@media(max-width:560px){
+  .dlv-block{padding:17px 15px}
+  .dlv-table tbody th{min-width:112px}
+  .dlv-table tbody th small{display:none}
+}
+
+/* ------------------- the basket button in the lightbox ---------------- */
+/* Full width above Call to order. Buying is now the first thing offered
+   and ringing the shop the second, which is the way round it should have
+   been since the basket existed. */
+/* The two buttons are a pair and must look like one: same width, same
+   height, same padding. Only the weight differs — buying is the filled
+   one, ringing the outlined one. */
+.lb-buy, .lb-call{
+  width:100%;box-sizing:border-box;justify-content:center;
+  padding:14px 16px;min-height:52px;
+}
+.lb-buy{margin-bottom:9px}
+
+/* The stepper is the whole control here, not a strip on a card, so the
+   buttons are given a real height rather than 100% of a flex parent
+   that had none to give — they were coming out 22px, half of what a
+   thumb needs. */
+/* Exactly the size of the Add to cart button it replaces: the pair's
+   padding above was being applied to the stepper too, and inflated it
+   into a padded box with smaller boxes floating inside. */
+.buy-qty.lb-buy{margin-top:0;align-items:stretch;padding:0;height:52px;min-height:0}
+.buy-qty.lb-buy .qty-b{width:64px;height:auto;min-height:0;font-size:22px}
+.buy-qty.lb-buy .qty-n{font-size:18px;display:grid;place-items:center}
+
+/* ------------------- waiting for something to return ------------------ */
+/* Where the buy button would be on a sold-out card. Outlined rather than
+   filled: this is a message to the shop, not a purchase. */
+.buy.restock{
+  border-color:var(--gold);color:#8a6100;background:#fffaf0;
+}
+.buy.restock:hover{background:var(--gold);color:#3a2a00}
+.buy.restock.asked{
+  border-color:#9fd9c1;background:#f2faf7;color:#0d6b4d;
+}
+.buy.restock.asked:hover{background:#e0f2ea;color:#0d6b4d}
+.buy.restock span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* "Request restock" needs about 140px; three to a row on a phone gives
+   the button 98. The full words where they fit, one word where they do
+   not — rather than the same words cut off. */
+.buy.restock .rs-short{display:none}
+@media(max-width:620px){
+  .buy.restock .rs-long{display:none}
+  .buy.restock .rs-short{display:inline}
+  .buy.restock{padding-left:6px;padding-right:6px;gap:4px;font-size:11px}
+}
+
+/* On the narrowest phones the word alone is the whole button. A mark
+   beside a word that has to be cut in half helps nobody. */
+@media(max-width:380px){
+  .buy.restock .icon{display:none}
+  .buy.restock{padding-left:4px;padding-right:4px;font-size:10.5px}
+}
+
+/* ===== components/promo.css ===== */
+/* Promo banners & info band */
+
+/* The two panels are a pair and are shown as one. Stacked, the second
+   was a screen further down and read as an afterthought. */
+.promos{display:grid;gap:14px;padding:24px 16px 6px;grid-template-columns:1fr 1fr}
+
+/* Half a phone screen is about 175px, and the panel was built for a
+   full one: 24px of side padding and a 21px heading needed 229px and
+   spilled out of its own box. Everything comes down a step. */
+@media(max-width:620px){
+  .promos{gap:9px;padding:18px 12px 4px}
+  .promo{padding:16px 13px}
+  .promo::after{width:120px;height:120px;right:-40px;top:-40px}
+  .promo span{font-size:8.5px;letter-spacing:.8px;line-height:1.3;display:block}
+  .promo h3{font-size:15px;margin:5px 0 11px;line-height:1.25}
+  .promo .btn{padding:8px 11px;font-size:11.5px;width:100%;justify-content:center}
+}
+.promo{
+  border-radius:var(--radius);padding:26px 24px;color:#fff;
+  position:relative;overflow:hidden;
+}
+.promo::after{
+  content:"";position:absolute;right:-50px;top:-50px;width:190px;height:190px;
+  border-radius:50%;background:rgba(255,255,255,.08);
+}
+.promo-a{background:linear-gradient(125deg,#7f1d1d,var(--red))}
+.promo-b{background:linear-gradient(125deg,#c2410c,#f79426)}
+.promo span{
+  font-size:10.5px;font-weight:900;letter-spacing:1.4px;
+  color:var(--gold);position:relative;z-index:2;
+}
+.promo h3{color:#fff;font-size:21px;margin:8px 0 15px;position:relative;z-index:2}
+.promo .btn{position:relative;z-index:2}
+
+
+.band{background:var(--bg);margin-top:32px;padding:34px 0}
+.band-in{display:grid;gap:22px}
+.band h2{font-size:21px;margin-bottom:10px}
+.band p{font-size:14px;margin-bottom:12px}
+.band ul li{
+  display:flex;gap:9px;font-size:14px;margin-bottom:8px;line-height:1.5;
+}
+.band ul i{font-style:normal;color:var(--ok);flex-shrink:0;font-weight:900}
+.band-card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px;box-shadow:var(--sh);
+}
+.band-card h3{font-size:16px;margin-bottom:14px}
+.hours{width:100%;border-collapse:collapse;font-size:13.5px}
+.hours td{padding:7px 0;border-bottom:1px solid var(--line)}
+.hours tr:last-child td{border-bottom:0}
+.hours td:last-child{text-align:right;font-weight:700;color:var(--ink)}
+.hours .today td{color:var(--red)}
+
+/* ---------------------------------------------------------------------
+   Libre Baskerville, for the one headline that uses it.
+
+   Self-hosted rather than fetched from Google: two files, 42 KB, and
+   the shop does not hand every visitor's address to a third party to
+   render one sentence. `font-display:swap` means the words are legible
+   in the fallback serif from the first paint and settle into
+   Baskerville when it lands — never invisible while waiting.
+   -------------------------------------------------------------------- */
+@font-face{
+  font-family:"Libre Baskerville";
+  font-style:normal;
+  font-weight:700;
+  font-display:swap;
+  src:url("/fonts-woff/libre-baskerville-700.woff2") format("woff2");
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,
+                U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,
+                U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face{
+  font-family:"Libre Baskerville";
+  font-style:normal;
+  font-weight:700;
+  font-display:swap;
+  src:url("/fonts-woff/libre-baskerville-700-ext.woff2") format("woff2");
+  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,
+                U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,
+                U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,
+                U+2C60-2C7F,U+A720-A7FF;
+}
+
+/* ===================== the wide band, with the line ==================
+   Four photographs of Bangladesh behind one sentence. Full bleed, so
+   it breaks the run of white cards and gives the page somewhere to
+   breathe between the shelves and the catalogue.
+   ==================================================================== */
+.bd-band{
+  position:relative;
+  margin:26px 0 6px;
+  min-height:300px;
+  display:grid;
+  isolation:isolate;
+  overflow:hidden;
+}
+
+/* The picture fills the band and sits under everything. */
+.bd-band picture,
+.bd-band img{grid-area:1/1;width:100%;height:100%;display:block}
+.bd-band img{object-fit:cover;object-position:center 42%}
+
+/* The words, centred over it. */
+.bd-band-in{
+  grid-area:1/1;position:relative;z-index:2;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:20px;text-align:center;padding:52px 16px;
+}
+.bd-band-in h2{
+  /* The line breaks are written into the string, so the country's name
+     keeps its own line at every width rather than wrapping wherever it
+     happens to fall. No max-width: that would break it again. */
+  font-family:"Libre Baskerville",Georgia,"Times New Roman",serif;
+  /* Baskerville stops at 700 and sets wider than the interface face, so
+     it wants a smaller size and a line with room to breathe. Sentence
+     case rather than capitals: a book serif shouted in uppercase loses
+     the shapes that make it worth choosing. */
+  font-size:clamp(21px,3.5vw,44px);line-height:1.34;
+  font-weight:700;letter-spacing:-.2px;color:#fff;
+  text-shadow:0 2px 24px rgba(0,0,0,.55);
+}
+/* The part that names the place, in the shop's gold. */
+.bd-band-in h2 b{color:var(--gold);font-weight:700}
+.bd-band-in .btn{padding:13px 26px;font-size:14.5px}
+
+@media(max-width:620px){
+  .bd-band{min-height:230px;margin:18px 0 4px}
+  .bd-band-in{padding:34px 14px;gap:15px}
+  .bd-band-in h2{letter-spacing:-.4px}
+  .bd-band-in .btn{padding:11px 20px;font-size:13px}
+}
+
+@media(prefers-reduced-motion:no-preference){
+  .bd-band img{transition:transform 8s var(--ease)}
+  .bd-band:hover img{transform:scale(1.03)}
+}
+
+/* ===== components/lightbox.css ===== */
+/* Lightbox — large photo view for deals and products */
+
+.lb{
+  position:fixed;inset:0;z-index:200;
+  display:grid;place-items:center;padding:16px;
+}
+.lb[hidden]{display:none}
+
+.lb-backdrop{
+  position:absolute;inset:0;
+  background:rgba(8,18,36,.82);
+  backdrop-filter:blur(4px);
+  animation:lbFade .2s var(--ease);
+}
+@keyframes lbFade{from{opacity:0}to{opacity:1}}
+
+.lb-box{
+  position:relative;z-index:2;
+  width:100%;max-width:940px;max-height:calc(100vh - 32px);
+  /* The height the reader can actually see. On an iPhone 100vh also
+     counts the strip behind Safari's toolbars, so the box ran past the
+     screen: its top, with the close button, went off the top, and the
+     buttons off the bottom. */
+  max-height:calc(100dvh - 32px);
+  background:#fff;border-radius:16px;overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.45);
+  animation:lbPop .24s var(--ease);
+  display:flex;flex-direction:column;
+}
+@keyframes lbPop{
+  from{opacity:0;transform:translateY(14px) scale(.97)}
+  to  {opacity:1;transform:none}
+}
+
+.lb-close{
+  position:absolute;top:10px;right:10px;z-index:5;
+  width:36px;height:36px;border-radius:50%;border:0;cursor:pointer;
+  background:rgba(255,255,255,.92);color:var(--ink);
+  font-size:24px;line-height:1;display:grid;place-items:center;
+  box-shadow:0 2px 10px rgba(0,0,0,.22);transition:.18s var(--ease);
+}
+.lb-close:hover{background:var(--red);color:#fff;transform:rotate(90deg)}
+
+.lb-body{display:flex;flex-direction:column;overflow-y:auto}
+
+/* ------------------------------- photo -------------------------------- */
+/* One frame for every product. The frame used to be whatever shape the
+   photograph was, so a tall box of stock cubes pushed the price and the
+   buttons off the screen while a flat tray of mutton left room to
+   spare. Now each photo is fitted inside the same frame, never cropped,
+   and every product opens with its buttons in the same place. */
+.lb-fig{position:relative;background:#fff;flex-shrink:0}
+.lb-fig img{
+  width:100%;height:36vh;height:min(36dvh,340px);
+  object-fit:contain;display:block;
+}
+/* Right-hand side, clear of the halal seal stamped into the top-left of
+   the photograph. Below the close button, which holds that corner. */
+.lb-off{
+  position:absolute;top:60px;right:12px;
+  background:var(--red);color:#fff;font-size:12px;font-weight:900;
+  padding:5px 11px;border-radius:6px;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+
+/* -------------------------------- info -------------------------------- */
+.lb-info{padding:18px 20px 22px;border-top:1px solid var(--line)}
+
+.lb-tag{
+  display:inline-block;font-size:10px;font-weight:900;letter-spacing:.7px;
+  padding:4px 10px;border-radius:5px;margin-bottom:9px;
+}
+.lb-tag.new{background:#12805c;color:#fff}
+.lb-tag.deal{background:var(--gold);color:#3a2a00}
+.lb-tag.offer{background:var(--red);color:#fff}
+.lb-tag.cat{background:var(--navy-l);color:var(--navy)}
+
+.lb-info h3{font-size:21px;line-height:1.25;margin-bottom:5px}
+.lb-alt{font-size:13.5px;color:var(--mute);line-height:1.5;margin-bottom:12px}
+
+.lb-meta{margin-bottom:12px}
+.lb-w{
+  display:inline-block;background:var(--navy-l);color:var(--navy);
+  font-size:12.5px;font-weight:800;padding:4px 12px;border-radius:6px;
+}
+
+.lb-price{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.lb-price .now{font-size:30px;font-weight:900;color:var(--red);letter-spacing:-.6px}
+.lb-price .was{font-size:16px;color:var(--mute);text-decoration:line-through}
+.lb-tax{font-size:11.5px;color:var(--mute);margin:2px 0 16px}
+
+.lb-call{width:100%;justify-content:center}
+
+/* A short screen — an iPhone SE with Safari's bars showing leaves about
+   550px — gives the photo less, so Call to order is still on screen
+   without scrolling inside the box. */
+@media(max-width:759px) and (max-height:620px){
+  .lb-fig img{height:27vh;height:27dvh}
+  .lb-info{padding:14px 18px 16px}
+  .lb-info h3{font-size:19px}
+  .lb-alt{margin-bottom:8px}
+  .lb-meta{margin-bottom:8px}
+  .lb-tax{margin-bottom:12px}
+}
+
+/* ----------------------------- breakpoints ---------------------------- */
+@media(min-width:760px){
+  .lb-body{flex-direction:row}
+  .lb-fig{width:55%;display:grid;place-items:center;padding:8px}
+  .lb-fig img{height:min(72vh,560px);height:min(72dvh,560px)}
+  .lb-info{
+    width:45%;border-top:0;border-left:1px solid var(--line);
+    padding:30px 28px;display:flex;flex-direction:column;justify-content:center;
+  }
+  .lb-info h3{font-size:24px}
+  .lb-price .now{font-size:34px}
+  /* Both buttons keep the same width on a wide screen too. They are a
+     pair, and one shrink-wrapped beside one stretched looks like a
+     mistake rather than a hierarchy. */
+  .lb-buy, .lb-call{width:100%;align-self:stretch}
+}
+
+/* Cards that open the lightbox */
+[data-lb]{cursor:zoom-in}
+
+@media(prefers-reduced-motion:reduce){
+  .lb-backdrop,.lb-box{animation:none}
+  .lb-close:hover{transform:none}
+}
+
+/* Asked already: the request stands, so it reads as done, not as a
+   second invitation. */
+.lb-restock.asked{background:#e8f6ef;border-color:#9fd6bb;color:#12805c}
+
+/* ===== components/map.css ===== */
+/* Shop location map */
+
+.map-card{
+  display:grid;gap:0;background:#fff;
+  border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;box-shadow:var(--sh);
+}
+
+.map-frame{
+  position:relative;width:100%;aspect-ratio:16/11;background:var(--bg);
+}
+.map-frame iframe{
+  position:absolute;inset:0;width:100%;height:100%;border:0;display:block;
+}
+
+.map-info{padding:22px}
+.map-info h3{font-size:18px;margin-bottom:14px;color:var(--red)}
+
+.map-row{
+  display:flex;gap:11px;align-items:flex-start;
+  font-size:14px;line-height:1.55;margin-bottom:11px;
+}
+.map-row i{color:var(--navy);flex-shrink:0;line-height:1.4}
+.map-row a{color:var(--navy);font-weight:700}
+.map-row a:hover{color:var(--red)}
+
+.map-go{margin-top:8px;display:inline-flex;align-items:center;gap:8px}
+
+@media(min-width:820px){
+  .map-card{grid-template-columns:1.5fr 1fr}
+  .map-frame{aspect-ratio:auto;height:100%;min-height:340px}
+  .map-info{
+    display:flex;flex-direction:column;justify-content:center;
+    padding:28px;border-left:1px solid var(--line);
+  }
+  .map-info h3{font-size:20px}
+}
+
+/* ===== components/search-box.css ===== */
+/* Live search suggestions */
+
+.search{position:relative}
+
+/* Wider than the input it hangs from: a name, a shelf and a price do
+   not fit in a 220px search box, and the reference site's does not
+   try to. Capped to the viewport so it never runs off a phone. */
+.sg-box{
+  position:absolute;top:calc(100% + 6px);left:0;z-index:80;
+  width:max(100%,min(460px,calc(100vw - 32px)));
+  background:#fff;border:1px solid var(--line);border-radius:12px;
+  box-shadow:0 14px 40px rgba(10,22,44,.18);
+  overflow:hidden;animation:sgIn .16s var(--ease);
+}
+.sg-box[hidden]{display:none}
+@keyframes sgIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+
+.sg-list{max-height:min(60vh,420px);overflow-y:auto}
+/* At most three categories, so nothing to scroll. */
+.sg-cats{max-height:none}
+
+.sg-row{
+  display:flex;align-items:center;gap:11px;
+  padding:9px 13px;cursor:pointer;position:relative;
+  border-bottom:1px solid var(--line);
+}
+.sg-row:last-child{border-bottom:0}
+.sg-row:hover,.sg-row.on{background:var(--red-l)}
+
+.sg-img{
+  width:44px;height:44px;border-radius:8px;object-fit:contain;background:#fff;flex-shrink:0;
+  border:1px solid var(--line);background:var(--bg);
+}
+/* "CATEGORIES" and "PRODUCTS", each over its list. */
+.sg-head{
+  padding:11px 14px 6px;font-size:11px;font-weight:800;
+  letter-spacing:1.1px;text-transform:uppercase;color:var(--mute);
+  border-bottom:1px solid var(--line);
+}
+.sg-list + .sg-head{border-top:1px solid var(--line)}
+
+.sg-tx{flex:1;min-width:0}
+/* The name in grey; only the typed part goes dark and bold, so the eye
+   lands on why the row is there. Inline, not block — a block would put
+   the highlighted letters on a line of their own. */
+.sg-name{
+  display:block;font-size:14px;font-weight:600;color:var(--body);
+  line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.sg-name b{display:inline;font-weight:900;color:var(--ink)}
+.sg-w{color:var(--mute);font-weight:600}
+.sg-tx small{display:block;font-size:11.5px;color:var(--mute);margin-top:1px}
+.sg-out{
+  display:block;font-style:normal;font-size:9.5px;font-weight:800;
+  color:var(--red);letter-spacing:.3px;
+}
+
+.sg-price{text-align:right;flex-shrink:0;line-height:1.3;max-width:34%}
+.sg-price b{display:inline;font-size:14.5px;font-weight:900;color:var(--red)}
+.sg-price s{font-size:11px;color:var(--mute);margin-right:4px}
+.sg-tax{font-size:10.5px;color:var(--mute);font-weight:600;white-space:nowrap}
+
+.sg-off{
+  position:absolute;top:6px;right:6px;
+  background:var(--red);color:#fff;font-size:9px;font-weight:900;
+  padding:1px 5px;border-radius:3px;
+}
+
+/* "SEE ALL PRODUCTS… (23)": a button the width of the box. Named with
+   its form so the form's red submit-button rule does not paint it. */
+.search .sg-foot{
+  display:block;width:100%;padding:11px 13px;cursor:pointer;
+  border:0;border-top:1px solid var(--line);border-radius:0;background:var(--bg);
+  font-family:inherit;font-size:11px;font-weight:800;letter-spacing:1px;
+  text-transform:uppercase;color:var(--body);text-align:center;
+  transition:.16s var(--ease);
+}
+.search .sg-foot:hover{background:var(--red-l);color:var(--red)}
+
+.sg-none{padding:22px 18px;text-align:center}
+.sg-none b{display:block;font-size:14.5px;color:var(--ink);margin-bottom:4px}
+.sg-none span{font-size:13px;color:var(--mute)}
+.sg-alt{
+  background:none;border:0;padding:0;cursor:pointer;
+  color:var(--red);font-weight:800;font-size:13px;
+  text-decoration:underline;font-family:inherit;
+}
+
+/* the card the customer picked */
+.card.found{
+  animation:found 2.4s var(--ease);
+}
+@keyframes found{
+  0%,100%{box-shadow:var(--sh)}
+  15%,70%{box-shadow:0 0 0 3px var(--red),var(--sh-lg)}
+}
+
+/* Phones: the width of the box it hangs from, which is the width of the
+   screen there. Absolute, never fixed — a fixed box takes its place from
+   where the form sits in the page, so the filter panel's dropdown ended
+   up two screens down the viewport where no thumb could reach it. */
+@media(max-width:620px){
+  .sg-box{
+    left:0;right:0;width:auto;
+    max-height:70vh;
+  }
+  .sg-img{width:38px;height:38px}
+  .sg-name{font-size:13px}
+  .sg-tax{display:none}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .sg-box,.card.found{animation:none}
+}
+
+/* A thin bar while the model refines the order. Local results are
+   already visible underneath, so this is a hint, not a spinner. */
+.sg-box.thinking::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--red),transparent);
+  background-size:40% 100%;background-repeat:no-repeat;
+  animation:sgScan 1s linear infinite;
+  z-index:2;
+}
+@keyframes sgScan{
+  from{background-position:-40% 0}
+  to  {background-position:140% 0}
+}
+@media(prefers-reduced-motion:reduce){
+  .sg-box.thinking::before{animation:none;background-position:50% 0}
+}
+
+/* ===== components/filters.css ===== */
+/* Product filters */
+
+.filters{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 18px;margin-bottom:18px;box-shadow:var(--sh);
+}
+
+.fl-row{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap}
+
+/* The panel's own search box: the header's box again (same .search),
+   with its own dropdown, standing first in the row of controls. */
+.fl-find{flex:1 1 260px;min-width:220px}
+.fl-find .search{width:100%}
+/* A row of labels, a taller field: the panel's box matches the selects
+   beside it rather than the header's roomier one. */
+.fl-find .search input{padding:8px 12px;font-size:14.5px}
+.fl-find .search button{padding:0 14px}
+
+.fl-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fl-field > span{
+  font-size:11.5px;font-weight:800;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--mute);
+}
+.fl-field > span b{color:var(--red);font-size:13px;letter-spacing:0}
+
+.fl-field select{
+  border:2px solid var(--line);border-radius:9px;
+  padding:9px 12px;font-size:14.5px;background:#fff;cursor:pointer;
+  min-width:170px;
+}
+.fl-field select:focus{outline:0;border-color:var(--red)}
+
+.fl-price{flex:1;min-width:190px}
+.fl-price input{
+  width:100%;accent-color:var(--red);cursor:pointer;height:22px;
+}
+
+.fl-toggles{display:flex;gap:8px;flex-wrap:wrap}
+.fl-chip{cursor:pointer}
+.fl-chip input{position:absolute;opacity:0;pointer-events:none}
+.fl-chip span{
+  display:inline-block;border:2px solid var(--line);border-radius:20px;
+  padding:8px 15px;font-size:13.5px;font-weight:700;color:var(--body);
+  transition:.15s var(--ease);
+}
+.fl-chip:hover span{border-color:#cfd6e0}
+.fl-chip input:checked + span{
+  background:var(--red);border-color:var(--red);color:#fff;
+}
+.fl-chip input:focus-visible + span{outline:2px solid var(--gold);outline-offset:2px}
+
+.fl-clear{
+  border:0;background:none;cursor:pointer;padding:9px 4px;
+  font-size:13px;font-weight:700;color:var(--red);
+  display:inline-flex;align-items:center;gap:5px;
+}
+.fl-clear:hover{text-decoration:underline}
+.fl-clear[hidden]{display:none}
+
+.fl-count{
+  font-size:12.5px;color:var(--mute);font-weight:600;
+  margin-top:12px;padding-top:11px;border-top:1px solid var(--line);
+}
+.filters .res{display:none}   /* search count is shown by .fl-count */
+
+@media(max-width:700px){
+  .filters{padding:14px}
+  .fl-row{gap:14px}
+  .fl-field select{min-width:0;width:100%}
+  .fl-field{width:100%}
+  .fl-price{width:100%}
+  .fl-clear{margin-left:auto}
+}
+
+/* ===== components/tutorial.css ===== */
+/* ------------------------ how to order: the ? ------------------------
+   Bottom left, because bottom right is back-to-top. Gold rather than
+   red so the two round buttons read as different things, and a size a
+   thumb finds without looking.
+   -------------------------------------------------------------------- */
+.tut-fab{
+  position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  z-index:80;width:46px;height:46px;border-radius:50%;
+  display:grid;place-items:center;cursor:pointer;
+  border:3px solid #fff;background:var(--gold);color:#3a2a00;
+  font:900 22px/1 inherit;
+  box-shadow:0 6px 18px rgba(10,22,44,.26);
+  transition:transform .16s var(--ease), background .16s var(--ease);
+}
+.tut-fab:hover{transform:translateY(-2px);background:var(--gold-d);color:#fff}
+.tut-fab:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+
+/* ------------------------------ the guide --------------------------- */
+html.tut-lock{overflow:hidden}
+
+.tut-wrap{
+  position:fixed;inset:0;z-index:300;
+  display:grid;place-items:center;padding:12px;
+  background:rgba(10,15,25,.62);
+  animation:tutFade .16s var(--ease);
+}
+.tut-wrap[hidden]{display:none}
+@keyframes tutFade{from{opacity:0}to{opacity:1}}
+
+.tut-card{
+  width:min(420px,100%);max-height:calc(100dvh - 24px);overflow-y:auto;
+  background:#fff;border-radius:18px;
+  box-shadow:0 24px 60px rgba(0,0,0,.35);
+  display:flex;flex-direction:column;
+  animation:tutUp .2s var(--ease);
+}
+@keyframes tutUp{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+
+.tut-top{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 12px 10px 16px;border-bottom:1px solid var(--line);
+}
+.tut-top b{font-size:15px;font-weight:900;color:var(--ink)}
+.tut-count{margin-left:auto;font-size:12px;font-weight:700;color:var(--mute)}
+.tut-x{
+  width:34px;height:34px;border-radius:50%;border:0;cursor:pointer;
+  display:grid;place-items:center;background:var(--bg);color:var(--ink);
+}
+.tut-x:hover{background:var(--red-l);color:var(--red)}
+
+/* The picture keeps its shape and gives way on a short screen, so the
+   words and the buttons under it are always on screen too. */
+.tut-shot{margin:0;background:#111;display:flex;justify-content:center}
+.tut-shot img{
+  display:block;width:100%;height:auto;
+  max-height:min(56dvh,500px);object-fit:contain;
+}
+
+.tut-text{padding:14px 18px 4px}
+.tut-text h3{
+  display:flex;align-items:center;gap:9px;margin:0 0 6px;
+  font-size:17px;font-weight:900;color:var(--ink);line-height:1.25;
+}
+.tut-n{
+  flex-shrink:0;width:26px;height:26px;border-radius:50%;
+  display:grid;place-items:center;
+  background:var(--red);color:#fff;font-size:13px;font-weight:900;
+}
+.tut-text p{margin:0;font-size:14.5px;line-height:1.55;color:var(--body)}
+
+.tut-dots{display:flex;justify-content:center;gap:6px;padding:12px 0 4px}
+.tut-dots i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:.2s var(--ease)}
+.tut-dots i.on{width:20px;border-radius:4px;background:var(--red)}
+
+.tut-acts{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;padding:10px 16px 16px}
+.tut-acts .btn{justify-content:center;min-height:46px}
+.tut-acts .btn[disabled]{opacity:.4;cursor:default}
+
+@media (prefers-reduced-motion:reduce){
+  .tut-wrap,.tut-card{animation:none}
+  .tut-fab{transition:none}
+}
+
+/* ===== components/home-order.css ===== */
+/* The home page on a phone: shopping first, the shop second.
+
+   The owner asked that a phone open onto what is on sale — Today's Deal
+   & New Arrival, then the categories, then the products — with the shop
+   itself (the photo and figures, what it promises, chat, delivery, the
+   Bangladesh band, the map, the hours) further down. A laptop keeps the
+   page as it is.
+
+   Done by order alone, so the markup, and with it the laptop layout and
+   what a screen reader hears, stays one page. <main> steps aside
+   (display:contents) so the sections inside it and those around it can
+   be placed in one column. The strips at the top — ticker, address bar,
+   header, menu, notice — keep order 0 and stay where they are. */
+
+@media(max-width:620px){
+  body[data-page=home] .page-hide{display:flex;flex-direction:column}
+  body[data-page=home] #main{display:contents}
+
+  body[data-page=home] #announce     {order:1}
+  body[data-page=home] #cstripMount  {order:2}
+  body[data-page=home] .cat-band     {order:3}
+  body[data-page=home] .home-all     {order:4}
+  body[data-page=home] #catalog,
+  body[data-page=home] #empty        {order:5}
+  body[data-page=home] .hero-band    {order:6;margin-top:28px}
+  body[data-page=home] .feats        {order:7}
+  body[data-page=home] .chat-band    {order:8}
+  body[data-page=home] #delivery     {order:9}
+  body[data-page=home] .bd-band      {order:10}
+  body[data-page=home] .home-map     {order:11}
+  body[data-page=home] .band         {order:12}
+  body[data-page=home] #footer       {order:13}
+  body[data-page=home] #topBtn       {order:14}
+}
+
+/* ===== base/responsive.css ===== */
+/* Breakpoints, motion & print */
+
+@media(min-width:600px){
+  .topbar-links{display:flex}
+  .brand-logo{width:56px;height:56px}
+  .brand-tx b{font-size:19px}
+  .brand-tx i{display:block}
+  .burger{display:none}
+  .nav-in{justify-content:center}
+  .hero{padding:26px 24px 28px}
+  .hero h1{font-size:27px}
+  .hero p{font-size:16px}
+  .feats-in{grid-template-columns:repeat(4,1fr)}
+  .chips-in{grid-template-columns:repeat(4,1fr)}
+  .grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+  .sec-head h2{font-size:19px}
+  .sec-title h2{font-size:21px}
+  .promos{grid-template-columns:1fr 1fr}
+  .band-in{grid-template-columns:1.4fr 1fr;align-items:start}
+  .foot-g{grid-template-columns:1.8fr 1fr 1fr}
+  .page-head h1{font-size:31px}
+  .contact-grid{grid-template-columns:repeat(3,1fr)}
+}
+
+@media(min-width:1000px){
+  .header{padding:16px 0}
+  .header-in{gap:24px}
+  .search{max-width:640px}
+  .tel{display:flex}
+  .hero{padding:28px 28px 30px}
+  .hero h1{font-size:30px}
+  .chips-in{grid-template-columns:repeat(6,1fr)}
+  .grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:16px}
+  .sec{padding-top:24px}
+  .promo h3{font-size:24px}
+  .foot-g{grid-template-columns:1.9fr 1fr 1fr 1fr}
+  .top-btn{right:24px;bottom:24px;width:50px;height:50px}
+}
+
+@media(min-width:1200px){
+  .chips-in{grid-template-columns:repeat(12,1fr)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important;scroll-behavior:auto !important}
+}
+
+@media print{
+  .topbar,.nav,.hero,.search,.top-btn,.promos,.chips,.feats{display:none}
+  .card{break-inside:avoid;border-color:#ccc}
+  body{font-size:11px}
+}
