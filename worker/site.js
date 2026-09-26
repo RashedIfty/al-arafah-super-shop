@@ -19,8 +19,7 @@
  *       is asked twice a minute however many people are shopping.
  *
  * Only those three tables, only live rows, only what the page could ask
- * for itself with the public key. The files under api/ are the same two
- * on Vercel.
+ * for itself with the public key.
  */
 import { kept, json } from "./edge-cache.js";
 

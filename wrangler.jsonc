@@ -13,8 +13,7 @@
   "main": "worker/site.js",
   "compatibility_date": "2026-09-25",
   "observability": { "enabled": true },
-  /* The shop's own addresses. Cloudflare makes the DNS records for
-     them; the old ones pointing at Vercel had to be deleted first. */
+  /* The shop's own addresses. Cloudflare makes the DNS records. */
   "routes": [
     { "pattern": "alarafahsupershop.com",     "custom_domain": true },
     { "pattern": "www.alarafahsupershop.com", "custom_domain": true }

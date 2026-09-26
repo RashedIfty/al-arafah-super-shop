@@ -6,8 +6,6 @@
  * the keeping is done here with the Cache API. (On a *.workers.dev
  * address the cache does nothing, and every request goes to Supabase;
  * on alarafahsupershop.com it keeps.)
- *
- * The files under api/ do the same job on Vercel.
  */
 import { SUPABASE } from "../src/backend/config.js";
 

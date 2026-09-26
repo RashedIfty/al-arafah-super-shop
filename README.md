@@ -94,4 +94,3 @@ then commit everything and push to `main`. Cloudflare Workers deploys
 each push to main (`npx wrangler deploy`, configured in `wrangler.jsonc`;
 what is not published is listed in `.assetsignore`). `/api/shop` and
 `/api/stamp` run in `worker/site.js`; everything else is a static file.
-Vercel (`vercel.json`, `api/`) is kept as a backup host.

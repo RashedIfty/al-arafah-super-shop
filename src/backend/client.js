@@ -230,7 +230,7 @@ async function readOne(name){
       if (data) return data;
     }
 
-    /* The shop reads through Vercel's cache (api/shop.js). Straight to
+    /* The shop reads through Cloudflare's cache (worker/site.js). Straight to
        the database if that fails — and when there is no /api at all, as
        on a local server. The owner's panel always goes straight there. */
     if (reusable()){

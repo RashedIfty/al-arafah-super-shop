@@ -16,15 +16,15 @@
  *   Scripts  The fifty-odd modules, and the Supabase library that came
  *            from esm.sh, become one file for the shop and one for the
  *            owner's panel. Every one of those fifty was a request to
- *            Vercel on every page, even when the browser already had it.
+ *            the host on every page, even when the browser already had it.
  *
  *   Names    Each file is named after its contents (storefront-3F9A2C.js).
- *            A change is a new name, so vercel.json lets browsers keep
+ *            A change is a new name, so _headers lets browsers keep
  *            these for a year, and the pages — which are checked every
  *            time — point at the new name the moment it exists. Nobody
  *            gets half an old version and half a new one.
  *
- *   Caching  vercel.json: assets/ and fonts for a year (a change is a new
+ *   Caching  _headers: assets/ and fonts for a year (a change is a new
  *            name), the site's own pictures under images/ for a week. The
  *            pages are checked on every visit. Product photos come from
  *            img.alarafahsupershop.com and /api/shop sets its own caching,

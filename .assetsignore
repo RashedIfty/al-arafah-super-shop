@@ -21,7 +21,6 @@ build.js
 package.json
 package-lock.json
 wrangler.jsonc
-vercel.json
 README.md
 .gitignore
 .assetsignore
