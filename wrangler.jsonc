@@ -1,0 +1,21 @@
+/*
+ * The shop on Cloudflare Workers. Cloudflare runs `npx wrangler deploy`
+ * on every push to main, which reads this file.
+ *
+ * The site's files are served as static assets from the repository root
+ * (what is left out is in .assetsignore). Only /api/* runs the Worker in
+ * worker/site.js; everything else is a plain file, free and unmetered.
+ * Browser caching per folder is in _headers.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "alarafah-super-shop",
+  "main": "worker/site.js",
+  "compatibility_date": "2026-09-25",
+  "observability": { "enabled": true },
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  }
+}

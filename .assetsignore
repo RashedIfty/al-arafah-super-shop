@@ -1,0 +1,27 @@
+# What Cloudflare must not publish from the repository root.
+# The site needs only the pages, assets/, images/, fonts-woff/ and the
+# few files beside them; everything below is tooling or source.
+
+# Installed by Cloudflare's build before deploying; one file is 128 MB.
+node_modules
+.wrangler
+.git
+.github
+
+# Source: the pages load only the built files in assets/.
+src
+worker
+api
+supabase
+docs
+public
+
+# Tooling and notes
+build.js
+package.json
+package-lock.json
+wrangler.jsonc
+vercel.json
+README.md
+.gitignore
+.assetsignore

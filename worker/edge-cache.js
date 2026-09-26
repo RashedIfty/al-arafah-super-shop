@@ -1,25 +1,24 @@
 /**
- * What the two Cloudflare Pages functions share: ask Supabase once, keep
- * the answer in this data centre's cache, and hand that copy to every
- * visitor until it is due to be asked again.
+ * Ask Supabase once, keep the answer in this Cloudflare data centre's
+ * cache, and hand that copy to every visitor until it is due again.
  *
- * Pages functions are not cached by Cloudflare on their own, so the
- * keeping is done here with the Cache API. (On a *.pages.dev preview
- * address the cache does nothing, and every request goes to Supabase.)
+ * A Worker's own responses are not cached by Cloudflare on their own, so
+ * the keeping is done here with the Cache API. (On a *.workers.dev
+ * address the cache does nothing, and every request goes to Supabase;
+ * on alarafahsupershop.com it keeps.)
  *
- * Used by functions/api/ (Cloudflare Pages). The files under api/ at
- * the root do the same job on Vercel.
+ * The files under api/ do the same job on Vercel.
  */
-import { SUPABASE } from "./config.js";
+import { SUPABASE } from "../src/backend/config.js";
 
 /**
  * A GET of `path` on Supabase's REST API, kept for `seconds`.
  * A failure is passed on but never kept, so one bad answer is not
  * served to everyone.
  */
-export async function kept(context, path, seconds){
+export async function kept(request, ctx, path, seconds){
   const cache = caches.default;
-  const key = new Request(new URL(context.request.url).toString(), { method: "GET" });
+  const key = new Request(new URL(request.url).toString(), { method: "GET" });
 
   const hit = await cache.match(key);
   if (hit) return hit;
@@ -30,7 +29,7 @@ export async function kept(context, path, seconds){
       headers: { apikey: SUPABASE.KEY, Authorization: `Bearer ${SUPABASE.KEY}` },
     });
   } catch {
-    return json({ error: "database unreachable" }, 502, "no-store");
+    return json({ error: "database unreachable" }, 502);
   }
 
   const body = await res.text();
@@ -42,7 +41,7 @@ export async function kept(context, path, seconds){
        copy in sessionStorage. s-maxage is what the cache here reads. */
     headers: headers(`public, max-age=0, s-maxage=${seconds}`),
   });
-  context.waitUntil(cache.put(key, out.clone()));
+  ctx.waitUntil(cache.put(key, out.clone()));
   return out;
 }
 
@@ -51,5 +50,5 @@ const headers = cacheControl => ({
   "Cache-Control": cacheControl,
 });
 
-export const json = (obj, status = 200, cacheControl = "no-store") =>
-  new Response(JSON.stringify(obj), { status, headers: headers(cacheControl) });
+export const json = (obj, status = 200) =>
+  new Response(JSON.stringify(obj), { status, headers: headers("no-store") });
