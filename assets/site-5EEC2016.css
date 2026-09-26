@@ -2982,6 +2982,24 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 }
 .dlv-warn .icon{flex-shrink:0;margin-top:1px;color:#b4801d}
 
+/* The estimate notice at the top of the page: the same amber as the
+   warning, but larger and with the call beside it. */
+[data-page="delivery"] .dlv-est{
+  display:flex;gap:12px;align-items:center;
+  background:#fff8e6;border:2px solid #f0c860;border-radius:12px;
+  padding:14px 16px;margin:0 0 18px;color:#7a5200;
+}
+.dlv-est > .icon{flex-shrink:0;color:#b4801d}
+.dlv-est > div{flex:1;min-width:0;line-height:1.5}
+.dlv-est b{display:block;font-size:15px;color:#5c3d00}
+.dlv-est span{font-size:13px}
+.dlv-est .btn{flex-shrink:0;white-space:nowrap}
+@media(max-width:620px){
+  [data-page="delivery"] .dlv-est{flex-wrap:wrap;align-items:flex-start}
+  .dlv-est > div{flex-basis:calc(100% - 40px)}
+  .dlv-est .btn{width:100%;justify-content:center}
+}
+
 /* ---------------------------- the rate table -------------------------- */
 [data-page="delivery"] .dlv-rates{margin-top:16px}
 

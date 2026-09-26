@@ -29,6 +29,19 @@ export function deliveryHTML(){
   return `
     <div class="dlv">
 
+      <!-- First thing on the page, before any figure: every charge below
+           is an estimate, and the phone call is where it is settled. -->
+      <div class="dlv-est" role="note">
+        ${icon("warn", { size: 20 })}
+        <div>
+          <b>${esc(T.dlv_est_h)}</b>
+          <span>${esc(T.dlv_est_b)}</span>
+        </div>
+        <a class="btn btn-red" href="tel:${esc(SHOP.telRaw)}">
+          ${icon("phone", { size: 15 })} ${esc(T.dlv_est_call)}
+        </a>
+      </div>
+
       <!-- The two ways to pay nothing. -->
       <div class="dlv-free">
         <div class="dlv-free-card">

@@ -223,6 +223,7 @@ export default {
     dlv_ship_1:"Sent by Sagawa Express. The carrier charges by the size of the box and how far it goes, and the shop agrees the figure with you on the phone before anything is sent.",
     dlv_japan_rate:"Carrier rates", dlv_japan_rate_s:"Agreed by phone",
     dlv_japan_rate_where:"Sent by Sagawa Express",
+    dlv_est_h:"This is an estimate", dlv_est_b:"The delivery charge may vary depending on the products you order. Please call the shop to confirm the exact charge.", dlv_est_call:"Call to confirm",
     dlv_warn:"These are the rates the shop works to, from its agreement with the carrier. Treat them as a guide: the exact charge depends on the size and weight of your boxes, and the shop confirms it with you by phone before anything is sent. You will never be charged a delivery fee you have not agreed to.",
     dlv_table_note:"Prices in yen, per box, sent from Ibaraki. Size is the three sides of the box added together in centimetres. Where a box is heavy for its size, the carrier charges on the weight instead.",
     dlv_th_region:"Where it is going", dlv_here:"(the shop is here)",
