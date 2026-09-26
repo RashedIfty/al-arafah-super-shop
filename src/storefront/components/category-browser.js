@@ -261,7 +261,7 @@ export function initCategoryStrip(){
     const gap = Math.min(now - last, 50);
     last = now;
 
-    if (!pressed && !gliding && now >= quietUntil
+    if (!pressed && !down && !gliding && now >= quietUntil
         && !calm.matches && !document.hidden
         && !box.classList.contains("dragging")
         && !keyboardInside()){
@@ -288,13 +288,20 @@ export function initCategoryStrip(){
     if (e.pointerType !== "mouse") return;
     down = true; moved = false;
     startX = e.clientX; startLeft = box.scrollLeft;
-    box.classList.add("dragging");
   });
 
+  /* It only becomes a drag once the mouse has really moved. Marking it
+     one on the press itself switched the pills' pointer events off
+     before the button came up, so a plain click landed on the row
+     instead of the link and went nowhere. */
   box.addEventListener("pointermove", e => {
     if (!down) return;
     const dx = e.clientX - startX;
-    if (Math.abs(dx) > 3) moved = true;
+    if (!moved){
+      if (Math.abs(dx) <= 3) return;
+      moved = true;
+      box.classList.add("dragging");
+    }
     box.scrollLeft = startLeft - dx;
     // Crossing a join moves the row a copy; move the drag's anchor with it.
     startLeft += follow();
