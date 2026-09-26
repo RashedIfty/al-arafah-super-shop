@@ -82,3 +82,16 @@ restricts writes to a signed-in owner.
 
 Removing something sets `archived_at` rather than deleting the row; the
 Archive tab in the panel restores it or deletes it permanently.
+
+## Building and deploying
+
+The site is static. After changing any script or stylesheet:
+
+    npm install        # once, for the build tools
+    node build.js      # writes assets/ and points every page at it
+
+then commit everything and push to `main`. Cloudflare Workers deploys
+each push to main (`npx wrangler deploy`, configured in `wrangler.jsonc`;
+what is not published is listed in `.assetsignore`). `/api/shop` and
+`/api/stamp` run in `worker/site.js`; everything else is a static file.
+Vercel (`vercel.json`, `api/`) is kept as a backup host.
