@@ -59,15 +59,18 @@ jobs:
           PG_DUMP=/usr/lib/postgresql/17/bin/pg_dump
           DAY=$(TZ=Asia/Tokyo date +%F)
 
-          # The shop's own tables, whole (structure, rules, triggers and
-          # data), then the login accounts' rows. Supabase's other schemas
-          # are Supabase's and come with any new project.
+          # The login accounts' rows first — orders, profiles and the rest
+          # point at them, so they must exist before those are loaded —
+          # then the shop's own tables whole (structure, rules, triggers
+          # and data). Supabase's other schemas are Supabase's and come
+          # with any new project.
           {
             echo "-- Al-Arafah Super Shop database backup, $DAY (Japan)"
-            "$PG_DUMP" --schema=public --no-owner --no-privileges
             echo "-- Login accounts (auth.users, auth.identities), data only"
             "$PG_DUMP" --data-only --no-owner --no-privileges \
                        --table=auth.users --table=auth.identities
+            echo "-- The shop (schema public)"
+            "$PG_DUMP" --schema=public --no-owner --no-privileges
           } | gzip -9 > backup.sql.gz
 
           # A backup that is suspiciously small is a failed one: stop, so

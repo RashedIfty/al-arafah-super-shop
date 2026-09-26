@@ -94,3 +94,28 @@ then commit everything and push to `main`. Cloudflare Workers deploys
 each push to main (`npx wrangler deploy`, configured in `wrangler.jsonc`;
 what is not published is listed in `.assetsignore`). `/api/shop` and
 `/api/stamp` run in `worker/site.js`; everything else is a static file.
+
+## Database backups
+
+Every night at 03:00 Japan time, `.github/workflows/backup.yml` copies
+the database (the shop's tables and the login accounts), encrypts it,
+and stores it as `YYYY-MM-DD.sql.gz.enc` in the private Cloudflare R2
+bucket `alarafah-backups`. The last 30 days are kept. A red run in the
+repository's Actions tab means that night's copy failed.
+
+To restore one (into a new Supabase project, or any Postgres 17):
+
+1. Download it: Cloudflare → R2 → `alarafah-backups` → the day → Download,
+   or `npx wrangler r2 object get alarafah-backups/2026-09-26.sql.gz.enc --remote --file b.enc`
+2. Decrypt it with the backup passphrase (kept by the owner, and as the
+   `BACKUP_PASS` secret on GitHub):
+
+       openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in b.enc | gunzip > backup.sql
+
+3. Load it (Supabase → Project Settings → Database gives the address):
+
+       psql "postgresql://postgres:PASSWORD@HOST:5432/postgres" -f backup.sql
+
+   The login accounts come first in the file, then the shop's tables.
+   Into a project that already has data, restore into a fresh one
+   instead and move across what is needed — never over the live shop.
