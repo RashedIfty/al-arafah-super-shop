@@ -1,0 +1,11 @@
+# How long browsers keep files on Cloudflare Pages: the same rules as
+# vercel.json. assets/ is fingerprinted by build.js, so a change is a new
+# name; the pages themselves are checked on every visit (Pages' default).
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts-woff/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/images/*
+  Cache-Control: public, max-age=604800

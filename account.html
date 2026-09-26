@@ -49,10 +49,18 @@
       return at && Date.now() - at < 300000;
     } catch (e) { return false; }
   }
-  var ver = fetch(U + "/rest/v1/shop_version?select=at&id=eq.1", { headers: h })
-    .then(function(r){ return r.ok ? r.json() : null; })
-    .then(function(j){ return j && j[0] ? j[0].at : null; })
-    .catch(function(){ return null; });
+  /* The stamp through the host's cache (/api/stamp), shared by every
+     visitor; straight from the database if that fails. */
+  function stampFrom(p){
+    return p.then(function(r){ return r.ok ? r.json() : null; })
+            .then(function(j){ return j && j[0] ? j[0].at : null; });
+  }
+  var ver = stampFrom(fetch("/api/stamp"))
+    .catch(function(){ return null; })
+    .then(function(v){
+      return v || stampFrom(fetch(U + "/rest/v1/shop_version?select=at&id=eq.1", { headers: h }))
+                    .catch(function(){ return null; });
+    });
   function early(t){
     return ver.then(function(v){ return kept(t, v) ? null : grab(t, v); });
   }
@@ -120,6 +128,6 @@ try {
 
 <div id="lbMount"></div>
 
-<script type="module" src="/assets/storefront-QWOZSKL2.js"></script>
+<script type="module" src="/assets/storefront-EG722P6U.js"></script>
 </body>
 </html>

@@ -137,10 +137,10 @@ function startIdleWatch(){
  * product, category or deal changes (migrate-version.sql). A page reads
  * only that — a few hundred bytes — and keeps using the rows it already
  * holds while the stamp is the same. When the stamp has moved it fetches
- * again, through Vercel's cache at an address carrying the stamp, so the
+ * again, through the host's cache at an address carrying the stamp, so the
  * first customer after a change fetches the new rows and everyone after
  * gets that copy. A price the owner changes is on the next page anyone
- * opens, and on pages already open within a minute (watchShop), without
+ * opens, and on pages already open within two minutes (watchShop), without
  * a live connection per visitor — that is what filled the database's
  * memory once already.
  *
@@ -155,15 +155,22 @@ const reusable = () => document.body?.dataset.page !== "admin";
 let stamp = null;         // the stamp this page's rows belong to
 let stampAsk = null;      // the read of it, shared by every caller
 
+/* Through the host's cache first (/api/stamp: every visitor shares one
+   read of the database every 30 seconds), straight from the database if
+   that is missing or fails. */
 async function askStamp(){
-  try {
-    const res = await fetch(`${SUPABASE.URL}/rest/v1/shop_version?select=at&id=eq.1`, {
-      headers: { apikey: SUPABASE.KEY, Authorization: `Bearer ${SUPABASE.KEY}` },
-    });
-    if (!res.ok) return null;
-    const [row] = await res.json();
-    return row?.at || null;
-  } catch { return null; }
+  const read = async (url, init) => {
+    try {
+      const res = await fetch(url, init);
+      if (!res.ok) return null;
+      const [row] = await res.json();
+      return row?.at || null;
+    } catch { return null; }
+  };
+  return await read("/api/stamp")
+      || await read(`${SUPABASE.URL}/rest/v1/shop_version?select=at&id=eq.1`, {
+           headers: { apikey: SUPABASE.KEY, Authorization: `Bearer ${SUPABASE.KEY}` },
+         });
 }
 
 /** This page's stamp: the head snippet's read if it made one, else one read. */
@@ -284,7 +291,10 @@ export function watchShop(onChange){
     onChange();
   };
 
-  setInterval(check, 60_000);
+  /* Every ninety seconds: with the stamp kept thirty at the edge, an
+     open page shows a change within two minutes, and a busy day stays
+     well inside the host's free allowance of function calls. */
+  setInterval(check, 90_000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) check(); });
 }
 
