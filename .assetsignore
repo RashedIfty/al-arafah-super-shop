@@ -28,3 +28,6 @@ wrangler.jsonc
 README.md
 .gitignore
 .assetsignore
+
+# Hidden files and folders (local tools and settings) are never published.
+.*
