@@ -22,3 +22,6 @@ supabase/.temp/
 
 # Build tools, installed by npm
 node_modules/
+
+# Cloudflare wrangler scratch
+.wrangler/
