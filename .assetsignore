@@ -31,3 +31,6 @@ README.md
 
 # Hidden files and folders (local tools and settings) are never published.
 .*
+
+# Code map made by graphify (local only)
+graphify-out
