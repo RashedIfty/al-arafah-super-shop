@@ -387,7 +387,7 @@ export async function insertProduct(categoryId, p){
   const res = await c.from("products").insert({
     category_id: categoryId, en: p.en, bn: p.bn, ja: p.ja,
     w: p.w, p: p.p, was: p.was || 0, img: p.img || "",
-    tag: p.tag || null, country: p.country || null, sort: 0,
+    tag: p.tag === "out" ? "out" : "in", country: p.country || null, sort: 0,
     is_new: Boolean(p.isNew), is_popular: Boolean(p.isPopular),
     is_offer: Boolean(p.isOffer)
   }).select().single();
@@ -439,7 +439,7 @@ export async function updateProduct(id, categoryId, p){
   const res = await c.from("products").update({
     category_id: categoryId, en: p.en, bn: p.bn, ja: p.ja,
     w: p.w, p: p.p, was: p.was || 0, img: p.img || "",
-    tag: p.tag || null, country: p.country || null,
+    tag: p.tag === "out" ? "out" : "in", country: p.country || null,
     // Always sent, even when false: unticking a shelf has to reach the row.
     is_new: Boolean(p.isNew), is_popular: Boolean(p.isPopular),
     is_offer: Boolean(p.isOffer)

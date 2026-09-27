@@ -525,10 +525,9 @@ function openForm(catId, index){
   $("#fW").value   = p?.w  || "";
   $("#fP").value   = p?.p  ?? "";
   $("#fWas").value = p?.was || "";
-  /* Stock is the one thing here with no sensible default: a new product
-     is presumably on the shelf, but saying so on the owner's behalf would
-     be putting words in their mouth. They pick. */
-  const stock = p?.tag === "in" || p?.tag === "out" ? p.tag : "";
+  /* Every product is either in stock or out of it — there is no third
+     state. A new one starts in stock; the owner flips it if not. */
+  const stock = p?.tag === "out" ? "out" : "in";
   $$("input[name=fStock]").forEach(r => r.checked = r.value === stock);
   $("#fCountry").value = p?.country || "";
   showCountryFlag();
@@ -852,10 +851,10 @@ on("#form", "submit", async e => {
     was,
     img: $("#fImg").value.trim()
   };
-  /* Always sent, even when empty or false: going back to "Don't say",
-     clearing a country or unticking a shelf all have to reach the row,
-     not merely be left off the update. */
-  product.tag = $$("input[name=fStock]").find(r => r.checked)?.value || null;
+  /* Always sent, even when empty or false: clearing a country or
+     unticking a shelf has to reach the row, not merely be left off the
+     update. Stock is always one of the two. */
+  product.tag = $$("input[name=fStock]").find(r => r.checked)?.value === "out" ? "out" : "in";
   product.country   = $("#fCountry").value || null;
   product.isOffer   = $("#fOffer").checked;
   /* Sold out comes off the offers and the deals (migrate-soldout.sql does

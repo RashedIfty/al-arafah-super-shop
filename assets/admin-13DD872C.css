@@ -945,7 +945,6 @@ body{overflow-x:hidden}
    the border take the option's colour. */
 .stock-opt.in{--pick:#12805c}
 .stock-opt.out{--pick:var(--red)}
-.stock-opt.none{--pick:var(--mute)}
 .stock-dot::after{background:var(--pick, currentColor)}
 .stock-opt:hover{border-color:var(--pick)}
 .stock-opt input:checked ~ .stock-dot{border-color:var(--pick)}
