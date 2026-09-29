@@ -54,7 +54,7 @@
     return p.then(function(r){ return r.ok ? r.json() : null; })
             .then(function(j){ return j && j[0] ? j[0].at : null; });
   }
-  var ver = stampFrom(fetch("/api/stamp"))
+  var ver = stampFrom(fetch("/api/stamp", { cache: "no-cache" }))
     .catch(function(){ return null; })
     .then(function(v){
       return v || stampFrom(fetch(U + "/rest/v1/shop_version?select=at&id=eq.1", { headers: h }))
@@ -123,6 +123,6 @@ try {
 
 <div id="lbMount"></div>
 
-<script type="module" src="/assets/storefront-4PEUYZR4.js"></script>
+<script type="module" src="/assets/storefront-WHWI4UVL.js"></script>
 </body>
 </html>

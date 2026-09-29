@@ -167,7 +167,7 @@ async function askStamp(){
       return row?.at || null;
     } catch { return null; }
   };
-  return await read("/api/stamp")
+  return await read("/api/stamp", { cache: "no-cache" })
       || await read(`${SUPABASE.URL}/rest/v1/shop_version?select=at&id=eq.1`, {
            headers: { apikey: SUPABASE.KEY, Authorization: `Bearer ${SUPABASE.KEY}` },
          });
@@ -236,7 +236,8 @@ async function readOne(name){
     if (reusable()){
       try {
         const cached = await fetch(`/api/shop?t=${name}`
-          + (v ? `&v=${encodeURIComponent(v)}` : ""));
+          + (v ? `&v=${encodeURIComponent(v)}` : ""),
+          { cache: v ? "default" : "no-cache" });
         if (cached.ok) return cached.json();
       } catch { /* fall through to the database */ }
     }

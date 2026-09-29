@@ -18,8 +18,15 @@ export async function kept(request, ctx, path, seconds){
   const cache = caches.default;
   const key = new Request(new URL(request.url).toString(), { method: "GET" });
 
+  /* A copy from the cache is handed on under our own Cache-Control, not
+     the one it comes out with: Cloudflare stamps cached answers with the
+     zone's browser TTL (4 hours), and a browser that kept the change
+     stamp that long went on showing the old shop after every edit. */
   const hit = await cache.match(key);
-  if (hit) return hit;
+  if (hit) return new Response(hit.body, {
+    status: hit.status,
+    headers: headers(`public, max-age=0, s-maxage=${seconds}`),
+  });
 
   let res;
   try {
