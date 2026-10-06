@@ -419,7 +419,6 @@ function renderList(){
    press-and-hold on a phone so that an ordinary swipe still scrolls.
    Not while searching: with only some of a category showing, "before
    this one" would not mean anything. */
-const SORTABLE = "https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/modular/sortable.esm.js";
 let Sortable = null;
 
 /* One set of draggable grids per list ("products", "deals"), each torn
@@ -433,9 +432,16 @@ async function makeSortable(list, grids, onMove){
   sortables[list] = [];
   if (!grids.length) return;
 
+  /* The address is written out in full, not kept in a variable: build.js
+     can only bundle an import it can read, and one it could not stayed a
+     download from the CDN — which the site's Content-Security-Policy
+     refuses, so dragging silently stopped working. */
   if (!Sortable){
-    try { ({ Sortable } = await import(SORTABLE)); }
-    catch { return; }                          // the list still works, just not by dragging
+    try { ({ Sortable } = await import("https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/modular/sortable.esm.js")); }
+    catch (err) {                              // the list still works, just not by dragging
+      console.error("Dragging is unavailable:", err);
+      return;
+    }
   }
   if (run !== dragRuns[list]) return;          // redrawn while it loaded
 
