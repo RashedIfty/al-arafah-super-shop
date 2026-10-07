@@ -155,8 +155,11 @@ export async function shrinkImage(file, opts = {}){
 
   // Nothing gained: a small picture re-encoded can come out larger.
   if (!out) return file;
-  // A smaller original is kept — unless the server would refuse its type.
-  if (out.size >= file.size && !mustConvert) return file;
+  /* A smaller original is kept — unless the server would refuse its type,
+     or the shop's banner (and perhaps the halal seal) was drawn on. Those
+     exist only on the new copy: keeping the original whenever it was the
+     smaller file put small photos up with no banner and no seal. */
+  if (opts.plain && out.size >= file.size && !mustConvert) return file;
 
   const base = (file.name || "photo").replace(/\.[^.]+$/, "");
   return new File([out], `${base}.jpg`, {
