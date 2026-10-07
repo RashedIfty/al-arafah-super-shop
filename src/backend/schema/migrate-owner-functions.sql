@@ -12,7 +12,8 @@
 -- to the owner only, and the views are dropped. The panel calls them
 -- with rpc(); PostgREST still lets it filter and order the result.
 --
--- customer_photos stays a view: it reads profiles, not auth.users.
+-- customer_photos stays a view (it reads profiles, not auth.users), but
+-- runs with the reader's rights from now on.
 --
 -- Safe to run twice. All or nothing.
 -- ---------------------------------------------------------------------
@@ -73,5 +74,10 @@ grant execute on function public.owner_restock_board()      to authenticated;
 -- The views go once the panel reads the functions (deployed first).
 drop view if exists public.customer_directory;
 drop view if exists public.restock_board;
+
+-- customer_photos reads only profiles, and the owner may read every
+-- profile by its own policy. So it can run with the reader's rights
+-- rather than its creator's, which is what Supabase's scan asks of views.
+alter view public.customer_photos set (security_invoker = true);
 
 commit;
