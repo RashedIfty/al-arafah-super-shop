@@ -863,15 +863,13 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       </div>`;return}p("#dealList").innerHTML=`
     <p class="drag-hint">${M("grid",{size:16})}
       <span><b>Drag a card</b> to change its place in Today's Deal &amp; New
-      Arrival \u2014 on a phone, press and hold it first. Products ticked as a
-      Special Offer always come first, ahead of these.</span></p>
-    <div class="prod-grid deal-grid">${se.map((t,e)=>{let r=t.was&&t.was>t.p?Math.round((t.was-t.p)/t.was*100):0,n=t.type==="deal";return`
-      <div class="prod ${n?"is-deal":"is-new"}" data-i="${e}">
+      Arrival \u2014 on a phone, press and hold it first. The homepage strip shows
+      exactly these, in this order.</span></p>
+    <div class="prod-grid deal-grid">${se.map((t,e)=>{let r=t.was&&t.was>t.p?Math.round((t.was-t.p)/t.was*100):0,n=t.type==="deal"||t.type==="offer"?t.type:"new",s={deal:M("fire",{size:11})+" TODAY'S DEAL",offer:M("cash",{size:11})+" SPECIAL OFFER",new:M("star",{size:11})+" NEW ARRIVAL"}[n];return`
+      <div class="prod is-${n}" data-i="${e}">
         <div class="prod-pic">
           <img class="prod-img" src="${v(t.img||"/images/placeholder.svg")}" alt="" loading="lazy" ${$t}>
-          <span class="dtype ${n?"deal":"new"}">
-            ${n?M("fire",{size:11})+" TODAY'S DEAL":M("star",{size:11})+" NEW ARRIVAL"}
-          </span>
+          <span class="dtype ${n}">${s}</span>
           ${r?`<span class="deal-off">-${r}%</span>`:""}
         </div>
         <div class="prod-tx">

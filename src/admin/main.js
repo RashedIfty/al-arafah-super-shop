@@ -1193,25 +1193,26 @@ function renderDeals(){
   }
 
   /* Cards like the ones in the homepage strip, side by side, dragged
-     to set the strip's order. Special-offer products are not here: they
-     come from the tick on each product and lead the strip on their own. */
+     to set the strip's order. This tab is the whole strip: nothing else
+     puts a product there, so what the owner sees here is what the
+     homepage shows, in the same order. */
   $("#dealList").innerHTML = `
     <p class="drag-hint">${icon("grid", { size: 16 })}
       <span><b>Drag a card</b> to change its place in Today's Deal &amp; New
-      Arrival — on a phone, press and hold it first. Products ticked as a
-      Special Offer always come first, ahead of these.</span></p>
+      Arrival — on a phone, press and hold it first. The homepage strip shows
+      exactly these, in this order.</span></p>
     <div class="prod-grid deal-grid">${deals.map((d, i) => {
     const off = d.was && d.was > d.p ? Math.round((d.was - d.p) / d.was * 100) : 0;
-    const isDeal = d.type === "deal";
+    const kind = d.type === "deal" || d.type === "offer" ? d.type : "new";
+    const label = { deal:  icon("fire",{size:11}) + " TODAY'S DEAL",
+                    offer: icon("cash",{size:11}) + " SPECIAL OFFER",
+                    new:   icon("star",{size:11}) + " NEW ARRIVAL" }[kind];
 
     return `
-      <div class="prod ${isDeal ? "is-deal" : "is-new"}" data-i="${i}">
+      <div class="prod is-${kind}" data-i="${i}">
         <div class="prod-pic">
           <img class="prod-img" src="${esc(d.img || "/images/placeholder.svg")}" alt="" loading="lazy" ${IMG_FALLBACK}>
-          <span class="dtype ${isDeal ? "deal" : "new"}">
-            ${isDeal ? icon("fire",{size:11}) + " TODAY'S DEAL"
-                      : icon("star",{size:11}) + " NEW ARRIVAL"}
-          </span>
+          <span class="dtype ${kind}">${label}</span>
           ${off ? `<span class="deal-off">-${off}%</span>` : ""}
         </div>
         <div class="prod-tx">

@@ -601,10 +601,11 @@ body{overflow-x:hidden}
 }
 .dtype.deal{background:#fff3d6;color:#8a6200}
 .dtype.new{background:#e3f4ed;color:#12805c}
+.dtype.offer{background:var(--red-l);color:var(--red)}
 .tag.off{background:var(--red-l);color:var(--red)}
 
 /* radio cards in the deal form */
-.pick2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pick2{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
 .pick2-b{
   display:block;cursor:pointer;border:2px solid var(--line);
   border-radius:12px;padding:14px;transition:.18s var(--ease);

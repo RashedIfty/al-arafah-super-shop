@@ -91,41 +91,26 @@ const shelfKey = (name, w) =>
  * A deal is only a deal while the thing is on the shelf.
  *
  * Two ways a product stops being sellable: the owner removes it, or he
- * marks it sold out. The first was already handled; the second was not,
- * so the strip went on advertising a fish nobody could buy — the worst
- * kind of promotion, since it is the first thing on the homepage and it
- * leads to a card with no buy button.
+ * marks it sold out. Either way the strip must stop advertising it —
+ * it is the first thing on the homepage, and it would lead to a card
+ * with no buy button.
+ *
+ * Each deal that stays is joined to its product, so the popup opened
+ * from the strip can put it in the basket. A deal keeps its own name,
+ * photo and price; the product lends only its id and stock.
  */
-function onlyStillSold(items, catalog){
+function onShelf(items, catalog){
   if (!items?.length || !catalog?.length) return items ?? [];
 
-  const shelf = new Set();
+  const shelf = new Map();
   for (const cat of catalog)
     for (const p of cat.items)
-      if (p.tag !== "out") shelf.add(shelfKey(p.en, p.w));
+      if (p.tag !== "out") shelf.set(shelfKey(p.en, p.w), p);
 
-  return items.filter(d => shelf.has(shelfKey(d.en, d.w)));
-}
-
-/*
- * Products the owner has ticked as a special offer, as strip items.
- *
- * Built from the tick every time rather than copied into the deals
- * table, so the strip can never disagree with it: tick the box and the
- * product is at the front of the strip on the next visit, untick it and
- * it is gone, with nothing left behind to delete. Each keeps its
- * product id, so the popup opened from the strip can put it in the
- * basket. Sold out is left off, for the reason onlyStillSold gives.
- */
-function offersFrom(catalog){
-  const out = [];
-  for (const cat of catalog ?? [])
-    for (const p of cat.items)
-      if (p.isOffer && p.tag !== "out")
-        out.push({ _id: p._id, type: "offer",
-                   en: p.en, bn: p.bn, ja: p.ja,
-                   w: p.w, p: p.p, was: p.was, img: p.img });
-  return out;
+  return items.flatMap(d => {
+    const p = shelf.get(shelfKey(d.en, d.w));
+    return p ? [{ ...d, _id: p._id, tag: p.tag }] : [];
+  });
 }
 
 export async function refreshDeals(){
@@ -138,14 +123,10 @@ export async function refreshDeals(){
     const [live, shelf] = await Promise.all([fetchDeals(), fetchCatalog()]);
 
     if (live){
-      const deals = shelf ? onlyStillSold(live, shelf) : live;
-
-      /* Offers first: they are what the shop has chosen to push. A deal
-         the owner also made by hand for the same product is dropped
-         rather than shown twice. */
-      const offers = offersFrom(shelf);
-      const offered = new Set(offers.map(o => shelfKey(o.en, o.w)));
-      const items = [...offers, ...deals.filter(d => !offered.has(shelfKey(d.en, d.w)))];
+      /* The strip is the owner's Today's Deals tab and nothing else, in
+         its order. Ticking Special Offer on a product no longer adds it
+         here by itself: one place decides what the homepage pushes. */
+      const items = shelf ? onShelf(live, shelf) : live;
       ANNOUNCEMENTS = { ...DEFAULT_ANNOUNCEMENTS, items };
 
       /* Cached even when empty: an owner who has removed every deal must
