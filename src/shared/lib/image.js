@@ -40,6 +40,19 @@ function fitted(w, h, edge = MAX_EDGE){
   return { w: Math.round(w * scale), h: Math.round(h * scale) };
 }
 
+/**
+ * A picture's width and height in pixels, or null when it cannot be read.
+ * The panel uses it to warn before a thumbnail-sized photo goes up.
+ */
+export async function imageSize(file){
+  try {
+    const img = await decode(file);
+    const size = { w: img.naturalWidth || img.width, h: img.naturalHeight || img.height };
+    img.close?.();
+    return size.w && size.h ? size : null;
+  } catch { return null; }
+}
+
 /** Decode a file into something we can draw. */
 async function decode(file){
   // createImageBitmap is faster and handles EXIF rotation, but is missing

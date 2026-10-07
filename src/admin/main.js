@@ -7,7 +7,7 @@
 import { $, $$, esc, on, IMG_FALLBACK } from "../shared/lib/dom.js";
 import { icon } from "../shared/ui/icons.js";
 import { yen } from "../shared/lib/format.js";
-import { shrinkImage, fileSize } from "../shared/lib/image.js";
+import { shrinkImage, fileSize, imageSize } from "../shared/lib/image.js";
 import { isLoggedIn, login, logout, usingSupabase } from "./auth.js";
 import * as store from "./local-store.js";
 import { DEFAULT_ANNOUNCEMENTS } from "../features/deals/deals.js";
@@ -583,7 +583,34 @@ let photoRun = 0;
    on and off without asking for the file again. Cleared with the form. */
 let chosen = null;
 
+/* Below this on its longer side a photo looks blurry in the shop: the
+   product popup shows it about 500 pixels wide. The shop's banner is drawn
+   into the photo at the photo's own size, so it blurs with it. Thumbnails
+   dragged or copied from an image search are typically 80 pixels wide. */
+const MIN_PHOTO_EDGE = 300;
+
+/**
+ * A newly chosen photo: warn if it is too small, then use it. The halal
+ * seal's redraw goes straight to useImage(), so it never asks twice.
+ */
 async function handleImage(file, apply){
+  if (!file || !file.type.startsWith("image/")) return;
+
+  const size = await imageSize(file);
+  if (size && Math.max(size.w, size.h) < MIN_PHOTO_EDGE){
+    ask("This photo is too small",
+        `It is only ${size.w} × ${size.h} pixels, so it will look blurry in the shop — ` +
+        `and so will the Al-Arafah banner on it. This usually happens when a small ` +
+        `preview is copied from an image search. Open the picture on its own first, ` +
+        `then save or copy that, and choose it here.`,
+        () => useImage(file, apply),
+        { yes: "Use it anyway" });
+    return;
+  }
+  return useImage(file, apply);
+}
+
+async function useImage(file, apply){
   chosen = { file, apply };
 
   if (!file || !file.type.startsWith("image/")) return;
@@ -1644,7 +1671,7 @@ function moveDeal(from, to){
  */
 on("#fHalal", "change", () => {
   if (!chosen) return;                    // no photo yet: nothing to redraw
-  handleImage(chosen.file, chosen.apply);
+  useImage(chosen.file, chosen.apply);
 });
 
 /* --------------------------- filling in the rest ----------------------- */
