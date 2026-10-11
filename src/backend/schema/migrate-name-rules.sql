@@ -19,7 +19,10 @@
 begin;
 
 -- ---------------------------- rule 2: capitals -------------------------
-create or replace function public.cap_words(s text)
+/* The first letter of each word raised, the rest left alone. A word
+   starts after a space, a bracket, a slash or a quote; hyphenated names
+   such as "Al-Flah" are left as the owner typed them. */
+create or replace function public.cap_chars(s text)
 returns text language plpgsql immutable
 set search_path = public, pg_temp
 as $$
@@ -32,6 +35,42 @@ begin
     prev := c;
   end loop;
   return out;
+end $$;
+
+/* Title case as the owner asked: every word capitalised, except the
+   small joining words (and, of, with…) in the middle of a name. Those
+   are capitalised when they open the name or a phrase — the first word,
+   or the first after "(", "/", a dash or a colon — and a word typed all
+   in capitals is a brand and is never lowered. "a" is not on the list,
+   so "Vitamin A" stays right. */
+create or replace function public.cap_words(s text)
+returns text language plpgsql immutable
+set search_path = public, pg_temp
+as $$
+declare
+  minor constant text[] := array['an','the','and','but','or','nor','for','of','in','on',
+                                 'at','to','by','with','from','as','per','via','vs','vs.',
+                                 'into','onto','than'];
+  parts text[]; out text[] := '{}'; tok text; pre text; body text; core text;
+  starts boolean := true;
+begin
+  if s is null then return null; end if;
+  parts := string_to_array(s, ' ');
+  for i in 1 .. coalesce(array_length(parts, 1), 0) loop
+    tok := parts[i];
+    if tok = '' then out := out || tok; continue; end if;
+    pre  := substring(tok from '^[(\["“‘''/]*');
+    body := substr(tok, char_length(pre) + 1);
+    core := lower(regexp_replace(body, '[^[:alpha:].]+$', ''));
+    if not starts and pre = '' and core = any(minor)
+       and not (char_length(body) > 1 and body = upper(body)) then
+      out := out || lower(body);
+    else
+      out := out || cap_chars(tok);
+    end if;
+    starts := tok in ('-', '–', '—', '/', '|', '&') or tok ~ ':$';
+  end loop;
+  return array_to_string(out, ' ');
 end $$;
 
 create or replace function public.cap_en_name()
@@ -74,6 +113,7 @@ create trigger categories_others_last
   for each statement execute function others_last();
 
 -- Internal helpers: the API has no business calling them.
+revoke all on function public.cap_chars(text)  from public, anon, authenticated;
 revoke all on function public.cap_words(text)  from public, anon, authenticated;
 revoke all on function public.cap_en_name()    from public, anon, authenticated;
 revoke all on function public.others_last()    from public, anon, authenticated;
