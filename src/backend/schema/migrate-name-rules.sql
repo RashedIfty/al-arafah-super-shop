@@ -112,9 +112,15 @@ create trigger categories_others_last
   after insert or update of sort, archived_at on categories
   for each statement execute function others_last();
 
--- Internal helpers: the API has no business calling them.
-revoke all on function public.cap_chars(text)  from public, anon, authenticated;
-revoke all on function public.cap_words(text)  from public, anon, authenticated;
+-- The trigger functions themselves are not called through the API.
+/* The two text helpers run inside the triggers AS THE PERSON SAVING —
+   the owner, signed in — so that role must be able to call them, or
+   every save fails with "permission denied for function cap_words".
+   They only reformat text, so this is harmless. Never to anon. */
+revoke all on function public.cap_chars(text)  from public, anon;
+revoke all on function public.cap_words(text)  from public, anon;
+grant execute on function public.cap_chars(text) to authenticated;
+grant execute on function public.cap_words(text) to authenticated;
 revoke all on function public.cap_en_name()    from public, anon, authenticated;
 revoke all on function public.others_last()    from public, anon, authenticated;
 
