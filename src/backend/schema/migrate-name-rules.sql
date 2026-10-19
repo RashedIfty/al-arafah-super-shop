@@ -20,8 +20,9 @@ begin;
 
 -- ---------------------------- rule 2: capitals -------------------------
 /* The first letter of each word raised, the rest left alone. A word
-   starts after a space, a bracket, a slash or a quote; hyphenated names
-   such as "Al-Flah" are left as the owner typed them. */
+   starts after a space, a bracket, a slash or an opening double quote —
+   not after an apostrophe, so "Pond's" and "Inoue's" stay right.
+   Hyphenated names such as "Al-Flah" are left as the owner typed them. */
 create or replace function public.cap_chars(s text)
 returns text language plpgsql immutable
 set search_path = public, pg_temp
@@ -31,7 +32,7 @@ begin
   if s is null then return null; end if;
   for i in 1 .. char_length(s) loop
     c := substr(s, i, 1);
-    out := out || case when prev ~ '[[:space:](\[/"''“‘]' then upper(c) else c end;
+    out := out || case when prev ~ '[[:space:](\[/"“]' then upper(c) else c end;
     prev := c;
   end loop;
   return out;
