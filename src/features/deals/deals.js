@@ -105,11 +105,21 @@ function onShelf(items, catalog){
   const shelf = new Map();
   for (const cat of catalog)
     for (const p of cat.items)
-      if (p.tag !== "out") shelf.set(shelfKey(p.en, p.w), p);
+      if (p.tag !== "out"){
+        const k = shelfKey(p.en, p.w);
+        shelf.set(k, [...(shelf.get(k) ?? []), p]);
+      }
 
+  /* Several products can share a name and size — four "Mango Juice 1L"
+     at different prices. The basket charges the product's own price, so
+     the deal is joined to the one sold at the deal's price; only when
+     none is does it fall back to the first. Picking any of them let a
+     ¥180 deal put the ¥650 bottle in the basket. */
   return items.flatMap(d => {
-    const p = shelf.get(shelfKey(d.en, d.w));
-    return p ? [{ ...d, _id: p._id, tag: p.tag }] : [];
+    const all = shelf.get(shelfKey(d.en, d.w));
+    if (!all) return [];
+    const p = all.find(x => Number(x.p) === Number(d.p)) ?? all[0];
+    return [{ ...d, _id: p._id, tag: p.tag }];
   });
 }
 
