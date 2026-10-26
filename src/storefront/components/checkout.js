@@ -21,7 +21,7 @@
  * lands in one go, so stepping back never leaves a half-order behind.
  */
 import { $, $$, esc } from "../../shared/lib/dom.js";
-import { t } from "../../features/i18n/lang.js";
+import { t, getLang } from "../../features/i18n/lang.js";
 import { yen, jstDate } from "../../shared/lib/format.js";
 import { SHOP } from "../../shared/shop.js";
 import { PAY, METHODS, PREPAID, payLabel } from "../../shared/pay.js";
@@ -73,6 +73,14 @@ export function checkoutHTML(){
   const T = t();
 
   if (placed) return confirmationHTML(placed, T);
+
+  /* Orders paused until a set day (shop_status). Shown before anything
+     else: there is no point filling in an address for an order the shop
+     will refuse. The database refuses it too; this is what they see. */
+  if (ordersClosed())
+    return card(icon("clock", { size: 28 }),
+      T.chk_closed_h.replace("{date}", openingDate()), T.chk_closed_b,
+      `<a class="btn btn-red" href="products.html">${esc(T.nav_products)}</a>`);
 
   // Same reason as the orders page: do not claim they are signed out
   // before anyone has looked.
@@ -544,8 +552,41 @@ function complain(errSel, message, focusSel){
 }
 
 export function initCheckout(){
+  askOpening();
   bindMount();
   bindShipForm();
+}
+
+/* ------------------------- orders paused until -------------------------
+   One row, readable by anyone: the moment orders open. Asked once per
+   page. Before that moment the checkout shows the date instead of the
+   form; at the moment itself a page left open reopens by itself, and a
+   fresh visit simply finds the date has passed — nothing to switch back. */
+let opensAt = null;              // a Date while orders are paused, else null
+let openingAsked = false;
+const ordersClosed = () => Boolean(opensAt) && Date.now() < opensAt.getTime();
+
+function openingDate(){
+  const locale = { bn: "bn-BD", ja: "ja-JP" }[getLang()] || "en-GB";
+  return new Intl.DateTimeFormat(locale,
+    { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Tokyo" }).format(opensAt);
+}
+
+async function askOpening(){
+  if (openingAsked) return;
+  openingAsked = true;
+  try {
+    const { SUPABASE } = await import("../../backend/config.js");
+    const res = await fetch(`${SUPABASE.URL}/rest/v1/shop_status?select=orders_open_from&id=eq.1`,
+      { headers: { apikey: SUPABASE.KEY, Authorization: `Bearer ${SUPABASE.KEY}` } });
+    const [row] = res.ok ? await res.json() : [];
+    const at = row?.orders_open_from ? new Date(row.orders_open_from) : null;
+    if (!at || Date.now() >= at.getTime()) return;
+    opensAt = at;
+    repaint?.();
+    const wait = at.getTime() - Date.now() + 1000;
+    if (wait < 2 ** 31 - 1) setTimeout(() => { opensAt = null; repaint?.(); }, wait);
+  } catch { /* unreadable: the form shows, and the database still refuses */ }
 }
 
 /**

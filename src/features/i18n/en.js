@@ -130,6 +130,7 @@ export default {
     chk_note:"Anything we should know? — optional",
     chk_note_h:"A delivery time, a door code, a substitution you would accept",
     chk_review:"Your order", chk_place:"Place order", chk_placing:"Placing your order\u2026",
+    chk_closed_h:"Orders open on {date}", chk_closed_b:"We are not taking orders until then. You can still browse the shop and fill your basket — it will be waiting for you.",
     chk_signin:"Please sign in first, so we can keep your order.",
     chk_bad_name:"Please give the name we should ask for at the door.",
     chk_bad_phone:"Please give a Japanese mobile number, starting 070, 080 or 090.",
