@@ -1141,6 +1141,24 @@ export async function fetchOrders(){
   return data ?? [];
 }
 
+/**
+ * One order with its items, live or archived — what the panel fetches
+ * when the realtime feed says that order arrived or changed. Null when
+ * it is gone; undefined when the read itself failed.
+ */
+export async function fetchOrder(id){
+  const c = await db();
+  if (!c) return undefined;
+
+  const { data, error } = await c.from("orders")
+    .select("*, order_items(*)")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error){ console.warn("fetchOrder:", error.message); return undefined; }
+  return data;
+}
+
 /** Orders the owner archived, newest first. */
 export async function fetchArchivedOrders(){
   const c = await db();

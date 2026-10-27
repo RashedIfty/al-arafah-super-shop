@@ -34,6 +34,23 @@ export const setOrders = rows => { orders = rows || []; };
 
 export const setArchivedOrders = rows => { archived = rows || []; };
 export const allOrders = () => orders;
+export const allArchivedOrders = () => archived;
+
+/**
+ * Put one order, fresh from the database, where it belongs: the live
+ * list, the archive, or nowhere if it has been deleted. Each list keeps
+ * its own order — live by when placed, archived by when removed.
+ */
+function putOrder(id, row){
+  orders = orders.filter(o => String(o.id) !== String(id));
+  archived = archived.filter(o => String(o.id) !== String(id));
+  if (!row) return;
+
+  const list = row.archived_at ? archived : orders;
+  const key = row.archived_at ? "archived_at" : "placed_at";
+  const at = list.findIndex(o => String(o[key]) < String(row[key]));
+  list.splice(at === -1 ? list.length : at, 0, row);
+}
 
 /* ------------------------------ the chime ----------------------------- */
 
@@ -976,8 +993,28 @@ function wireFilters(){
  * An insert is the one that matters: the chime, the banner and the
  * badge. An update is usually this very panel's own doing, so it
  * refreshes quietly.
+ *
+ * Either way only that one order is fetched again. This used to reload
+ * the whole panel — every product, order and customer — for each event,
+ * and every status the owner moves an order through is an event of its
+ * own. On a busy day that alone would spend the database's monthly
+ * allowance in under a week. The full reload is kept for when the
+ * single read fails.
  */
-export async function watchOrders({ refresh }){
+export async function watchOrders({ refresh, changed }){
+  const latest = new Map();     // id → newest read asked for, so a slow
+                                // reply cannot overwrite a newer one
+  async function sync(id){
+    const n = (latest.get(id) ?? 0) + 1;
+    latest.set(id, n);
+    const row = await api.fetchOrder(id);
+    if (latest.get(id) !== n) return;
+    latest.delete(id);
+    if (row === undefined) return refresh();
+    putOrder(id, row);
+    changed?.();
+  }
+
   return api.subscribeOrders({
     onInsert: async row => {
       chime();
@@ -993,9 +1030,9 @@ export async function watchOrders({ refresh }){
       if (!ordersTabOpen()){ unseen++; paintBadge(); }
 
       // The payload has no items, so take the order whole from the server.
-      await refresh();
+      await sync(row.id);
     },
 
-    onChange: async () => { await refresh(); },
+    onChange: async row => { await sync(row.id); },
   });
 }

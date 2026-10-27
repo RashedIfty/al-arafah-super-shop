@@ -17,7 +17,7 @@ import { autoTranslate } from "./translate.js";
 import * as api from "../backend/client.js";
 import {
   setOrders, setArchivedOrders, setPhotos, setCustomerPhotos,
-  renderOrders, initOrders, watchOrders,
+  renderOrders, initOrders, watchOrders, allOrders, allArchivedOrders,
 } from "./orders.js";
 import { setRestock, renderRestock, initRestock } from "./restock.js";
 import { initFaces } from "./photos.js";
@@ -148,7 +148,14 @@ function startOrders(){
   initOrders({ toast, ask, refresh: reload });
   initRestock({ toast, ask, refresh: reload });
   initCustomers({ toast });
-  if (usingSupabase()) watchOrders({ refresh: reload });
+  if (usingSupabase()) watchOrders({ refresh: reload, changed: ordersChanged });
+}
+
+/** One order came in or moved: repaint what shows orders, nothing else. */
+function ordersChanged(){
+  setCustomerOrders([...allOrders(), ...allArchivedOrders()]);
+  renderOrders();
+  renderCustomers();
 }
 
 /** Pull fresh data after a write. */
