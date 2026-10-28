@@ -137,9 +137,10 @@ export function topbarHTML(){
       <div class="topbar-links">
         <!-- Delivery belongs on every page, not only the homepage: a
              customer deep in the catalogue is exactly who needs to know. -->
+        <!-- "Free delivery from ¥8,000" — withdrawn by the owner.
         <a class="topbar-dlv" href="index.html#delivery">
-          ${icon("box",{size:14})} ${esc(T.tb_dlv)}
-        </a>
+          \${icon("box",{size:14})} \${esc(T.tb_dlv)}
+        </a> -->
         <span>${icon("clock",{size:14})} ${esc(T.daily)} ${esc(SHOP.hours)}</span>
       </div>
     </div>`;

@@ -2,8 +2,9 @@
  * How the shop gets an order to you.
  *
  * Two things a customer wants to know, in this order: can I get it free,
- * and if not, what does it cost. So free delivery comes first and large,
- * and the carrier's table is below it, in full. It was behind a fold at
+ * and if not, what does it cost. Free delivery came first and large; the
+ * owner has withdrawn it for now, and the card is commented out below so
+ * it can come back. The carrier's table is below it, in full. It was behind a fold at
  * first; the owner wanted it open, and he is right — a price list nobody
  * clicks is a price list nobody reads.
  *
@@ -42,15 +43,17 @@ export function deliveryHTML(){
         </a>
       </div>
 
-      <!-- The two ways to pay nothing. -->
       <div class="dlv-free">
+        <!-- Free delivery within 10 km from ¥8,000 — withdrawn by the
+             owner, kept here in case it comes back.
         <div class="dlv-free-card">
-          <span class="dlv-free-ic">${icon("pin", { size: 22 })}</span>
-          <b>${esc(T.dlv_free)}</b>
-          <span class="dlv-free-where">${esc(T.dlv_local_where)}</span>
-          <strong>${yen(FREE.localFrom)}</strong>
-          <span class="dlv-free-min">${esc(T.dlv_min)}</span>
+          <span class="dlv-free-ic">\${icon("pin", { size: 22 })}</span>
+          <b>\${esc(T.dlv_free)}</b>
+          <span class="dlv-free-where">\${esc(T.dlv_local_where)}</span>
+          <strong>\${yen(FREE.localFrom)}</strong>
+          <span class="dlv-free-min">\${esc(T.dlv_min)}</span>
         </div>
+        -->
 
         <!-- Everywhere else there is no free threshold: the carrier
              charges by box and distance, and the shop agrees the figure
@@ -91,8 +94,10 @@ export function deliveryHTML(){
         <h2>${icon("pin", { size: 18 })} ${esc(T.dlv_local_h)}</h2>
         <p>${esc(T.dlv_local_1).replace("{km}", FREE.localKm)}</p>
         <ul class="dlv-list">
-          <li>${esc(T.dlv_local_free).replace("{amt}", yen(FREE.localFrom))}</li>
-          <li>${esc(T.dlv_local_under).replace("{amt}", yen(FREE.localFrom))}</li>
+          <!-- Free delivery withdrawn by the owner.
+          <li>\${esc(T.dlv_local_free).replace("{amt}", yen(FREE.localFrom))}</li>
+          <li>\${esc(T.dlv_local_under).replace("{amt}", yen(FREE.localFrom))}</li>
+          -->
           <li>${esc(T.dlv_local_when)}</li>
           <li>${esc(T.dlv_local_far)}</li>
         </ul>

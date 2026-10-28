@@ -495,7 +495,7 @@
    first thing anybody wants to know. Only the local one is a free-
    delivery promise; the nationwide one states the carrier rates. */
 [data-page="delivery"] .dlv-free{display:grid;gap:13px;margin-bottom:28px}
-@media(min-width:620px){ .dlv-free{grid-template-columns:1fr 1fr} }
+@media(min-width:620px){ .dlv-free{grid-template-columns:1fr 1fr} .dlv-free:has(> .dlv-free-card:only-child){grid-template-columns:1fr} }
 
 [data-page="delivery"] .dlv-free-card{
   text-align:center;background:#fff;

@@ -10,6 +10,7 @@
 .dlv{
   display:grid;gap:11px;grid-template-columns:1fr 1fr;
 }
+.dlv:has(> .dlv-card:only-child){grid-template-columns:1fr}
 
 .dlv-card{
   position:relative;background:#fff;
@@ -79,7 +80,7 @@
 @media(max-width:620px){
   .dlv{gap:9px}
   .dlv-card{padding:12px 11px 14px}
-  .dlv-card:first-child p{display:none}
+  .dlv-card:first-child:not(:only-child) p{display:none}
   .dlv-card p{font-size:11px;margin-bottom:7px}
   .dlv-card h3{font-size:12.5px;line-height:1.3}
   .dlv-amt{font-size:17px}

@@ -1720,6 +1720,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 .dlv{
   display:grid;gap:11px;grid-template-columns:1fr 1fr;
 }
+.dlv:has(> .dlv-card:only-child){grid-template-columns:1fr}
 
 .dlv-card{
   position:relative;background:#fff;
@@ -1789,7 +1790,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
 @media(max-width:620px){
   .dlv{gap:9px}
   .dlv-card{padding:12px 11px 14px}
-  .dlv-card:first-child p{display:none}
+  .dlv-card:first-child:not(:only-child) p{display:none}
   .dlv-card p{font-size:11px;margin-bottom:7px}
   .dlv-card h3{font-size:12.5px;line-height:1.3}
   .dlv-amt{font-size:17px}
@@ -2901,7 +2902,7 @@ body.ready .page-hide{visibility:visible;opacity:1;transition:opacity .28s ease}
    first thing anybody wants to know. Only the local one is a free-
    delivery promise; the nationwide one states the carrier rates. */
 [data-page="delivery"] .dlv-free{display:grid;gap:13px;margin-bottom:28px}
-@media(min-width:620px){ .dlv-free{grid-template-columns:1fr 1fr} }
+@media(min-width:620px){ .dlv-free{grid-template-columns:1fr 1fr} .dlv-free:has(> .dlv-free-card:only-child){grid-template-columns:1fr} }
 
 [data-page="delivery"] .dlv-free-card{
   text-align:center;background:#fff;

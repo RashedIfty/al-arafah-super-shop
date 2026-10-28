@@ -25,10 +25,12 @@ export const LINES = [
     bn: "১০০% হালাল — প্রতিটি পণ্য সার্টিফাইড সরবরাহকারীর কাছ থেকে",
     ja: "100% ハラール — 認証済みの仕入先から、すべての商品" },
 
+  /* Free delivery withdrawn by the owner — kept in case it comes back.
   { icon: "box",
     en: "Free delivery on orders over ¥8,000",
     bn: "৮,০০০ ইয়েনের বেশি অর্ডারে ফ্রি ডেলিভারি",
     ja: "8,000円以上のご注文で送料無料" },
+  */
 
   { icon: "star",
     en: "Fresh meat, fish and vegetables — in daily",
