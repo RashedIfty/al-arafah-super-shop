@@ -386,6 +386,12 @@ export function footerHTML(){
           ·
           <a href="https://creativecommons.org/licenses/by-sa/4.0/"
              target="_blank" rel="noopener">CC BY-SA</a>
+          ·
+          <!-- The Sona Masori rice product photo. -->
+          <a href="https://commons.wikimedia.org/wiki/File:Sona-masuri.jpg"
+             target="_blank" rel="noopener">Sanjay Acharya</a>
+          <a href="https://creativecommons.org/licenses/by-sa/3.0/"
+             target="_blank" rel="noopener">CC BY-SA 3.0</a>
         </p>
         <a href="admin.html" class="owner-link">${icon("lock",{size:14})} ${esc(T.owner_login)}</a>
       </div>

@@ -248,6 +248,12 @@ It will not appear here again. The shop keeps its own record of the sale.`,st_pe
           \xB7
           <a href="https://creativecommons.org/licenses/by-sa/4.0/"
              target="_blank" rel="noopener">CC BY-SA</a>
+          \xB7
+          <!-- The Sona Masori rice product photo. -->
+          <a href="https://commons.wikimedia.org/wiki/File:Sona-masuri.jpg"
+             target="_blank" rel="noopener">Sanjay Acharya</a>
+          <a href="https://creativecommons.org/licenses/by-sa/3.0/"
+             target="_blank" rel="noopener">CC BY-SA 3.0</a>
         </p>
         <a href="admin.html" class="owner-link">${v("lock",{size:14})} ${l(t.owner_login)}</a>
       </div>
