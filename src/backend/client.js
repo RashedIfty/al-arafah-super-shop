@@ -42,6 +42,24 @@ const tabStorage = {
   removeItem: (k) => { try { sessionStorage.removeItem(k); } catch { /* private mode */ } },
 };
 
+/**
+ * The owner's panel is the exception to both rules above.
+ *
+ * He runs the shop from his own browser and was being signed out every
+ * time he closed the tab or left it for a quarter of an hour, in the
+ * middle of a day of orders. So on the panel the session is kept in
+ * localStorage and the idle clock does not run: signed in stays signed
+ * in until he presses Logout. The shop's pages keep the stricter rules.
+ */
+const onOwnerPanel = () =>
+  typeof document !== "undefined" && document.body?.dataset.page === "admin";
+
+const keptStorage = {
+  getItem: (k) => { try { return localStorage.getItem(k); } catch { return null; } },
+  setItem: (k, v) => { try { localStorage.setItem(k, v); } catch { /* private mode */ } },
+  removeItem: (k) => { try { localStorage.removeItem(k); } catch { /* private mode */ } },
+};
+
 export async function db(){
   if (!isConfigured()) return null;
   if (client) return client;
@@ -49,9 +67,10 @@ export async function db(){
   const { createClient } = await import(
     "https://esm.sh/@supabase/supabase-js@2");
 
+  const owner = onOwnerPanel();
   client = createClient(SUPABASE.URL, SUPABASE.KEY, {
     auth: {
-      storage: tabStorage,
+      storage: owner ? keptStorage : tabStorage,
       persistSession: true,
       autoRefreshToken: true,
       /* The password-reset link carries its session in the address bar,
@@ -63,7 +82,7 @@ export async function db(){
     },
   });
 
-  startIdleWatch();
+  if (!owner) startIdleWatch();
   return client;
 }
 
